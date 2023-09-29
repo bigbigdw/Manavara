@@ -16,6 +16,10 @@ import com.bigbigdw.manavara.main.screen.ScreenSplash
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
 
@@ -77,15 +81,7 @@ class ActivitySpalsh : ComponentActivity() {
         auth = Firebase.auth
         currentUser = auth.currentUser
 
-        if(currentUser != null){
-            val intent = Intent(this@ActivitySpalsh, ActivityMain::class.java)
-            startActivity(intent)
-            finish()
-        } else {
-            val intent = Intent(this@ActivitySpalsh, ActivityLogin::class.java)
-            startActivity(intent)
-            finish()
-        }
+        checkUserExist(user = currentUser)
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -97,5 +93,26 @@ class ActivitySpalsh : ComponentActivity() {
         } else {
             requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
+    }
+
+    private fun checkUserExist(user: FirebaseUser?){
+        val mRootRef = FirebaseDatabase.getInstance().reference.child("USER").child(user?.uid ?: "")
+
+        mRootRef.addListenerForSingleValueEvent(object :
+            ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if(dataSnapshot.exists()){
+                    val intent = Intent(this@ActivitySpalsh, ActivityMain::class.java)
+                    startActivity(intent)
+                    finish()
+                } else {
+                    val intent = Intent(this@ActivitySpalsh, ActivityLogin::class.java)
+                    startActivity(intent)
+                    finish()
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {}
+        })
     }
 }

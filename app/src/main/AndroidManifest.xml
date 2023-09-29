@@ -26,6 +26,12 @@
         </activity>
 
         <activity
+            android:name=".main.ActivityRegister"
+            android:exported="true"
+            android:theme="@style/Theme.Manavara">
+        </activity>
+
+        <activity
             android:name=".main.ActivitySpalsh"
             android:exported="true"
             android:theme="@style/Theme.Manavara">

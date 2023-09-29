@@ -11,8 +11,11 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.lifecycle.lifecycleScope
 import com.bigbigdw.manavara.R
+import com.bigbigdw.manavara.main.screen.BackOnPressed
 import com.bigbigdw.manavara.main.screen.ScreenLogin
 import com.bigbigdw.manavara.main.viewModels.ViewModelLogin
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
@@ -34,6 +37,7 @@ class ActivityLogin : ComponentActivity() {
 
     private lateinit var auth: FirebaseAuth
 
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -50,32 +54,38 @@ class ActivityLogin : ComponentActivity() {
                     .setSupported(true)
                     .setServerClientId(getString(R.string.default_web_client_id))
                     .setFilterByAuthorizedAccounts(false)
-                    .build())
+                    .build()
+            )
             .setAutoSelectEnabled(true)
             .build()
 
         setContent {
-            ScreenLogin(doLogin = {doLogin()})
+            val widthSizeClass = calculateWindowSizeClass(this).widthSizeClass
+            ScreenLogin(doLogin = { doLogin() }, widthSizeClass = widthSizeClass, viewModelLogin = viewModelLogin)
+            BackOnPressed()
         }
 
         storagePermissionLauncher = registerForActivityResult(
             ActivityResultContracts.StartIntentSenderForResult()
         ) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                viewModelLogin.loginResult(activity = this@ActivityLogin, oneTapClient = oneTapClient, data = result.data)
+                viewModelLogin.loginResult(
+                    activity = this@ActivityLogin,
+                    oneTapClient = oneTapClient,
+                    data = result.data
+                )
             } else {
                 Log.d("ActivityLogin", "로그인 실패")
             }
         }
     }
 
-    private fun doLogin(){
+    private fun doLogin() {
         oneTapClient.beginSignIn(signInRequest)
             .addOnSuccessListener(this) { result ->
                 try {
                     storagePermissionLauncher?.launch(
-                        IntentSenderRequest.Builder(result.pendingIntent.intentSender)
-                            .build()
+                        IntentSenderRequest.Builder(result.pendingIntent.intentSender).build()
                     )
                 } catch (e: IntentSender.SendIntentException) {
                     Log.e("ActivityLogin", "Couldn't start One Tap UI: ${e.localizedMessage}")
