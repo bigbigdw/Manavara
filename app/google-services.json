@@ -1,0 +1,93 @@
+{
+  "project_info": {
+    "project_number": "72037891846",
+    "firebase_url": "https://manavara-eac68-default-rtdb.firebaseio.com",
+    "project_id": "manavara-eac68",
+    "storage_bucket": "buckets/manavara-eac68.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:72037891846:android:aeded363351bcbe2112887",
+        "android_client_info": {
+          "package_name": "com.bigbigdw.manavara"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "72037891846-1uet3l21u8tvampjnp5d61vhfdfqf7gt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bigbigdw.manavara",
+            "certificate_hash": "0c41340d074d49b24a12184675fddd72b3270939"
+          }
+        },
+        {
+          "client_id": "72037891846-bou6u5lu40mgitmcuaphsfhfkqbqe0rh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDpYfr8XkgP6yF70CMlLBCE0YlwmJxTbO4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "72037891846-bou6u5lu40mgitmcuaphsfhfkqbqe0rh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:72037891846:android:b52add1335c234ed112887",
+        "android_client_info": {
+          "package_name": "com.bigbigdw.manavarasetting"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "72037891846-bdths58h69tjdojm35idt9j7vltr5n4k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bigbigdw.manavarasetting",
+            "certificate_hash": "0c41340d074d49b24a12184675fddd72b3270939"
+          }
+        },
+        {
+          "client_id": "72037891846-ukt8emjrmt79k3p8eafhfb3t6hfhvmlo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bigbigdw.manavarasetting",
+            "certificate_hash": "9bc58352ab0973c37d99afba825d7c16438bdcbb"
+          }
+        },
+        {
+          "client_id": "72037891846-bou6u5lu40mgitmcuaphsfhfkqbqe0rh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDpYfr8XkgP6yF70CMlLBCE0YlwmJxTbO4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "72037891846-bou6u5lu40mgitmcuaphsfhfkqbqe0rh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

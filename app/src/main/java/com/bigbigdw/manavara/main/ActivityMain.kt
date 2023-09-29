@@ -1,4 +1,4 @@
-package com.bigbigdw.manavara
+package com.bigbigdw.manavara.main
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.bigbigdw.manavara.ui.theme.ManavaraTheme
 
-class MainActivity : ComponentActivity() {
+class ActivityMain : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
