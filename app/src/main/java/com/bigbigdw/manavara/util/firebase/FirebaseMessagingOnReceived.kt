@@ -1,4 +1,4 @@
-package com.bigbigdw.manavara.main.firebase
+package com.bigbigdw.manavara.util.firebase
 
 import android.app.NotificationChannel
 import android.app.NotificationManager

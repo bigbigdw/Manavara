@@ -15,7 +15,7 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.lifecycle.lifecycleScope
 import com.bigbigdw.manavara.R
-import com.bigbigdw.manavara.main.screen.BackOnPressed
+import com.bigbigdw.manavara.util.screen.BackOnPressed
 import com.bigbigdw.manavara.main.screen.ScreenLogin
 import com.bigbigdw.manavara.main.viewModels.ViewModelLogin
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
