@@ -5,10 +5,5 @@ data class UserInfo (
     var userEmail: String = "",
     var userFcmToken : String = "",
     var userUID : String = "",
-)
-
-data class DataFCMBodyNotification(
-    var title: String = "",
-    var body: String = "",
-    var click_action : String = "",
+    var viewMode : String = "",
 )

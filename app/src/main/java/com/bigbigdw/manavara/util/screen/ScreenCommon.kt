@@ -3,7 +3,9 @@ package com.bigbigdw.manavara.util.screen
 import android.app.Activity
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +18,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -33,12 +37,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
@@ -116,7 +126,7 @@ fun ScreenTabletWrap(title: String, contents: @Composable () -> Unit) {
 }
 
 @Composable
-fun ItemTabletTitle(str : String){
+fun ItemTabletTitle(str: String) {
     Spacer(modifier = Modifier.size(16.dp))
 
     Text(
@@ -129,7 +139,7 @@ fun ItemTabletTitle(str : String){
 }
 
 @Composable
-fun TabletContentWrap(radius : Int = 20, content: @Composable () -> Unit){
+fun TabletContentWrap(radius: Int = 20, content: @Composable () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxSize(),
@@ -182,17 +192,17 @@ fun ItemMainTabletContent(
     title: String,
     value: String = "",
     isLast: Boolean,
-    onClick : () -> Unit = {}
+    onClick: () -> Unit = {}
 ) {
 
     Column {
         Button(
             colors = ButtonDefaults.buttonColors(containerColor = Color.White),
             contentPadding = PaddingValues(
-                start = 12.dp,
+                start = 0.dp,
                 top = 6.dp,
-                end = 12.dp,
-                bottom = 6.dp,
+                end = 6.dp,
+                bottom = 0.dp,
             ),
             onClick = { onClick() },
             content = {
@@ -219,13 +229,242 @@ fun ItemMainTabletContent(
                 }
             })
 
-        if(!isLast){
+        if (!isLast) {
             Spacer(modifier = Modifier.size(2.dp))
-            Spacer(modifier = Modifier
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(color = colorE9E9E9))
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(color = colorE9E9E9)
+            )
             Spacer(modifier = Modifier.size(2.dp))
         }
     }
+}
+
+@Composable
+fun AlertTwoBtn(
+    isShow: () -> Unit,
+    onFetchClick: () -> Unit,
+    btnLeft: String,
+    btnRight: String,
+    contents: @Composable () -> Unit
+) {
+
+    Box(
+        modifier = Modifier
+            .clickable { isShow() },
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .width(260.dp),
+        ) {
+            Column(
+                modifier = Modifier
+                    .width(260.dp)
+                    .wrapContentHeight(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(36.dp)
+                )
+
+                Card(
+                    modifier = Modifier
+                        .wrapContentSize(),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    shape = RoundedCornerShape(10.dp, 10.dp, 10.dp, 10.dp)
+                ) {
+
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(40.dp)
+                    )
+
+                    Column(
+                        modifier = Modifier
+                            .semantics { contentDescription = "Overview Screen" },
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.Start
+                    ) {
+
+                        contents()
+
+                        Row(
+                            Modifier
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Button(
+                                colors = ButtonDefaults.buttonColors(containerColor = colorF6F6F6),
+
+                                onClick = { isShow() },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(48.dp),
+                                shape = RoundedCornerShape(0.dp, 0.dp, 0.dp, 10.dp)
+
+                            ) {
+                                Text(
+                                    text = btnLeft,
+                                    textAlign = TextAlign.Center,
+                                    color = color000000,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+
+                            Button(
+                                colors = ButtonDefaults.buttonColors(containerColor = color20459E),
+                                onClick = {
+                                    onFetchClick()
+                                    isShow()
+                                },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(48.dp),
+                                shape = RoundedCornerShape(0.dp, 0.dp, 10.dp, 0.dp)
+
+                            ) {
+                                Text(
+                                    text = btnRight,
+                                    textAlign = TextAlign.Center,
+                                    color = Color.White,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            Column(
+                modifier = Modifier.width(260.dp),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_launcher),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .height(70.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun AlertOneBtn(
+    isShow: () -> Unit,
+    btnText: String,
+    contents: @Composable () -> Unit
+) {
+
+    Box(
+        modifier = Modifier
+            .clickable { isShow() },
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .width(260.dp),
+        ) {
+            Column(
+                modifier = Modifier
+                    .width(260.dp)
+                    .wrapContentHeight(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(36.dp)
+                )
+
+                Card(
+                    modifier = Modifier
+                        .wrapContentSize(),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    shape = RoundedCornerShape(10.dp, 10.dp, 10.dp, 10.dp)
+                ) {
+
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(72.dp)
+                    )
+
+                    Column(
+                        modifier = Modifier
+                            .semantics { contentDescription = "Overview Screen" },
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.Start
+                    ) {
+
+                        Spacer(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp)
+                        )
+
+                        contents()
+
+                        Button(
+                            colors = ButtonDefaults.buttonColors(containerColor = color20459E),
+                            onClick = { isShow() },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp),
+                            shape = RoundedCornerShape(0.dp, 0.dp, 10.dp, 10.dp)
+
+                        ) {
+                            Text(
+                                text = btnText,
+                                textAlign = TextAlign.Center,
+                                color = Color.White,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+            }
+
+            Column(
+                modifier = Modifier.width(260.dp),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_launcher),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .height(70.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun spannableString(textFront: String, color: Color, textEnd: String): AnnotatedString {
+    val annotatedString = buildAnnotatedString {
+        withStyle(style = SpanStyle(color = color, fontWeight = FontWeight(weight = 500))) {
+            append(textFront)
+        }
+        append(textEnd)
+    }
+
+    return annotatedString
 }

@@ -2,14 +2,15 @@ package com.bigbigdw.manavara.main.viewModels
 
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bigbigdw.manavara.main.ActivityMain
 import com.bigbigdw.manavara.main.ActivityRegister
 import com.bigbigdw.manavara.main.events.EventLogin
 import com.bigbigdw.manavara.main.events.StateLogin
+import com.bigbigdw.manavara.main.models.UserInfo
 import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -57,6 +58,14 @@ class ViewModelLogin @Inject constructor() : ViewModel() {
 
             is EventLogin.SetIsExpandedScreen -> {
                 current.copy(isExpandedScreen = event.isExpandedScreen)
+            }
+
+            is EventLogin.SetPlatformRange -> {
+                current.copy(platformRange = event.platformRange)
+            }
+
+            is EventLogin.SetIsRegisterConfirm -> {
+                current.copy(isRegisterConfirm = event.isRegisterConfirm)
             }
 
             else -> {
@@ -140,11 +149,67 @@ class ViewModelLogin @Inject constructor() : ViewModel() {
         })
     }
 
+    fun doRegister(getUserInfo: UserInfo, getRange: SnapshotStateList<String>) {
+
+        viewModelScope.launch {
+            events.send(
+                EventLogin.SetUserInfo(state.value.userInfo.copy(userNickName = getUserInfo.userNickName, viewMode = getUserInfo.viewMode))
+            )
+
+            events.send(
+                EventLogin.SetPlatformRange(getRange)
+            )
+        }
+
+        if(state.value.userInfo.userNickName.isEmpty()){
+            viewModelScope.launch {
+                _sideEffects.send("닉네임을 입력해주세요")
+            }
+        } else if(state.value.userInfo.viewMode.isEmpty()){
+            viewModelScope.launch {
+                _sideEffects.send("웹툰 / 웹소설 모드를 선택해 주세요.")
+            }
+        } else if(state.value.platformRange.isEmpty()){
+            viewModelScope.launch {
+                _sideEffects.send("플랫폼을 선택해 주세요.")
+            }
+        } else {
+            viewModelScope.launch {
+                events.send(
+                    EventLogin.SetIsRegisterConfirm(true)
+                )
+            }
+        }
+    }
+
+    fun setIsRegisterConfirm(bool: Boolean){
+        viewModelScope.launch {
+            events.send(
+                EventLogin.SetIsRegisterConfirm(bool)
+            )
+        }
+    }
+
     fun isExpandedScreen(bool : Boolean){
         viewModelScope.launch {
             events.send(
                 EventLogin.SetIsExpandedScreen(isExpandedScreen = bool)
             )
+        }
+    }
+
+    fun finishRegister(activity: ComponentActivity){
+        val mRootRef = FirebaseDatabase.getInstance().reference
+
+        mRootRef.child("USER").child(state.value.userInfo.userUID).child("USERINFO").setValue(state.value.userInfo)
+        mRootRef.child("USER").child(state.value.userInfo.userUID).child("PLATFORM").setValue(state.value.platformRange)
+
+        val intent = Intent(activity, ActivityMain::class.java)
+        activity.startActivity(intent)
+        activity.finish()
+
+        viewModelScope.launch {
+            _sideEffects.send("가입이 완료되었습니다.")
         }
     }
 }

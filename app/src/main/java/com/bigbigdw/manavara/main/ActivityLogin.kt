@@ -61,7 +61,12 @@ class ActivityLogin : ComponentActivity() {
 
         setContent {
             val widthSizeClass = calculateWindowSizeClass(this).widthSizeClass
-            ScreenLogin(doLogin = { doLogin() }, widthSizeClass = widthSizeClass, viewModelLogin = viewModelLogin)
+            ScreenLogin(
+                doLogin = { doLogin() },
+                widthSizeClass = widthSizeClass,
+                viewModelLogin = viewModelLogin,
+                activity = this@ActivityLogin
+            )
             BackOnPressed()
         }
 
