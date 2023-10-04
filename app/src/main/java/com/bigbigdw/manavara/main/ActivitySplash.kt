@@ -112,6 +112,8 @@ class ActivitySplash : ComponentActivity() {
 
         auth = Firebase.auth
         currentUser = auth.currentUser
+
+        checkUserExist(user = currentUser)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -140,15 +142,22 @@ class ActivitySplash : ComponentActivity() {
 
             dataStore.getDataStoreString(DataStoreManager.UID).collect { value ->
 
-                if (value != null) {
-                    val intent = Intent(this@ActivitySplash, ActivityMain::class.java)
-                    startActivity(intent)
-                    finish()
-                } else {
+                if (value.isNullOrEmpty()) {
                     auth = Firebase.auth
                     currentUser = auth.currentUser
 
-                    checkUserExist(user = currentUser)
+                    if(currentUser == null){
+                        val intent = Intent(this@ActivitySplash, ActivityLogin::class.java)
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        checkUserExist(user = currentUser)
+                    }
+
+                } else {
+                    val intent = Intent(this@ActivitySplash, ActivityMain::class.java)
+                    startActivity(intent)
+                    finish()
                 }
             }
         }
@@ -171,9 +180,10 @@ class ActivitySplash : ComponentActivity() {
         mRootRef.addListenerForSingleValueEvent(object :
             ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                if(dataSnapshot.exists()){
 
-                    val dataStore = DataStoreManager(this@ActivitySplash)
+                val dataStore = DataStoreManager(this@ActivitySplash)
+
+                if(dataSnapshot.exists()){
 
                     CoroutineScope(Dispatchers.IO).launch {
                         dataStore.setDataStoreString(DataStoreManager.UID, user?.uid ?: "")
@@ -181,9 +191,13 @@ class ActivitySplash : ComponentActivity() {
                     }
 
                 } else {
-                    val intent = Intent(this@ActivitySplash, ActivityLogin::class.java)
-                    startActivity(intent)
-                    finish()
+                    CoroutineScope(Dispatchers.IO).launch {
+                        dataStore.setDataStoreString(DataStoreManager.UID, "")
+                        val intent = Intent(this@ActivitySplash, ActivityLogin::class.java)
+                        startActivity(intent)
+                        finish()
+                    }
+
                 }
             }
 

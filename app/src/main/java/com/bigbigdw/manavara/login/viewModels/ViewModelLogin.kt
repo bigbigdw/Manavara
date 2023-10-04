@@ -212,6 +212,14 @@ class ViewModelLogin @Inject constructor() : ViewModel() {
             platformRange.add(changePlatformNameEng(item))
         }
 
+        val viewMode = state.value.userInfo.viewMode
+
+        if(viewMode == "웹소설"){
+            state.value.userInfo.viewMode = "NOVEL"
+        } else {
+            state.value.userInfo.viewMode = "COMIC"
+        }
+
         mRootRef.child("USER").child(state.value.userInfo.userUID).child("USERINFO").setValue(state.value.userInfo)
         mRootRef.child("USER").child(state.value.userInfo.userUID).child("PLATFORM").setValue(platformRange)
 

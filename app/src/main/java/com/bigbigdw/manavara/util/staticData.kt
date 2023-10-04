@@ -55,3 +55,41 @@ fun changePlatformNameEng(platform : String) : String {
         }
     }
 }
+
+fun changePlatformNameKor(platform : String) : String {
+    return when (platform) {
+        "JOARA" -> {
+            "조아라"
+        }
+        "JOARA_NOBLESS" -> {
+            "노블레스"
+        }
+        "JOARA_PREMIUM" -> {
+            "프리미엄"
+        }
+        "CHALLENGE_LEAGUE" -> {
+            "챌린지리그"
+        }
+        "BEST_LEAGUE" -> {
+            "베스트리그"
+        }
+        "NAVER_SERIES" -> {
+            "네이버시리즈"
+        }
+        "KAKAO_STAGE" -> {
+            "스테이지"
+        }
+        "ONESTORY" -> {
+            "원스토리"
+        }
+        "MUNPIA" -> {
+            "문피아"
+        }
+        "TOKSODA" -> {
+            "톡소다"
+        }
+        else -> {
+            "없음"
+        }
+    }
+}

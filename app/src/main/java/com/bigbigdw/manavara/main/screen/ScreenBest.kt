@@ -1,4 +1,4 @@
-package com.bigbigdw.manavara.login.screen
+package com.bigbigdw.manavara.main.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -32,7 +32,9 @@ import com.bigbigdw.manavara.ui.theme.color52A9FF
 import com.bigbigdw.manavara.ui.theme.color5372DE
 import com.bigbigdw.manavara.ui.theme.color8F8F8F
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
-import com.bigbigdw.manavara.util.novelKor
+import com.bigbigdw.manavara.util.DBDate
+import com.bigbigdw.manavara.util.changePlatformNameEng
+import com.bigbigdw.manavara.util.screen.ItemMainSettingSingle
 import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
 import com.bigbigdw.manavara.util.screen.ScreenTest
 import com.bigbigdw.manavara.util.screen.TabletBorderLine
@@ -43,6 +45,8 @@ fun ScreenBest(
     viewModelBest: ViewModelBest,
     viewModelMain: ViewModelMain
 ) {
+
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -108,47 +112,59 @@ fun ScreenBestTabletList(
             fontWeight = FontWeight(weight = 700)
         )
 
-        ItemMainSettingSingleTablet(
+        ItemMainSettingSingle(
             containerColor = color8F8F8F,
             image = R.drawable.icon_setting_wht,
             title = "유저 옵션",
             body = "장르 선택, 뷰 모드 포함 유저 설정 전반",
             setMenu = setMenu,
             getMenu = getMenu,
-            onClick = { onClick() }
+            onClick = { onClick() },
+            bestType = "투데이"
         )
 
-        ItemMainSettingSingleTablet(
+        ItemMainSettingSingle(
             containerColor = color8F8F8F,
             image = R.drawable.icon_setting_wht,
             title = "작품 검색",
             body = "플랫폼과 무관하게 작품 검색 진행",
             setMenu = setMenu,
             getMenu = getMenu,
-            onClick = { onClick() }
+            onClick = { onClick() },
+            bestType = "투데이"
         )
 
         TabletBorderLine()
 
-        ItemMainSettingSingleTablet(
+        ItemMainSettingSingle(
             containerColor = color52A9FF,
             image = R.drawable.icon_best_wht,
             title = "투데이 베스트",
             body = "투데이 베스트 관련 옵션 진행",
             setMenu = setMenu,
             getMenu = getMenu,
-            onClick = { onClick() }
+            onClick = { onClick() },
+            bestType = "투데이"
         )
 
         mainState.platformRange.forEachIndexed{ index, item ->
-            ItemMainSettingSingleTablet(
+            ItemMainSettingSingle(
                 containerColor = color52A9FF,
                 image = R.drawable.icon_best_wht,
                 title = item,
                 body = "투데이 베스트 관련 옵션 진행",
+                bestType = "투데이",
                 setMenu = setMenu,
                 getMenu = getMenu,
-                onClick = { onClick() }
+                onClick = {
+
+                    viewModelBest.getBestJsonList(
+                        platform = changePlatformNameEng(item),
+                        genre = "ALL",
+                        type = mainState.userInfo.viewMode,
+                        date = DBDate.dateYesterdayMMDD()
+                    )
+                }
             )
         }
 
@@ -161,7 +177,7 @@ fun ScreenBestTabletList(
             body = "주간 베스트 관련 옵션 진행",
             setMenu = setMenu,
             getMenu = getMenu,
-            onClick = { onClick() }
+            onClick = { onClick() },
         )
 
         TabletBorderLine()
@@ -173,7 +189,7 @@ fun ScreenBestTabletList(
             body = "월간 베스트 관련 옵션 진행",
             setMenu = setMenu,
             getMenu = getMenu,
-            onClick = { onClick() }
+            onClick = { onClick() },
         )
     }
 }
