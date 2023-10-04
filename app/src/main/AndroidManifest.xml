@@ -32,7 +32,7 @@
         </activity>
 
         <activity
-            android:name=".main.ActivitySpalsh"
+            android:name=".main.ActivitySplash"
             android:exported="true"
             android:theme="@style/Theme.Manavara">
             <intent-filter>

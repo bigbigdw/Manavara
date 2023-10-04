@@ -14,7 +14,7 @@ class DataStoreManager(private val context: Context) {
     companion object {
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("MANAVARASETTING")
 
-        val FCM_TOKEN = stringPreferencesKey("FCM_TOKEN")
+        val UID = stringPreferencesKey("UID")
 
     }
 

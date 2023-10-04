@@ -71,7 +71,7 @@ class ViewModelMain @Inject constructor() : ViewModel() {
                 if(dataSnapshot.exists()){
 
                     for(item in dataSnapshot.children){
-                        val platform: String? = dataSnapshot.getValue(String::class.java)
+                        val platform: String? = item.getValue(String::class.java)
                         if (platform != null) {
                             platformArray.add(platform)
                         }
