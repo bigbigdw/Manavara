@@ -1,4 +1,4 @@
-package com.bigbigdw.manavara.main.viewModels
+package com.bigbigdw.manavara.login.viewModels
 
 import android.content.Intent
 import android.util.Log
@@ -7,9 +7,9 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bigbigdw.manavara.main.ActivityMain
-import com.bigbigdw.manavara.main.ActivityRegister
-import com.bigbigdw.manavara.main.events.EventLogin
-import com.bigbigdw.manavara.main.events.StateLogin
+import com.bigbigdw.manavara.login.ActivityRegister
+import com.bigbigdw.manavara.login.events.EventLogin
+import com.bigbigdw.manavara.login.events.StateLogin
 import com.bigbigdw.manavara.main.models.UserInfo
 import com.bigbigdw.manavara.util.changePlatformNameEng
 import com.google.android.gms.auth.api.identity.SignInClient

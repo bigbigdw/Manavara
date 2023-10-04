@@ -1,4 +1,4 @@
-package com.bigbigdw.manavara.main
+package com.bigbigdw.manavara.login
 
 import android.app.Activity
 import android.content.IntentSender
@@ -16,8 +16,8 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.lifecycle.lifecycleScope
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.util.screen.BackOnPressed
-import com.bigbigdw.manavara.main.screen.ScreenLogin
-import com.bigbigdw.manavara.main.viewModels.ViewModelLogin
+import com.bigbigdw.manavara.login.screen.ScreenLogin
+import com.bigbigdw.manavara.login.viewModels.ViewModelLogin
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient

@@ -1,4 +1,4 @@
-package com.bigbigdw.manavara.main.events
+package com.bigbigdw.manavara.login.events
 
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.bigbigdw.manavara.main.models.UserInfo

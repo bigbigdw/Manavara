@@ -1,4 +1,4 @@
-package com.bigbigdw.manavara.main.screen
+package com.bigbigdw.manavara.login.screen
 
 import android.annotation.SuppressLint
 import androidx.activity.ComponentActivity
@@ -46,9 +46,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.bigbigdw.manavara.R
-import com.bigbigdw.manavara.main.events.StateLogin
+import com.bigbigdw.manavara.login.events.StateLogin
 import com.bigbigdw.manavara.main.models.UserInfo
-import com.bigbigdw.manavara.main.viewModels.ViewModelLogin
+import com.bigbigdw.manavara.login.viewModels.ViewModelLogin
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color1CE3EE
 import com.bigbigdw.manavara.ui.theme.color20459E
@@ -63,7 +63,6 @@ import com.bigbigdw.manavara.util.screen.BtnMobile
 import com.bigbigdw.manavara.util.screen.ItemTabletTitle
 import com.bigbigdw.manavara.util.screen.MainHeader
 import com.bigbigdw.manavara.util.screen.ScreenTabletWrap
-import com.bigbigdw.manavara.util.screen.ScreenTest
 import com.bigbigdw.manavara.util.screen.TabletContentWrap
 import com.bigbigdw.manavara.util.screen.spannableString
 

@@ -12,7 +12,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
-import com.bigbigdw.manavara.main.screen.ScreenSplash
+import com.bigbigdw.manavara.login.ActivityLogin
+import com.bigbigdw.manavara.login.screen.ScreenSplash
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth

@@ -20,13 +20,13 @@
         </activity>
 
         <activity
-            android:name=".main.ActivityLogin"
+            android:name=".login.ActivityLogin"
             android:exported="true"
             android:theme="@style/Theme.Manavara">
         </activity>
 
         <activity
-            android:name=".main.ActivityRegister"
+            android:name=".login.ActivityRegister"
             android:exported="true"
             android:theme="@style/Theme.Manavara">
         </activity>

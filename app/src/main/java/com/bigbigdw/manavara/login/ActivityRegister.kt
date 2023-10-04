@@ -1,4 +1,4 @@
-package com.bigbigdw.manavara.main
+package com.bigbigdw.manavara.login
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -9,8 +9,8 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.lifecycle.lifecycleScope
-import com.bigbigdw.manavara.main.screen.ScreenRegisterMobile
-import com.bigbigdw.manavara.main.viewModels.ViewModelLogin
+import com.bigbigdw.manavara.login.screen.ScreenRegisterMobile
+import com.bigbigdw.manavara.login.viewModels.ViewModelLogin
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
