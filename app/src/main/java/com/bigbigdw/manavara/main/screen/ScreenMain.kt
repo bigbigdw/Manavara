@@ -26,7 +26,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,8 +34,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.work.WorkManager
 import com.bigbigdw.manavara.R
+import com.bigbigdw.manavara.login.screen.ScreenBest
+import com.bigbigdw.manavara.main.viewModels.ViewModelBest
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.ui.theme.color1E1E20
 import com.bigbigdw.manavara.ui.theme.color1E4394
@@ -47,7 +47,8 @@ import com.bigbigdw.manavara.util.screen.ScreenTest
 @Composable
 fun ScreenMain(
     viewModelMain: ViewModelMain,
-    widthSizeClass: WindowWidthSizeClass
+    widthSizeClass: WindowWidthSizeClass,
+    viewModelBest: ViewModelBest
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -55,26 +56,23 @@ fun ScreenMain(
 
     val isExpandedScreen = widthSizeClass == WindowWidthSizeClass.Expanded
 
-//    if(isExpandedScreen){
-//        WindowCompat.setDecorFitsSystemWindows(window, false)
-//    }
-
-    val context = LocalContext.current
-    val workManager = WorkManager.getInstance(context)
+    viewModelMain.setUserInfo()
+    viewModelMain.setPlatformRange()
 
     if(!isExpandedScreen){
         ScreenMainMobile(
             navController = navController,
             currentRoute = currentRoute,
             viewModelMain = viewModelMain,
+            viewModelBest = viewModelBest,
             isExpandedScreen = isExpandedScreen
         )
     } else {
         ScreenMainTablet(
-            navController = navController,
             currentRoute = currentRoute,
-            workManager = workManager,
+            navController = navController,
             viewModelMain = viewModelMain,
+            viewModelBest = viewModelBest,
             isExpandedScreen = isExpandedScreen
         )
     }
@@ -82,17 +80,18 @@ fun ScreenMain(
 
 @Composable
 fun ScreenMainTablet(
-    currentRoute : String?,
+    currentRoute: String?,
     navController: NavHostController,
-    workManager: WorkManager,
     viewModelMain: ViewModelMain,
-    isExpandedScreen: Boolean
+    isExpandedScreen: Boolean,
+    viewModelBest: ViewModelBest
 ) {
     Row{
         TableAppNavRail(currentRoute = currentRoute ?: "", navController = navController)
         NavigationGraph(
             navController = navController,
             viewModelMain = viewModelMain,
+            viewModelBest = viewModelBest,
             isExpandedScreen = isExpandedScreen
         )
     }
@@ -104,7 +103,8 @@ fun ScreenMainMobile(
     navController: NavHostController,
     currentRoute: String?,
     viewModelMain: ViewModelMain,
-    isExpandedScreen: Boolean
+    isExpandedScreen: Boolean,
+    viewModelBest: ViewModelBest
 ){
 
     val modalSheetState = rememberModalBottomSheetState(
@@ -126,7 +126,8 @@ fun ScreenMainMobile(
             NavigationGraph(
                 navController = navController,
                 viewModelMain = viewModelMain,
-                isExpandedScreen = isExpandedScreen
+                isExpandedScreen = isExpandedScreen,
+                viewModelBest = viewModelBest
             )
         }
     }
@@ -147,9 +148,9 @@ fun ScreenMainMobile(
 @Composable
 fun BottomNavScreen(navController: NavHostController, currentRoute: String?) {
     val items = listOf(
+        ScreemBottomItem.BEST,
         ScreemBottomItem.SETTING,
         ScreemBottomItem.FCM,
-        ScreemBottomItem.BEST,
         ScreemBottomItem.JSON,
         ScreemBottomItem.TROPHY,
     )
@@ -203,20 +204,21 @@ fun BottomNavScreen(navController: NavHostController, currentRoute: String?) {
 fun NavigationGraph(
     navController: NavHostController,
     viewModelMain: ViewModelMain,
-    isExpandedScreen: Boolean
+    isExpandedScreen: Boolean,
+    viewModelBest: ViewModelBest
 ) {
 
     NavHost(
         navController = navController,
-        startDestination = ScreemBottomItem.SETTING.screenRoute
+        startDestination = ScreemBottomItem.BEST.screenRoute
     ) {
+        composable(ScreemBottomItem.BEST.screenRoute) {
+            ScreenBest(isExpandedScreen = isExpandedScreen, viewModelBest = viewModelBest, viewModelMain = viewModelMain)
+        }
         composable(ScreemBottomItem.SETTING.screenRoute) {
             ScreenTest()
         }
         composable(ScreemBottomItem.FCM.screenRoute) {
-            ScreenTest()
-        }
-        composable(ScreemBottomItem.BEST.screenRoute) {
             ScreenTest()
         }
         composable(ScreemBottomItem.JSON.screenRoute) {
@@ -235,9 +237,9 @@ fun TableAppNavRail(
 ) {
 
     val items = listOf(
+        ScreemBottomItem.BEST,
         ScreemBottomItem.SETTING,
         ScreemBottomItem.FCM,
-        ScreemBottomItem.BEST,
         ScreemBottomItem.JSON,
         ScreemBottomItem.TROPHY,
     )

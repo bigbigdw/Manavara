@@ -57,6 +57,7 @@ import com.bigbigdw.manavara.ui.theme.colorDCDCDD
 import com.bigbigdw.manavara.ui.theme.colorE9E9E9
 import com.bigbigdw.manavara.ui.theme.colorEDE6FD
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
+import com.bigbigdw.manavara.ui.theme.colorF7F7F7
 
 @Composable
 fun BackOnPressed() {
@@ -508,4 +509,101 @@ fun MainHeader(image: Int, title: String) {
         textAlign = TextAlign.Center,
         color = color000000
     )
+}
+
+@Composable
+fun ItemMainSettingSingleTablet(
+    containerColor: Color,
+    image: Int,
+    title: String,
+    body: String,
+    setMenu: (String) -> Unit,
+    getMenu: String,
+    onClick : () -> Unit
+) {
+
+    Button(
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (getMenu == title) {
+                colorE9E9E9
+            } else {
+                colorF7F7F7
+            }
+        ),
+        shape = RoundedCornerShape(50.dp),
+        onClick = {
+            setMenu(title)
+            onClick()
+        },
+        contentPadding = PaddingValues(
+            start = 12.dp,
+            top = 6.dp,
+            end = 12.dp,
+            bottom = 6.dp,
+        ),
+        content = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(0.dp, 8.dp),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                androidx.compose.material.Card(
+                    modifier = Modifier
+                        .wrapContentSize(),
+                    backgroundColor = containerColor,
+                    shape = RoundedCornerShape(10.dp, 10.dp, 10.dp, 10.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .height(36.dp)
+                            .width(36.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            contentScale = ContentScale.FillWidth,
+                            painter = painterResource(id = image),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .height(28.dp)
+                                .width(28.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.size(16.dp))
+
+                Column {
+                    Row {
+                        Text(
+                            text = title,
+                            fontSize = 16.sp,
+                            color = color000000,
+
+                            fontWeight = FontWeight(weight = 500)
+                        )
+                    }
+
+                    Row {
+                        Text(
+                            text = body,
+                            fontSize = 14.sp,
+                            color = color8E8E8E,
+                        )
+                    }
+                }
+            }
+        })
+}
+
+@Composable
+fun TabletBorderLine(){
+    Spacer(modifier = Modifier.size(8.dp))
+    Spacer(modifier = Modifier
+        .fillMaxWidth()
+        .height(1.dp)
+        .background(color = color8E8E8E))
+    Spacer(modifier = Modifier.size(8.dp))
 }
