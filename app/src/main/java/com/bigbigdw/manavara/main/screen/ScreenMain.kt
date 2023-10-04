@@ -1,62 +1,298 @@
 package com.bigbigdw.manavara.main.screen
 
+
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Text
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.Text
+import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bigbigdw.manavara.ui.theme.color000000
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import androidx.work.WorkManager
+import com.bigbigdw.manavara.R
+import com.bigbigdw.manavara.main.viewModels.ViewModelMain
+import com.bigbigdw.manavara.ui.theme.color1E1E20
+import com.bigbigdw.manavara.ui.theme.color1E4394
+import com.bigbigdw.manavara.ui.theme.color555b68
 import com.bigbigdw.manavara.ui.theme.colorDCDCDD
+import com.bigbigdw.manavara.util.screen.ScreenTest
 
 @Composable
-fun MainHeader(image: Int, title: String) {
+fun ScreenMain(
+    viewModelMain: ViewModelMain,
+    widthSizeClass: WindowWidthSizeClass
+) {
+    val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
 
-    Card(
-        modifier = Modifier
-            .wrapContentSize(),
-        colors = CardDefaults.cardColors(containerColor = colorDCDCDD),
-        shape = RoundedCornerShape(50.dp, 50.dp, 50.dp, 50.dp)
+    val isExpandedScreen = widthSizeClass == WindowWidthSizeClass.Expanded
+
+//    if(isExpandedScreen){
+//        WindowCompat.setDecorFitsSystemWindows(window, false)
+//    }
+
+    val context = LocalContext.current
+    val workManager = WorkManager.getInstance(context)
+
+    if(!isExpandedScreen){
+        ScreenMainMobile(
+            navController = navController,
+            currentRoute = currentRoute,
+            viewModelMain = viewModelMain,
+            isExpandedScreen = isExpandedScreen
+        )
+    } else {
+        ScreenMainTablet(
+            navController = navController,
+            currentRoute = currentRoute,
+            workManager = workManager,
+            viewModelMain = viewModelMain,
+            isExpandedScreen = isExpandedScreen
+        )
+    }
+}
+
+@Composable
+fun ScreenMainTablet(
+    currentRoute : String?,
+    navController: NavHostController,
+    workManager: WorkManager,
+    viewModelMain: ViewModelMain,
+    isExpandedScreen: Boolean
+) {
+    Row{
+        TableAppNavRail(currentRoute = currentRoute ?: "", navController = navController)
+        NavigationGraph(
+            navController = navController,
+            viewModelMain = viewModelMain,
+            isExpandedScreen = isExpandedScreen
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@Composable
+fun ScreenMainMobile(
+    navController: NavHostController,
+    currentRoute: String?,
+    viewModelMain: ViewModelMain,
+    isExpandedScreen: Boolean
+){
+
+    val modalSheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        confirmValueChange = { it != ModalBottomSheetValue.HalfExpanded },
+        skipHalfExpanded = false
+    )
+
+    Scaffold(
+//        topBar = { MainTopBar() },
+        bottomBar = { BottomNavScreen(navController = navController, currentRoute = currentRoute) }
     ) {
         Box(
-            modifier = Modifier
-                .height(90.dp)
-                .width(90.dp),
-            contentAlignment = Alignment.Center
+            Modifier
+                .padding(it)
+                .background(color = color1E1E20)
+                .fillMaxSize()
         ) {
-            Image(
-                contentScale = ContentScale.FillWidth,
-                painter = painterResource(id = image),
-                contentDescription = null,
-                modifier = Modifier
-                    .height(72.dp)
-                    .width(72.dp)
+            NavigationGraph(
+                navController = navController,
+                viewModelMain = viewModelMain,
+                isExpandedScreen = isExpandedScreen
             )
         }
     }
 
-    Spacer(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(8.dp)
+//    ModalBottomSheetLayout(
+//        sheetState = modalSheetState,
+//        sheetElevation = 50.dp,
+//        sheetShape = RoundedCornerShape(
+//            topStart = 25.dp,
+//            topEnd = 25.dp
+//        ),
+//        sheetContent = {
+//            ScreenTest()
+//        },
+//    ) {}
+}
+
+@Composable
+fun BottomNavScreen(navController: NavHostController, currentRoute: String?) {
+    val items = listOf(
+        ScreemBottomItem.SETTING,
+        ScreemBottomItem.FCM,
+        ScreemBottomItem.BEST,
+        ScreemBottomItem.JSON,
+        ScreemBottomItem.TROPHY,
     )
-    Text(
-        text = title,
-        fontSize = 24.sp,
-        textAlign = TextAlign.Center,
-        color = color000000
+
+    BottomNavigation(
+        backgroundColor = colorDCDCDD,
+        contentColor = color1E4394
+    ) {
+
+        items.forEach { item ->
+            BottomNavigationItem(
+                icon = {
+                    Icon(
+                        painter = if (currentRoute == item.screenRoute) {
+                            painterResource(id = item.iconOn)
+                        } else {
+                            painterResource(id = item.iconOff)
+                        },
+                        contentDescription = item.title,
+                        modifier = Modifier
+                            .width(26.dp)
+                            .height(26.dp)
+                    )
+                },
+                label = {
+                    Text(
+                        text = item.title,
+                        fontSize = 13.sp,
+                        color = color1E4394
+                    )
+                },
+                selected = currentRoute == item.screenRoute,
+                selectedContentColor = color1E4394,
+                unselectedContentColor = color555b68,
+                alwaysShowLabel = false,
+                onClick = {
+                    navController.navigate(item.screenRoute) {
+                        navController.graph.startDestinationRoute?.let {
+                            popUpTo(it) { saveState = true }
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun NavigationGraph(
+    navController: NavHostController,
+    viewModelMain: ViewModelMain,
+    isExpandedScreen: Boolean
+) {
+
+    NavHost(
+        navController = navController,
+        startDestination = ScreemBottomItem.SETTING.screenRoute
+    ) {
+        composable(ScreemBottomItem.SETTING.screenRoute) {
+            ScreenTest()
+        }
+        composable(ScreemBottomItem.FCM.screenRoute) {
+            ScreenTest()
+        }
+        composable(ScreemBottomItem.BEST.screenRoute) {
+            ScreenTest()
+        }
+        composable(ScreemBottomItem.JSON.screenRoute) {
+            ScreenTest()
+        }
+        composable(ScreemBottomItem.TROPHY.screenRoute) {
+            ScreenTest()
+        }
+    }
+}
+
+@Composable
+fun TableAppNavRail(
+    currentRoute: String,
+    navController: NavHostController
+) {
+
+    val items = listOf(
+        ScreemBottomItem.SETTING,
+        ScreemBottomItem.FCM,
+        ScreemBottomItem.BEST,
+        ScreemBottomItem.JSON,
+        ScreemBottomItem.TROPHY,
     )
+
+    NavigationRail(
+        header = {
+            Image(
+                contentScale = ContentScale.FillWidth,
+                painter = painterResource(id = R.drawable.ic_launcher),
+                contentDescription = null,
+                modifier = Modifier
+                    .height(48.dp)
+                    .width(48.dp)
+            )
+        },
+        modifier = Modifier.background(color = color1E1E20)
+    ) {
+        Spacer(Modifier.weight(1f))
+
+        items.forEach { item ->
+            NavigationRailItem(
+                selected = currentRoute == item.screenRoute,
+                onClick = {
+                    navController.navigate(item.screenRoute) {
+                        navController.graph.startDestinationRoute?.let {
+                            popUpTo(it) { saveState = true }
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                icon = {
+                    androidx.compose.material3.Icon(
+                        painter = if (currentRoute == item.screenRoute) {
+                            painterResource(id = item.iconOn)
+                        } else {
+                            painterResource(id = item.iconOff)
+                        },
+                        contentDescription = item.title,
+                        modifier = Modifier
+                            .width(26.dp)
+                            .height(26.dp)
+                    )
+                },
+                label = {
+                    Text(
+                        text = item.title,
+                        fontSize = 13.sp,
+                        color = color1E4394
+                    )
+                },
+                alwaysShowLabel = false
+            )
+        }
+
+        Spacer(Modifier.weight(1f))
+    }
 }

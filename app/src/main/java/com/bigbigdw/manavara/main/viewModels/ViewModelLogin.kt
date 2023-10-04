@@ -1,7 +1,7 @@
 package com.bigbigdw.manavara.main.viewModels
 
-import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
@@ -11,7 +11,9 @@ import com.bigbigdw.manavara.main.ActivityRegister
 import com.bigbigdw.manavara.main.events.EventLogin
 import com.bigbigdw.manavara.main.events.StateLogin
 import com.bigbigdw.manavara.main.models.UserInfo
+import com.bigbigdw.manavara.util.changePlatformNameEng
 import com.google.android.gms.auth.api.identity.SignInClient
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
@@ -21,6 +23,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -161,6 +164,8 @@ class ViewModelLogin @Inject constructor() : ViewModel() {
             )
         }
 
+        getFCMToken()
+
         if(state.value.userInfo.userNickName.isEmpty()){
             viewModelScope.launch {
                 _sideEffects.send("닉네임을 입력해주세요")
@@ -201,8 +206,14 @@ class ViewModelLogin @Inject constructor() : ViewModel() {
     fun finishRegister(activity: ComponentActivity){
         val mRootRef = FirebaseDatabase.getInstance().reference
 
+        val platformRange = ArrayList<String>()
+
+        for(item in state.value.platformRange){
+            platformRange.add(changePlatformNameEng(item))
+        }
+
         mRootRef.child("USER").child(state.value.userInfo.userUID).child("USERINFO").setValue(state.value.userInfo)
-        mRootRef.child("USER").child(state.value.userInfo.userUID).child("PLATFORM").setValue(state.value.platformRange)
+        mRootRef.child("USER").child(state.value.userInfo.userUID).child("PLATFORM").setValue(platformRange)
 
         val intent = Intent(activity, ActivityMain::class.java)
         activity.startActivity(intent)
@@ -213,11 +224,29 @@ class ViewModelLogin @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setUserInfo(UID : String, EMAIL : String){
+    fun setUserInfo(uid : String, email : String){
         viewModelScope.launch {
             events.send(
-                EventLogin.SetUserInfo(state.value.userInfo.copy(userUID = UID, userEmail = EMAIL))
+                EventLogin.SetUserInfo(state.value.userInfo.copy(userUID = uid, userEmail = email))
             )
         }
+    }
+
+    private fun getFCMToken() {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.w("getFCMToken", "Fetching FCM registration token failed", task.exception)
+                return@OnCompleteListener
+            }
+
+
+            val token = task.result
+
+            viewModelScope.launch {
+                events.send(
+                    EventLogin.SetUserInfo(state.value.userInfo.copy(userFcmToken = token))
+                )
+            }
+        })
     }
 }

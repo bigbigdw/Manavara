@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "com.bigbigdw.manavara"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.bigbigdw.manavara"
         minSdk = 24
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -85,4 +85,8 @@ dependencies {
 
     implementation("androidx.window:window-extensions:1.0.0-alpha01")
     implementation("androidx.compose.material3:material3-window-size-class")
+
+    implementation("androidx.navigation:navigation-compose:2.7.3")
+    implementation("androidx.compose.material:material")
+    implementation("com.google.android.material:material:1.11.0-alpha03")
 }

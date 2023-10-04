@@ -37,7 +37,6 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -47,7 +46,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.bigbigdw.manavara.R
-import com.bigbigdw.manavara.main.ActivityLogin
 import com.bigbigdw.manavara.main.events.StateLogin
 import com.bigbigdw.manavara.main.models.UserInfo
 import com.bigbigdw.manavara.main.viewModels.ViewModelLogin
@@ -63,6 +61,7 @@ import com.bigbigdw.manavara.util.novelKor
 import com.bigbigdw.manavara.util.screen.AlertTwoBtn
 import com.bigbigdw.manavara.util.screen.BtnMobile
 import com.bigbigdw.manavara.util.screen.ItemTabletTitle
+import com.bigbigdw.manavara.util.screen.MainHeader
 import com.bigbigdw.manavara.util.screen.ScreenTabletWrap
 import com.bigbigdw.manavara.util.screen.ScreenTest
 import com.bigbigdw.manavara.util.screen.TabletContentWrap
@@ -681,7 +680,7 @@ fun ScreenRegisterMobile(
                 .height(80.dp)
         )
 
-        com.bigbigdw.manavara.util.screen.MainHeader(
+        MainHeader(
             image = R.drawable.ic_launcher,
             title = "회원 가입"
         )

@@ -28,10 +28,10 @@ class ActivityRegister : ComponentActivity() {
 
         val state = viewModelLogin.state.value
 
-        val UID = intent?.getStringExtra("UID") ?: return
-        val EMAIL = intent?.getStringExtra("EMAIL") ?: return
+        val uid = intent?.getStringExtra("UID") ?: return
+        val email = intent?.getStringExtra("EMAIL") ?: return
 
-        viewModelLogin.setUserInfo(UID = UID, EMAIL = EMAIL)
+        viewModelLogin.setUserInfo(uid = uid, email = email)
 
         setContent {
             val (getUserInfo, setUserInfo) = remember { mutableStateOf(state.userInfo) }
