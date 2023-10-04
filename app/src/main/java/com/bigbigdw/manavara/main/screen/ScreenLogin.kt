@@ -77,8 +77,6 @@ fun ScreenLogin(
     activity: ComponentActivity
 ) {
 
-    val context = LocalContext.current
-
     val isExpandedScreen = widthSizeClass == WindowWidthSizeClass.Expanded
 
     val state = viewModelLogin.state.collectAsState().value
@@ -226,8 +224,6 @@ fun ScreenLogin(
                         getUserInfo = getUserInfo
                     )
                 })
-        } else {
-            ScreenTest()
         }
     }
 }
@@ -638,4 +634,64 @@ fun RegisterInfo(state: StateLogin){
     Spacer(modifier = Modifier
         .fillMaxWidth()
         .height(32.dp))
+}
+
+@Composable
+fun ScreenRegisterMobile(
+    viewModelLogin: ViewModelLogin,
+    setUserInfo: (UserInfo) -> Unit,
+    getUserInfo: UserInfo,
+    setRange: (SnapshotStateList<String>) -> Unit,
+    getRange: SnapshotStateList<String>,
+    activity: ComponentActivity
+) {
+
+    val state = viewModelLogin.state.collectAsState().value
+
+    if (state.isRegisterConfirm) {
+        Dialog(
+            onDismissRequest = { viewModelLogin.setIsRegisterConfirm(false) },
+        ) {
+            AlertTwoBtn(
+                isShow = { viewModelLogin.setIsRegisterConfirm(false) },
+                onFetchClick = {
+                    viewModelLogin.setIsRegisterConfirm(false)
+                    viewModelLogin.finishRegister(activity = activity)
+                },
+                btnLeft = "뒤로가기",
+                btnRight = "확인",
+                contents = { RegisterInfo(state = state) })
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = colorF6F6F6)
+            .padding(16.dp, 0.dp)
+            .verticalScroll(rememberScrollState())
+            .semantics { contentDescription = "Overview Screen" },
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp)
+        )
+
+        com.bigbigdw.manavara.util.screen.MainHeader(
+            image = R.drawable.ic_launcher,
+            title = "회원 가입"
+        )
+
+        ScreenRegister(
+            viewModelLogin = viewModelLogin,
+            setRange = setRange,
+            getRange = getRange,
+            setUserInfo = setUserInfo,
+            getUserInfo = getUserInfo
+        )
+    }
 }

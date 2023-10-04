@@ -212,4 +212,12 @@ class ViewModelLogin @Inject constructor() : ViewModel() {
             _sideEffects.send("가입이 완료되었습니다.")
         }
     }
+
+    fun setUserInfo(UID : String, EMAIL : String){
+        viewModelScope.launch {
+            events.send(
+                EventLogin.SetUserInfo(state.value.userInfo.copy(userUID = UID, userEmail = EMAIL))
+            )
+        }
+    }
 }

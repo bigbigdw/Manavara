@@ -33,9 +33,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
@@ -49,9 +51,13 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bigbigdw.manavara.R
+import com.bigbigdw.manavara.main.models.UserInfo
+import com.bigbigdw.manavara.main.screen.ScreenRegister
+import com.bigbigdw.manavara.main.viewModels.ViewModelLogin
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
+import com.bigbigdw.manavara.ui.theme.colorDCDCDD
 import com.bigbigdw.manavara.ui.theme.colorE9E9E9
 import com.bigbigdw.manavara.ui.theme.colorEDE6FD
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
@@ -468,3 +474,44 @@ fun spannableString(textFront: String, color: Color, textEnd: String): Annotated
 
     return annotatedString
 }
+
+@Composable
+fun MainHeader(image: Int, title: String) {
+
+    Card(
+        modifier = Modifier
+            .wrapContentSize(),
+        colors = CardDefaults.cardColors(containerColor = colorDCDCDD),
+        shape = RoundedCornerShape(50.dp, 50.dp, 50.dp, 50.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .height(90.dp)
+                .width(90.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                contentScale = ContentScale.FillWidth,
+                painter = painterResource(id = image),
+                contentDescription = null,
+                modifier = Modifier
+                    .height(72.dp)
+                    .width(72.dp)
+            )
+        }
+    }
+
+    Spacer(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(8.dp)
+    )
+    Text(
+        text = title,
+        fontSize = 24.sp,
+        textAlign = TextAlign.Center,
+        color = color000000
+    )
+    Spacer(modifier = Modifier.size(22.dp))
+}
+
