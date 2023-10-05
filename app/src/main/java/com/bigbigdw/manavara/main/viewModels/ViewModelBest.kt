@@ -62,7 +62,6 @@ class ViewModelBest @Inject constructor() : ViewModel() {
     fun getBestJsonList(platform : String, genre : String, type: String, date : String){
         val storage = Firebase.storage
         val storageRef = storage.reference
-//        val todayFileRef = storageRef.child("${platform}/${type}/${genre}/DAY/${DBDate.dateMMDD()}.json")
         val todayFileRef = storageRef.child("${platform}/${type}/${genre}/DAY/${date}.json")
 
         val todayFile = todayFileRef.getBytes(1024 * 1024)

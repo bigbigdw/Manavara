@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,7 +21,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -32,6 +35,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,7 +54,9 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bigbigdw.manavara.R
+import com.bigbigdw.manavara.main.viewModels.ViewModelBest
 import com.bigbigdw.manavara.ui.theme.color000000
+import com.bigbigdw.manavara.ui.theme.color1E1E20
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
 import com.bigbigdw.manavara.ui.theme.colorDCDCDD
@@ -58,6 +64,8 @@ import com.bigbigdw.manavara.ui.theme.colorE9E9E9
 import com.bigbigdw.manavara.ui.theme.colorEDE6FD
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorF7F7F7
+import getNaverSeriesGenreKor
+import kotlinx.coroutines.launch
 
 @Composable
 fun BackOnPressed() {
@@ -596,6 +604,60 @@ fun ItemMainSettingSingleTablet(
                 }
             }
         })
+}
+
+@Composable
+fun ItemKeyword(
+    getter: String,
+    setter: (String) -> Unit,
+    title: String,
+    image: Int,
+    viewModelBest: ViewModelBest,
+    listState: LazyListState,
+) {
+
+    val coroutineScope = rememberCoroutineScope()
+
+    androidx.compose.material.Card(
+        modifier = if (getter == title) {
+            Modifier.border(2.dp, Color.Red, CircleShape)
+        } else {
+            Modifier.border(2.dp, Color.Black, CircleShape)
+        },
+        backgroundColor = color1E1E20,
+        shape = RoundedCornerShape(20.dp, 20.dp, 20.dp, 20.dp)
+    ) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(12.dp, 8.dp)
+                .clickable {
+                    setter(title)
+//                    viewModelBest.fetchBestListToday(item.type, context)
+                    coroutineScope.launch {
+                        listState.scrollToItem(index = 0)
+                    }
+                },
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+
+            Image(
+                painter = painterResource(image),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.size(23.dp)
+            )
+            Spacer(modifier = Modifier.width(2.dp))
+            Text(
+                text = getNaverSeriesGenreKor(title),
+                fontSize = 17.sp,
+                textAlign = TextAlign.Left,
+                color = colorEDE6FD,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
 }
 
 

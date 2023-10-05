@@ -1,6 +1,7 @@
 import android.annotation.SuppressLint
 import com.bigbigdw.manavara.main.models.ItemBestInfo
 import com.bigbigdw.manavara.main.models.ItemBookInfo
+import com.google.firebase.database.core.Platform
 import com.google.gson.JsonObject
 import org.json.JSONObject
 
@@ -66,4 +67,104 @@ fun convertBestItemDataAnalyze(bestItemData : ItemBestInfo) : JsonObject {
     jsonObject.addProperty("totalCount", bestItemData.totalCount)
     jsonObject.addProperty("bookCode", bestItemData.bookCode)
     return jsonObject
+}
+
+fun getPlatformGenre(type : String, platform: String) : ArrayList<String>{
+    var array = ArrayList<String>()
+
+    array = NaverSeriesComicGenre
+
+
+    return array
+}
+
+val NaverSeriesComicGenre = arrayListOf(
+    "ALL",
+    "ACTION",
+    "BL",
+    "DRAMA",
+    "MELO",
+    "YOUNG",
+)
+
+fun getNaverSeriesGenre(genre : String) : String {
+    when (genre) {
+        "ALL" -> {
+            return "ALL"
+        }
+        "99" -> {
+            return "MELO"
+        }
+        "93" -> {
+            return "DRAMA"
+        }
+        "90" -> {
+            return "YOUNG"
+        }
+        "88" -> {
+            return "ACTION"
+        }
+        "107" -> {
+            return "BL"
+        }
+        "201" -> {
+            return "ROMANCE"
+        }
+        "207" -> {
+            return "ROMANCE_FANTASY"
+        }
+        "202" -> {
+            return "FANTASY"
+        }
+        "208" -> {
+            return "MODERN_FANTASY"
+        }
+        "206" -> {
+            return "MARTIAL_ARTS"
+        }
+        else -> {
+            return "없음"
+        }
+    }
+}
+
+fun getNaverSeriesGenreKor(genre : String) : String {
+    return when (genre) {
+        "ALL" -> {
+            "전체"
+        }
+        "MELO" -> {
+            "멜로"
+        }
+        "DRAMA" -> {
+            "드라마"
+        }
+        "YOUNG" -> {
+            "소년"
+        }
+        "ACTION" -> {
+            "액션"
+        }
+        "BL" -> {
+            "BL"
+        }
+        "201" -> {
+            "로맨스"
+        }
+        "207" -> {
+            "로판"
+        }
+        "202" -> {
+            "판타지"
+        }
+        "208" -> {
+            "현판"
+        }
+        "206" -> {
+            "무협"
+        }
+        else -> {
+            "없음"
+        }
+    }
 }

@@ -2,6 +2,7 @@ package com.bigbigdw.manavara.main.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,11 +16,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -27,20 +35,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.bigbigdw.manavara.R
+import com.bigbigdw.manavara.main.models.ItemBookInfo
 import com.bigbigdw.manavara.main.viewModels.ViewModelBest
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.ui.theme.color000000
+import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color4AD7CF
 import com.bigbigdw.manavara.ui.theme.color52A9FF
 import com.bigbigdw.manavara.ui.theme.color5372DE
@@ -50,10 +65,14 @@ import com.bigbigdw.manavara.ui.theme.colorE9E9E9
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorF7F7F7
 import com.bigbigdw.manavara.ui.theme.colorea927C
+import com.bigbigdw.manavara.util.DBDate
 import com.bigbigdw.manavara.util.changePlatformNameKor
+import com.bigbigdw.manavara.util.screen.ItemKeyword
 import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
 import com.bigbigdw.manavara.util.screen.ScreenTest
 import com.bigbigdw.manavara.util.screen.TabletBorderLine
+import getPlatformGenre
+import kotlinx.coroutines.launch
 
 @Composable
 fun ScreenBest(
@@ -78,10 +97,8 @@ fun ScreenBest(
                 ScreenBestTabletList(
                     setMenu = setMenu,
                     getMenu = getMenu,
-                    viewModelBest = viewModelBest,
                     viewModelMain = viewModelMain,
                     setDetailPlatform = setDetailPlatform,
-                    setDetailGenre = setDetailGenre,
                     setDetailType = setDetailType
                 )
 
@@ -95,6 +112,7 @@ fun ScreenBest(
                 ScreenBestDetail(
                     getMenu = getMenu,
                     viewModelMain = viewModelMain,
+                    viewModelBest = viewModelBest,
                     getDetailPlatform = getDetailPlatform,
                     getDetailGenre = getDetailGenre,
                     getDetailType = getDetailType,
@@ -111,10 +129,8 @@ fun ScreenBest(
 fun ScreenBestTabletList(
     setMenu: (String) -> Unit,
     getMenu: String,
-    viewModelBest: ViewModelBest,
     viewModelMain: ViewModelMain,
     setDetailPlatform: (String) -> Unit,
-    setDetailGenre: (String) -> Unit,
     setDetailType: (String) -> Unit
 ) {
 
@@ -180,7 +196,7 @@ fun ScreenBestTabletList(
                 body = "투데이 베스트 관련 옵션 진행",
                 setMenu = setMenu,
                 getMenu = getMenu,
-                bestType = "투데이 베스트",
+                bestType = "TODAY_BEST",
                 setDetailPlatform = { setDetailPlatform(item) },
                 setDetailType = { setDetailType(mainState.userInfo.viewMode) },
 
@@ -228,7 +244,7 @@ fun ItemBestListSingle(
 
     Button(
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (getMenu == title) {
+            containerColor = if (getMenu == "$bestType $title") {
                 colorE9E9E9
             } else {
                 colorF7F7F7
@@ -310,34 +326,184 @@ fun ScreenBestDetail(
     getDetailPlatform: String,
     getDetailGenre: String,
     getDetailType: String,
+    viewModelBest: ViewModelBest,
 ) {
 
-    Box(
+    Column(
         modifier = Modifier
-            .fillMaxSize()
+            .padding(0.dp, 0.dp, 16.dp, 0.dp)
+            .background(color = colorF6F6F6)
+            .semantics { contentDescription = "Overview Screen" },
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(0.dp, 0.dp, 16.dp, 0.dp)
-                .background(color = colorF6F6F6)
-                .verticalScroll(rememberScrollState())
-                .semantics { contentDescription = "Overview Screen" },
-        ) {
 
-            Spacer(modifier = Modifier.size(16.dp))
+        Spacer(modifier = Modifier.size(16.dp))
 
-            Text(
-                modifier = Modifier
-                    .padding(24.dp, 0.dp, 0.dp, 0.dp),
-                text = "< $getMenu",
-                fontSize = 24.sp,
-                color = color000000,
-                fontWeight = FontWeight(weight = 700)
+        Text(
+            modifier = Modifier.padding(24.dp, 0.dp, 0.dp, 0.dp),
+            text = "< $getMenu",
+            fontSize = 24.sp,
+            color = color000000,
+            fontWeight = FontWeight(weight = 700)
+        )
+
+        if (getMenu.contains("TODAY_BEST")) {
+            ScreenTodayBest(
+                viewModelMain = viewModelMain,
+                viewModelBest = viewModelBest,
+                getDetailPlatform = getDetailPlatform,
+                getDetailType = getDetailType
             )
 
-            if (getMenu.contains("투데이")) {
-                ScreenTest()
+        } else {
+            ScreenTest()
+        }
+    }
+}
+
+@Composable
+fun ScreenTodayBest(
+    viewModelMain: ViewModelMain,
+    viewModelBest: ViewModelBest,
+    getDetailPlatform: String,
+    getDetailType: String,
+) {
+
+    viewModelBest.getBestJsonList(
+        platform = getDetailPlatform,
+        genre = "ALL",
+        type = getDetailType,
+        date = DBDate.dateMMDD()
+    )
+
+    val bestState = viewModelBest.state.collectAsState().value
+
+    val listState = rememberLazyListState()
+    val (getType, setType) = remember { mutableStateOf("") }
+
+    Column(modifier = Modifier.background(color = colorF6F6F6)) {
+
+        LazyRow(
+            modifier = Modifier.padding(16.dp, 20.dp, 0.dp, 20.dp),
+        ) {
+            itemsIndexed(
+                getPlatformGenre(
+                    type = getDetailType,
+                    platform = getDetailPlatform
+                )
+            ) { index, item ->
+                Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
+                    ItemKeyword(
+                        getter = getType,
+                        setter = setType,
+                        title = item,
+                        image = R.drawable.ic_launcher,
+                        viewModelBest = viewModelBest,
+                        listState = listState
+                    )
+                }
+            }
+        }
+
+        LazyColumn(
+            modifier = Modifier
+                .background(colorF6F6F6)
+        ) {
+
+            itemsIndexed(bestState.itemBookInfoList) { index, item ->
+                ListBestToday(
+                    viewModelMain = viewModelMain,
+                    viewModelBest = viewModelBest,
+                    itemBookInfo = item,
+                    index = index
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ListBestToday(
+    viewModelMain: ViewModelMain,
+    viewModelBest: ViewModelBest,
+    itemBookInfo: ItemBookInfo,
+    index: Int,
+) {
+
+    val coroutineScope = rememberCoroutineScope()
+    val userInfo = viewModelMain.state.collectAsState().value
+
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(12.dp, 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+
+        AsyncImage(
+            model = itemBookInfo.bookImg,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(56.dp)
+                .clip(CircleShape)
+        )
+        Spacer(modifier = Modifier.width(4.dp))
+
+        Card(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(4.dp, 0.dp, 0.dp, 0.dp)
+                .fillMaxWidth()
+                .height(56.dp)
+                .clickable {
+                    coroutineScope.launch {
+//                        viewModelBestList.getBottomBestData(bestItemData, index)
+//                        viewModelBestList.bottomDialogBestGetRank(userInfo, bestItemData)
+//                        modalSheetState.show()
+                    }
+                },
+            backgroundColor = Color.White,
+            shape = RoundedCornerShape(25.dp),
+            elevation = 0.dp
+        ) {
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically){
+
+                Text(
+                    text = "${index + 1} ",
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .padding(16.dp, 0.dp, 0.dp, 0.dp),
+                    fontSize = 24.sp,
+                    textAlign = TextAlign.Left,
+                    color = color20459E,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    maxLines = 1,
+                    text = itemBookInfo.title,
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .weight(1f),
+                    fontSize = 18.sp,
+                    textAlign = TextAlign.Left,
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Text(
+                    text = "NEW",
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .padding(0.dp, 0.dp, 16.dp, 0.dp)
+                        .wrapContentSize(),
+                    fontSize = 12.sp,
+                    textAlign = TextAlign.Left,
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
         }
     }

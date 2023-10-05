@@ -106,16 +106,6 @@ class ActivitySplash : ComponentActivity() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        // Check if user is signed in (non-null) and update UI accordingly.
-
-        auth = Firebase.auth
-        currentUser = auth.currentUser
-
-        checkUserExist(user = currentUser)
-    }
-
     @RequiresApi(Build.VERSION_CODES.O)
     private fun registerNotification(){
 
