@@ -1,7 +1,6 @@
 import android.annotation.SuppressLint
 import com.bigbigdw.manavara.main.models.ItemBestInfo
 import com.bigbigdw.manavara.main.models.ItemBookInfo
-import com.google.firebase.database.core.Platform
 import com.google.gson.JsonObject
 import org.json.JSONObject
 
@@ -72,19 +71,36 @@ fun convertBestItemDataAnalyze(bestItemData : ItemBestInfo) : JsonObject {
 fun getPlatformGenre(type : String, platform: String) : ArrayList<String>{
     var array = ArrayList<String>()
 
-    array = NaverSeriesComicGenre
+    array = if(platform == "NAVER_SERIES"){
+        if(type == "COMIC"){
+            NaverSeriesComicGenreDir
+        } else {
+            NaverSeriesNovelGenreDir
+        }
+    } else {
+        NaverSeriesComicGenreDir
+    }
 
 
     return array
 }
 
-val NaverSeriesComicGenre = arrayListOf(
+val NaverSeriesComicGenreDir = arrayListOf(
     "ALL",
     "ACTION",
     "BL",
     "DRAMA",
     "MELO",
     "YOUNG",
+)
+
+val NaverSeriesNovelGenreDir = arrayListOf(
+    "ALL",
+    "ROMANCE",
+    "ROMANCE_FANTASY",
+    "FANTASY",
+    "MODERN_FANTASY",
+    "MARTIAL_ARTS",
 )
 
 fun getNaverSeriesGenre(genre : String) : String {
@@ -128,7 +144,7 @@ fun getNaverSeriesGenre(genre : String) : String {
     }
 }
 
-fun getNaverSeriesGenreKor(genre : String) : String {
+fun getNaverSeriesGenreEngToKor(genre : String) : String {
     return when (genre) {
         "ALL" -> {
             "전체"
@@ -148,19 +164,19 @@ fun getNaverSeriesGenreKor(genre : String) : String {
         "BL" -> {
             "BL"
         }
-        "201" -> {
+        "ROMANCE" -> {
             "로맨스"
         }
-        "207" -> {
+        "ROMANCE_FANTASY" -> {
             "로판"
         }
-        "202" -> {
+        "FANTASY" -> {
             "판타지"
         }
-        "208" -> {
+        "MODERN_FANTASY" -> {
             "현판"
         }
-        "206" -> {
+        "MARTIAL_ARTS" -> {
             "무협"
         }
         else -> {

@@ -56,7 +56,6 @@ import androidx.compose.ui.unit.sp
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.main.viewModels.ViewModelBest
 import com.bigbigdw.manavara.ui.theme.color000000
-import com.bigbigdw.manavara.ui.theme.color1E1E20
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
 import com.bigbigdw.manavara.ui.theme.colorDCDCDD
@@ -64,7 +63,7 @@ import com.bigbigdw.manavara.ui.theme.colorE9E9E9
 import com.bigbigdw.manavara.ui.theme.colorEDE6FD
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorF7F7F7
-import getNaverSeriesGenreKor
+import getNaverSeriesGenreEngToKor
 import kotlinx.coroutines.launch
 
 @Composable
@@ -558,10 +557,10 @@ fun ItemMainSettingSingleTablet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                androidx.compose.material.Card(
+                Card(
                     modifier = Modifier
                         .wrapContentSize(),
-                    backgroundColor = containerColor,
+                    colors = CardDefaults.cardColors(containerColor = containerColor),
                     shape = RoundedCornerShape(10.dp, 10.dp, 10.dp, 10.dp)
                 ) {
                     Box(
@@ -611,26 +610,31 @@ fun ItemKeyword(
     getter: String,
     setter: (String) -> Unit,
     title: String,
-    image: Int,
     viewModelBest: ViewModelBest,
     listState: LazyListState,
 ) {
 
     val coroutineScope = rememberCoroutineScope()
 
-    androidx.compose.material.Card(
+    Card(
         modifier = if (getter == title) {
-            Modifier.border(2.dp, Color.Red, CircleShape)
+            Modifier.border(2.dp, color20459E, CircleShape)
         } else {
-            Modifier.border(2.dp, Color.Black, CircleShape)
+            Modifier.border(2.dp, colorF7F7F7, CircleShape)
         },
-        backgroundColor = color1E1E20,
+        colors = CardDefaults.cardColors(
+            containerColor = if (getter == title) {
+                color20459E
+            } else {
+                Color.White
+            }
+        ),
         shape = RoundedCornerShape(20.dp, 20.dp, 20.dp, 20.dp)
     ) {
         Row(
             Modifier
                 .fillMaxWidth()
-                .padding(12.dp, 8.dp)
+                .padding(14.dp, 8.dp)
                 .clickable {
                     setter(title)
 //                    viewModelBest.fetchBestListToday(item.type, context)
@@ -642,18 +646,15 @@ fun ItemKeyword(
             verticalAlignment = Alignment.CenterVertically,
         ) {
 
-            Image(
-                painter = painterResource(image),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.size(23.dp)
-            )
-            Spacer(modifier = Modifier.width(2.dp))
             Text(
-                text = getNaverSeriesGenreKor(title),
+                text = getNaverSeriesGenreEngToKor(title),
                 fontSize = 17.sp,
                 textAlign = TextAlign.Left,
-                color = colorEDE6FD,
+                color = if (getter == title) {
+                    Color.White
+                } else {
+                    Color.Black
+                },
                 fontWeight = FontWeight.Bold
             )
         }

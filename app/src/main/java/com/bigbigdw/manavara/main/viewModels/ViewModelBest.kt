@@ -81,12 +81,7 @@ class ViewModelBest @Inject constructor() : ViewModel() {
                 events.send(EventBest.SetItemBestInfoList(itemBookInfoList = todayJsonList))
             }
         }.addOnFailureListener {
-            getBestJsonList(
-                platform = platform,
-                genre = genre,
-                type = type,
-                date = DBDate.dateYesterdayMMDD()
-            )
+            Log.d("getBestJsonList", "ScreenTodayBest--getBestJsonList--addOnFailureListener == $it")
         }
     }
 

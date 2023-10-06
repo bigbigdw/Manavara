@@ -1,8 +1,8 @@
 package com.bigbigdw.manavara.main.screen
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,7 +27,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -55,6 +54,8 @@ import com.bigbigdw.manavara.main.models.ItemBookInfo
 import com.bigbigdw.manavara.main.viewModels.ViewModelBest
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.ui.theme.color000000
+import com.bigbigdw.manavara.ui.theme.color02BC77
+import com.bigbigdw.manavara.ui.theme.color1CE3EE
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color4AD7CF
 import com.bigbigdw.manavara.ui.theme.color52A9FF
@@ -64,6 +65,7 @@ import com.bigbigdw.manavara.ui.theme.color998DF9
 import com.bigbigdw.manavara.ui.theme.colorE9E9E9
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorF7F7F7
+import com.bigbigdw.manavara.ui.theme.colorFF2366
 import com.bigbigdw.manavara.ui.theme.colorea927C
 import com.bigbigdw.manavara.util.DBDate
 import com.bigbigdw.manavara.util.changePlatformNameKor
@@ -81,6 +83,7 @@ fun ScreenBest(
     viewModelMain: ViewModelMain
 ) {
 
+    val mainState = viewModelMain.state.collectAsState().value
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -89,10 +92,19 @@ fun ScreenBest(
         Row {
             if (isExpandedScreen) {
 
-                val (getMenu, setMenu) = remember { mutableStateOf("세팅바라 현황") }
-                val (getDetailPlatform, setDetailPlatform) = remember { mutableStateOf("") }
-                val (getDetailGenre, setDetailGenre) = remember { mutableStateOf("") }
-                val (getDetailType, setDetailType) = remember { mutableStateOf("") }
+                val (getMenu, setMenu) = remember { mutableStateOf("") }
+                val (getDetailPlatform, setDetailPlatform) = remember { mutableStateOf(mainState.platformRangeNovel[0]) }
+                val (getDetailGenre, setDetailGenre) = remember { mutableStateOf("ALL") }
+                val (getDetailType, setDetailType) = remember { mutableStateOf("COMIC") }
+
+                Log.d("ScreenTodayBest", "DBDate.dateMMDD() == ${DBDate.dateMMDD()}")
+
+                viewModelBest.getBestJsonList(
+                    date = DBDate.dateMMDD(),
+                    platform = getDetailPlatform,
+                    genre = getDetailGenre,
+                    type = getDetailType,
+                )
 
                 ScreenBestTabletList(
                     setMenu = setMenu,
@@ -116,6 +128,7 @@ fun ScreenBest(
                     getDetailPlatform = getDetailPlatform,
                     getDetailGenre = getDetailGenre,
                     getDetailType = getDetailType,
+                    setDetailGenre = setDetailGenre
                 )
 
             } else {
@@ -188,7 +201,7 @@ fun ScreenBestTabletList(
             onClick = {  },
         )
 
-        mainState.platformRange.forEachIndexed{ index, item ->
+        mainState.platformRangeNovel.forEachIndexed{ index, item ->
             ItemBestListSingle(
                 containerColor = color52A9FF,
                 image = R.drawable.icon_best_wht,
@@ -198,7 +211,7 @@ fun ScreenBestTabletList(
                 getMenu = getMenu,
                 bestType = "TODAY_BEST",
                 setDetailPlatform = { setDetailPlatform(item) },
-                setDetailType = { setDetailType(mainState.userInfo.viewMode) },
+                setDetailType = { setDetailType("COMIC") },
 
             )
         }
@@ -327,11 +340,11 @@ fun ScreenBestDetail(
     getDetailGenre: String,
     getDetailType: String,
     viewModelBest: ViewModelBest,
+    setDetailGenre: (String) -> Unit,
 ) {
 
     Column(
         modifier = Modifier
-            .padding(0.dp, 0.dp, 16.dp, 0.dp)
             .background(color = colorF6F6F6)
             .semantics { contentDescription = "Overview Screen" },
     ) {
@@ -351,7 +364,9 @@ fun ScreenBestDetail(
                 viewModelMain = viewModelMain,
                 viewModelBest = viewModelBest,
                 getDetailPlatform = getDetailPlatform,
-                getDetailType = getDetailType
+                getDetailType = getDetailType,
+                setDetailGenre = setDetailGenre,
+                getDetailGenre = getDetailGenre
             )
 
         } else {
@@ -366,19 +381,13 @@ fun ScreenTodayBest(
     viewModelBest: ViewModelBest,
     getDetailPlatform: String,
     getDetailType: String,
+    setDetailGenre: (String) -> Unit,
+    getDetailGenre: String,
 ) {
-
-    viewModelBest.getBestJsonList(
-        platform = getDetailPlatform,
-        genre = "ALL",
-        type = getDetailType,
-        date = DBDate.dateMMDD()
-    )
 
     val bestState = viewModelBest.state.collectAsState().value
 
     val listState = rememberLazyListState()
-    val (getType, setType) = remember { mutableStateOf("") }
 
     Column(modifier = Modifier.background(color = colorF6F6F6)) {
 
@@ -393,10 +402,9 @@ fun ScreenTodayBest(
             ) { index, item ->
                 Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
                     ItemKeyword(
-                        getter = getType,
-                        setter = setType,
+                        getter = getDetailGenre,
+                        setter = setDetailGenre,
                         title = item,
-                        image = R.drawable.ic_launcher,
                         viewModelBest = viewModelBest,
                         listState = listState
                     )
@@ -407,6 +415,7 @@ fun ScreenTodayBest(
         LazyColumn(
             modifier = Modifier
                 .background(colorF6F6F6)
+                .padding(0.dp, 0.dp, 16.dp, 0.dp)
         ) {
 
             itemsIndexed(bestState.itemBookInfoList) { index, item ->
@@ -449,62 +458,107 @@ fun ListBestToday(
         )
         Spacer(modifier = Modifier.width(4.dp))
 
-        Card(
+        Button(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(4.dp, 0.dp, 0.dp, 0.dp)
                 .fillMaxWidth()
-                .height(56.dp)
-                .clickable {
-                    coroutineScope.launch {
+                .height(56.dp),
+            shape = RoundedCornerShape(25.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+            onClick = {
+                coroutineScope.launch {
 //                        viewModelBestList.getBottomBestData(bestItemData, index)
 //                        viewModelBestList.bottomDialogBestGetRank(userInfo, bestItemData)
 //                        modalSheetState.show()
+                }
+            },
+            contentPadding = PaddingValues(
+                start = 0.dp,
+                top = 0.dp,
+                end = 0.dp,
+                bottom = 0.dp,
+            ),
+            content = {
+
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically){
+
+                    Text(
+                        text = "${index + 1} ",
+                        modifier = Modifier
+                            .wrapContentHeight()
+                            .padding(16.dp, 0.dp, 0.dp, 0.dp),
+                        fontSize = 24.sp,
+                        textAlign = TextAlign.Left,
+                        color = color20459E,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        maxLines = 1,
+                        text = itemBookInfo.title,
+                        modifier = Modifier
+                            .wrapContentHeight()
+                            .weight(1f),
+                        fontSize = 18.sp,
+                        textAlign = TextAlign.Left,
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    if(itemBookInfo.currentDiff > 0){
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_arrow_drop_up_24px),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    } else if(itemBookInfo.currentDiff < 0) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_arrow_drop_down_24px),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.size(20.dp)
+                        )
                     }
-                },
-            backgroundColor = Color.White,
-            shape = RoundedCornerShape(25.dp),
-            elevation = 0.dp
-        ) {
-            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically){
 
-                Text(
-                    text = "${index + 1} ",
-                    modifier = Modifier
-                        .wrapContentHeight()
-                        .padding(16.dp, 0.dp, 0.dp, 0.dp),
-                    fontSize = 24.sp,
-                    textAlign = TextAlign.Left,
-                    color = color20459E,
-                    fontWeight = FontWeight.Bold,
-                )
-                Text(
-                    maxLines = 1,
-                    text = itemBookInfo.title,
-                    modifier = Modifier
-                        .wrapContentHeight()
-                        .weight(1f),
-                    fontSize = 18.sp,
-                    textAlign = TextAlign.Left,
-                    color = Color.Black,
-                    fontWeight = FontWeight.Bold,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Spacer(modifier = Modifier.width(16.dp))
+                    Text(
+                        text = if (itemBookInfo.totalCount > 1) {
+                            if(itemBookInfo.currentDiff != 0){
+                                itemBookInfo.currentDiff.toString()
+                            } else {
+                                "-"
+                            }
+                        } else {
+                            "NEW"
+                        },
+                        modifier = Modifier
+                            .wrapContentHeight()
+                            .padding(0.dp, 0.dp, 16.dp, 0.dp)
+                            .wrapContentSize(),
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Left,
+                        color = if (itemBookInfo.totalCount > 1) {
+                            if (itemBookInfo.currentDiff != 0) {
 
-                Text(
-                    text = "NEW",
-                    modifier = Modifier
-                        .wrapContentHeight()
-                        .padding(0.dp, 0.dp, 16.dp, 0.dp)
-                        .wrapContentSize(),
-                    fontSize = 12.sp,
-                    textAlign = TextAlign.Left,
-                    color = Color.Black,
-                    fontWeight = FontWeight.Bold,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        }
+                                if(itemBookInfo.currentDiff > 0){
+                                    color02BC77
+                                } else if(itemBookInfo.currentDiff < 0){
+                                    colorFF2366
+                                } else {
+                                    color1CE3EE
+                                }
+                            } else {
+                                color1CE3EE
+                            }
+                        } else {
+                            color1CE3EE
+                        },
+                        fontWeight = FontWeight.Bold,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            })
     }
 }

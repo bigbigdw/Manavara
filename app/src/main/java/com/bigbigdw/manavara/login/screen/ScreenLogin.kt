@@ -57,6 +57,7 @@ import com.bigbigdw.manavara.ui.theme.color8E8E8E
 import com.bigbigdw.manavara.ui.theme.colorE9E9E9
 import com.bigbigdw.manavara.ui.theme.colorEDE6FD
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
+import com.bigbigdw.manavara.util.comicKor
 import com.bigbigdw.manavara.util.novelKor
 import com.bigbigdw.manavara.util.screen.AlertTwoBtn
 import com.bigbigdw.manavara.util.screen.BtnMobile
@@ -83,7 +84,9 @@ fun ScreenLogin(
 
     val (getUserInfo, setUserInfo) = remember { mutableStateOf(state.userInfo) }
 
-    val (getRange, setRange) = remember { mutableStateOf(state.platformRange) }
+    val (getRangeNovel, setRangeNovel) = remember { mutableStateOf(state.platformRangeNovel) }
+
+    val (getRangeComic, setRangeComic) = remember { mutableStateOf(state.platformRangeComic) }
 
     viewModelLogin.isExpandedScreen(bool = isExpandedScreen)
 
@@ -216,8 +219,10 @@ fun ScreenLogin(
                 contents = {
                     ScreenRegister(
                         viewModelLogin = viewModelLogin,
-                        setRange = setRange,
-                        getRange = getRange,
+                        setRangeNovel = setRangeNovel,
+                        getRangeNovel = getRangeNovel,
+                        setRangeComic = setRangeComic,
+                        getRangeComic = getRangeComic,
                         setUserInfo = setUserInfo,
                         getUserInfo = getUserInfo
                     )
@@ -288,8 +293,10 @@ fun ScreenRegister(
     viewModelLogin: ViewModelLogin,
     setUserInfo: (UserInfo) -> Unit,
     getUserInfo: UserInfo,
-    setRange:  (SnapshotStateList<String>) -> Unit,
-    getRange: SnapshotStateList<String>
+    setRangeNovel: (SnapshotStateList<String>) -> Unit,
+    getRangeNovel: SnapshotStateList<String>,
+    setRangeComic: (SnapshotStateList<String>) -> Unit,
+    getRangeComic: SnapshotStateList<String>
 ) {
 
     val state = viewModelLogin.state.collectAsState().value
@@ -355,100 +362,39 @@ fun ScreenRegister(
         Spacer(modifier = Modifier.size(16.dp))
     }
 
-    ItemTabletTitle("웹소설 / 웹툰 선택")
+    ItemTabletTitle("웹툰 플랫폼 선택(다중 선택 가능)")
 
     TabletContentWrap {
-        ItemRegister(
-            title = "웹소설",
-            isLast = false,
-            setUserInfo = { setUserInfo(getUserInfo.copy(viewMode = "웹소설")) },
-            getUserInfo = getUserInfo
-        )
-        ItemRegister(
-            title = "웹툰",
-            isLast = true,
-            setUserInfo = { setUserInfo(getUserInfo.copy(viewMode = "웹툰")) },
-            getUserInfo = getUserInfo
-        )
+        comicKor().forEachIndexed { index, item ->
+            ItemChooseGenre(
+                title = item,
+                isLast = novelKor().size - 1 == index,
+                setRange = setRangeComic,
+                getRange = getRangeComic
+            )
+        }
     }
 
-    ItemTabletTitle("플랫폼 선택(다중 선택 가능)")
+    ItemTabletTitle("웹소설 플랫폼 선택(다중 선택 가능)")
 
     TabletContentWrap {
         novelKor().forEachIndexed { index, item ->
             ItemChooseGenre(
                 title = item,
                 isLast = novelKor().size - 1 == index,
-                setRange = setRange,
-                getRange = getRange
+                setRange = setRangeNovel,
+                getRange = getRangeNovel
             )
         }
     }
 
     Box(modifier = Modifier.padding(16.dp), contentAlignment = Alignment.Center) {
         BtnMobile(
-            func = { viewModelLogin.doRegister(getUserInfo = getUserInfo, getRange = getRange) },
+            func = { viewModelLogin.doRegister(getUserInfo = getUserInfo, getRange = getRangeNovel) },
             btnText = "회원 가입"
         )
     }
 
-}
-
-@Composable
-fun ItemRegister(
-    title: String,
-    isLast: Boolean,
-    setUserInfo: (UserInfo) -> Unit,
-    getUserInfo: UserInfo
-) {
-
-    Column {
-        Button(
-            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-            contentPadding = PaddingValues(
-                start = 0.dp,
-                top = 0.dp,
-                end = 0.dp,
-                bottom = 0.dp,
-            ),
-            shape = RoundedCornerShape(0.dp),
-            onClick = { setUserInfo(getUserInfo.copy(viewMode = title)) },
-            content = {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = title,
-                        fontSize = 18.sp,
-                        textAlign = TextAlign.Center,
-                        color = if (getUserInfo.viewMode == title) {
-                            color1CE3EE
-                        } else {
-                            color000000
-                        },
-                        fontWeight = if (getUserInfo.viewMode == title) {
-                            FontWeight(weight = 800)
-                        } else {
-                            FontWeight(weight = 400)
-                        }
-                    )
-                }
-            })
-
-        if (!isLast) {
-            Spacer(modifier = Modifier.size(2.dp))
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(color = colorE9E9E9)
-            )
-            Spacer(modifier = Modifier.size(2.dp))
-        }
-    }
 }
 
 @Composable
@@ -590,17 +536,21 @@ fun RegisterInfo(state: StateLogin){
             .padding(20.dp, 0.dp)
             .wrapContentSize(),
         horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            text = spannableString(
-                textFront = "뷰 모드 : ",
-                color = color1CE3EE,
-                textEnd = state.userInfo.viewMode
-            ),
-            color = color000000,
+            text =  "웹소설 플랫폼 : ",
+            color = color1CE3EE,
             fontSize = 14.sp
         )
+        Column {
+            state.platformRangeNovel.forEachIndexed {index, item ->
+                Text(
+                    text = state.platformRangeNovel[index],
+                    color = color000000,
+                    fontSize = 14.sp
+                )
+            }
+        }
     }
 
     Spacer(modifier = Modifier
@@ -614,14 +564,14 @@ fun RegisterInfo(state: StateLogin){
         horizontalArrangement = Arrangement.Start,
     ) {
         Text(
-            text =  "플랫폼 : ",
+            text =  "웹툰 플랫폼 : ",
             color = color1CE3EE,
             fontSize = 14.sp
         )
         Column {
-            state.platformRange.forEachIndexed {index, item ->
+            state.platformRangeComic.forEachIndexed {index, item ->
                 Text(
-                    text = state.platformRange[index],
+                    text = state.platformRangeComic[index],
                     color = color000000,
                     fontSize = 14.sp
                 )
@@ -639,8 +589,10 @@ fun ScreenRegisterMobile(
     viewModelLogin: ViewModelLogin,
     setUserInfo: (UserInfo) -> Unit,
     getUserInfo: UserInfo,
-    setRange: (SnapshotStateList<String>) -> Unit,
-    getRange: SnapshotStateList<String>,
+    setRangeNovel: (SnapshotStateList<String>) -> Unit,
+    getRangeNovel: SnapshotStateList<String>,
+    setRangeComic: (SnapshotStateList<String>) -> Unit,
+    getRangeComic: SnapshotStateList<String>,
     activity: ComponentActivity
 ) {
 
@@ -686,10 +638,12 @@ fun ScreenRegisterMobile(
 
         ScreenRegister(
             viewModelLogin = viewModelLogin,
-            setRange = setRange,
-            getRange = getRange,
             setUserInfo = setUserInfo,
-            getUserInfo = getUserInfo
+            getUserInfo = getUserInfo,
+            setRangeNovel = setRangeNovel,
+            getRangeNovel = getRangeNovel,
+            setRangeComic = setRangeComic,
+            getRangeComic = getRangeComic,
         )
     }
 }

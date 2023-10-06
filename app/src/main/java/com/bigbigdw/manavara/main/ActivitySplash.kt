@@ -59,8 +59,6 @@ class ActivitySplash : ComponentActivity() {
     ) { isGranted: Boolean ->
         if (isGranted) {
             checkLogin()
-        } else {
-            checkLogin()
         }
     }
 
@@ -128,26 +126,22 @@ class ActivitySplash : ComponentActivity() {
 
         val dataStore = DataStoreManager(this@ActivitySplash)
 
+        val currentUser :  FirebaseUser?
+        val auth: FirebaseAuth = Firebase.auth
+        currentUser = auth.currentUser
+
         CoroutineScope(Dispatchers.IO).launch {
 
             dataStore.getDataStoreString(DataStoreManager.UID).collect { value ->
 
                 if (value.isNullOrEmpty()) {
-                    auth = Firebase.auth
-                    currentUser = auth.currentUser
-
-                    if(currentUser == null){
-                        val intent = Intent(this@ActivitySplash, ActivityLogin::class.java)
-                        startActivity(intent)
-                        finish()
-                    } else {
-                        checkUserExist(user = currentUser)
-                    }
-
-                } else {
-                    val intent = Intent(this@ActivitySplash, ActivityMain::class.java)
+                    dataStore.setDataStoreString(DataStoreManager.UID, currentUser?.uid ?: "")
+                    val intent = Intent(this@ActivitySplash, ActivityLogin::class.java)
                     startActivity(intent)
                     finish()
+
+                } else {
+                    checkUserExist(uid = currentUser?.uid ?: "")
                 }
             }
         }
@@ -164,8 +158,8 @@ class ActivitySplash : ComponentActivity() {
         }
     }
 
-    private fun checkUserExist(user: FirebaseUser?){
-        val mRootRef = FirebaseDatabase.getInstance().reference.child("USER").child(user?.uid ?: "")
+    private fun checkUserExist(uid: String){
+        val mRootRef = FirebaseDatabase.getInstance().reference.child("USER").child(uid)
 
         mRootRef.addListenerForSingleValueEvent(object :
             ValueEventListener {
@@ -176,13 +170,15 @@ class ActivitySplash : ComponentActivity() {
                 if(dataSnapshot.exists()){
 
                     CoroutineScope(Dispatchers.IO).launch {
-                        dataStore.setDataStoreString(DataStoreManager.UID, user?.uid ?: "")
-                        doLogin()
+                        dataStore.setDataStoreString(DataStoreManager.UID, uid)
+                        val intent = Intent(this@ActivitySplash, ActivityMain::class.java)
+                        startActivity(intent)
+                        finish()
                     }
 
                 } else {
                     CoroutineScope(Dispatchers.IO).launch {
-                        dataStore.setDataStoreString(DataStoreManager.UID, "")
+                        dataStore.setDataStoreString(DataStoreManager.UID, uid)
                         val intent = Intent(this@ActivitySplash, ActivityLogin::class.java)
                         startActivity(intent)
                         finish()

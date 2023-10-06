@@ -63,8 +63,12 @@ class ViewModelLogin @Inject constructor() : ViewModel() {
                 current.copy(isExpandedScreen = event.isExpandedScreen)
             }
 
-            is EventLogin.SetPlatformRange -> {
-                current.copy(platformRange = event.platformRange)
+            is EventLogin.SetPlatformRangeNovel -> {
+                current.copy(platformRangeNovel = event.platformRangeNovel)
+            }
+
+            is EventLogin.SetPlatformRangeComic -> {
+                current.copy(platformRangeComic = event.platformRangeComic)
             }
 
             is EventLogin.SetIsRegisterConfirm -> {
@@ -156,11 +160,11 @@ class ViewModelLogin @Inject constructor() : ViewModel() {
 
         viewModelScope.launch {
             events.send(
-                EventLogin.SetUserInfo(state.value.userInfo.copy(userNickName = getUserInfo.userNickName, viewMode = getUserInfo.viewMode))
+                EventLogin.SetUserInfo(state.value.userInfo.copy(userNickName = getUserInfo.userNickName))
             )
 
             events.send(
-                EventLogin.SetPlatformRange(getRange)
+                EventLogin.SetPlatformRangeNovel(getRange)
             )
         }
 
@@ -170,13 +174,13 @@ class ViewModelLogin @Inject constructor() : ViewModel() {
             viewModelScope.launch {
                 _sideEffects.send("닉네임을 입력해주세요")
             }
-        } else if(state.value.userInfo.viewMode.isEmpty()){
+        } else if(state.value.platformRangeComic.isEmpty()){
             viewModelScope.launch {
-                _sideEffects.send("웹툰 / 웹소설 모드를 선택해 주세요.")
+                _sideEffects.send("웹소설 플랫폼을 선택해 주세요.")
             }
-        } else if(state.value.platformRange.isEmpty()){
+        }  else if(state.value.platformRangeNovel.isEmpty()){
             viewModelScope.launch {
-                _sideEffects.send("플랫폼을 선택해 주세요.")
+                _sideEffects.send("웹툰 플랫폼을 선택해 주세요.")
             }
         } else {
             viewModelScope.launch {
@@ -206,22 +210,20 @@ class ViewModelLogin @Inject constructor() : ViewModel() {
     fun finishRegister(activity: ComponentActivity){
         val mRootRef = FirebaseDatabase.getInstance().reference
 
-        val platformRange = ArrayList<String>()
+        val platformRangeNovel = ArrayList<String>()
+        val platformRangeComic = ArrayList<String>()
 
-        for(item in state.value.platformRange){
-            platformRange.add(changePlatformNameEng(item))
+        for(item in state.value.platformRangeNovel){
+            platformRangeNovel.add(changePlatformNameEng(item))
         }
 
-        val viewMode = state.value.userInfo.viewMode
-
-        if(viewMode == "웹소설"){
-            state.value.userInfo.viewMode = "NOVEL"
-        } else {
-            state.value.userInfo.viewMode = "COMIC"
+        for(item in state.value.platformRangeComic){
+            platformRangeComic.add(changePlatformNameEng(item))
         }
 
         mRootRef.child("USER").child(state.value.userInfo.userUID).child("USERINFO").setValue(state.value.userInfo)
-        mRootRef.child("USER").child(state.value.userInfo.userUID).child("PLATFORM").setValue(platformRange)
+        mRootRef.child("USER").child(state.value.userInfo.userUID).child("PLATFORM_NOVEL").setValue(platformRangeNovel)
+        mRootRef.child("USER").child(state.value.userInfo.userUID).child("PLATFORM_COMIC").setValue(platformRangeComic)
 
         val intent = Intent(activity, ActivityMain::class.java)
         activity.startActivity(intent)

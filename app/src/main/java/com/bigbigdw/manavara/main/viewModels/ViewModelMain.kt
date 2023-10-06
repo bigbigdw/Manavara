@@ -44,8 +44,12 @@ class ViewModelMain @Inject constructor() : ViewModel() {
                 current.copy(userInfo = event.userInfo)
             }
 
-            is EventMain.SetPlatformRange -> {
-                current.copy(platformRange = event.platformRange)
+            is EventMain.SetPlatformRangeNovel -> {
+                current.copy(platformRangeNovel = event.platformRangeNovel)
+            }
+
+            is EventMain.SetPlatformRangeComic -> {
+                current.copy(platformRangeComic = event.platformRangeComic)
             }
 
             else -> {
@@ -54,7 +58,7 @@ class ViewModelMain @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setPlatformRange(){
+    fun setPlatformRange(type : String){
 
         val currentUser :  FirebaseUser?
         val auth: FirebaseAuth = Firebase.auth
@@ -62,7 +66,7 @@ class ViewModelMain @Inject constructor() : ViewModel() {
 
         val mRootRef = FirebaseDatabase.getInstance().reference
 
-        mRootRef.child("USER").child(currentUser?.uid ?: "").child("PLATFORM").addListenerForSingleValueEvent(object :
+        mRootRef.child("USER").child(currentUser?.uid ?: "").child(type).addListenerForSingleValueEvent(object :
             ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
 
@@ -78,9 +82,16 @@ class ViewModelMain @Inject constructor() : ViewModel() {
                     }
 
                     viewModelScope.launch {
-                        events.send(
-                            EventMain.SetPlatformRange(platformRange = platformArray)
-                        )
+
+                        if(type == "PLATFORM_NOVEL"){
+                            events.send(
+                                EventMain.SetPlatformRangeNovel(platformRangeNovel = platformArray)
+                            )
+                        } else {
+                            events.send(
+                                EventMain.SetPlatformRangeComic(platformRangeComic = platformArray)
+                            )
+                        }
                     }
                 }
             }

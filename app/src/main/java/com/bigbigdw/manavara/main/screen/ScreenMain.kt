@@ -23,6 +23,7 @@ import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -56,24 +57,29 @@ fun ScreenMain(
     val isExpandedScreen = widthSizeClass == WindowWidthSizeClass.Expanded
 
     viewModelMain.setUserInfo()
-    viewModelMain.setPlatformRange()
+    viewModelMain.setPlatformRange("PLATFORM_NOVEL")
+    viewModelMain.setPlatformRange("PLATFORM_COMIC")
 
-    if(!isExpandedScreen){
-        ScreenMainMobile(
-            navController = navController,
-            currentRoute = currentRoute,
-            viewModelMain = viewModelMain,
-            viewModelBest = viewModelBest,
-            isExpandedScreen = isExpandedScreen
-        )
-    } else {
-        ScreenMainTablet(
-            currentRoute = currentRoute,
-            navController = navController,
-            viewModelMain = viewModelMain,
-            viewModelBest = viewModelBest,
-            isExpandedScreen = isExpandedScreen
-        )
+    val mainState = viewModelMain.state.collectAsState().value
+
+    if(mainState.userInfo.userEmail.isNotEmpty() && mainState.platformRangeComic.size > 0 && mainState.platformRangeNovel.size > 0){
+        if(!isExpandedScreen){
+            ScreenMainMobile(
+                navController = navController,
+                currentRoute = currentRoute,
+                viewModelMain = viewModelMain,
+                viewModelBest = viewModelBest,
+                isExpandedScreen = isExpandedScreen
+            )
+        } else {
+            ScreenMainTablet(
+                currentRoute = currentRoute,
+                navController = navController,
+                viewModelMain = viewModelMain,
+                viewModelBest = viewModelBest,
+                isExpandedScreen = isExpandedScreen
+            )
+        }
     }
 }
 
@@ -147,8 +153,8 @@ fun ScreenMainMobile(
 @Composable
 fun BottomNavScreen(navController: NavHostController, currentRoute: String?) {
     val items = listOf(
-        ScreemBottomItem.BEST,
-        ScreemBottomItem.SETTING,
+        ScreemBottomItem.NOVEL,
+        ScreemBottomItem.COMIC,
         ScreemBottomItem.FCM,
         ScreemBottomItem.JSON,
         ScreemBottomItem.TROPHY,
@@ -209,12 +215,12 @@ fun NavigationGraph(
 
     NavHost(
         navController = navController,
-        startDestination = ScreemBottomItem.BEST.screenRoute
+        startDestination = ScreemBottomItem.NOVEL.screenRoute
     ) {
-        composable(ScreemBottomItem.BEST.screenRoute) {
+        composable(ScreemBottomItem.NOVEL.screenRoute) {
             ScreenBest(isExpandedScreen = isExpandedScreen, viewModelBest = viewModelBest, viewModelMain = viewModelMain)
         }
-        composable(ScreemBottomItem.SETTING.screenRoute) {
+        composable(ScreemBottomItem.COMIC.screenRoute) {
             ScreenTest()
         }
         composable(ScreemBottomItem.FCM.screenRoute) {
@@ -236,8 +242,8 @@ fun TableAppNavRail(
 ) {
 
     val items = listOf(
-        ScreemBottomItem.BEST,
-        ScreemBottomItem.SETTING,
+        ScreemBottomItem.NOVEL,
+        ScreemBottomItem.COMIC,
         ScreemBottomItem.FCM,
         ScreemBottomItem.JSON,
         ScreemBottomItem.TROPHY,

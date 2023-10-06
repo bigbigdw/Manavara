@@ -18,9 +18,14 @@ sealed interface EventLogin{
         val isExpandedScreen: Boolean = false,
     ) : EventLogin
 
-    class SetPlatformRange(
-        var platformRange: SnapshotStateList<String> = SnapshotStateList(),
+    class SetPlatformRangeNovel(
+        var platformRangeNovel: SnapshotStateList<String> = SnapshotStateList(),
     ) : EventLogin
+
+    class SetPlatformRangeComic(
+        var platformRangeComic: SnapshotStateList<String> = SnapshotStateList(),
+    ) : EventLogin
+
 
     class SetIsRegisterConfirm(
         val isRegisterConfirm: Boolean = false,
@@ -32,6 +37,7 @@ data class StateLogin(
     val userInfo: UserInfo = UserInfo(),
     val isResgister: Boolean = false,
     val isExpandedScreen: Boolean = false,
-    var platformRange: SnapshotStateList<String> = SnapshotStateList(),
+    var platformRangeNovel: SnapshotStateList<String> = SnapshotStateList(),
+    var platformRangeComic: SnapshotStateList<String> = SnapshotStateList(),
     val isRegisterConfirm: Boolean = false,
 )

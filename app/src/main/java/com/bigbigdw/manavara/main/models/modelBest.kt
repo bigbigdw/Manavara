@@ -35,6 +35,8 @@ data class ItemBookInfo(
     var totalMonth:  Int = 1,
     @SerialName("totalMonthCount")
     var totalMonthCount:  Int = 1,
+    @SerialName("currentDiff")
+    var currentDiff:  Int = 1,
 )
 data class ItemBestInfo (
     @SerialName("number")
@@ -47,4 +49,6 @@ data class ItemBestInfo (
     var totalCount:  Int = 1,
     @SerialName("bookCode")
     var bookCode: String = "",
+    @SerialName("currentDiff")
+    var currentDiff:  Int = 1,
 )
