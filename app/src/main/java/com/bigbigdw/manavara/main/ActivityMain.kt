@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.lifecycle.lifecycleScope
+import com.bigbigdw.manavara.login.viewModels.ViewModelLogin
 import com.bigbigdw.manavara.main.screen.ScreenMain
 import com.bigbigdw.manavara.main.viewModels.ViewModelBest
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
@@ -19,6 +20,7 @@ class ActivityMain : ComponentActivity() {
 
     private val viewModelMain: ViewModelMain by viewModels()
     private val viewModelBest: ViewModelBest by viewModels()
+    private val viewModelLogin: ViewModelLogin by viewModels()
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,12 +33,19 @@ class ActivityMain : ComponentActivity() {
             .onEach { Toast.makeText(this@ActivityMain, it, Toast.LENGTH_SHORT).show() }
             .launchIn(lifecycleScope)
 
+        viewModelLogin.sideEffects
+            .onEach { Toast.makeText(this@ActivityMain, it, Toast.LENGTH_SHORT).show() }
+            .launchIn(lifecycleScope)
+
         setContent {
             val widthSizeClass = calculateWindowSizeClass(this).widthSizeClass
+
+            viewModelLogin.setUserInfo()
 
             ScreenMain(
                 viewModelMain = viewModelMain,
                 viewModelBest = viewModelBest,
+                viewModelLogin = viewModelLogin,
                 widthSizeClass = widthSizeClass
             )
 

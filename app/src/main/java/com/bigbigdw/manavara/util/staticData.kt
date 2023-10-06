@@ -68,7 +68,7 @@ fun changePlatformNameEng(platform : String) : String {
             "TOKSODA"
         }
         else -> {
-            "없음"
+            platform
         }
     }
 }
@@ -106,7 +106,7 @@ fun changePlatformNameKor(platform : String) : String {
             "톡소다"
         }
         else -> {
-            "없음"
+            platform
         }
     }
 }

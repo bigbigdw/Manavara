@@ -1,6 +1,7 @@
 package com.bigbigdw.manavara.login.screen
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -30,6 +31,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,6 +59,8 @@ import com.bigbigdw.manavara.ui.theme.color8E8E8E
 import com.bigbigdw.manavara.ui.theme.colorE9E9E9
 import com.bigbigdw.manavara.ui.theme.colorEDE6FD
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
+import com.bigbigdw.manavara.util.changePlatformNameEng
+import com.bigbigdw.manavara.util.changePlatformNameKor
 import com.bigbigdw.manavara.util.comicKor
 import com.bigbigdw.manavara.util.novelKor
 import com.bigbigdw.manavara.util.screen.AlertTwoBtn
@@ -293,32 +297,35 @@ fun ScreenRegister(
     viewModelLogin: ViewModelLogin,
     setUserInfo: (UserInfo) -> Unit,
     getUserInfo: UserInfo,
-    setRangeNovel: (SnapshotStateList<String>) -> Unit,
-    getRangeNovel: SnapshotStateList<String>,
-    setRangeComic: (SnapshotStateList<String>) -> Unit,
-    getRangeComic: SnapshotStateList<String>
+    setRangeNovel: (ArrayList<String>) -> Unit,
+    getRangeNovel: ArrayList<String>,
+    setRangeComic: (ArrayList<String>) -> Unit,
+    getRangeComic: ArrayList<String>,
+    isEdit : Boolean = false
 ) {
 
-    val state = viewModelLogin.state.collectAsState().value
+    if(isEdit){
+        Spacer(modifier = Modifier.size(4.dp))
+    }
 
     TabletContentWrap {
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "마나바라 회원가입",
-                color = color000000,
-                fontSize = 18.sp,
-            )
+        if(!isEdit){
+            Row(
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "마나바라 회원가입",
+                    color = color000000,
+                    fontSize = 18.sp,
+                )
+            }
         }
 
         Spacer(modifier = Modifier.size(4.dp))
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -331,7 +338,13 @@ fun ScreenRegister(
         }
     }
 
-    ItemTabletTitle("회원 정보 입력")
+    ItemTabletTitle(
+        if (isEdit) {
+            "회원정보 수정"
+        } else {
+            "회원정보 입력"
+        }
+    )
 
     TabletContentWrap {
         TextField(
@@ -347,7 +360,7 @@ fun ScreenRegister(
         )
 
         TextField(
-            value = state.userInfo.userEmail,
+            value = getUserInfo.userEmail,
             enabled = false,
             onValueChange = {},
             label = { Text("이메일 주소", color = color898989) },
@@ -380,7 +393,7 @@ fun ScreenRegister(
     TabletContentWrap {
         novelKor().forEachIndexed { index, item ->
             ItemChooseGenre(
-                title = item,
+                title = changePlatformNameKor(item),
                 isLast = novelKor().size - 1 == index,
                 setRange = setRangeNovel,
                 getRange = getRangeNovel
@@ -395,14 +408,18 @@ fun ScreenRegister(
         )
     }
 
+    if(isEdit){
+        Spacer(modifier = Modifier.size(20.dp))
+    }
+
 }
 
 @Composable
 fun ItemChooseGenre(
     title: String,
     isLast: Boolean,
-    setRange:  (SnapshotStateList<String>) -> Unit,
-    getRange: SnapshotStateList<String>
+    setRange:  (ArrayList<String>) -> Unit,
+    getRange: ArrayList<String>
 ) {
 
     Column {
@@ -589,10 +606,10 @@ fun ScreenRegisterMobile(
     viewModelLogin: ViewModelLogin,
     setUserInfo: (UserInfo) -> Unit,
     getUserInfo: UserInfo,
-    setRangeNovel: (SnapshotStateList<String>) -> Unit,
-    getRangeNovel: SnapshotStateList<String>,
-    setRangeComic: (SnapshotStateList<String>) -> Unit,
-    getRangeComic: SnapshotStateList<String>,
+    setRangeNovel: (ArrayList<String> ) -> Unit,
+    getRangeNovel: ArrayList<String> ,
+    setRangeComic: (ArrayList<String> ) -> Unit,
+    getRangeComic: ArrayList<String> ,
     activity: ComponentActivity
 ) {
 

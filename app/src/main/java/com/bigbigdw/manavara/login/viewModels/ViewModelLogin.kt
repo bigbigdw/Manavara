@@ -3,7 +3,6 @@ package com.bigbigdw.manavara.login.viewModels
 import android.content.Intent
 import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bigbigdw.manavara.main.ActivityMain
@@ -12,6 +11,7 @@ import com.bigbigdw.manavara.login.events.EventLogin
 import com.bigbigdw.manavara.login.events.StateLogin
 import com.bigbigdw.manavara.main.models.UserInfo
 import com.bigbigdw.manavara.util.changePlatformNameEng
+import com.bigbigdw.manavara.util.changePlatformNameKor
 import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.FirebaseAuth
@@ -51,8 +51,15 @@ class ViewModelLogin @Inject constructor() : ViewModel() {
                 current.copy(Loaded = true)
             }
 
+            EventLogin.Loading -> {
+                current.copy(Loaded = false)
+            }
+
             is EventLogin.SetUserInfo -> {
                 current.copy(userInfo = event.userInfo)
+            }
+            is EventLogin.SetUserInfoEdit -> {
+                current.copy(userInfo = event.userInfo, platformRangeComic = event.platformRangeComic, platformRangeNovel = event.platformRangeNovel)
             }
 
             is EventLogin.SetIsResgister -> {
@@ -111,6 +118,55 @@ class ViewModelLogin @Inject constructor() : ViewModel() {
         }
     }
 
+    fun setUserInfo(){
+
+        val currentUser :  FirebaseUser?
+        val auth: FirebaseAuth = Firebase.auth
+        currentUser = auth.currentUser
+
+        val mRootRef = FirebaseDatabase.getInstance().reference
+
+        mRootRef.child("USER").child(currentUser?.uid ?: "").addListenerForSingleValueEvent(object :
+            ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if(dataSnapshot.exists()){
+
+                    val userInfoResult: UserInfo? = dataSnapshot.child("USERINFO").getValue(UserInfo::class.java)
+
+                    val platformNovel = dataSnapshot.child("PLATFORM_NOVEL")
+                    val platformArrayNovel = ArrayList<String>()
+
+                    for(item in platformNovel.children){
+                        val platform: String? = item.getValue(String::class.java)
+                        if (platform != null) {
+                            platformArrayNovel.add(changePlatformNameKor(platform))
+                        }
+                    }
+
+                    val platformComic = dataSnapshot.child("PLATFORM_COMIC")
+                    val platformArrayComic = ArrayList<String>()
+
+                    for(item in platformComic.children){
+                        val platform: String? = item.getValue(String::class.java)
+                        if (platform != null) {
+                            platformArrayComic.add(changePlatformNameKor(platform))
+                        }
+                    }
+
+                    viewModelScope.launch {
+                        events.send(
+                            EventLogin.SetUserInfoEdit(userInfo = userInfoResult ?: UserInfo(), platformRangeNovel = platformArrayNovel, platformRangeComic = platformArrayComic)
+                        )
+                    }
+
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {}
+        })
+
+    }
+
     private fun checkUserExist(user: FirebaseUser?, activity: ComponentActivity){
         val mRootRef = FirebaseDatabase.getInstance().reference.child("USER").child(user?.uid ?: "")
 
@@ -156,7 +212,7 @@ class ViewModelLogin @Inject constructor() : ViewModel() {
         })
     }
 
-    fun doRegister(getUserInfo: UserInfo, getRange: SnapshotStateList<String>) {
+    fun doRegister(getUserInfo: UserInfo, getRange: ArrayList<String> ) {
 
         viewModelScope.launch {
             events.send(

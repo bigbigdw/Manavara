@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -151,15 +152,12 @@ fun ItemTabletTitle(str: String) {
 @Composable
 fun TabletContentWrap(radius: Int = 20, content: @Composable () -> Unit) {
     Card(
-        modifier = Modifier
-            .fillMaxSize(),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(size = radius.dp),
         elevation = CardDefaults.cardElevation(0.dp)
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
                 .padding(24.dp, 4.dp)
         ) {
 
@@ -268,11 +266,11 @@ fun AlertTwoBtn(
     ) {
         Box(
             modifier = Modifier
-                .width(260.dp),
+                .requiredWidth(260.dp),
         ) {
             Column(
                 modifier = Modifier
-                    .width(260.dp)
+                    .requiredWidth(260.dp)
                     .wrapContentHeight(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally

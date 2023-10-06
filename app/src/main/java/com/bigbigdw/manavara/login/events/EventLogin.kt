@@ -6,8 +6,16 @@ import com.bigbigdw.manavara.main.models.UserInfo
 sealed interface EventLogin{
     object Loaded: EventLogin
 
+    object Loading: EventLogin
+
     class SetUserInfo(
         val userInfo: UserInfo = UserInfo(),
+    ) : EventLogin
+
+    class SetUserInfoEdit(
+        val userInfo: UserInfo = UserInfo(),
+        var platformRangeNovel: ArrayList<String> = ArrayList(),
+        var platformRangeComic: ArrayList<String> = ArrayList(),
     ) : EventLogin
 
     class SetIsResgister(
@@ -19,11 +27,11 @@ sealed interface EventLogin{
     ) : EventLogin
 
     class SetPlatformRangeNovel(
-        var platformRangeNovel: SnapshotStateList<String> = SnapshotStateList(),
+        var platformRangeNovel: ArrayList<String> = ArrayList(),
     ) : EventLogin
 
     class SetPlatformRangeComic(
-        var platformRangeComic: SnapshotStateList<String> = SnapshotStateList(),
+        var platformRangeComic: ArrayList<String> = ArrayList(),
     ) : EventLogin
 
 
@@ -37,7 +45,7 @@ data class StateLogin(
     val userInfo: UserInfo = UserInfo(),
     val isResgister: Boolean = false,
     val isExpandedScreen: Boolean = false,
-    var platformRangeNovel: SnapshotStateList<String> = SnapshotStateList(),
-    var platformRangeComic: SnapshotStateList<String> = SnapshotStateList(),
+    var platformRangeNovel: ArrayList<String> = ArrayList(),
+    var platformRangeComic: ArrayList<String> = ArrayList(),
     val isRegisterConfirm: Boolean = false,
 )

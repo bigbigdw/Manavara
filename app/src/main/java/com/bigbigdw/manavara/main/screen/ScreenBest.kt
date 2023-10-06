@@ -1,5 +1,6 @@
 package com.bigbigdw.manavara.main.screen
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -50,6 +51,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.bigbigdw.manavara.R
+import com.bigbigdw.manavara.login.screen.ScreenRegister
+import com.bigbigdw.manavara.login.viewModels.ViewModelLogin
 import com.bigbigdw.manavara.main.models.ItemBookInfo
 import com.bigbigdw.manavara.main.viewModels.ViewModelBest
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
@@ -80,7 +83,8 @@ import kotlinx.coroutines.launch
 fun ScreenBest(
     isExpandedScreen: Boolean,
     viewModelBest: ViewModelBest,
-    viewModelMain: ViewModelMain
+    viewModelMain: ViewModelMain,
+    viewModelLogin: ViewModelLogin
 ) {
 
     val mainState = viewModelMain.state.collectAsState().value
@@ -128,7 +132,8 @@ fun ScreenBest(
                     getDetailPlatform = getDetailPlatform,
                     getDetailGenre = getDetailGenre,
                     getDetailType = getDetailType,
-                    setDetailGenre = setDetailGenre
+                    setDetailGenre = setDetailGenre,
+                    viewModelLogin = viewModelLogin
                 )
 
             } else {
@@ -332,6 +337,7 @@ fun ItemBestListSingle(
         })
 }
 
+@SuppressLint("MutableCollectionMutableState")
 @Composable
 fun ScreenBestDetail(
     getMenu: String,
@@ -341,10 +347,14 @@ fun ScreenBestDetail(
     getDetailType: String,
     viewModelBest: ViewModelBest,
     setDetailGenre: (String) -> Unit,
+    viewModelLogin: ViewModelLogin,
 ) {
+
+    val mainState = viewModelMain.state.collectAsState().value
 
     Column(
         modifier = Modifier
+            .verticalScroll(rememberScrollState())
             .background(color = colorF6F6F6)
             .semantics { contentDescription = "Overview Screen" },
     ) {
@@ -359,7 +369,35 @@ fun ScreenBestDetail(
             fontWeight = FontWeight(weight = 700)
         )
 
-        if (getMenu.contains("TODAY_BEST")) {
+
+        if (getMenu.contains("유저 옵션")) {
+
+            viewModelLogin.setUserInfo()
+
+            val loginState = viewModelLogin.state.collectAsState().value
+
+            val (getRangeNovel, setRangeNovel) = remember { mutableStateOf(loginState.platformRangeNovel) }
+            val (getRangeComic, setRangeComic) = remember { mutableStateOf(loginState.platformRangeComic) }
+            val (getUserInfo, setUserInfo) = remember { mutableStateOf(loginState.userInfo) }
+
+            Column(
+                modifier = Modifier
+                    .background(colorF6F6F6)
+                    .padding(0.dp, 0.dp, 20.dp, 0.dp)
+            ) {
+                ScreenRegister(
+                    viewModelLogin = ViewModelLogin(),
+                    setRangeNovel = setRangeNovel,
+                    getRangeNovel = getRangeNovel,
+                    setRangeComic = setRangeComic,
+                    getRangeComic = getRangeComic,
+                    setUserInfo = setUserInfo,
+                    getUserInfo = getUserInfo,
+                    isEdit = true
+                )
+            }
+
+        } else if (getMenu.contains("TODAY_BEST")) {
             ScreenTodayBest(
                 viewModelMain = viewModelMain,
                 viewModelBest = viewModelBest,
