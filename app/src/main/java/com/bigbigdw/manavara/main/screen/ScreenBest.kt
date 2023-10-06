@@ -1,7 +1,6 @@
 package com.bigbigdw.manavara.main.screen
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -71,7 +70,10 @@ import com.bigbigdw.manavara.ui.theme.colorF7F7F7
 import com.bigbigdw.manavara.ui.theme.colorFF2366
 import com.bigbigdw.manavara.ui.theme.colorea927C
 import com.bigbigdw.manavara.util.DBDate
+import com.bigbigdw.manavara.util.changePlatformNameEng
 import com.bigbigdw.manavara.util.changePlatformNameKor
+import com.bigbigdw.manavara.util.novelListEng
+import com.bigbigdw.manavara.util.novelListKor
 import com.bigbigdw.manavara.util.screen.ItemKeyword
 import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
 import com.bigbigdw.manavara.util.screen.ScreenTest
@@ -83,11 +85,8 @@ import kotlinx.coroutines.launch
 fun ScreenBest(
     isExpandedScreen: Boolean,
     viewModelBest: ViewModelBest,
-    viewModelMain: ViewModelMain,
-    viewModelLogin: ViewModelLogin
+    viewModelMain: ViewModelMain
 ) {
-
-    val mainState = viewModelMain.state.collectAsState().value
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -97,11 +96,9 @@ fun ScreenBest(
             if (isExpandedScreen) {
 
                 val (getMenu, setMenu) = remember { mutableStateOf("") }
-                val (getDetailPlatform, setDetailPlatform) = remember { mutableStateOf(mainState.platformRangeNovel[0]) }
+                val (getDetailPlatform, setDetailPlatform) = remember { mutableStateOf(novelListEng()[0]) }
                 val (getDetailGenre, setDetailGenre) = remember { mutableStateOf("ALL") }
-                val (getDetailType, setDetailType) = remember { mutableStateOf("COMIC") }
-
-                Log.d("ScreenTodayBest", "DBDate.dateMMDD() == ${DBDate.dateMMDD()}")
+                val (getDetailType, setDetailType) = remember { mutableStateOf("NOVEL") }
 
                 viewModelBest.getBestJsonList(
                     date = DBDate.dateMMDD(),
@@ -132,8 +129,7 @@ fun ScreenBest(
                     getDetailPlatform = getDetailPlatform,
                     getDetailGenre = getDetailGenre,
                     getDetailType = getDetailType,
-                    setDetailGenre = setDetailGenre,
-                    viewModelLogin = viewModelLogin
+                    setDetailGenre = setDetailGenre
                 )
 
             } else {
@@ -206,7 +202,7 @@ fun ScreenBestTabletList(
             onClick = {  },
         )
 
-        mainState.platformRangeNovel.forEachIndexed{ index, item ->
+        novelListKor().forEachIndexed{ index, item ->
             ItemBestListSingle(
                 containerColor = color52A9FF,
                 image = R.drawable.icon_best_wht,
@@ -215,8 +211,8 @@ fun ScreenBestTabletList(
                 setMenu = setMenu,
                 getMenu = getMenu,
                 bestType = "TODAY_BEST",
-                setDetailPlatform = { setDetailPlatform(item) },
-                setDetailType = { setDetailType("COMIC") },
+                setDetailPlatform = { setDetailPlatform(changePlatformNameEng(item)) },
+                setDetailType = { setDetailType("NOVEL") },
 
             )
         }
@@ -346,15 +342,13 @@ fun ScreenBestDetail(
     getDetailGenre: String,
     getDetailType: String,
     viewModelBest: ViewModelBest,
-    setDetailGenre: (String) -> Unit,
-    viewModelLogin: ViewModelLogin,
+    setDetailGenre: (String) -> Unit
 ) {
 
     val mainState = viewModelMain.state.collectAsState().value
 
     Column(
         modifier = Modifier
-            .verticalScroll(rememberScrollState())
             .background(color = colorF6F6F6)
             .semantics { contentDescription = "Overview Screen" },
     ) {
@@ -372,13 +366,7 @@ fun ScreenBestDetail(
 
         if (getMenu.contains("유저 옵션")) {
 
-            viewModelLogin.setUserInfo()
-
-            val loginState = viewModelLogin.state.collectAsState().value
-
-            val (getRangeNovel, setRangeNovel) = remember { mutableStateOf(loginState.platformRangeNovel) }
-            val (getRangeComic, setRangeComic) = remember { mutableStateOf(loginState.platformRangeComic) }
-            val (getUserInfo, setUserInfo) = remember { mutableStateOf(loginState.userInfo) }
+            val (getUserInfo, setUserInfo) = remember { mutableStateOf(mainState.userInfo) }
 
             Column(
                 modifier = Modifier
@@ -387,10 +375,6 @@ fun ScreenBestDetail(
             ) {
                 ScreenRegister(
                     viewModelLogin = ViewModelLogin(),
-                    setRangeNovel = setRangeNovel,
-                    getRangeNovel = getRangeNovel,
-                    setRangeComic = setRangeComic,
-                    getRangeComic = getRangeComic,
                     setUserInfo = setUserInfo,
                     getUserInfo = getUserInfo,
                     isEdit = true

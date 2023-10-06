@@ -31,11 +31,9 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -60,9 +58,6 @@ import com.bigbigdw.manavara.ui.theme.colorE9E9E9
 import com.bigbigdw.manavara.ui.theme.colorEDE6FD
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.util.changePlatformNameEng
-import com.bigbigdw.manavara.util.changePlatformNameKor
-import com.bigbigdw.manavara.util.comicKor
-import com.bigbigdw.manavara.util.novelKor
 import com.bigbigdw.manavara.util.screen.AlertTwoBtn
 import com.bigbigdw.manavara.util.screen.BtnMobile
 import com.bigbigdw.manavara.util.screen.ItemTabletTitle
@@ -87,10 +82,6 @@ fun ScreenLogin(
     val isExpandedLogin = state.isResgister && state.isExpandedScreen
 
     val (getUserInfo, setUserInfo) = remember { mutableStateOf(state.userInfo) }
-
-    val (getRangeNovel, setRangeNovel) = remember { mutableStateOf(state.platformRangeNovel) }
-
-    val (getRangeComic, setRangeComic) = remember { mutableStateOf(state.platformRangeComic) }
 
     viewModelLogin.isExpandedScreen(bool = isExpandedScreen)
 
@@ -223,10 +214,6 @@ fun ScreenLogin(
                 contents = {
                     ScreenRegister(
                         viewModelLogin = viewModelLogin,
-                        setRangeNovel = setRangeNovel,
-                        getRangeNovel = getRangeNovel,
-                        setRangeComic = setRangeComic,
-                        getRangeComic = getRangeComic,
                         setUserInfo = setUserInfo,
                         getUserInfo = getUserInfo
                     )
@@ -297,20 +284,16 @@ fun ScreenRegister(
     viewModelLogin: ViewModelLogin,
     setUserInfo: (UserInfo) -> Unit,
     getUserInfo: UserInfo,
-    setRangeNovel: (ArrayList<String>) -> Unit,
-    getRangeNovel: ArrayList<String>,
-    setRangeComic: (ArrayList<String>) -> Unit,
-    getRangeComic: ArrayList<String>,
-    isEdit : Boolean = false
+    isEdit: Boolean = false
 ) {
 
-    if(isEdit){
+    if (isEdit) {
         Spacer(modifier = Modifier.size(4.dp))
     }
 
     TabletContentWrap {
 
-        if(!isEdit){
+        if (!isEdit) {
             Row(
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
@@ -375,40 +358,18 @@ fun ScreenRegister(
         Spacer(modifier = Modifier.size(16.dp))
     }
 
-    ItemTabletTitle("웹툰 플랫폼 선택(다중 선택 가능)")
-
-    TabletContentWrap {
-        comicKor().forEachIndexed { index, item ->
-            ItemChooseGenre(
-                title = item,
-                isLast = novelKor().size - 1 == index,
-                setRange = setRangeComic,
-                getRange = getRangeComic
-            )
-        }
-    }
-
-    ItemTabletTitle("웹소설 플랫폼 선택(다중 선택 가능)")
-
-    TabletContentWrap {
-        novelKor().forEachIndexed { index, item ->
-            ItemChooseGenre(
-                title = changePlatformNameKor(item),
-                isLast = novelKor().size - 1 == index,
-                setRange = setRangeNovel,
-                getRange = getRangeNovel
-            )
-        }
-    }
-
     Box(modifier = Modifier.padding(16.dp), contentAlignment = Alignment.Center) {
         BtnMobile(
-            func = { viewModelLogin.doRegister(getUserInfo = getUserInfo, getRange = getRangeNovel) },
+            func = {
+                viewModelLogin.doRegister(
+                    getUserInfo = getUserInfo
+                )
+            },
             btnText = "회원 가입"
         )
     }
 
-    if(isEdit){
+    if (isEdit) {
         Spacer(modifier = Modifier.size(20.dp))
     }
 
@@ -418,8 +379,8 @@ fun ScreenRegister(
 fun ItemChooseGenre(
     title: String,
     isLast: Boolean,
-    setRange:  (ArrayList<String>) -> Unit,
-    getRange: ArrayList<String>
+    setRange: (ArrayList<String>) -> Unit,
+    getRange: ArrayList<String>,
 ) {
 
     Column {
@@ -433,13 +394,16 @@ fun ItemChooseGenre(
             ),
             shape = RoundedCornerShape(0.dp),
             onClick = {
-                if(getRange.contains(title)){
-                    getRange.remove(title)
+                if (getRange.contains(changePlatformNameEng(title))) {
+                    getRange.remove(changePlatformNameEng(title))
                     setRange(getRange)
-                } else{
-                    getRange.add(title)
+                    Log.d("HIHIHI", "getRangeComic == $getRange")
+                } else {
+                    getRange.add(changePlatformNameEng(title))
                     setRange(getRange)
-                }},
+                    Log.d("HIHIHI", "getRangeComic == $getRange")
+                }
+            },
             content = {
                 Row(
                     modifier = Modifier
@@ -451,12 +415,12 @@ fun ItemChooseGenre(
                         text = title,
                         fontSize = 18.sp,
                         textAlign = TextAlign.Center,
-                        color = if (getRange.contains(title)) {
+                        color = if (getRange.contains(changePlatformNameEng(title))) {
                             color1CE3EE
                         } else {
                             color000000
                         },
-                        fontWeight = if (getRange.contains(title)) {
+                        fontWeight = if (getRange.contains(changePlatformNameEng(title))) {
                             FontWeight(weight = 800)
                         } else {
                             FontWeight(weight = 400)
@@ -479,7 +443,7 @@ fun ItemChooseGenre(
 }
 
 @Composable
-fun RegisterInfo(state: StateLogin){
+fun RegisterInfo(state: StateLogin) {
     Row(
         Modifier
             .padding(20.dp, 0.dp)
@@ -500,9 +464,11 @@ fun RegisterInfo(state: StateLogin){
         )
     }
 
-    Spacer(modifier = Modifier
-        .fillMaxWidth()
-        .height(24.dp))
+    Spacer(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(24.dp)
+    )
 
     Row(
         Modifier
@@ -522,9 +488,11 @@ fun RegisterInfo(state: StateLogin){
         )
     }
 
-    Spacer(modifier = Modifier
-        .fillMaxWidth()
-        .height(8.dp))
+    Spacer(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(8.dp)
+    )
 
     Row(
         Modifier
@@ -544,61 +512,11 @@ fun RegisterInfo(state: StateLogin){
         )
     }
 
-    Spacer(modifier = Modifier
-        .fillMaxWidth()
-        .height(8.dp))
-
-    Row(
-        Modifier
-            .padding(20.dp, 0.dp)
-            .wrapContentSize(),
-        horizontalArrangement = Arrangement.Start,
-    ) {
-        Text(
-            text =  "웹소설 플랫폼 : ",
-            color = color1CE3EE,
-            fontSize = 14.sp
-        )
-        Column {
-            state.platformRangeNovel.forEachIndexed {index, item ->
-                Text(
-                    text = state.platformRangeNovel[index],
-                    color = color000000,
-                    fontSize = 14.sp
-                )
-            }
-        }
-    }
-
-    Spacer(modifier = Modifier
-        .fillMaxWidth()
-        .height(8.dp))
-
-    Row(
-        Modifier
-            .padding(20.dp, 0.dp)
-            .wrapContentSize(),
-        horizontalArrangement = Arrangement.Start,
-    ) {
-        Text(
-            text =  "웹툰 플랫폼 : ",
-            color = color1CE3EE,
-            fontSize = 14.sp
-        )
-        Column {
-            state.platformRangeComic.forEachIndexed {index, item ->
-                Text(
-                    text = state.platformRangeComic[index],
-                    color = color000000,
-                    fontSize = 14.sp
-                )
-            }
-        }
-    }
-
-    Spacer(modifier = Modifier
-        .fillMaxWidth()
-        .height(32.dp))
+    Spacer(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(32.dp)
+    )
 }
 
 @Composable
@@ -606,10 +524,6 @@ fun ScreenRegisterMobile(
     viewModelLogin: ViewModelLogin,
     setUserInfo: (UserInfo) -> Unit,
     getUserInfo: UserInfo,
-    setRangeNovel: (ArrayList<String> ) -> Unit,
-    getRangeNovel: ArrayList<String> ,
-    setRangeComic: (ArrayList<String> ) -> Unit,
-    getRangeComic: ArrayList<String> ,
     activity: ComponentActivity
 ) {
 
@@ -656,11 +570,7 @@ fun ScreenRegisterMobile(
         ScreenRegister(
             viewModelLogin = viewModelLogin,
             setUserInfo = setUserInfo,
-            getUserInfo = getUserInfo,
-            setRangeNovel = setRangeNovel,
-            getRangeNovel = getRangeNovel,
-            setRangeComic = setRangeComic,
-            getRangeComic = getRangeComic,
+            getUserInfo = getUserInfo
         )
     }
 }

@@ -44,14 +44,6 @@ class ViewModelMain @Inject constructor() : ViewModel() {
                 current.copy(userInfo = event.userInfo)
             }
 
-            is EventMain.SetPlatformRangeNovel -> {
-                current.copy(platformRangeNovel = event.platformRangeNovel)
-            }
-
-            is EventMain.SetPlatformRangeComic -> {
-                current.copy(platformRangeComic = event.platformRangeComic)
-            }
-
             else -> {
                 current.copy(Loaded = false)
             }
@@ -78,19 +70,6 @@ class ViewModelMain @Inject constructor() : ViewModel() {
                         val platform: String? = item.getValue(String::class.java)
                         if (platform != null) {
                             platformArray.add(platform)
-                        }
-                    }
-
-                    viewModelScope.launch {
-
-                        if(type == "PLATFORM_NOVEL"){
-                            events.send(
-                                EventMain.SetPlatformRangeNovel(platformRangeNovel = platformArray)
-                            )
-                        } else {
-                            events.send(
-                                EventMain.SetPlatformRangeComic(platformRangeComic = platformArray)
-                            )
                         }
                     }
                 }

@@ -58,9 +58,6 @@ class ViewModelLogin @Inject constructor() : ViewModel() {
             is EventLogin.SetUserInfo -> {
                 current.copy(userInfo = event.userInfo)
             }
-            is EventLogin.SetUserInfoEdit -> {
-                current.copy(userInfo = event.userInfo, platformRangeComic = event.platformRangeComic, platformRangeNovel = event.platformRangeNovel)
-            }
 
             is EventLogin.SetIsResgister -> {
                 current.copy(isResgister = event.isResgister)
@@ -68,14 +65,6 @@ class ViewModelLogin @Inject constructor() : ViewModel() {
 
             is EventLogin.SetIsExpandedScreen -> {
                 current.copy(isExpandedScreen = event.isExpandedScreen)
-            }
-
-            is EventLogin.SetPlatformRangeNovel -> {
-                current.copy(platformRangeNovel = event.platformRangeNovel)
-            }
-
-            is EventLogin.SetPlatformRangeComic -> {
-                current.copy(platformRangeComic = event.platformRangeComic)
             }
 
             is EventLogin.SetIsRegisterConfirm -> {
@@ -116,55 +105,6 @@ class ViewModelLogin @Inject constructor() : ViewModel() {
                 }
             }
         }
-    }
-
-    fun setUserInfo(){
-
-        val currentUser :  FirebaseUser?
-        val auth: FirebaseAuth = Firebase.auth
-        currentUser = auth.currentUser
-
-        val mRootRef = FirebaseDatabase.getInstance().reference
-
-        mRootRef.child("USER").child(currentUser?.uid ?: "").addListenerForSingleValueEvent(object :
-            ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                if(dataSnapshot.exists()){
-
-                    val userInfoResult: UserInfo? = dataSnapshot.child("USERINFO").getValue(UserInfo::class.java)
-
-                    val platformNovel = dataSnapshot.child("PLATFORM_NOVEL")
-                    val platformArrayNovel = ArrayList<String>()
-
-                    for(item in platformNovel.children){
-                        val platform: String? = item.getValue(String::class.java)
-                        if (platform != null) {
-                            platformArrayNovel.add(changePlatformNameKor(platform))
-                        }
-                    }
-
-                    val platformComic = dataSnapshot.child("PLATFORM_COMIC")
-                    val platformArrayComic = ArrayList<String>()
-
-                    for(item in platformComic.children){
-                        val platform: String? = item.getValue(String::class.java)
-                        if (platform != null) {
-                            platformArrayComic.add(changePlatformNameKor(platform))
-                        }
-                    }
-
-                    viewModelScope.launch {
-                        events.send(
-                            EventLogin.SetUserInfoEdit(userInfo = userInfoResult ?: UserInfo(), platformRangeNovel = platformArrayNovel, platformRangeComic = platformArrayComic)
-                        )
-                    }
-
-                }
-            }
-
-            override fun onCancelled(databaseError: DatabaseError) {}
-        })
-
     }
 
     private fun checkUserExist(user: FirebaseUser?, activity: ComponentActivity){
@@ -212,15 +152,11 @@ class ViewModelLogin @Inject constructor() : ViewModel() {
         })
     }
 
-    fun doRegister(getUserInfo: UserInfo, getRange: ArrayList<String> ) {
+    fun doRegister(getUserInfo: UserInfo) {
 
         viewModelScope.launch {
             events.send(
                 EventLogin.SetUserInfo(state.value.userInfo.copy(userNickName = getUserInfo.userNickName))
-            )
-
-            events.send(
-                EventLogin.SetPlatformRangeNovel(getRange)
             )
         }
 
@@ -229,14 +165,6 @@ class ViewModelLogin @Inject constructor() : ViewModel() {
         if(state.value.userInfo.userNickName.isEmpty()){
             viewModelScope.launch {
                 _sideEffects.send("닉네임을 입력해주세요")
-            }
-        } else if(state.value.platformRangeComic.isEmpty()){
-            viewModelScope.launch {
-                _sideEffects.send("웹소설 플랫폼을 선택해 주세요.")
-            }
-        }  else if(state.value.platformRangeNovel.isEmpty()){
-            viewModelScope.launch {
-                _sideEffects.send("웹툰 플랫폼을 선택해 주세요.")
             }
         } else {
             viewModelScope.launch {
@@ -266,20 +194,7 @@ class ViewModelLogin @Inject constructor() : ViewModel() {
     fun finishRegister(activity: ComponentActivity){
         val mRootRef = FirebaseDatabase.getInstance().reference
 
-        val platformRangeNovel = ArrayList<String>()
-        val platformRangeComic = ArrayList<String>()
-
-        for(item in state.value.platformRangeNovel){
-            platformRangeNovel.add(changePlatformNameEng(item))
-        }
-
-        for(item in state.value.platformRangeComic){
-            platformRangeComic.add(changePlatformNameEng(item))
-        }
-
         mRootRef.child("USER").child(state.value.userInfo.userUID).child("USERINFO").setValue(state.value.userInfo)
-        mRootRef.child("USER").child(state.value.userInfo.userUID).child("PLATFORM_NOVEL").setValue(platformRangeNovel)
-        mRootRef.child("USER").child(state.value.userInfo.userUID).child("PLATFORM_COMIC").setValue(platformRangeComic)
 
         val intent = Intent(activity, ActivityMain::class.java)
         activity.startActivity(intent)

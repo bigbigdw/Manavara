@@ -12,11 +12,6 @@ sealed interface EventLogin{
         val userInfo: UserInfo = UserInfo(),
     ) : EventLogin
 
-    class SetUserInfoEdit(
-        val userInfo: UserInfo = UserInfo(),
-        var platformRangeNovel: ArrayList<String> = ArrayList(),
-        var platformRangeComic: ArrayList<String> = ArrayList(),
-    ) : EventLogin
 
     class SetIsResgister(
         val isResgister: Boolean = false,
@@ -45,7 +40,5 @@ data class StateLogin(
     val userInfo: UserInfo = UserInfo(),
     val isResgister: Boolean = false,
     val isExpandedScreen: Boolean = false,
-    var platformRangeNovel: ArrayList<String> = ArrayList(),
-    var platformRangeComic: ArrayList<String> = ArrayList(),
     val isRegisterConfirm: Boolean = false,
 )

@@ -36,7 +36,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.bigbigdw.manavara.R
-import com.bigbigdw.manavara.login.viewModels.ViewModelLogin
 import com.bigbigdw.manavara.main.viewModels.ViewModelBest
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.ui.theme.color1E1E20
@@ -49,10 +48,9 @@ import com.bigbigdw.manavara.util.screen.ScreenTest
 fun ScreenMain(
     viewModelMain: ViewModelMain,
     widthSizeClass: WindowWidthSizeClass,
-    viewModelBest: ViewModelBest,
-    viewModelLogin: ViewModelLogin,
+    viewModelBest: ViewModelBest
 
-    ) {
+) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -60,20 +58,17 @@ fun ScreenMain(
     val isExpandedScreen = widthSizeClass == WindowWidthSizeClass.Expanded
 
     viewModelMain.setUserInfo()
-    viewModelMain.setPlatformRange("PLATFORM_NOVEL")
-    viewModelMain.setPlatformRange("PLATFORM_COMIC")
 
     val mainState = viewModelMain.state.collectAsState().value
 
-    if(mainState.userInfo.userEmail.isNotEmpty() && mainState.platformRangeComic.size > 0 && mainState.platformRangeNovel.size > 0){
-        if(!isExpandedScreen){
+    if (mainState.userInfo.userEmail.isNotEmpty()) {
+        if (!isExpandedScreen) {
             ScreenMainMobile(
                 navController = navController,
                 currentRoute = currentRoute,
                 viewModelMain = viewModelMain,
                 viewModelBest = viewModelBest,
                 isExpandedScreen = isExpandedScreen,
-                viewModelLogin = viewModelLogin
             )
         } else {
             ScreenMainTablet(
@@ -81,9 +76,7 @@ fun ScreenMain(
                 navController = navController,
                 viewModelMain = viewModelMain,
                 viewModelBest = viewModelBest,
-                isExpandedScreen = isExpandedScreen,
-                viewModelLogin = viewModelLogin
-            )
+                isExpandedScreen = isExpandedScreen)
         }
     }
 }
@@ -94,17 +87,15 @@ fun ScreenMainTablet(
     navController: NavHostController,
     viewModelMain: ViewModelMain,
     isExpandedScreen: Boolean,
-    viewModelBest: ViewModelBest,
-    viewModelLogin: ViewModelLogin
+    viewModelBest: ViewModelBest
 ) {
-    Row{
+    Row {
         TableAppNavRail(currentRoute = currentRoute ?: "", navController = navController)
         NavigationGraph(
             navController = navController,
             viewModelMain = viewModelMain,
-            viewModelBest = viewModelBest,
             isExpandedScreen = isExpandedScreen,
-            viewModelLogin = viewModelLogin
+            viewModelBest = viewModelBest
         )
     }
 }
@@ -116,9 +107,8 @@ fun ScreenMainMobile(
     currentRoute: String?,
     viewModelMain: ViewModelMain,
     isExpandedScreen: Boolean,
-    viewModelBest: ViewModelBest,
-    viewModelLogin: ViewModelLogin
-){
+    viewModelBest: ViewModelBest
+) {
 
     val modalSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
@@ -140,8 +130,7 @@ fun ScreenMainMobile(
                 navController = navController,
                 viewModelMain = viewModelMain,
                 isExpandedScreen = isExpandedScreen,
-                viewModelBest = viewModelBest,
-                viewModelLogin = viewModelLogin
+                viewModelBest = viewModelBest
             )
         }
     }
@@ -219,8 +208,7 @@ fun NavigationGraph(
     navController: NavHostController,
     viewModelMain: ViewModelMain,
     isExpandedScreen: Boolean,
-    viewModelBest: ViewModelBest,
-    viewModelLogin: ViewModelLogin
+    viewModelBest: ViewModelBest
 ) {
 
     NavHost(
@@ -228,7 +216,11 @@ fun NavigationGraph(
         startDestination = ScreemBottomItem.NOVEL.screenRoute
     ) {
         composable(ScreemBottomItem.NOVEL.screenRoute) {
-            ScreenBest(isExpandedScreen = isExpandedScreen, viewModelBest = viewModelBest, viewModelMain = viewModelMain, viewModelLogin = viewModelLogin)
+            ScreenBest(
+                isExpandedScreen = isExpandedScreen,
+                viewModelBest = viewModelBest,
+                viewModelMain = viewModelMain
+            )
         }
         composable(ScreemBottomItem.COMIC.screenRoute) {
             ScreenTest()

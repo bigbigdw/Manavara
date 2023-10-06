@@ -36,16 +36,8 @@ class ActivityRegister : ComponentActivity() {
         setContent {
             val (getUserInfo, setUserInfo) = remember { mutableStateOf(state.userInfo) }
 
-            val (getRangeNovel, setRangeNovel) = remember { mutableStateOf(state.platformRangeNovel) }
-
-            val (getRangeComic, setRangeComic) = remember { mutableStateOf(state.platformRangeComic) }
-
             ScreenRegisterMobile(
                 viewModelLogin = viewModelLogin,
-                setRangeNovel = setRangeNovel,
-                getRangeNovel = getRangeNovel,
-                setRangeComic = setRangeComic,
-                getRangeComic = getRangeComic,
                 setUserInfo = setUserInfo,
                 getUserInfo = getUserInfo,
                 activity = this@ActivityRegister

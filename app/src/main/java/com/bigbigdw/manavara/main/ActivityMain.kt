@@ -20,7 +20,6 @@ class ActivityMain : ComponentActivity() {
 
     private val viewModelMain: ViewModelMain by viewModels()
     private val viewModelBest: ViewModelBest by viewModels()
-    private val viewModelLogin: ViewModelLogin by viewModels()
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,19 +32,12 @@ class ActivityMain : ComponentActivity() {
             .onEach { Toast.makeText(this@ActivityMain, it, Toast.LENGTH_SHORT).show() }
             .launchIn(lifecycleScope)
 
-        viewModelLogin.sideEffects
-            .onEach { Toast.makeText(this@ActivityMain, it, Toast.LENGTH_SHORT).show() }
-            .launchIn(lifecycleScope)
-
         setContent {
             val widthSizeClass = calculateWindowSizeClass(this).widthSizeClass
-
-            viewModelLogin.setUserInfo()
 
             ScreenMain(
                 viewModelMain = viewModelMain,
                 viewModelBest = viewModelBest,
-                viewModelLogin = viewModelLogin,
                 widthSizeClass = widthSizeClass
             )
 
