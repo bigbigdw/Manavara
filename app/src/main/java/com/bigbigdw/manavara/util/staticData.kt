@@ -41,7 +41,7 @@ fun novelListKor(): List<String> {
 
 fun novelListEng(): List<String> {
     return listOf(
-        "조아라",
+        "NAVER_SERIES",
         "노블레스",
         "프리미엄",
         "NAVER_SERIES",
@@ -139,6 +139,8 @@ fun changeDetailNameKor(detail : String) : String {
         detail.replace("TODAY_BEST", "투데이 베스트")
     } else if(detail.contains("WEEK_BEST")){
         detail.replace("WEEK_BEST", "주간 베스트")
+    }  else if(detail.contains("MONTH_BEST")){
+        detail.replace("MONTH_BEST", "월간 베스트")
     } else {
         detail
     }
@@ -168,9 +170,21 @@ fun getPlatformDescription(platform: String) : String {
     }
 }
 
-fun weekList(): List<String> {
+fun weekListAll(): List<String> {
     return listOf(
         "전체",
+        "일요일",
+        "월요일",
+        "화요일",
+        "수요일",
+        "목요일",
+        "금요일",
+        "토요일"
+    )
+}
+
+fun weekList(): List<String> {
+    return listOf(
         "일요일",
         "월요일",
         "화요일",

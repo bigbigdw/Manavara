@@ -62,13 +62,21 @@ class ViewModelBest @Inject constructor() : ViewModel() {
                 current.copy(weekList = event.weekList)
             }
 
+            is EventBest.SetMonthList -> {
+                current.copy(monthList = event.monthList)
+            }
+
+            is EventBest.SetMonthTrophyList -> {
+                current.copy(monthTrophyList = event.monthTrophyList)
+            }
+
             else -> {
                 current.copy(Loaded = false)
             }
         }
     }
 
-    fun getBestJsonListToday(platform: String, genre: String, type: String){
+    fun getBestListToday(platform: String, genre: String, type: String){
         val storage = Firebase.storage
         val storageRef = storage.reference
         val todayFileRef = storageRef.child("${platform}/${type}/${genre}/DAY/${DBDate.dateMMDD()}.json")
@@ -94,7 +102,7 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         }
     }
 
-    fun getBestJsonListWeek(platform: String, genre: String, type: String){
+    fun getBestWeekTrophy(platform: String, genre: String, type: String){
         val storage = Firebase.storage
         val storageRef = storage.reference
         val weekTrophyRef = storageRef.child("${platform}/${type}/${genre}/WEEK_TROPHY/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
@@ -121,7 +129,7 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         }
     }
 
-    fun getBestJsonListTodayMap(platform: String, genre: String, type: String){
+    fun getBestMapToday(platform: String, genre: String, type: String){
         val storage = Firebase.storage
         val storageRef = storage.reference
         val todayFileRef = storageRef.child("${platform}/${type}/${genre}/DAY/${DBDate.dateMMDD()}.json")
@@ -144,7 +152,7 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         }
     }
 
-    fun getBestJsonListWeekList(platform: String, genre: String, type: String){
+    fun getBestWeekList(platform: String, genre: String, type: String){
         val storage = Firebase.storage
         val storageRef = storage.reference
         val weekRef =   storageRef.child("${platform}/${type}/${genre}/WEEK/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
@@ -181,6 +189,74 @@ class ViewModelBest @Inject constructor() : ViewModel() {
 
             viewModelScope.launch {
                 events.send(EventBest.SetWeekList(weekList = weekJsonList))
+            }
+        }
+    }
+
+    fun getBestMonthList(platform: String, genre: String, type: String){
+        val storage = Firebase.storage
+        val storageRef = storage.reference
+        val monthRef = storageRef.child("${platform}/${type}/${genre}/MONTH/${DBDate.year()}_${DBDate.month()}.json")
+        val monthFile = monthRef.getBytes(1024 * 1024)
+
+        monthFile.addOnSuccessListener { bytes ->
+            val jsonString = String(bytes, Charset.forName("UTF-8"))
+
+            val jsonArray = JSONArray(jsonString)
+
+            val monthJsonList = ArrayList<ArrayList<ItemBookInfo>>()
+
+            for (i in 0 until jsonArray.length()) {
+
+                try{
+                    val jsonArrayItem = jsonArray.getJSONArray(i)
+                    val itemList = ArrayList<ItemBookInfo>()
+
+                    for (j in 0 until jsonArrayItem.length()) {
+
+                        try{
+                            val jsonObject = jsonArrayItem.getJSONObject(j)
+                            itemList.add(convertItemBookJson(jsonObject))
+                        }catch (e : Exception){
+                            itemList.add(ItemBookInfo())
+                        }
+                    }
+
+                    monthJsonList.add(itemList)
+                } catch (e : Exception){
+                    monthJsonList.add(ArrayList())
+                }
+            }
+
+            viewModelScope.launch {
+                events.send(EventBest.SetMonthList(monthList = monthJsonList))
+            }
+        }
+    }
+
+    fun getBestMonthTrophy(platform: String, genre: String, type: String){
+        val storage = Firebase.storage
+        val storageRef = storage.reference
+        val monthTrophyRef =  storageRef.child("${platform}/${type}/${genre}/MONTH_TROPHY/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
+        val monthTrophyFile = monthTrophyRef.getBytes(1024 * 1024)
+
+        monthTrophyFile.addOnSuccessListener { bytes ->
+            val jsonString = String(bytes, Charset.forName("UTF-8"))
+            val json = Json { ignoreUnknownKeys = true }
+            val itemList = json.decodeFromString<List<ItemBestInfo>>(jsonString)
+
+            val monthJsonList = ArrayList<ItemBestInfo>()
+
+            for (item in itemList) {
+                monthJsonList.add(item)
+            }
+
+            val cmpAsc: java.util.Comparator<ItemBestInfo> =
+                Comparator { o1, o2 -> o1.total.compareTo(o2.total) }
+            Collections.sort(itemList, cmpAsc)
+
+            viewModelScope.launch {
+                events.send(EventBest.SetMonthTrophyList(monthTrophyList = monthJsonList))
             }
         }
     }

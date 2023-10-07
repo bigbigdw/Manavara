@@ -24,6 +24,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -51,11 +53,14 @@ import com.bigbigdw.manavara.ui.theme.color02BC77
 import com.bigbigdw.manavara.ui.theme.color1CE3EE
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
+import com.bigbigdw.manavara.ui.theme.colorDCDCDD
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorFF2366
 import com.bigbigdw.manavara.util.screen.ItemKeyword
+import com.bigbigdw.manavara.util.screen.ItemTabletTitle
 import com.bigbigdw.manavara.util.screen.spannableString
 import com.bigbigdw.manavara.util.weekList
+import com.bigbigdw.manavara.util.weekListAll
 import getNaverSeriesGenreEngToKor
 import getPlatformGenre
 import getWeekDate
@@ -69,6 +74,7 @@ fun ScreenTodayBest(
     getDetailType: String,
     setDetailGenre: (String) -> Unit,
     getDetailGenre: String,
+    isExpandedScreen: Boolean,
 ) {
 
     val bestState = viewModelBest.state.collectAsState().value
@@ -78,7 +84,7 @@ fun ScreenTodayBest(
     Column(modifier = Modifier.background(color = colorF6F6F6)) {
 
         LazyRow(
-            modifier = Modifier.padding(16.dp, 20.dp, 0.dp, 20.dp),
+            modifier =  Modifier.padding(16.dp, 8.dp, 0.dp, 8.dp),
         ) {
             itemsIndexed(
                 getPlatformGenre(
@@ -100,9 +106,15 @@ fun ScreenTodayBest(
         }
 
         LazyColumn(
-            modifier = Modifier
-                .background(colorF6F6F6)
-                .padding(0.dp, 0.dp, 16.dp, 0.dp)
+            modifier = if (!isExpandedScreen) {
+                Modifier
+                    .background(colorF6F6F6)
+                    .padding(0.dp, 0.dp, 0.dp, 0.dp)
+            } else {
+                Modifier
+                    .background(colorF6F6F6)
+                    .padding(0.dp, 0.dp, 16.dp, 0.dp)
+            },
         ) {
 
             itemsIndexed(bestState.itemBookInfoList) { index, item ->
@@ -263,9 +275,9 @@ fun ScreenTodayWeek(
     Column(modifier = Modifier.background(color = colorF6F6F6)) {
 
         LazyRow(
-            modifier = Modifier.padding(16.dp, 20.dp, 0.dp, 20.dp),
+            modifier =  Modifier.padding(16.dp, 8.dp, 0.dp, 8.dp),
         ) {
-            itemsIndexed(weekList()) { index, item ->
+            itemsIndexed(weekListAll()) { index, item ->
                 Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
                     ItemKeyword(
                         getter = getDate,
@@ -287,34 +299,41 @@ fun ScreenTodayWeek(
             ) {
 
                 itemsIndexed(bestState.weekTrophyList) { index, item ->
-                    ListBestMonth(
+                    ListBest(
                         itemBookInfoMap = bestState.itemBookInfoMap,
-                        bookCode = item.bookCode
+                        bookCode = item.bookCode,
+                        type = "WEEK"
                     )
                 }
             }
         } else {
-            LazyColumn(
-                modifier = Modifier
-                    .background(colorF6F6F6)
-                    .padding(0.dp, 0.dp, 16.dp, 0.dp)
-            ) {
 
-                itemsIndexed(bestState.weekList[getWeekDate(getDate)]) { index, item ->
-                    ListBestToday(
-                        itemBookInfo = item,
-                        index = index
-                    )
+            if(bestState.weekList[getWeekDate(getDate)].size > 0){
+                LazyColumn(
+                    modifier = Modifier
+                        .background(colorF6F6F6)
+                        .padding(0.dp, 0.dp, 16.dp, 0.dp)
+                ) {
+
+                    itemsIndexed(bestState.weekList[getWeekDate(getDate)]) { index, item ->
+                        ListBestToday(
+                            itemBookInfo = item,
+                            index = index
+                        )
+                    }
                 }
+            } else {
+                ScreenEmpty(str = "데이터가 없습니다")
             }
         }
     }
 }
 
 @Composable
-fun ListBestMonth(
+fun ListBest(
     itemBookInfoMap: MutableMap<String, ItemBookInfo>,
     bookCode: String,
+    type: String,
 ) {
 
     val itemBookInfo = itemBookInfoMap[bookCode]
@@ -341,9 +360,15 @@ fun ListBestMonth(
 
                     Spacer(modifier = Modifier.size(4.dp))
 
-                    ItemBestExpand(
-                        item = itemBookInfo,
-                    )
+                    if(type == "WEEK"){
+                        ItemBestExpandWeek(
+                            item = itemBookInfo,
+                        )
+                    } else{
+                        ItemBestExpandMonth(
+                            item = itemBookInfo,
+                        )
+                    }
 
                     Spacer(modifier = Modifier.size(4.dp))
                 }
@@ -354,7 +379,103 @@ fun ListBestMonth(
 }
 
 @Composable
-fun ItemBestExpand(item: ItemBookInfo) {
+fun ScreenTodayMonth(
+    viewModelMain: ViewModelMain,
+    viewModelBest: ViewModelBest,
+) {
+
+    val bestState = viewModelBest.state.collectAsState().value
+
+    val (getDate, setDate) = remember { mutableStateOf("전체") }
+
+    val listState = rememberLazyListState()
+
+    val monthList = bestState.monthList
+
+    val arrayList = ArrayList<String>()
+    arrayList.add("전체")
+
+    var count = 0
+
+    for(item in arrayList){
+        count += 1
+        arrayList.add("${count}주차")
+    }
+
+    Column(modifier = Modifier.background(color = colorF6F6F6)) {
+
+        LazyRow(
+            modifier =  Modifier.padding(16.dp, 8.dp, 0.dp, 8.dp),
+        ) {
+            itemsIndexed(arrayList) { index, item ->
+
+                Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
+                    ItemKeyword(
+                        getter = getDate,
+                        setter = setDate,
+                        title = item,
+                        getValue = item,
+                        viewModelBest = viewModelBest,
+                        listState = listState
+                    )
+                }
+            }
+        }
+
+        if (getDate == "전체") {
+            LazyColumn(
+                modifier = Modifier
+                    .background(colorF6F6F6)
+                    .padding(0.dp, 0.dp, 16.dp, 0.dp)
+            ) {
+
+                itemsIndexed(bestState.monthTrophyList) { index, item ->
+                    ListBest(
+                        itemBookInfoMap = bestState.itemBookInfoMap,
+                        bookCode = item.bookCode,
+                        type = "MONTH"
+                    )
+                }
+            }
+        } else {
+
+            if(bestState.monthList[getWeekDate(getDate)].size > 0){
+                LazyColumn(
+                    modifier = Modifier
+                        .background(colorF6F6F6)
+                        .padding(0.dp, 0.dp, 16.dp, 0.dp)
+                ) {
+
+                    itemsIndexed(bestState.monthList[getWeekDate(getDate)]) { index, item ->
+
+                        val itemBookInfo = bestState.itemBookInfoMap[item.bookCode]
+
+                        if(itemBookInfo != null){
+                            Text(
+                                modifier = Modifier.padding(16.dp, 8.dp),
+                                text = weekList()[index],
+                                fontSize = 16.sp,
+                                color = color8E8E8E,
+                                fontWeight = FontWeight(weight = 700)
+                            )
+                        }
+
+                        ListBest(
+                            itemBookInfoMap = bestState.itemBookInfoMap,
+                            bookCode = item.bookCode,
+                            type = "WEEK"
+                        )
+                    }
+                }
+            } else {
+                ScreenEmpty(str = "데이터가 없습니다")
+            }
+        }
+    }
+}
+
+@Composable
+fun ItemBestExpandWeek(item: ItemBookInfo) {
     Spacer(modifier = Modifier.size(4.dp))
 
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -403,7 +524,7 @@ fun ItemBestExpand(item: ItemBookInfo) {
                     text = spannableString(
                         textFront = "헌재 스코어 : ",
                         color = color000000,
-                        textEnd = "${item.current}"
+                        textEnd = "${item.number}"
                     ),
                     color = color8E8E8E,
                     fontSize = 16.sp,
@@ -431,9 +552,9 @@ fun ItemBestExpand(item: ItemBookInfo) {
 
                 Text(
                     text = spannableString(
-                        textFront = "베스트 랭크 : ",
+                        textFront = "주간 총점 : ",
                         color = color000000,
-                        textEnd = "${item.totalWeek}등"
+                        textEnd = "${item.totalWeek}"
                     ),
                     color = color8E8E8E,
                     fontSize = 16.sp,
@@ -441,9 +562,185 @@ fun ItemBestExpand(item: ItemBookInfo) {
 
                 Text(
                     text = spannableString(
-                        textFront = "베스트 입성 횟수 : ",
+                        textFront = "주간 베스트 횟수 : ",
                         color = color000000,
                         textEnd = item.totalWeekCount.toString()
+                    ),
+                    color = color8E8E8E,
+                    fontSize = 16.sp,
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.size(16.dp))
+
+        Text(
+            text = item.info3,
+            color = color8E8E8E,
+            fontSize = 16.sp,
+        )
+    }
+
+    Spacer(modifier = Modifier.size(4.dp))
+}
+
+@Composable
+fun ScreenEmpty(str : String = "마나바라") {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(colorF6F6F6),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(modifier = Modifier.wrapContentSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+
+            Card(
+                modifier = Modifier
+                    .wrapContentSize(),
+                colors = CardDefaults.cardColors(containerColor = colorDCDCDD),
+                shape = RoundedCornerShape(50.dp, 50.dp, 50.dp, 50.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .height(90.dp)
+                        .width(90.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        contentScale = ContentScale.FillWidth,
+                        painter = painterResource(id = R.drawable.ic_launcher),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .height(72.dp)
+                            .width(72.dp)
+                    )
+                }
+            }
+
+            Spacer(
+                modifier = Modifier.size(8.dp)
+            )
+            Text(
+                text = str,
+                fontSize = 16.sp,
+                textAlign = TextAlign.Center,
+                color = color000000
+            )
+        }
+    }
+}
+
+@Composable
+fun ItemBestExpandMonth(item: ItemBookInfo) {
+    Spacer(modifier = Modifier.size(4.dp))
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+
+        Row(
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.Top,
+        ) {
+
+            Box(
+                modifier = Modifier
+                    .height(200.dp)
+                    .width(140.dp)
+            ) {
+                AsyncImage(
+                    model = item.bookImg,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .height(200.dp)
+                        .width(140.dp)
+                )
+
+            }
+
+            Spacer(modifier = Modifier.size(16.dp))
+
+            Column(modifier = Modifier.wrapContentHeight()) {
+                Text(
+                    text = item.title,
+                    color = color20459E,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight(weight = 500),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Text(
+                    text =  "${item.writer}/${item.info2}",
+                    color = color000000,
+                    fontSize = 16.sp,
+                )
+
+                Spacer(modifier = Modifier.size(4.dp))
+
+                Text(
+                    text = spannableString(
+                        textFront = "헌재 스코어 : ",
+                        color = color000000,
+                        textEnd = "${item.number}"
+                    ),
+                    color = color8E8E8E,
+                    fontSize = 16.sp,
+                )
+
+                Text(
+                    text = spannableString(
+                        textFront = "플랫폼 평점 : ",
+                        color = color000000,
+                        textEnd = item.info1
+                    ),
+                    color = color8E8E8E,
+                    fontSize = 16.sp,
+                )
+
+                Text(
+                    text = spannableString(
+                        textFront = "베스트 총합 : ",
+                        color = color000000,
+                        textEnd = "${item.total}"
+                    ),
+                    color = color8E8E8E,
+                    fontSize = 16.sp,
+                )
+
+                Text(
+                    text = spannableString(
+                        textFront = "주간 총점 : ",
+                        color = color000000,
+                        textEnd = "${item.totalWeek}"
+                    ),
+                    color = color8E8E8E,
+                    fontSize = 16.sp,
+                )
+
+                Text(
+                    text = spannableString(
+                        textFront = "주간 베스트 횟수 : ",
+                        color = color000000,
+                        textEnd = item.totalWeekCount.toString()
+                    ),
+                    color = color8E8E8E,
+                    fontSize = 16.sp,
+                )
+
+                Text(
+                    text = spannableString(
+                        textFront = "월간 총점 : ",
+                        color = color000000,
+                        textEnd = "${item.totalMonth}"
+                    ),
+                    color = color8E8E8E,
+                    fontSize = 16.sp,
+                )
+
+                Text(
+                    text = spannableString(
+                        textFront = "월간 베스트 횟수 : ",
+                        color = color000000,
+                        textEnd = item.totalMonthCount.toString()
                     ),
                     color = color8E8E8E,
                     fontSize = 16.sp,

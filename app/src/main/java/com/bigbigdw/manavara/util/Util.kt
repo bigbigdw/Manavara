@@ -15,7 +15,8 @@ fun convertItemBook(bestItemData : ItemBookInfo) : JsonObject {
     jsonObject.addProperty("info1", bestItemData.info1)
     jsonObject.addProperty("info2", bestItemData.info2)
     jsonObject.addProperty("info3", bestItemData.info3)
-    jsonObject.addProperty("current", bestItemData.current)
+    jsonObject.addProperty("number", bestItemData.number)
+    jsonObject.addProperty("point", bestItemData.point)
     jsonObject.addProperty("total", bestItemData.total)
     jsonObject.addProperty("totalCount", bestItemData.totalCount)
     jsonObject.addProperty("totalWeek", bestItemData.totalWeek)
@@ -38,7 +39,8 @@ fun convertItemBookJson(jsonObject: JSONObject): ItemBookInfo {
         info1 = jsonObject.optString("info1"),
         info2 = jsonObject.optString("info2"),
         info3 = jsonObject.optString("info3"),
-        current = jsonObject.optInt("current"),
+        point = jsonObject.optInt("point"),
+        number = jsonObject.optInt("number"),
         total = jsonObject.optInt("total"),
         totalCount = jsonObject.optInt("totalCount"),
         totalWeek = jsonObject.optInt("totalWeek"),
@@ -52,6 +54,7 @@ fun convertItemBookJson(jsonObject: JSONObject): ItemBookInfo {
 fun convertItemBestJson(jsonObject : JSONObject) : ItemBestInfo {
 
     return ItemBestInfo(
+        point = jsonObject.optInt("point"),
         number = jsonObject.optInt("number"),
         info1 = jsonObject.optString("info1"),
         total = jsonObject.optInt("total"),
@@ -64,6 +67,7 @@ fun convertItemBestJson(jsonObject : JSONObject) : ItemBestInfo {
 fun convertItemBest(bestItemData : ItemBestInfo) : JsonObject {
     val jsonObject = JsonObject()
     jsonObject.addProperty("number", bestItemData.number)
+    jsonObject.addProperty("point", bestItemData.point)
     jsonObject.addProperty("info1", bestItemData.info1)
     jsonObject.addProperty("total", bestItemData.total)
     jsonObject.addProperty("totalCount", bestItemData.totalCount)
@@ -71,6 +75,7 @@ fun convertItemBest(bestItemData : ItemBestInfo) : JsonObject {
     jsonObject.addProperty("currentDiff", bestItemData.currentDiff)
     return jsonObject
 }
+
 
 fun getPlatformGenre(type : String, platform: String) : ArrayList<String>{
     var array = ArrayList<String>()

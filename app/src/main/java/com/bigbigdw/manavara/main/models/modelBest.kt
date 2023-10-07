@@ -13,8 +13,6 @@ data class ItemBookInfo(
     var bookImg: String = "",
     @SerialName("bookCode")
     var bookCode: String = "",
-    @SerialName("current")
-    var current: Int = 0,
     @SerialName("type")
     var type: String = "",
     @SerialName("info1")
@@ -37,11 +35,17 @@ data class ItemBookInfo(
     var totalMonthCount:  Int = 1,
     @SerialName("currentDiff")
     var currentDiff:  Int = 1,
+    @SerialName("number")
+    var number: Int = 0,
+    @SerialName("point")
+    var point: Int = 0,
 )
 @Serializable
 data class ItemBestInfo (
     @SerialName("number")
     var number: Int = 0,
+    @SerialName("point")
+    var point: Int = 0,
     @SerialName("info1")
     var info1: String = "",
     @SerialName("total")

@@ -68,6 +68,49 @@ fun ScreenBest(
     viewModelMain: ViewModelMain
 ) {
 
+    val (getMenu, setMenu) = remember { mutableStateOf("") }
+    val (getDetailPlatform, setDetailPlatform) = remember { mutableStateOf(novelListEng()[0]) }
+    val (getDetailGenre, setDetailGenre) = remember { mutableStateOf("ALL") }
+    val (getDetailType, setDetailType) = remember { mutableStateOf("NOVEL") }
+
+    LaunchedEffect(getDetailPlatform, getDetailGenre){
+        viewModelBest.getBestListToday(
+            platform = getDetailPlatform,
+            genre = getDetailGenre,
+            type = getDetailType,
+        )
+
+        viewModelBest.getBestWeekTrophy(
+            platform = getDetailPlatform,
+            genre = getDetailGenre,
+            type = getDetailType,
+        )
+
+        viewModelBest.getBestMapToday(
+            platform = getDetailPlatform,
+            genre = getDetailGenre,
+            type = getDetailType,
+        )
+
+        viewModelBest.getBestWeekList(
+            platform = getDetailPlatform,
+            genre = getDetailGenre,
+            type = getDetailType,
+        )
+
+        viewModelBest.getBestMonthTrophy(
+            platform = getDetailPlatform,
+            genre = getDetailGenre,
+            type = getDetailType,
+        )
+
+        viewModelBest.getBestMonthList(
+            platform = getDetailPlatform,
+            genre = getDetailGenre,
+            type = getDetailType,
+        )
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -76,38 +119,6 @@ fun ScreenBest(
 
         Row {
             if (isExpandedScreen) {
-
-                val (getMenu, setMenu) = remember { mutableStateOf("") }
-                val (getDetailPlatform, setDetailPlatform) = remember { mutableStateOf(novelListEng()[0]) }
-                val (getDetailGenre, setDetailGenre) = remember { mutableStateOf("ALL") }
-                val (getDetailType, setDetailType) = remember { mutableStateOf("NOVEL") }
-
-                LaunchedEffect(getDetailPlatform, getDetailGenre){
-                    viewModelBest.getBestJsonListToday(
-                        platform = getDetailPlatform,
-                        genre = getDetailGenre,
-                        type = getDetailType,
-                    )
-
-                    viewModelBest.getBestJsonListWeek(
-                        platform = getDetailPlatform,
-                        genre = getDetailGenre,
-                        type = getDetailType,
-                    )
-
-                    viewModelBest.getBestJsonListTodayMap(
-                        platform = getDetailPlatform,
-                        genre = getDetailGenre,
-                        type = getDetailType,
-                    )
-
-                    viewModelBest.getBestJsonListWeekList(
-                        platform = getDetailPlatform,
-                        genre = getDetailGenre,
-                        type = getDetailType,
-                    )
-                }
-
                 ScreenBestTabletList(
                     setMenu = setMenu,
                     getMenu = getMenu,
@@ -130,11 +141,20 @@ fun ScreenBest(
                     getDetailPlatform = getDetailPlatform,
                     getDetailGenre = getDetailGenre,
                     getDetailType = getDetailType,
-                    setDetailGenre = setDetailGenre
+                    setDetailGenre = setDetailGenre,
+                    isExpandedScreen = isExpandedScreen
                 )
 
             } else {
-                ScreenTest()
+                ScreenTodayBest(
+                    viewModelMain = viewModelMain,
+                    viewModelBest = viewModelBest,
+                    getDetailPlatform = getDetailPlatform,
+                    getDetailType = getDetailType,
+                    setDetailGenre = setDetailGenre,
+                    getDetailGenre = getDetailGenre,
+                    isExpandedScreen = isExpandedScreen
+                )
             }
         }
     }
@@ -239,7 +259,6 @@ fun ScreenBestTabletList(
                 bestType = "WEEK_BEST",
                 setDetailPlatform = { setDetailPlatform(changePlatformNameEng(item)) },
                 setDetailType = { setDetailType("NOVEL") },
-
                 )
         }
 
@@ -263,11 +282,10 @@ fun ScreenBestTabletList(
                 body = getPlatformDescription(item),
                 setMenu = setMenu,
                 getMenu = getMenu,
-                bestType = "TODAY_BEST",
+                bestType = "MONTH_BEST",
                 setDetailPlatform = { setDetailPlatform(changePlatformNameEng(item)) },
                 setDetailType = { setDetailType("NOVEL") },
-
-                )
+            )
         }
     }
 }
@@ -371,7 +389,8 @@ fun ScreenBestDetail(
     getDetailGenre: String,
     getDetailType: String,
     viewModelBest: ViewModelBest,
-    setDetailGenre: (String) -> Unit
+    setDetailGenre: (String) -> Unit,
+    isExpandedScreen: Boolean
 ) {
 
     Column(
@@ -397,11 +416,18 @@ fun ScreenBestDetail(
                 getDetailPlatform = getDetailPlatform,
                 getDetailType = getDetailType,
                 setDetailGenre = setDetailGenre,
-                getDetailGenre = getDetailGenre
+                getDetailGenre = getDetailGenre,
+                isExpandedScreen = isExpandedScreen
             )
 
         } else if (getMenu.contains("WEEK_BEST")) {
             ScreenTodayWeek(
+                viewModelMain = viewModelMain,
+                viewModelBest = viewModelBest
+            )
+
+        }  else if (getMenu.contains("MONTH_BEST")) {
+            ScreenTodayMonth(
                 viewModelMain = viewModelMain,
                 viewModelBest = viewModelBest
             )

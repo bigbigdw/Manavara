@@ -128,7 +128,7 @@ fun ScreenLogin(
 
                 if (isExpandedLogin) {
                     Text(
-                        text = "웹툰/웹소설 통계 어플리케이션",
+                        text = "웹툰/웹소설 수집 어플리케이션",
                         fontSize = 14.sp,
                         textAlign = TextAlign.Center,
                         color = color000000,
@@ -240,7 +240,7 @@ fun ScreenSplash() {
             MainHeader(image = R.drawable.ic_launcher, title = "마나바라")
 
             Text(
-                text = "웹툰/웹소설 통계 어플리케이션",
+                text = "웹툰/웹소설 수집 어플리케이션",
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
                 color = color000000,
@@ -313,7 +313,7 @@ fun ScreenRegister(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "마나바라는 김대우가 AOS/iOS 스터디를 위해 혼자 만든 웹소설/웹툰 통계 어플리케이션입니다. 유익하게 사용 하실 수 있는 분이라면 유익하게 사용해주시면 감사드리겠습니다." +
+                text = "마나바라는 김대우가 AOS/iOS 스터디를 위해 혼자 만든 웹소설/웹툰 수집 어플리케이션입니다. 유익하게 사용 하실 수 있는 분이라면 유익하게 사용해주시면 감사드리겠습니다." +
                         "\n\n마나바라는 기존에 유성아 파트장님, 박주은 프로님과 같이 진행했던 웹소설 모음 어플리케이션 모아바라 어플리케이션의 개량형입니다.",
                 color = color8E8E8E,
                 fontSize = 16.sp,
