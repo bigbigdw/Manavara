@@ -608,6 +608,7 @@ fun ItemKeyword(
     getter: String,
     setter: (String) -> Unit,
     title: String,
+    getValue: String,
     viewModelBest: ViewModelBest,
     listState: LazyListState,
 ) {
@@ -615,13 +616,13 @@ fun ItemKeyword(
     val coroutineScope = rememberCoroutineScope()
 
     Card(
-        modifier = if (getter == title) {
+        modifier = if (getter == getValue) {
             Modifier.border(2.dp, color20459E, CircleShape)
         } else {
             Modifier.border(2.dp, colorF7F7F7, CircleShape)
         },
         colors = CardDefaults.cardColors(
-            containerColor = if (getter == title) {
+            containerColor = if (getter == getValue) {
                 color20459E
             } else {
                 Color.White
@@ -634,7 +635,7 @@ fun ItemKeyword(
                 .fillMaxWidth()
                 .padding(14.dp, 8.dp)
                 .clickable {
-                    setter(title)
+                    setter(getValue)
 //                    viewModelBest.fetchBestListToday(item.type, context)
                     coroutineScope.launch {
                         listState.scrollToItem(index = 0)
@@ -645,10 +646,10 @@ fun ItemKeyword(
         ) {
 
             Text(
-                text = getNaverSeriesGenreEngToKor(title),
+                text = title,
                 fontSize = 17.sp,
                 textAlign = TextAlign.Left,
-                color = if (getter == title) {
+                color = if (getter == getValue) {
                     Color.White
                 } else {
                     Color.Black

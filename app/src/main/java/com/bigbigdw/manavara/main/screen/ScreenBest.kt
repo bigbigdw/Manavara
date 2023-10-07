@@ -100,6 +100,12 @@ fun ScreenBest(
                         genre = getDetailGenre,
                         type = getDetailType,
                     )
+
+                    viewModelBest.getBestJsonListWeekList(
+                        platform = getDetailPlatform,
+                        genre = getDetailGenre,
+                        type = getDetailType,
+                    )
                 }
 
                 ScreenBestTabletList(
@@ -397,11 +403,7 @@ fun ScreenBestDetail(
         } else if (getMenu.contains("WEEK_BEST")) {
             ScreenTodayWeek(
                 viewModelMain = viewModelMain,
-                viewModelBest = viewModelBest,
-                getDetailPlatform = getDetailPlatform,
-                getDetailType = getDetailType,
-                setDetailGenre = setDetailGenre,
-                getDetailGenre = getDetailGenre
+                viewModelBest = viewModelBest
             )
 
         } else {

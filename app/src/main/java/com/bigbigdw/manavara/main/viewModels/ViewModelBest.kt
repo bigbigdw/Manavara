@@ -10,6 +10,7 @@ import com.bigbigdw.manavara.main.models.ItemBookInfo
 import com.bigbigdw.manavara.util.DBDate
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
+import convertItemBookJson
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+import org.json.JSONArray
 import java.nio.charset.Charset
 import java.util.Collections
 import javax.inject.Inject
@@ -54,6 +56,10 @@ class ViewModelBest @Inject constructor() : ViewModel() {
 
             is EventBest.SetItemBookInfoMap -> {
                 current.copy(itemBookInfoMap = event.itemBookInfoMap)
+            }
+
+            is EventBest.SetWeekList -> {
+                current.copy(weekList = event.weekList)
             }
 
             else -> {
@@ -134,6 +140,47 @@ class ViewModelBest @Inject constructor() : ViewModel() {
 
             viewModelScope.launch {
                 events.send(EventBest.SetItemBookInfoMap(itemBookInfoMap = itemMap))
+            }
+        }
+    }
+
+    fun getBestJsonListWeekList(platform: String, genre: String, type: String){
+        val storage = Firebase.storage
+        val storageRef = storage.reference
+        val weekRef =   storageRef.child("${platform}/${type}/${genre}/WEEK/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
+        val weekFile = weekRef.getBytes(1024 * 1024)
+
+        weekFile.addOnSuccessListener { bytes ->
+            val jsonString = String(bytes, Charset.forName("UTF-8"))
+
+            val jsonArray = JSONArray(jsonString)
+
+            val weekJsonList = ArrayList<ArrayList<ItemBookInfo>>()
+
+            for (i in 0 until jsonArray.length()) {
+
+                try{
+                    val jsonArrayItem = jsonArray.getJSONArray(i)
+                    val itemList = ArrayList<ItemBookInfo>()
+
+                    for (j in 0 until jsonArrayItem.length()) {
+
+                        try{
+                            val jsonObject = jsonArrayItem.getJSONObject(j)
+                            itemList.add(convertItemBookJson(jsonObject))
+                        }catch (e : Exception){
+                            itemList.add(ItemBookInfo())
+                        }
+                    }
+
+                    weekJsonList.add(itemList)
+                } catch (e : Exception){
+                    weekJsonList.add(ArrayList())
+                }
+            }
+
+            viewModelScope.launch {
+                events.send(EventBest.SetWeekList(weekList = weekJsonList))
             }
         }
     }

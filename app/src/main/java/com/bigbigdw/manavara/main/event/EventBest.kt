@@ -22,6 +22,10 @@ sealed interface EventBest{
     class SetItemBookInfoMap(
         var itemBookInfoMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
     ) : EventBest
+
+    class SetWeekList(
+        val weekList : ArrayList<ArrayList<ItemBookInfo>> = ArrayList(),
+    ) : EventBest
 }
 
 data class StateBest(
@@ -31,4 +35,5 @@ data class StateBest(
     var itemBestInfoList: MutableMap<String, ItemBookInfo> = mutableMapOf(),
     var weekTrophyList: ArrayList<ItemBestInfo> = ArrayList(),
     var itemBookInfoMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
+    val weekList : ArrayList<ArrayList<ItemBookInfo>> = ArrayList(),
 )

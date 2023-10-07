@@ -5,7 +5,7 @@ import com.google.gson.JsonObject
 import org.json.JSONObject
 
 @SuppressLint("SuspiciousIndentation")
-fun convertBestItemData(bestItemData : ItemBookInfo) : JsonObject {
+fun convertItemBook(bestItemData : ItemBookInfo) : JsonObject {
     val jsonObject = JsonObject()
     jsonObject.addProperty("writer", bestItemData.writer)
     jsonObject.addProperty("title", bestItemData.title)
@@ -22,11 +22,12 @@ fun convertBestItemData(bestItemData : ItemBookInfo) : JsonObject {
     jsonObject.addProperty("totalWeekCount", bestItemData.totalWeekCount)
     jsonObject.addProperty("totalMonth", bestItemData.totalMonth)
     jsonObject.addProperty("totalMonthCount", bestItemData.totalMonthCount)
+    jsonObject.addProperty("currentDiff", bestItemData.currentDiff)
     return jsonObject
 }
 
 @SuppressLint("SuspiciousIndentation")
-fun convertBestItemDataJson(jsonObject: JSONObject): ItemBookInfo {
+fun convertItemBookJson(jsonObject: JSONObject): ItemBookInfo {
 
     return ItemBookInfo(
         writer = jsonObject.optString("writer"),
@@ -44,10 +45,11 @@ fun convertBestItemDataJson(jsonObject: JSONObject): ItemBookInfo {
         totalWeekCount = jsonObject.optInt("totalWeekCount"),
         totalMonth = jsonObject.optInt("totalMonth"),
         totalMonthCount = jsonObject.optInt("totalMonthCount"),
+        currentDiff = jsonObject.optInt("currentDiff"),
     )
 }
 
-fun convertBestItemDataAnalyzeJson(jsonObject : JSONObject) : ItemBestInfo {
+fun convertItemBestJson(jsonObject : JSONObject) : ItemBestInfo {
 
     return ItemBestInfo(
         number = jsonObject.optInt("number"),
@@ -55,16 +57,18 @@ fun convertBestItemDataAnalyzeJson(jsonObject : JSONObject) : ItemBestInfo {
         total = jsonObject.optInt("total"),
         totalCount = jsonObject.optInt("totalCount"),
         bookCode = jsonObject.optString("bookCode"),
+        currentDiff = jsonObject.optInt("currentDiff"),
     )
 }
 
-fun convertBestItemDataAnalyze(bestItemData : ItemBestInfo) : JsonObject {
+fun convertItemBest(bestItemData : ItemBestInfo) : JsonObject {
     val jsonObject = JsonObject()
     jsonObject.addProperty("number", bestItemData.number)
     jsonObject.addProperty("info1", bestItemData.info1)
     jsonObject.addProperty("total", bestItemData.total)
     jsonObject.addProperty("totalCount", bestItemData.totalCount)
     jsonObject.addProperty("bookCode", bestItemData.bookCode)
+    jsonObject.addProperty("currentDiff", bestItemData.currentDiff)
     return jsonObject
 }
 
@@ -181,6 +185,35 @@ fun getNaverSeriesGenreEngToKor(genre : String) : String {
         }
         else -> {
             "없음"
+        }
+    }
+}
+
+fun getWeekDate(date : String) : Int {
+    return when (date) {
+        "일요일" -> {
+           0
+        }
+        "월요일" -> {
+            1
+        }
+        "화요일" -> {
+            2
+        }
+        "수요일" -> {
+           3
+        }
+        "목요일" -> {
+            4
+        }
+        "금요일" -> {
+            5
+        }
+        "토요일" -> {
+            6
+        }
+        else -> {
+            0
         }
     }
 }

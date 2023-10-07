@@ -38,6 +38,7 @@ data class ItemBookInfo(
     @SerialName("currentDiff")
     var currentDiff:  Int = 1,
 )
+@Serializable
 data class ItemBestInfo (
     @SerialName("number")
     var number: Int = 0,
