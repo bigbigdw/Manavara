@@ -1,11 +1,15 @@
 package com.bigbigdw.manavara.util
 
+import androidx.compose.ui.graphics.Color
+import com.bigbigdw.manavara.R
+import com.bigbigdw.manavara.ui.theme.colorNAVER
+
 fun comicKor(): List<String> {
     return listOf(
         "조아라",
         "노블레스",
         "프리미엄",
-        "네이버시리즈",
+        "시리즈",
         "챌린지리그",
         "베스트리그",
 //            "카카오페이지",
@@ -22,7 +26,7 @@ fun novelListKor(): List<String> {
         "조아라",
         "노블레스",
         "프리미엄",
-        "네이버시리즈",
+        "시리즈",
         "챌린지리그",
         "베스트리그",
 //            "카카오페이지",
@@ -71,7 +75,7 @@ fun changePlatformNameEng(platform : String) : String {
         "베스트리그" -> {
             "BEST_LEAGUE"
         }
-        "네이버시리즈" -> {
+        "시리즈" -> {
             "NAVER_SERIES"
         }
         "스테이지" -> {
@@ -110,7 +114,7 @@ fun changePlatformNameKor(platform : String) : String {
             "베스트리그"
         }
         "NAVER_SERIES" -> {
-            "네이버시리즈"
+            "시리즈"
         }
         "KAKAO_STAGE" -> {
             "스테이지"
@@ -127,5 +131,39 @@ fun changePlatformNameKor(platform : String) : String {
         else -> {
             platform
         }
+    }
+}
+
+fun changeDetailNameKor(detail : String) : String {
+    return if(detail.contains("TODAY_BEST")){
+        detail.replace("TODAY_BEST", "투데이 베스트")
+    } else if(detail.contains("WEEK_BEST")){
+        detail.replace("WEEK_BEST", "주간 베스트")
+    } else {
+        detail
+    }
+}
+
+fun getPlatformLogo(platform: String) : Int {
+    return if(platform == "시리즈"){
+        R.drawable.logo_naver
+    } else {
+        R.drawable.icon_best_wht
+    }
+}
+
+fun getPlatformColor(platform: String) : Color {
+    return if(platform == "시리즈"){
+        colorNAVER
+    } else {
+        Color.Black
+    }
+}
+
+fun getPlatformDescription(platform: String) : String {
+    return if(platform == "시리즈"){
+        "네이버 시리즈"
+    } else {
+        "하하"
     }
 }

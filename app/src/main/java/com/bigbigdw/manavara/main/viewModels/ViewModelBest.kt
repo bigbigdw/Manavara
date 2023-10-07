@@ -5,16 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bigbigdw.manavara.main.event.EventBest
 import com.bigbigdw.manavara.main.event.StateBest
+import com.bigbigdw.manavara.main.models.ItemBestInfo
 import com.bigbigdw.manavara.main.models.ItemBookInfo
 import com.bigbigdw.manavara.util.DBDate
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
-import com.google.gson.JsonArray
-import convertBestItemData
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -22,9 +17,9 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.nio.charset.Charset
+import java.util.Collections
 import javax.inject.Inject
 
 class ViewModelBest @Inject constructor() : ViewModel() {
@@ -53,16 +48,24 @@ class ViewModelBest @Inject constructor() : ViewModel() {
                 current.copy(itemBestInfoList = event.itemBestInfoList)
             }
 
+            is EventBest.SetWeekTrophyList -> {
+                current.copy(weekTrophyList = event.weekTrophyList)
+            }
+
+            is EventBest.SetItemBookInfoMap -> {
+                current.copy(itemBookInfoMap = event.itemBookInfoMap)
+            }
+
             else -> {
                 current.copy(Loaded = false)
             }
         }
     }
 
-    fun getBestJsonList(platform : String, genre : String, type: String, date : String){
+    fun getBestJsonListToday(platform: String, genre: String, type: String){
         val storage = Firebase.storage
         val storageRef = storage.reference
-        val todayFileRef = storageRef.child("${platform}/${type}/${genre}/DAY/${date}.json")
+        val todayFileRef = storageRef.child("${platform}/${type}/${genre}/DAY/${DBDate.dateMMDD()}.json")
 
         val todayFile = todayFileRef.getBytes(1024 * 1024)
 
@@ -82,6 +85,56 @@ class ViewModelBest @Inject constructor() : ViewModel() {
             }
         }.addOnFailureListener {
             Log.d("getBestJsonList", "ScreenTodayBest--getBestJsonList--addOnFailureListener == $it")
+        }
+    }
+
+    fun getBestJsonListWeek(platform: String, genre: String, type: String){
+        val storage = Firebase.storage
+        val storageRef = storage.reference
+        val weekTrophyRef = storageRef.child("${platform}/${type}/${genre}/WEEK_TROPHY/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
+        val weekTrophyFile = weekTrophyRef.getBytes(1024 * 1024)
+
+        weekTrophyFile.addOnSuccessListener { bytes ->
+            val jsonString = String(bytes, Charset.forName("UTF-8"))
+            val json = Json { ignoreUnknownKeys = true }
+            val itemList = json.decodeFromString<List<ItemBestInfo>>(jsonString)
+
+            val weekJsonList = ArrayList<ItemBestInfo>()
+
+            for (item in itemList) {
+                weekJsonList.add(item)
+            }
+
+            val cmpAsc: java.util.Comparator<ItemBestInfo> =
+                Comparator { o1, o2 -> o1.totalCount.compareTo(o2.totalCount) }
+            Collections.sort(itemList, cmpAsc)
+
+            viewModelScope.launch {
+                events.send(EventBest.SetWeekTrophyList(weekTrophyList = weekJsonList))
+            }
+        }
+    }
+
+    fun getBestJsonListTodayMap(platform: String, genre: String, type: String){
+        val storage = Firebase.storage
+        val storageRef = storage.reference
+        val todayFileRef = storageRef.child("${platform}/${type}/${genre}/DAY/${DBDate.dateMMDD()}.json")
+
+        val todayFile = todayFileRef.getBytes(1024 * 1024)
+
+        todayFile.addOnSuccessListener { bytes ->
+            val todayJson = Json { ignoreUnknownKeys = true }
+            val itemList = todayJson.decodeFromString<List<ItemBookInfo>>(String(bytes,Charset.forName("UTF-8")))
+
+            val itemMap = mutableMapOf<String, ItemBookInfo>()
+
+            for (item in itemList) {
+                itemMap[item.bookCode] = item
+            }
+
+            viewModelScope.launch {
+                events.send(EventBest.SetItemBookInfoMap(itemBookInfoMap = itemMap))
+            }
         }
     }
 

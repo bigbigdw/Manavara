@@ -16,14 +16,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
@@ -31,55 +25,41 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import com.bigbigdw.manavara.R
-import com.bigbigdw.manavara.login.screen.ScreenRegister
-import com.bigbigdw.manavara.login.viewModels.ViewModelLogin
-import com.bigbigdw.manavara.main.models.ItemBookInfo
 import com.bigbigdw.manavara.main.viewModels.ViewModelBest
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.ui.theme.color000000
-import com.bigbigdw.manavara.ui.theme.color02BC77
-import com.bigbigdw.manavara.ui.theme.color1CE3EE
-import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color4AD7CF
-import com.bigbigdw.manavara.ui.theme.color52A9FF
 import com.bigbigdw.manavara.ui.theme.color5372DE
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
 import com.bigbigdw.manavara.ui.theme.color998DF9
 import com.bigbigdw.manavara.ui.theme.colorE9E9E9
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorF7F7F7
-import com.bigbigdw.manavara.ui.theme.colorFF2366
 import com.bigbigdw.manavara.ui.theme.colorea927C
-import com.bigbigdw.manavara.util.DBDate
+import com.bigbigdw.manavara.util.changeDetailNameKor
 import com.bigbigdw.manavara.util.changePlatformNameEng
-import com.bigbigdw.manavara.util.changePlatformNameKor
+import com.bigbigdw.manavara.util.getPlatformColor
+import com.bigbigdw.manavara.util.getPlatformDescription
+import com.bigbigdw.manavara.util.getPlatformLogo
 import com.bigbigdw.manavara.util.novelListEng
 import com.bigbigdw.manavara.util.novelListKor
-import com.bigbigdw.manavara.util.screen.ItemKeyword
 import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
 import com.bigbigdw.manavara.util.screen.ScreenTest
 import com.bigbigdw.manavara.util.screen.TabletBorderLine
-import getPlatformGenre
-import kotlinx.coroutines.launch
 
 @Composable
 fun ScreenBest(
@@ -89,7 +69,9 @@ fun ScreenBest(
 ) {
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = colorF6F6F6)
     ) {
 
         Row {
@@ -100,12 +82,25 @@ fun ScreenBest(
                 val (getDetailGenre, setDetailGenre) = remember { mutableStateOf("ALL") }
                 val (getDetailType, setDetailType) = remember { mutableStateOf("NOVEL") }
 
-                viewModelBest.getBestJsonList(
-                    date = DBDate.dateMMDD(),
-                    platform = getDetailPlatform,
-                    genre = getDetailGenre,
-                    type = getDetailType,
-                )
+                LaunchedEffect(getDetailPlatform, getDetailGenre){
+                    viewModelBest.getBestJsonListToday(
+                        platform = getDetailPlatform,
+                        genre = getDetailGenre,
+                        type = getDetailType,
+                    )
+
+                    viewModelBest.getBestJsonListWeek(
+                        platform = getDetailPlatform,
+                        genre = getDetailGenre,
+                        type = getDetailType,
+                    )
+
+                    viewModelBest.getBestJsonListTodayMap(
+                        platform = getDetailPlatform,
+                        genre = getDetailGenre,
+                        type = getDetailType,
+                    )
+                }
 
                 ScreenBestTabletList(
                     setMenu = setMenu,
@@ -148,8 +143,6 @@ fun ScreenBestTabletList(
     setDetailType: (String) -> Unit
 ) {
 
-    val mainState = viewModelMain.state.collectAsState().value
-
     Column(
         modifier = Modifier
             .width(330.dp)
@@ -164,7 +157,7 @@ fun ScreenBestTabletList(
 
         Text(
             modifier = Modifier.padding(16.dp, 0.dp, 0.dp, 0.dp),
-            text = "베스트",
+            text = "웹소설 베스트",
             fontSize = 24.sp,
             color = Color.Black,
             fontWeight = FontWeight(weight = 700)
@@ -195,8 +188,8 @@ fun ScreenBestTabletList(
         ItemMainSettingSingleTablet(
             containerColor = color5372DE,
             image = R.drawable.icon_best_wht,
-            title = "투데이 베스트",
-            body = "투데이 베스트 관련 옵션 진행",
+            title = "마나바라 투데이 베스트",
+            body = "플랫폼별 1~5위에 랭크된 작품 리스트",
             setMenu = setMenu,
             getMenu = getMenu,
             onClick = {  },
@@ -204,10 +197,10 @@ fun ScreenBestTabletList(
 
         novelListKor().forEachIndexed{ index, item ->
             ItemBestListSingle(
-                containerColor = color52A9FF,
-                image = R.drawable.icon_best_wht,
-                title = changePlatformNameKor(item),
-                body = "투데이 베스트 관련 옵션 진행",
+                containerColor = getPlatformColor(item),
+                image = getPlatformLogo(item),
+                title = item,
+                body = getPlatformDescription(item),
                 setMenu = setMenu,
                 getMenu = getMenu,
                 bestType = "TODAY_BEST",
@@ -229,6 +222,21 @@ fun ScreenBestTabletList(
             onClick = {  },
         )
 
+        novelListKor().forEachIndexed{ index, item ->
+            ItemBestListSingle(
+                containerColor = getPlatformColor(item),
+                image = getPlatformLogo(item),
+                title = item,
+                body = getPlatformDescription(item),
+                setMenu = setMenu,
+                getMenu = getMenu,
+                bestType = "WEEK_BEST",
+                setDetailPlatform = { setDetailPlatform(changePlatformNameEng(item)) },
+                setDetailType = { setDetailType("NOVEL") },
+
+                )
+        }
+
         TabletBorderLine()
 
         ItemMainSettingSingleTablet(
@@ -240,6 +248,21 @@ fun ScreenBestTabletList(
             getMenu = getMenu,
             onClick = {  },
         )
+
+        novelListKor().forEachIndexed{ index, item ->
+            ItemBestListSingle(
+                containerColor = getPlatformColor(item),
+                image = getPlatformLogo(item),
+                title = item,
+                body = getPlatformDescription(item),
+                setMenu = setMenu,
+                getMenu = getMenu,
+                bestType = "TODAY_BEST",
+                setDetailPlatform = { setDetailPlatform(changePlatformNameEng(item)) },
+                setDetailType = { setDetailType("NOVEL") },
+
+                )
+        }
     }
 }
 
@@ -345,44 +368,34 @@ fun ScreenBestDetail(
     setDetailGenre: (String) -> Unit
 ) {
 
-    val mainState = viewModelMain.state.collectAsState().value
-
     Column(
         modifier = Modifier
+            .fillMaxWidth()
             .background(color = colorF6F6F6)
-            .semantics { contentDescription = "Overview Screen" },
     ) {
 
         Spacer(modifier = Modifier.size(16.dp))
 
         Text(
             modifier = Modifier.padding(24.dp, 0.dp, 0.dp, 0.dp),
-            text = "< $getMenu",
+            text = "< ${changeDetailNameKor(getMenu)}",
             fontSize = 24.sp,
             color = color000000,
             fontWeight = FontWeight(weight = 700)
         )
 
-
-        if (getMenu.contains("유저 옵션")) {
-
-            val (getUserInfo, setUserInfo) = remember { mutableStateOf(mainState.userInfo) }
-
-            Column(
-                modifier = Modifier
-                    .background(colorF6F6F6)
-                    .padding(0.dp, 0.dp, 20.dp, 0.dp)
-            ) {
-                ScreenRegister(
-                    viewModelLogin = ViewModelLogin(),
-                    setUserInfo = setUserInfo,
-                    getUserInfo = getUserInfo,
-                    isEdit = true
-                )
-            }
-
-        } else if (getMenu.contains("TODAY_BEST")) {
+        if (getMenu.contains("TODAY_BEST")) {
             ScreenTodayBest(
+                viewModelMain = viewModelMain,
+                viewModelBest = viewModelBest,
+                getDetailPlatform = getDetailPlatform,
+                getDetailType = getDetailType,
+                setDetailGenre = setDetailGenre,
+                getDetailGenre = getDetailGenre
+            )
+
+        } else if (getMenu.contains("WEEK_BEST")) {
+            ScreenTodayWeek(
                 viewModelMain = viewModelMain,
                 viewModelBest = viewModelBest,
                 getDetailPlatform = getDetailPlatform,
@@ -394,193 +407,5 @@ fun ScreenBestDetail(
         } else {
             ScreenTest()
         }
-    }
-}
-
-@Composable
-fun ScreenTodayBest(
-    viewModelMain: ViewModelMain,
-    viewModelBest: ViewModelBest,
-    getDetailPlatform: String,
-    getDetailType: String,
-    setDetailGenre: (String) -> Unit,
-    getDetailGenre: String,
-) {
-
-    val bestState = viewModelBest.state.collectAsState().value
-
-    val listState = rememberLazyListState()
-
-    Column(modifier = Modifier.background(color = colorF6F6F6)) {
-
-        LazyRow(
-            modifier = Modifier.padding(16.dp, 20.dp, 0.dp, 20.dp),
-        ) {
-            itemsIndexed(
-                getPlatformGenre(
-                    type = getDetailType,
-                    platform = getDetailPlatform
-                )
-            ) { index, item ->
-                Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
-                    ItemKeyword(
-                        getter = getDetailGenre,
-                        setter = setDetailGenre,
-                        title = item,
-                        viewModelBest = viewModelBest,
-                        listState = listState
-                    )
-                }
-            }
-        }
-
-        LazyColumn(
-            modifier = Modifier
-                .background(colorF6F6F6)
-                .padding(0.dp, 0.dp, 16.dp, 0.dp)
-        ) {
-
-            itemsIndexed(bestState.itemBookInfoList) { index, item ->
-                ListBestToday(
-                    viewModelMain = viewModelMain,
-                    viewModelBest = viewModelBest,
-                    itemBookInfo = item,
-                    index = index
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun ListBestToday(
-    viewModelMain: ViewModelMain,
-    viewModelBest: ViewModelBest,
-    itemBookInfo: ItemBookInfo,
-    index: Int,
-) {
-
-    val coroutineScope = rememberCoroutineScope()
-    val userInfo = viewModelMain.state.collectAsState().value
-
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .padding(12.dp, 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-
-        AsyncImage(
-            model = itemBookInfo.bookImg,
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .size(56.dp)
-                .clip(CircleShape)
-        )
-        Spacer(modifier = Modifier.width(4.dp))
-
-        Button(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(4.dp, 0.dp, 0.dp, 0.dp)
-                .fillMaxWidth()
-                .height(56.dp),
-            shape = RoundedCornerShape(25.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-            onClick = {
-                coroutineScope.launch {
-//                        viewModelBestList.getBottomBestData(bestItemData, index)
-//                        viewModelBestList.bottomDialogBestGetRank(userInfo, bestItemData)
-//                        modalSheetState.show()
-                }
-            },
-            contentPadding = PaddingValues(
-                start = 0.dp,
-                top = 0.dp,
-                end = 0.dp,
-                bottom = 0.dp,
-            ),
-            content = {
-
-                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically){
-
-                    Text(
-                        text = "${index + 1} ",
-                        modifier = Modifier
-                            .wrapContentHeight()
-                            .padding(16.dp, 0.dp, 0.dp, 0.dp),
-                        fontSize = 24.sp,
-                        textAlign = TextAlign.Left,
-                        color = color20459E,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Text(
-                        maxLines = 1,
-                        text = itemBookInfo.title,
-                        modifier = Modifier
-                            .wrapContentHeight()
-                            .weight(1f),
-                        fontSize = 18.sp,
-                        textAlign = TextAlign.Left,
-                        color = Color.Black,
-                        fontWeight = FontWeight.Bold,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    Spacer(modifier = Modifier.width(16.dp))
-
-                    if(itemBookInfo.currentDiff > 0){
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_arrow_drop_up_24px),
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    } else if(itemBookInfo.currentDiff < 0) {
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_arrow_drop_down_24px),
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-
-                    Text(
-                        text = if (itemBookInfo.totalCount > 1) {
-                            if(itemBookInfo.currentDiff != 0){
-                                itemBookInfo.currentDiff.toString()
-                            } else {
-                                "-"
-                            }
-                        } else {
-                            "NEW"
-                        },
-                        modifier = Modifier
-                            .wrapContentHeight()
-                            .padding(0.dp, 0.dp, 16.dp, 0.dp)
-                            .wrapContentSize(),
-                        fontSize = 14.sp,
-                        textAlign = TextAlign.Left,
-                        color = if (itemBookInfo.totalCount > 1) {
-                            if (itemBookInfo.currentDiff != 0) {
-
-                                if(itemBookInfo.currentDiff > 0){
-                                    color02BC77
-                                } else if(itemBookInfo.currentDiff < 0){
-                                    colorFF2366
-                                } else {
-                                    color1CE3EE
-                                }
-                            } else {
-                                color1CE3EE
-                            }
-                        } else {
-                            color1CE3EE
-                        },
-                        fontWeight = FontWeight.Bold,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            })
     }
 }
