@@ -112,7 +112,7 @@ class ViewModelBest @Inject constructor() : ViewModel() {
             }
 
             val cmpAsc: java.util.Comparator<ItemBestInfo> =
-                Comparator { o1, o2 -> o1.totalCount.compareTo(o2.totalCount) }
+                Comparator { o1, o2 -> o1.total.compareTo(o2.total) }
             Collections.sort(itemList, cmpAsc)
 
             viewModelScope.launch {
