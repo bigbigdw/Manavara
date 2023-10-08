@@ -56,14 +56,15 @@ import com.bigbigdw.manavara.ui.theme.color8E8E8E
 import com.bigbigdw.manavara.ui.theme.colorDCDCDD
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorFF2366
+import com.bigbigdw.manavara.util.geMonthDate
+import com.bigbigdw.manavara.util.getJoaraGenreKor
+import com.bigbigdw.manavara.util.getNaverSeriesGenreEngToKor
+import com.bigbigdw.manavara.util.getPlatformGenre
+import com.bigbigdw.manavara.util.getWeekDate
 import com.bigbigdw.manavara.util.screen.ItemKeyword
-import com.bigbigdw.manavara.util.screen.ItemTabletTitle
 import com.bigbigdw.manavara.util.screen.spannableString
 import com.bigbigdw.manavara.util.weekList
 import com.bigbigdw.manavara.util.weekListAll
-import getNaverSeriesGenreEngToKor
-import getPlatformGenre
-import getWeekDate
 import kotlinx.coroutines.launch
 
 @Composable
@@ -96,7 +97,11 @@ fun ScreenTodayBest(
                     ItemKeyword(
                         getter = getDetailGenre,
                         setter = setDetailGenre,
-                        title = getNaverSeriesGenreEngToKor(item),
+                        title = if (getDetailPlatform.contains("NAVER")) {
+                            getNaverSeriesGenreEngToKor(item)
+                        } else {
+                            getJoaraGenreKor(item)
+                        },
                         getValue = item,
                         viewModelBest = viewModelBest,
                         listState = listState
@@ -397,7 +402,7 @@ fun ScreenTodayMonth(
 
     var count = 0
 
-    for(item in arrayList){
+    for(item in bestState.monthList){
         count += 1
         arrayList.add("${count}주차")
     }
@@ -439,14 +444,14 @@ fun ScreenTodayMonth(
             }
         } else {
 
-            if(bestState.monthList[getWeekDate(getDate)].size > 0){
+            if(bestState.monthList[geMonthDate(getDate)].size > 0){
                 LazyColumn(
                     modifier = Modifier
                         .background(colorF6F6F6)
                         .padding(0.dp, 0.dp, 16.dp, 0.dp)
                 ) {
 
-                    itemsIndexed(bestState.monthList[getWeekDate(getDate)]) { index, item ->
+                    itemsIndexed(bestState.monthList[geMonthDate(getDate)]) { index, item ->
 
                         val itemBookInfo = bestState.itemBookInfoMap[item.bookCode]
 
@@ -513,7 +518,7 @@ fun ItemBestExpandWeek(item: ItemBookInfo) {
                 )
 
                 Text(
-                    text =  "${item.writer}/${item.info2}",
+                    text =  "${item.writer}/${item.cntChapter}",
                     color = color000000,
                     fontSize = 16.sp,
                 )
@@ -534,7 +539,7 @@ fun ItemBestExpandWeek(item: ItemBookInfo) {
                     text = spannableString(
                         textFront = "플랫폼 평점 : ",
                         color = color000000,
-                        textEnd = item.info1
+                        textEnd = item.cntRecom
                     ),
                     color = color8E8E8E,
                     fontSize = 16.sp,
@@ -575,7 +580,7 @@ fun ItemBestExpandWeek(item: ItemBookInfo) {
         Spacer(modifier = Modifier.size(16.dp))
 
         Text(
-            text = item.info3,
+            text = item.intro,
             color = color8E8E8E,
             fontSize = 16.sp,
         )
@@ -669,7 +674,7 @@ fun ItemBestExpandMonth(item: ItemBookInfo) {
                 )
 
                 Text(
-                    text =  "${item.writer}/${item.info2}",
+                    text =  "${item.writer}/${item.cntChapter}",
                     color = color000000,
                     fontSize = 16.sp,
                 )
@@ -690,7 +695,7 @@ fun ItemBestExpandMonth(item: ItemBookInfo) {
                     text = spannableString(
                         textFront = "플랫폼 평점 : ",
                         color = color000000,
-                        textEnd = item.info1
+                        textEnd = item.cntRecom
                     ),
                     color = color8E8E8E,
                     fontSize = 16.sp,
@@ -751,7 +756,7 @@ fun ItemBestExpandMonth(item: ItemBookInfo) {
         Spacer(modifier = Modifier.size(16.dp))
 
         Text(
-            text = item.info3,
+            text = item.intro,
             color = color8E8E8E,
             fontSize = 16.sp,
         )

@@ -56,4 +56,7 @@ val colorFF2366 = Color(android.graphics.Color.parseColor("#FF2366"))
 val color02BC77 = Color(android.graphics.Color.parseColor("#02BC77"))
 
 val colorNAVER = Color(android.graphics.Color.parseColor("#00e063"))
+val colorJOARA = Color(android.graphics.Color.parseColor("#2552b5"))
+val colorNOBLESS = Color(android.graphics.Color.parseColor("#4385dc"))
+val colorPREMIUM = Color(android.graphics.Color.parseColor("#b3cb38"))
 

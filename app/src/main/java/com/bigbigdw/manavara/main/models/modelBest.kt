@@ -15,12 +15,18 @@ data class ItemBookInfo(
     var bookCode: String = "",
     @SerialName("type")
     var type: String = "",
-    @SerialName("info1")
-    var info1: String = "",
-    @SerialName("info2")
-    var info2: String = "",
-    @SerialName("info3")
-    var info3: String = "",
+    @SerialName("intro")
+    var intro: String = "",
+    @SerialName("cntPageRead")
+    var cntPageRead: String = "",
+    @SerialName("cntFavorite")
+    var cntFavorite: String = "",
+    @SerialName("cntRecom")
+    var cntRecom: String = "",
+    @SerialName("cntTotalComment")
+    var cntTotalComment: String = "",
+    @SerialName("cntChapter")
+    var cntChapter: String = "",
     @SerialName("total")
     var total:  Int = 1,
     @SerialName("totalCount")
@@ -46,8 +52,14 @@ data class ItemBestInfo (
     var number: Int = 0,
     @SerialName("point")
     var point: Int = 0,
-    @SerialName("info1")
-    var info1: String = "",
+    @SerialName("cntPageRead")
+    var cntPageRead: String = "",
+    @SerialName("cntFavorite")
+    var cntFavorite: String = "",
+    @SerialName("cntRecom")
+    var cntRecom: String = "",
+    @SerialName("cntTotalComment")
+    var cntTotalComment: String = "",
     @SerialName("total")
     var total:  Int = 1,
     @SerialName("totalCount")

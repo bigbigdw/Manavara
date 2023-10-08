@@ -64,7 +64,6 @@ import com.bigbigdw.manavara.ui.theme.colorE9E9E9
 import com.bigbigdw.manavara.ui.theme.colorEDE6FD
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorF7F7F7
-import getNaverSeriesGenreEngToKor
 import kotlinx.coroutines.launch
 
 @Composable
