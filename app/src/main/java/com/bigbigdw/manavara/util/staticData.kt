@@ -2,10 +2,16 @@ package com.bigbigdw.manavara.util
 
 import androidx.compose.ui.graphics.Color
 import com.bigbigdw.manavara.R
+import com.bigbigdw.manavara.ui.theme.colorCHALLENGE
 import com.bigbigdw.manavara.ui.theme.colorJOARA
+import com.bigbigdw.manavara.ui.theme.colorKAKAO
+import com.bigbigdw.manavara.ui.theme.colorMUNPIA
 import com.bigbigdw.manavara.ui.theme.colorNAVER
 import com.bigbigdw.manavara.ui.theme.colorNOBLESS
+import com.bigbigdw.manavara.ui.theme.colorONESTORY
 import com.bigbigdw.manavara.ui.theme.colorPREMIUM
+import com.bigbigdw.manavara.ui.theme.colorRIDI
+import com.bigbigdw.manavara.ui.theme.colorTOKSODA
 
 fun comicKor(): List<String> {
     return listOf(
@@ -15,13 +21,11 @@ fun comicKor(): List<String> {
         "시리즈",
         "챌린지리그",
         "베스트리그",
-//            "카카오페이지",
         "스테이지",
-//            "리디북스",
+        "리디북스",
         "원스토리",
         "문피아",
         "톡소다",
-//            "미스터블루"
     )
 }
 fun novelListKor(): List<String> {
@@ -32,13 +36,12 @@ fun novelListKor(): List<String> {
         "시리즈",
         "챌린지리그",
         "베스트리그",
-//            "카카오페이지",
         "스테이지",
-//            "리디북스",
+        "리디 판타지",
+        "리디 로맨스",
         "원스토리",
         "문피아",
         "톡소다",
-//            "미스터블루"
     )
 }
 
@@ -48,15 +51,14 @@ fun novelListEng(): List<String> {
         "JOARA_NOBLESS",
         "JOARA_PREMIUM",
         "NAVER_SERIES",
-        "챌린지리그",
-        "베스트리그",
-//            "카카오페이지",
-        "스테이지",
-//            "리디북스",
-        "원스토리",
-        "문피아",
-        "톡소다",
-//            "미스터블루"
+        "NAVER_CHALLENGE",
+        "NAVER_BEST",
+        "KAKAO_STAGE",
+        "RIDI_ROMANCE",
+        "RIDI_FANTAGY",
+        "ONESTORY",
+        "MUNPIA",
+        "TOKSODA",
     )
 }
 
@@ -73,16 +75,22 @@ fun changePlatformNameEng(platform : String) : String {
             "JOARA_PREMIUM"
         }
         "챌린지리그" -> {
-            "CHALLENGE_LEAGUE"
+            "NAVER_CHALLENGE"
         }
         "베스트리그" -> {
-            "BEST_LEAGUE"
+            "NAVER_BEST"
         }
         "시리즈" -> {
             "NAVER_SERIES"
         }
         "스테이지" -> {
             "KAKAO_STAGE"
+        }
+        "리디 판타지" -> {
+            "RIDI_FANTAGY"
+        }
+        "리디 로맨스" -> {
+            "RIDI_ROMANCE"
         }
         "원스토리" -> {
             "ONESTORY"
@@ -151,17 +159,41 @@ fun changeDetailNameKor(detail : String) : String {
 
 fun getPlatformLogo(platform: String) : Int {
     return when (platform) {
-        "시리즈" -> {
-            R.drawable.logo_naver
-        }
-        "프리미엄" -> {
-            R.drawable.logo_joara_premium
+        "조아라" -> {
+            R.drawable.logo_joara
         }
         "노블레스" -> {
             R.drawable.logo_joara_nobless
         }
-        "조아라" -> {
-            R.drawable.logo_joara
+        "프리미엄" -> {
+            R.drawable.logo_joara_premium
+        }
+        "시리즈" -> {
+            R.drawable.logo_naver
+        }
+        "챌린지리그" -> {
+            R.drawable.logo_naver_challenge
+        }
+        "베스트리그" -> {
+            R.drawable.logo_naver_challenge
+        }
+        "스테이지" -> {
+            R.drawable.logo_kakaostage
+        }
+        "리디 판타지" -> {
+            R.drawable.logo_ridibooks
+        }
+        "리디 로맨스" -> {
+            R.drawable.logo_ridibooks
+        }
+        "원스토리" -> {
+            R.drawable.logo_onestore
+        }
+        "문피아" -> {
+            R.drawable.logo_munpia
+        }
+        "톡소다" -> {
+            R.drawable.logo_toksoda
         }
         else -> {
             R.drawable.icon_best_wht
@@ -171,17 +203,41 @@ fun getPlatformLogo(platform: String) : Int {
 
 fun getPlatformColor(platform: String): Color {
     return when (platform) {
-        "시리즈" -> {
-            colorNAVER
-        }
-        "프리미엄" -> {
-            colorPREMIUM
+        "조아라" -> {
+            colorJOARA
         }
         "노블레스" -> {
             colorNOBLESS
         }
-        "조아라" -> {
-            colorJOARA
+        "프리미엄" -> {
+            colorPREMIUM
+        }
+        "시리즈" -> {
+            colorNAVER
+        }
+        "챌린지리그" -> {
+            colorCHALLENGE
+        }
+        "베스트리그" -> {
+            colorCHALLENGE
+        }
+        "스테이지" -> {
+            colorKAKAO
+        }
+        "리디 판타지" -> {
+            colorRIDI
+        }
+        "리디 로맨스" -> {
+            colorRIDI
+        }
+        "원스토리" -> {
+            colorONESTORY
+        }
+        "문피아" -> {
+            colorMUNPIA
+        }
+        "톡소다" -> {
+            colorTOKSODA
         }
         else -> {
             Color.Black
@@ -190,16 +246,46 @@ fun getPlatformColor(platform: String): Color {
 }
 
 fun getPlatformDescription(platform: String) : String {
-    return if(platform == "시리즈"){
-        "네이버 시리즈"
-    } else if(platform == "프리미엄"){
-        "조아라 프리미엄"
-    }  else if(platform == "노블레스"){
-        "조아라 노블레스"
-    }  else if(platform == "조아라"){
-        "조아라"
-    } else {
-        "하하"
+    return when (platform) {
+        "시리즈" -> {
+            "네이버 시리즈"
+        }
+        "프리미엄" -> {
+            "조아라 프리미엄"
+        }
+        "노블레스" -> {
+            "조아라 노블레스"
+        }
+        "조아라" -> {
+            "조아라"
+        }
+        "챌린지리그" -> {
+            "네이버 챌린지 리그"
+        }
+        "베스트리그" -> {
+            "네이버 베스트 리그"
+        }
+        "스테이지" -> {
+            "카카오 스테이지"
+        }
+        "리디 판타지" -> {
+            "리디북스 판타지"
+        }
+        "리디 로맨스" -> {
+            "리디북스 로맨스"
+        }
+        "원스토리" -> {
+            "원스토리"
+        }
+        "문피아" -> {
+            "문피아"
+        }
+        "톡소다" -> {
+            "톡소다"
+        }
+        else -> {
+            "하하"
+        }
     }
 }
 
@@ -226,195 +312,6 @@ fun weekList(): List<String> {
         "금요일",
         "토요일"
     )
-}
-
-fun getJoaraGenre(genre : String) : String {
-    when (genre) {
-        "0" -> {
-            return "ALL"
-        }
-        "1" -> {
-            return "FANTAGY"
-        }
-        "2" -> {
-            return "MARTIAL_ARTS"
-        }
-        "5" -> {
-            return "MODREN_FANTAGY"
-        }
-        "22" -> {
-            return "ROMANCE_FANTAGY"
-        }
-        "25" -> {
-            return "ROMANCE"
-        }
-        else -> {
-            return genre
-        }
-    }
-}
-
-fun getJoaraGenreKor(genre : String) : String {
-    when (genre) {
-        "ALL" -> {
-            return "전체"
-        }
-        "FANTAGY" -> {
-            return "판타지"
-        }
-        "MARTIAL_ARTS" -> {
-            return "무협"
-        }
-        "MODREN_FANTAGY" -> {
-            return "모판"
-        }
-        "ROMANCE_FANTAGY" -> {
-            return "로판"
-        }
-        "ROMANCE" -> {
-            return "로맨스"
-        }
-        else -> {
-            return genre
-        }
-    }
-}
-
-val JoaraGenre = arrayListOf(
-    "0",
-    "1",
-    "25",
-    "2",
-    "5",
-    "22",
-)
-
-val JoaraGenreDir = arrayListOf(
-    "ALL",
-    "FANTAGY",
-    "MARTIAL_ARTS",
-    "MODREN_FANTAGY",
-    "ROMANCE_FANTAGY",
-    "ROMANCE",
-)
-
-fun getPlatformGenre(type : String, platform: String) : ArrayList<String>{
-
-    val array: ArrayList<String> =
-        if (platform == "NAVER_SERIES") {
-            if (type == "COMIC") {
-                NaverSeriesComicGenreDir
-            } else {
-                NaverSeriesNovelGenreDir
-            }
-        } else if (platform.contains("JOARA")) {
-            JoaraGenreDir
-        } else {
-            NaverSeriesComicGenreDir
-        }
-
-
-    return array
-}
-
-val NaverSeriesComicGenreDir = arrayListOf(
-    "ALL",
-    "ACTION",
-    "BL",
-    "DRAMA",
-    "MELO",
-    "YOUNG",
-)
-
-val NaverSeriesNovelGenreDir = arrayListOf(
-    "ALL",
-    "ROMANCE",
-    "ROMANCE_FANTASY",
-    "FANTASY",
-    "MODERN_FANTASY",
-    "MARTIAL_ARTS",
-)
-
-fun getNaverSeriesGenre(genre : String) : String {
-    when (genre) {
-        "ALL" -> {
-            return "ALL"
-        }
-        "99" -> {
-            return "MELO"
-        }
-        "93" -> {
-            return "DRAMA"
-        }
-        "90" -> {
-            return "YOUNG"
-        }
-        "88" -> {
-            return "ACTION"
-        }
-        "107" -> {
-            return "BL"
-        }
-        "201" -> {
-            return "ROMANCE"
-        }
-        "207" -> {
-            return "ROMANCE_FANTASY"
-        }
-        "202" -> {
-            return "FANTASY"
-        }
-        "208" -> {
-            return "MODERN_FANTASY"
-        }
-        "206" -> {
-            return "MARTIAL_ARTS"
-        }
-        else -> {
-            return "없음"
-        }
-    }
-}
-
-fun getNaverSeriesGenreEngToKor(genre : String) : String {
-    return when (genre) {
-        "ALL" -> {
-            "전체"
-        }
-        "MELO" -> {
-            "멜로"
-        }
-        "DRAMA" -> {
-            "드라마"
-        }
-        "YOUNG" -> {
-            "소년"
-        }
-        "ACTION" -> {
-            "액션"
-        }
-        "BL" -> {
-            "BL"
-        }
-        "ROMANCE" -> {
-            "로맨스"
-        }
-        "ROMANCE_FANTASY" -> {
-            "로판"
-        }
-        "FANTASY" -> {
-            "판타지"
-        }
-        "MODERN_FANTASY" -> {
-            "현판"
-        }
-        "MARTIAL_ARTS" -> {
-            "무협"
-        }
-        else -> {
-            "없음"
-        }
-    }
 }
 
 fun getWeekDate(date : String) : Int {

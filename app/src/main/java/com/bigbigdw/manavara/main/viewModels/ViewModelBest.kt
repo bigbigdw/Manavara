@@ -76,10 +76,10 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         }
     }
 
-    fun getBestListToday(platform: String, genre: String, type: String){
+    fun getBestListToday(platform: String, type: String){
         val storage = Firebase.storage
         val storageRef = storage.reference
-        val todayFileRef = storageRef.child("${platform}/${type}/${genre}/DAY/${DBDate.dateMMDD()}.json")
+        val todayFileRef = storageRef.child("${platform}/${type}/DAY/${DBDate.dateMMDD()}.json")
 
         val todayFile = todayFileRef.getBytes(1024 * 1024)
 
@@ -102,10 +102,10 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         }
     }
 
-    fun getBestWeekTrophy(platform: String, genre: String, type: String){
+    fun getBestWeekTrophy(platform: String, type: String){
         val storage = Firebase.storage
         val storageRef = storage.reference
-        val weekTrophyRef = storageRef.child("${platform}/${type}/${genre}/WEEK_TROPHY/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
+        val weekTrophyRef = storageRef.child("${platform}/${type}/WEEK_TROPHY/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
         val weekTrophyFile = weekTrophyRef.getBytes(1024 * 1024)
 
         weekTrophyFile.addOnSuccessListener { bytes ->
@@ -129,10 +129,10 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         }
     }
 
-    fun getBestMapToday(platform: String, genre: String, type: String){
+    fun getBestMapToday(platform: String, type: String){
         val storage = Firebase.storage
         val storageRef = storage.reference
-        val todayFileRef = storageRef.child("${platform}/${type}/${genre}/DAY/${DBDate.dateMMDD()}.json")
+        val todayFileRef = storageRef.child("${platform}/${type}/DAY/${DBDate.dateMMDD()}.json")
 
         val todayFile = todayFileRef.getBytes(1024 * 1024)
 
@@ -152,10 +152,10 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         }
     }
 
-    fun getBestWeekList(platform: String, genre: String, type: String){
+    fun getBestWeekList(platform: String, type: String){
         val storage = Firebase.storage
         val storageRef = storage.reference
-        val weekRef =   storageRef.child("${platform}/${type}/${genre}/WEEK/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
+        val weekRef =   storageRef.child("${platform}/${type}/WEEK/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
         val weekFile = weekRef.getBytes(1024 * 1024)
 
         weekFile.addOnSuccessListener { bytes ->
@@ -193,10 +193,10 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         }
     }
 
-    fun getBestMonthList(platform: String, genre: String, type: String){
+    fun getBestMonthList(platform: String, type: String){
         val storage = Firebase.storage
         val storageRef = storage.reference
-        val monthRef = storageRef.child("${platform}/${type}/${genre}/MONTH/${DBDate.year()}_${DBDate.month()}.json")
+        val monthRef = storageRef.child("${platform}/${type}/MONTH/${DBDate.year()}_${DBDate.month()}.json")
         val monthFile = monthRef.getBytes(1024 * 1024)
 
         monthFile.addOnSuccessListener { bytes ->
@@ -234,10 +234,10 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         }
     }
 
-    fun getBestMonthTrophy(platform: String, genre: String, type: String){
+    fun getBestMonthTrophy(platform: String, type: String){
         val storage = Firebase.storage
         val storageRef = storage.reference
-        val monthTrophyRef =  storageRef.child("${platform}/${type}/${genre}/MONTH_TROPHY/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
+        val monthTrophyRef =  storageRef.child("${platform}/${type}/MONTH_TROPHY/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
         val monthTrophyFile = monthTrophyRef.getBytes(1024 * 1024)
 
         monthTrophyFile.addOnSuccessListener { bytes ->

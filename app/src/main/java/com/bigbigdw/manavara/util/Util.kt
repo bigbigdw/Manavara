@@ -1,7 +1,6 @@
 import android.annotation.SuppressLint
 import com.bigbigdw.manavara.main.models.ItemBestInfo
 import com.bigbigdw.manavara.main.models.ItemBookInfo
-import com.bigbigdw.manavara.util.JoaraGenre
 import com.google.gson.JsonObject
 import org.json.JSONObject
 

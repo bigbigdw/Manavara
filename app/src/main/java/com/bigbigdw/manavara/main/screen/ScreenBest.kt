@@ -70,43 +70,36 @@ fun ScreenBest(
 
     val (getMenu, setMenu) = remember { mutableStateOf("") }
     val (getDetailPlatform, setDetailPlatform) = remember { mutableStateOf(novelListEng()[0]) }
-    val (getDetailGenre, setDetailGenre) = remember { mutableStateOf("ALL") }
     val (getDetailType, setDetailType) = remember { mutableStateOf("NOVEL") }
 
-    LaunchedEffect(getDetailPlatform, getDetailGenre){
+    LaunchedEffect(getDetailPlatform){
         viewModelBest.getBestListToday(
             platform = getDetailPlatform,
-            genre = getDetailGenre,
             type = getDetailType,
         )
 
         viewModelBest.getBestWeekTrophy(
             platform = getDetailPlatform,
-            genre = getDetailGenre,
             type = getDetailType,
         )
 
         viewModelBest.getBestMapToday(
             platform = getDetailPlatform,
-            genre = getDetailGenre,
             type = getDetailType,
         )
 
         viewModelBest.getBestWeekList(
             platform = getDetailPlatform,
-            genre = getDetailGenre,
             type = getDetailType,
         )
 
         viewModelBest.getBestMonthTrophy(
             platform = getDetailPlatform,
-            genre = getDetailGenre,
             type = getDetailType,
         )
 
         viewModelBest.getBestMonthList(
             platform = getDetailPlatform,
-            genre = getDetailGenre,
             type = getDetailType,
         )
     }
@@ -137,11 +130,9 @@ fun ScreenBest(
                 ScreenBestDetail(
                     getMenu = getMenu,
                     viewModelMain = viewModelMain,
-                    viewModelBest = viewModelBest,
                     getDetailPlatform = getDetailPlatform,
-                    getDetailGenre = getDetailGenre,
                     getDetailType = getDetailType,
-                    setDetailGenre = setDetailGenre,
+                    viewModelBest = viewModelBest,
                     isExpandedScreen = isExpandedScreen
                 )
 
@@ -151,8 +142,6 @@ fun ScreenBest(
                     viewModelBest = viewModelBest,
                     getDetailPlatform = getDetailPlatform,
                     getDetailType = getDetailType,
-                    setDetailGenre = setDetailGenre,
-                    getDetailGenre = getDetailGenre,
                     isExpandedScreen = isExpandedScreen
                 )
             }
@@ -386,10 +375,8 @@ fun ScreenBestDetail(
     getMenu: String,
     viewModelMain: ViewModelMain,
     getDetailPlatform: String,
-    getDetailGenre: String,
     getDetailType: String,
     viewModelBest: ViewModelBest,
-    setDetailGenre: (String) -> Unit,
     isExpandedScreen: Boolean
 ) {
 
@@ -415,8 +402,6 @@ fun ScreenBestDetail(
                 viewModelBest = viewModelBest,
                 getDetailPlatform = getDetailPlatform,
                 getDetailType = getDetailType,
-                setDetailGenre = setDetailGenre,
-                getDetailGenre = getDetailGenre,
                 isExpandedScreen = isExpandedScreen
             )
 

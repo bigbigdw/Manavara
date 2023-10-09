@@ -57,9 +57,6 @@ import com.bigbigdw.manavara.ui.theme.colorDCDCDD
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorFF2366
 import com.bigbigdw.manavara.util.geMonthDate
-import com.bigbigdw.manavara.util.getJoaraGenreKor
-import com.bigbigdw.manavara.util.getNaverSeriesGenreEngToKor
-import com.bigbigdw.manavara.util.getPlatformGenre
 import com.bigbigdw.manavara.util.getWeekDate
 import com.bigbigdw.manavara.util.screen.ItemKeyword
 import com.bigbigdw.manavara.util.screen.spannableString
@@ -73,8 +70,6 @@ fun ScreenTodayBest(
     viewModelBest: ViewModelBest,
     getDetailPlatform: String,
     getDetailType: String,
-    setDetailGenre: (String) -> Unit,
-    getDetailGenre: String,
     isExpandedScreen: Boolean,
 ) {
 
@@ -83,32 +78,6 @@ fun ScreenTodayBest(
     val listState = rememberLazyListState()
 
     Column(modifier = Modifier.background(color = colorF6F6F6)) {
-
-        LazyRow(
-            modifier =  Modifier.padding(16.dp, 8.dp, 0.dp, 8.dp),
-        ) {
-            itemsIndexed(
-                getPlatformGenre(
-                    type = getDetailType,
-                    platform = getDetailPlatform
-                )
-            ) { index, item ->
-                Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
-                    ItemKeyword(
-                        getter = getDetailGenre,
-                        setter = setDetailGenre,
-                        title = if (getDetailPlatform.contains("NAVER")) {
-                            getNaverSeriesGenreEngToKor(item)
-                        } else {
-                            getJoaraGenreKor(item)
-                        },
-                        getValue = item,
-                        viewModelBest = viewModelBest,
-                        listState = listState
-                    )
-                }
-            }
-        }
 
         LazyColumn(
             modifier = if (!isExpandedScreen) {
