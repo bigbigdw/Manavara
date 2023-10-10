@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -60,6 +62,9 @@ import com.bigbigdw.manavara.util.novelListKor
 import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
 import com.bigbigdw.manavara.util.screen.ScreenTest
 import com.bigbigdw.manavara.util.screen.TabletBorderLine
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun ScreenBest(
@@ -71,12 +76,13 @@ fun ScreenBest(
     val (getMenu, setMenu) = remember { mutableStateOf("") }
     val (getDetailPlatform, setDetailPlatform) = remember { mutableStateOf(novelListEng()[0]) }
     val (getDetailType, setDetailType) = remember { mutableStateOf("NOVEL") }
+    val listState = rememberLazyListState()
 
     LaunchedEffect(getDetailPlatform){
-        viewModelBest.getBestListToday(
-            platform = getDetailPlatform,
-            type = getDetailType,
-        )
+//        viewModelBest.getBestListToday(
+//            platform = getDetailPlatform,
+//            type = getDetailType,
+//        )
 
         viewModelBest.getBestWeekTrophy(
             platform = getDetailPlatform,
@@ -104,6 +110,7 @@ fun ScreenBest(
         )
     }
 
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -117,7 +124,8 @@ fun ScreenBest(
                     getMenu = getMenu,
                     viewModelMain = viewModelMain,
                     setDetailPlatform = setDetailPlatform,
-                    setDetailType = setDetailType
+                    setDetailType = setDetailType,
+                    listState = listState
                 )
 
                 Spacer(
@@ -133,7 +141,8 @@ fun ScreenBest(
                     getDetailPlatform = getDetailPlatform,
                     getDetailType = getDetailType,
                     viewModelBest = viewModelBest,
-                    isExpandedScreen = isExpandedScreen
+                    isExpandedScreen = isExpandedScreen,
+                    listState = listState
                 )
 
             } else {
@@ -142,7 +151,8 @@ fun ScreenBest(
                     viewModelBest = viewModelBest,
                     getDetailPlatform = getDetailPlatform,
                     getDetailType = getDetailType,
-                    isExpandedScreen = isExpandedScreen
+                    isExpandedScreen = isExpandedScreen,
+                    listState = listState
                 )
             }
         }
@@ -155,7 +165,8 @@ fun ScreenBestTabletList(
     getMenu: String,
     viewModelMain: ViewModelMain,
     setDetailPlatform: (String) -> Unit,
-    setDetailType: (String) -> Unit
+    setDetailType: (String) -> Unit,
+    listState: LazyListState
 ) {
 
     Column(
@@ -220,7 +231,13 @@ fun ScreenBestTabletList(
                 getMenu = getMenu,
                 bestType = "TODAY_BEST",
                 setDetailPlatform = { setDetailPlatform(changePlatformNameEng(item)) },
-                setDetailType = { setDetailType("NOVEL") },
+                setDetailType = {
+                    setDetailType("NOVEL")
+//                    CoroutineScope(Dispatchers.IO).launch {
+//                        listState.animateScrollToItem(index = 0)
+//                    }
+
+                },
 
             )
         }
@@ -377,7 +394,8 @@ fun ScreenBestDetail(
     getDetailPlatform: String,
     getDetailType: String,
     viewModelBest: ViewModelBest,
-    isExpandedScreen: Boolean
+    isExpandedScreen: Boolean,
+    listState: LazyListState
 ) {
 
     Column(
@@ -388,13 +406,26 @@ fun ScreenBestDetail(
 
         Spacer(modifier = Modifier.size(16.dp))
 
-        Text(
-            modifier = Modifier.padding(24.dp, 0.dp, 0.dp, 0.dp),
-            text = "< ${changeDetailNameKor(getMenu)}",
-            fontSize = 24.sp,
-            color = color000000,
-            fontWeight = FontWeight(weight = 700)
-        )
+        Row(verticalAlignment = Alignment.CenterVertically){
+            Image(
+                painter = painterResource(id = R.drawable.icon_arrow_left),
+                contentDescription = null,
+                modifier = Modifier
+                    .width(30.dp)
+                    .height(30.dp)
+            )
+
+            Text(
+                modifier = Modifier
+                    .padding(16.dp, 0.dp, 0.dp, 0.dp),
+                text = changeDetailNameKor(getMenu),
+                fontSize = 24.sp,
+                color = color000000,
+                fontWeight = FontWeight(weight = 700)
+            )
+        }
+
+        Spacer(modifier = Modifier.size(16.dp))
 
         if (getMenu.contains("TODAY_BEST")) {
             ScreenTodayBest(
@@ -402,7 +433,8 @@ fun ScreenBestDetail(
                 viewModelBest = viewModelBest,
                 getDetailPlatform = getDetailPlatform,
                 getDetailType = getDetailType,
-                isExpandedScreen = isExpandedScreen
+                isExpandedScreen = isExpandedScreen,
+                listState =  listState
             )
 
         } else if (getMenu.contains("WEEK_BEST")) {

@@ -1,5 +1,6 @@
 package com.bigbigdw.manavara.main.screen
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -28,6 +31,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,8 +66,11 @@ import com.bigbigdw.manavara.util.screen.ItemKeyword
 import com.bigbigdw.manavara.util.screen.spannableString
 import com.bigbigdw.manavara.util.weekList
 import com.bigbigdw.manavara.util.weekListAll
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun ScreenTodayBest(
     viewModelMain: ViewModelMain,
@@ -71,23 +78,33 @@ fun ScreenTodayBest(
     getDetailPlatform: String,
     getDetailType: String,
     isExpandedScreen: Boolean,
+    listState: LazyListState
 ) {
 
     val bestState = viewModelBest.state.collectAsState().value
 
-    val listState = rememberLazyListState()
+
+    LaunchedEffect(getDetailPlatform){
+        viewModelBest.getBestListToday(
+            platform = getDetailPlatform,
+            type = getDetailType,
+        )
+    }
 
     Column(modifier = Modifier.background(color = colorF6F6F6)) {
 
         LazyColumn(
+            state = listState,
             modifier = if (!isExpandedScreen) {
                 Modifier
                     .background(colorF6F6F6)
                     .padding(0.dp, 0.dp, 0.dp, 0.dp)
+                    .fillMaxSize()
             } else {
                 Modifier
                     .background(colorF6F6F6)
                     .padding(0.dp, 0.dp, 16.dp, 0.dp)
+                    .fillMaxSize()
             },
         ) {
 
