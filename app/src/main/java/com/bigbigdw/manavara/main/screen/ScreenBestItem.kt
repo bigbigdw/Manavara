@@ -197,20 +197,22 @@ fun ListBestToday(
                     )
                     Spacer(modifier = Modifier.width(16.dp))
 
-                    if (itemBookInfo.currentDiff > 0) {
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_arrow_drop_up_24px),
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    } else if (itemBookInfo.currentDiff < 0) {
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_arrow_drop_down_24px),
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.size(20.dp)
-                        )
+                    if (itemBookInfo.totalCount > 1) {
+                        if (itemBookInfo.currentDiff > 0) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_arrow_drop_up_24px),
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        } else if (itemBookInfo.currentDiff < 0) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_arrow_drop_down_24px),
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
 
                     Text(
