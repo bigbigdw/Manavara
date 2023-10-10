@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -111,7 +110,8 @@ fun ScreenTodayBest(
             itemsIndexed(bestState.itemBookInfoList) { index, item ->
                 ListBestToday(
                     itemBookInfo = item,
-                    index = index
+                    index = index,
+                    listState = listState
                 )
             }
         }
@@ -122,6 +122,7 @@ fun ScreenTodayBest(
 fun ListBestToday(
     itemBookInfo: ItemBookInfo,
     index: Int,
+    listState: LazyListState,
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -156,6 +157,7 @@ fun ListBestToday(
 //                        viewModelBestList.getBottomBestData(bestItemData, index)
 //                        viewModelBestList.bottomDialogBestGetRank(userInfo, bestItemData)
 //                        modalSheetState.show()
+
                 }
             },
             contentPadding = PaddingValues(
@@ -309,7 +311,8 @@ fun ScreenTodayWeek(
                     itemsIndexed(bestState.weekList[getWeekDate(getDate)]) { index, item ->
                         ListBestToday(
                             itemBookInfo = item,
-                            index = index
+                            index = index,
+                            listState = listState
                         )
                     }
                 }

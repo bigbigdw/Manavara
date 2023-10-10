@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -169,6 +170,8 @@ fun ScreenBestTabletList(
     listState: LazyListState
 ) {
 
+    val coroutineScope = rememberCoroutineScope()
+
     Column(
         modifier = Modifier
             .width(330.dp)
@@ -233,10 +236,9 @@ fun ScreenBestTabletList(
                 setDetailPlatform = { setDetailPlatform(changePlatformNameEng(item)) },
                 setDetailType = {
                     setDetailType("NOVEL")
-//                    CoroutineScope(Dispatchers.IO).launch {
-//                        listState.animateScrollToItem(index = 0)
-//                    }
-
+                    coroutineScope.launch {
+                        listState.scrollToItem(index = 0)
+                    }
                 },
 
             )
