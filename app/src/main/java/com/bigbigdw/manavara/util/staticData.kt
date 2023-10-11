@@ -170,7 +170,6 @@ fun getPlatformLogo(platform: String) : Int {
         "스테이지" -> {
             R.drawable.logo_kakaostage
         }
-
         "원스토리" -> {
             R.drawable.logo_onestore
         }
@@ -209,7 +208,6 @@ fun getPlatformColor(platform: String): Color {
         "스테이지" -> {
             colorKAKAO
         }
-
         "원스토리" -> {
             colorONESTORY
         }
