@@ -54,8 +54,8 @@ fun novelListEng(): List<String> {
         "NAVER_CHALLENGE",
         "NAVER_BEST",
         "KAKAO_STAGE",
-        "RIDI_ROMANCE",
-        "RIDI_FANTAGY",
+//        "RIDI_ROMANCE",
+//        "RIDI_FANTAGY",
         "ONESTORY",
         "MUNPIA",
         "TOKSODA",
@@ -86,12 +86,12 @@ fun changePlatformNameEng(platform : String) : String {
         "스테이지" -> {
             "KAKAO_STAGE"
         }
-        "리디 판타지" -> {
-            "RIDI_FANTAGY"
-        }
-        "리디 로맨스" -> {
-            "RIDI_ROMANCE"
-        }
+//        "리디 판타지" -> {
+//            "RIDI_FANTAGY"
+//        }
+//        "리디 로맨스" -> {
+//            "RIDI_ROMANCE"
+//        }
         "원스토리" -> {
             "ONESTORY"
         }
@@ -180,12 +180,12 @@ fun getPlatformLogo(platform: String) : Int {
         "스테이지" -> {
             R.drawable.logo_kakaostage
         }
-        "리디 판타지" -> {
-            R.drawable.logo_ridibooks
-        }
-        "리디 로맨스" -> {
-            R.drawable.logo_ridibooks
-        }
+//        "리디 판타지" -> {
+//            R.drawable.logo_ridibooks
+//        }
+//        "리디 로맨스" -> {
+//            R.drawable.logo_ridibooks
+//        }
         "원스토리" -> {
             R.drawable.logo_onestore
         }
@@ -224,12 +224,12 @@ fun getPlatformColor(platform: String): Color {
         "스테이지" -> {
             colorKAKAO
         }
-        "리디 판타지" -> {
-            colorRIDI
-        }
-        "리디 로맨스" -> {
-            colorRIDI
-        }
+//        "리디 판타지" -> {
+//            colorRIDI
+//        }
+//        "리디 로맨스" -> {
+//            colorRIDI
+//        }
         "원스토리" -> {
             colorONESTORY
         }
@@ -268,12 +268,12 @@ fun getPlatformDescription(platform: String) : String {
         "스테이지" -> {
             "카카오 스테이지"
         }
-        "리디 판타지" -> {
-            "리디북스 판타지"
-        }
-        "리디 로맨스" -> {
-            "리디북스 로맨스"
-        }
+//        "리디 판타지" -> {
+//            "리디북스 판타지"
+//        }
+//        "리디 로맨스" -> {
+//            "리디북스 로맨스"
+//        }
         "원스토리" -> {
             "원스토리"
         }
