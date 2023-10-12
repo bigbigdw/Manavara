@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -28,8 +27,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,32 +55,31 @@ import com.bigbigdw.manavara.util.changePlatformNameEng
 import com.bigbigdw.manavara.util.getPlatformColor
 import com.bigbigdw.manavara.util.getPlatformDescription
 import com.bigbigdw.manavara.util.getPlatformLogo
-import com.bigbigdw.manavara.util.novelListEng
 import com.bigbigdw.manavara.util.novelListKor
 import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
 import com.bigbigdw.manavara.util.screen.ScreenTest
 import com.bigbigdw.manavara.util.screen.TabletBorderLine
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
 fun ScreenBest(
     isExpandedScreen: Boolean,
     viewModelBest: ViewModelBest,
-    viewModelMain: ViewModelMain
+    viewModelMain: ViewModelMain,
+    setMenu: (String) -> Unit,
+    getMenu: String,
+    setDetailPlatform: (String) -> Unit,
+    getDetailPlatform: String,
+    setDetailType: (String) -> Unit,
+    getDetailType: String,
+    listState: LazyListState,
 ) {
 
-    val (getMenu, setMenu) = remember { mutableStateOf("") }
-    val (getDetailPlatform, setDetailPlatform) = remember { mutableStateOf(novelListEng()[0]) }
-    val (getDetailType, setDetailType) = remember { mutableStateOf("NOVEL") }
-    val listState = rememberLazyListState()
-
-    LaunchedEffect(getDetailPlatform){
-//        viewModelBest.getBestListToday(
-//            platform = getDetailPlatform,
-//            type = getDetailType,
-//        )
+    LaunchedEffect(getDetailPlatform) {
+        viewModelBest.getBestListToday(
+            platform = getDetailPlatform,
+            type = getDetailType,
+        )
 
         viewModelBest.getBestWeekTrophy(
             platform = getDetailPlatform,
@@ -121,13 +117,14 @@ fun ScreenBest(
         Row {
             if (isExpandedScreen) {
                 ScreenBestTabletList(
+                    viewModelMain = viewModelMain,
                     setMenu = setMenu,
                     getMenu = getMenu,
-                    viewModelMain = viewModelMain,
                     setDetailPlatform = setDetailPlatform,
                     setDetailType = setDetailType,
-                    listState = listState
-                )
+                    listState = listState,
+                    isExpandedScreen = isExpandedScreen
+                ) {}
 
                 Spacer(
                     modifier = Modifier
@@ -150,7 +147,6 @@ fun ScreenBest(
                 ScreenTodayBest(
                     viewModelMain = viewModelMain,
                     viewModelBest = viewModelBest,
-                    getDetailPlatform = getDetailPlatform,
                     getDetailType = getDetailType,
                     isExpandedScreen = isExpandedScreen,
                     listState = listState
@@ -162,12 +158,14 @@ fun ScreenBest(
 
 @Composable
 fun ScreenBestTabletList(
+    viewModelMain: ViewModelMain,
     setMenu: (String) -> Unit,
     getMenu: String,
-    viewModelMain: ViewModelMain,
     setDetailPlatform: (String) -> Unit,
     setDetailType: (String) -> Unit,
-    listState: LazyListState
+    listState: LazyListState,
+    isExpandedScreen: Boolean,
+    onClick: () -> Unit,
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -192,39 +190,73 @@ fun ScreenBestTabletList(
             fontWeight = FontWeight(weight = 700)
         )
 
-        ItemMainSettingSingleTablet(
-            containerColor = color4AD7CF,
-            image = R.drawable.icon_setting_wht,
-            title = "유저 옵션",
-            body = "뷰모드 전환 및 플랫폼 선택",
-            setMenu = setMenu,
-            getMenu = getMenu,
-            onClick = {  },
-        )
+        if (isExpandedScreen) {
+            ItemMainSettingSingleTablet(
+                containerColor = color4AD7CF,
+                image = R.drawable.icon_setting_wht,
+                title = "유저 옵션",
+                body = "뷰모드 전환 및 플랫폼 선택",
+                setMenu = setMenu,
+                getMenu = getMenu,
+                onClick = { onClick() },
+            )
 
-        ItemMainSettingSingleTablet(
-            containerColor = color5372DE,
-            image = R.drawable.icon_setting_wht,
-            title = "작품 검색",
-            body = "플랫폼과 무관하게 작품 검색 진행",
-            setMenu = setMenu,
-            getMenu = getMenu,
-            onClick = {  },
-        )
+            ItemMainSettingSingleTablet(
+                containerColor = color5372DE,
+                image = R.drawable.icon_setting_wht,
+                title = "작품 검색",
+                body = "플랫폼과 무관하게 작품 검색 진행",
+                setMenu = setMenu,
+                getMenu = getMenu,
+                onClick = { onClick() },
+            )
+        } else {
+            ItemMainSettingSingleTablet(
+                containerColor = color5372DE,
+                image = R.drawable.icon_best_wht,
+                title = "마나바라 투데이 베스트",
+                body = "플랫폼별 1~5위에 랭크된 작품 리스트",
+                setMenu = setMenu,
+                getMenu = getMenu,
+                onClick = { onClick() },
+            )
+
+            ItemMainSettingSingleTablet(
+                containerColor = color998DF9,
+                image = R.drawable.icon_best_wht,
+                title = "주간 베스트",
+                body = "주간 베스트 관련 옵션 진행",
+                setMenu = setMenu,
+                getMenu = getMenu,
+                onClick = { onClick() },
+            )
+
+            ItemMainSettingSingleTablet(
+                containerColor = colorea927C,
+                image = R.drawable.icon_best_wht,
+                title = "월간 베스트",
+                body = "월간 베스트 관련 옵션 진행",
+                setMenu = setMenu,
+                getMenu = getMenu,
+                onClick = { onClick() },
+            )
+        }
 
         TabletBorderLine()
 
-        ItemMainSettingSingleTablet(
-            containerColor = color5372DE,
-            image = R.drawable.icon_best_wht,
-            title = "마나바라 투데이 베스트",
-            body = "플랫폼별 1~5위에 랭크된 작품 리스트",
-            setMenu = setMenu,
-            getMenu = getMenu,
-            onClick = {  },
-        )
+        if (isExpandedScreen) {
+            ItemMainSettingSingleTablet(
+                containerColor = color5372DE,
+                image = R.drawable.icon_best_wht,
+                title = "마나바라 투데이 베스트",
+                body = "플랫폼별 1~5위에 랭크된 작품 리스트",
+                setMenu = setMenu,
+                getMenu = getMenu,
+                onClick = { onClick() },
+            )
+        }
 
-        novelListKor().forEachIndexed{ index, item ->
+        novelListKor().forEachIndexed { index, item ->
             ItemBestListSingle(
                 containerColor = getPlatformColor(item),
                 image = getPlatformLogo(item),
@@ -239,61 +271,67 @@ fun ScreenBestTabletList(
                     coroutineScope.launch {
                         listState.scrollToItem(index = 0)
                     }
+                    onClick()
                 },
 
-            )
-        }
-
-        TabletBorderLine()
-
-        ItemMainSettingSingleTablet(
-            containerColor = color998DF9,
-            image = R.drawable.icon_best_wht,
-            title = "주간 베스트",
-            body = "주간 베스트 관련 옵션 진행",
-            setMenu = setMenu,
-            getMenu = getMenu,
-            onClick = {  },
-        )
-
-        novelListKor().forEachIndexed{ index, item ->
-            ItemBestListSingle(
-                containerColor = getPlatformColor(item),
-                image = getPlatformLogo(item),
-                title = item,
-                body = getPlatformDescription(item),
-                setMenu = setMenu,
-                getMenu = getMenu,
-                bestType = "WEEK_BEST",
-                setDetailPlatform = { setDetailPlatform(changePlatformNameEng(item)) },
-                setDetailType = { setDetailType("NOVEL") },
                 )
         }
 
-        TabletBorderLine()
+        if (isExpandedScreen) {
+            TabletBorderLine()
 
-        ItemMainSettingSingleTablet(
-            containerColor = colorea927C,
-            image = R.drawable.icon_best_wht,
-            title = "월간 베스트",
-            body = "월간 베스트 관련 옵션 진행",
-            setMenu = setMenu,
-            getMenu = getMenu,
-            onClick = {  },
-        )
-
-        novelListKor().forEachIndexed{ index, item ->
-            ItemBestListSingle(
-                containerColor = getPlatformColor(item),
-                image = getPlatformLogo(item),
-                title = item,
-                body = getPlatformDescription(item),
+            ItemMainSettingSingleTablet(
+                containerColor = color998DF9,
+                image = R.drawable.icon_best_wht,
+                title = "주간 베스트",
+                body = "주간 베스트 관련 옵션 진행",
                 setMenu = setMenu,
                 getMenu = getMenu,
-                bestType = "MONTH_BEST",
-                setDetailPlatform = { setDetailPlatform(changePlatformNameEng(item)) },
-                setDetailType = { setDetailType("NOVEL") },
+                onClick = { onClick() },
             )
+
+            novelListKor().forEachIndexed { index, item ->
+                ItemBestListSingle(
+                    containerColor = getPlatformColor(item),
+                    image = getPlatformLogo(item),
+                    title = item,
+                    body = getPlatformDescription(item),
+                    setMenu = setMenu,
+                    getMenu = getMenu,
+                    bestType = "WEEK_BEST",
+                    setDetailPlatform = { setDetailPlatform(changePlatformNameEng(item)) },
+                    setDetailType = { setDetailType("NOVEL") },
+                )
+
+                TabletBorderLine()
+
+                ItemMainSettingSingleTablet(
+                    containerColor = colorea927C,
+                    image = R.drawable.icon_best_wht,
+                    title = "월간 베스트",
+                    body = "월간 베스트 관련 옵션 진행",
+                    setMenu = setMenu,
+                    getMenu = getMenu,
+                    onClick = { onClick() },
+                )
+
+                novelListKor().forEachIndexed { index, item ->
+                    ItemBestListSingle(
+                        containerColor = getPlatformColor(item),
+                        image = getPlatformLogo(item),
+                        title = item,
+                        body = getPlatformDescription(item),
+                        setMenu = setMenu,
+                        getMenu = getMenu,
+                        bestType = "MONTH_BEST",
+                        setDetailPlatform = { setDetailPlatform(changePlatformNameEng(item)) },
+                        setDetailType = {
+                            setDetailType("NOVEL")
+                            onClick()
+                        },
+                    )
+                }
+            }
         }
     }
 }
@@ -408,7 +446,7 @@ fun ScreenBestDetail(
 
         Spacer(modifier = Modifier.size(16.dp))
 
-        Row(verticalAlignment = Alignment.CenterVertically){
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Image(
                 painter = painterResource(id = R.drawable.icon_arrow_left),
                 contentDescription = null,
@@ -433,10 +471,9 @@ fun ScreenBestDetail(
             ScreenTodayBest(
                 viewModelMain = viewModelMain,
                 viewModelBest = viewModelBest,
-                getDetailPlatform = getDetailPlatform,
                 getDetailType = getDetailType,
                 isExpandedScreen = isExpandedScreen,
-                listState =  listState
+                listState = listState
             )
 
         } else if (getMenu.contains("WEEK_BEST")) {
@@ -445,7 +482,7 @@ fun ScreenBestDetail(
                 viewModelBest = viewModelBest
             )
 
-        }  else if (getMenu.contains("MONTH_BEST")) {
+        } else if (getMenu.contains("MONTH_BEST")) {
             ScreenTodayMonth(
                 viewModelMain = viewModelMain,
                 viewModelBest = viewModelBest

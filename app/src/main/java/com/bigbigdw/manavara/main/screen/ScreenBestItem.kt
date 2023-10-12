@@ -74,21 +74,12 @@ import kotlinx.coroutines.launch
 fun ScreenTodayBest(
     viewModelMain: ViewModelMain,
     viewModelBest: ViewModelBest,
-    getDetailPlatform: String,
     getDetailType: String,
     isExpandedScreen: Boolean,
     listState: LazyListState
 ) {
 
     val bestState = viewModelBest.state.collectAsState().value
-
-
-    LaunchedEffect(getDetailPlatform){
-        viewModelBest.getBestListToday(
-            platform = getDetailPlatform,
-            type = getDetailType,
-        )
-    }
 
     Column(modifier = Modifier.background(color = colorF6F6F6)) {
 
