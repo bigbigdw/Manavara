@@ -10,7 +10,7 @@ val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
-val colorF6F6F6 = Color(android.graphics.Color.parseColor("#f6f6f6"))
+val colorF6F6F6 = Color(android.graphics.Color.parseColor("#F6F6F6"))
 val colorDCDCDD = Color(android.graphics.Color.parseColor("#dcdcdd"))
 val color000000 = Color(android.graphics.Color.parseColor("#000000"))
 val color20459E = Color(android.graphics.Color.parseColor("#20459e"))

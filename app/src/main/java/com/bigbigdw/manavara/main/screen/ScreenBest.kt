@@ -22,11 +22,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,6 +62,7 @@ import com.bigbigdw.manavara.util.screen.ScreenTest
 import com.bigbigdw.manavara.util.screen.TabletBorderLine
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScreenBest(
     isExpandedScreen: Boolean,
@@ -73,39 +75,38 @@ fun ScreenBest(
     setDetailType: (String) -> Unit,
     getDetailType: String,
     listState: LazyListState,
+    modalSheetState: ModalBottomSheetState? = null,
 ) {
 
-    LaunchedEffect(getDetailPlatform) {
-        viewModelBest.getBestListToday(
-            platform = getDetailPlatform,
-            type = getDetailType,
-        )
+    viewModelBest.getBestListToday(
+        platform = getDetailPlatform,
+        type = getDetailType,
+    )
 
-        viewModelBest.getBestWeekTrophy(
-            platform = getDetailPlatform,
-            type = getDetailType,
-        )
+    viewModelBest.getBestWeekTrophy(
+        platform = getDetailPlatform,
+        type = getDetailType,
+    )
 
-        viewModelBest.getBestMapToday(
-            platform = getDetailPlatform,
-            type = getDetailType,
-        )
+    viewModelBest.getBestMapToday(
+        platform = getDetailPlatform,
+        type = getDetailType,
+    )
 
-        viewModelBest.getBestWeekList(
-            platform = getDetailPlatform,
-            type = getDetailType,
-        )
+    viewModelBest.getBestWeekList(
+        platform = getDetailPlatform,
+        type = getDetailType,
+    )
 
-        viewModelBest.getBestMonthTrophy(
-            platform = getDetailPlatform,
-            type = getDetailType,
-        )
+    viewModelBest.getBestMonthTrophy(
+        platform = getDetailPlatform,
+        type = getDetailType,
+    )
 
-        viewModelBest.getBestMonthList(
-            platform = getDetailPlatform,
-            type = getDetailType,
-        )
-    }
+    viewModelBest.getBestMonthList(
+        platform = getDetailPlatform,
+        type = getDetailType,
+    )
 
 
     Box(
@@ -144,13 +145,32 @@ fun ScreenBest(
                 )
 
             } else {
-                ScreenTodayBest(
-                    viewModelMain = viewModelMain,
-                    viewModelBest = viewModelBest,
-                    getDetailType = getDetailType,
-                    isExpandedScreen = isExpandedScreen,
-                    listState = listState
-                )
+
+                if (getMenu.contains("TODAY")) {
+                    ScreenTodayBest(
+                        viewModelMain = viewModelMain,
+                        viewModelBest = viewModelBest,
+                        getDetailType = getDetailType,
+                        isExpandedScreen = isExpandedScreen,
+                        listState = listState,
+                        modalSheetState = modalSheetState
+                    )
+
+                } else if (getMenu.contains("WEEK")) {
+
+                    ScreenTodayWeek(
+                        viewModelMain = viewModelMain,
+                        viewModelBest = viewModelBest
+                    )
+
+                } else if (getMenu.contains("MONTH")) {
+
+                    ScreenTodayMonth(
+                        viewModelMain = viewModelMain,
+                        viewModelBest = viewModelBest
+                    )
+
+                }
             }
         }
     }
@@ -182,15 +202,16 @@ fun ScreenBestTabletList(
 
         Spacer(modifier = Modifier.size(16.dp))
 
-        Text(
-            modifier = Modifier.padding(16.dp, 0.dp, 0.dp, 0.dp),
-            text = "웹소설 베스트",
-            fontSize = 24.sp,
-            color = Color.Black,
-            fontWeight = FontWeight(weight = 700)
-        )
-
         if (isExpandedScreen) {
+
+            Text(
+                modifier = Modifier.padding(16.dp, 0.dp, 0.dp, 0.dp),
+                text = "웹소설 베스트",
+                fontSize = 24.sp,
+                color = Color.Black,
+                fontWeight = FontWeight(weight = 700)
+            )
+
             ItemMainSettingSingleTablet(
                 containerColor = color4AD7CF,
                 image = R.drawable.icon_setting_wht,
@@ -426,6 +447,7 @@ fun ItemBestListSingle(
         })
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("MutableCollectionMutableState")
 @Composable
 fun ScreenBestDetail(
@@ -473,7 +495,8 @@ fun ScreenBestDetail(
                 viewModelBest = viewModelBest,
                 getDetailType = getDetailType,
                 isExpandedScreen = isExpandedScreen,
-                listState = listState
+                listState = listState,
+                modalSheetState = null
             )
 
         } else if (getMenu.contains("WEEK_BEST")) {

@@ -12,23 +12,31 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -43,6 +51,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -53,6 +63,7 @@ import androidx.navigation.compose.rememberNavController
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.main.viewModels.ViewModelBest
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
+import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color1E1E20
 import com.bigbigdw.manavara.ui.theme.color1E4394
 import com.bigbigdw.manavara.ui.theme.color555b68
@@ -79,7 +90,7 @@ fun ScreenMain(
     val mainState = viewModelMain.state.collectAsState().value
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
-    val (getMenu, setMenu) = remember { mutableStateOf("") }
+    val (getMenu, setMenu) = remember { mutableStateOf("TODAY") }
     val (getDetailPlatform, setDetailPlatform) = remember { mutableStateOf(novelListEng()[0]) }
     val (getDetailType, setDetailType) = remember { mutableStateOf("NOVEL") }
 
@@ -144,6 +155,7 @@ fun ScreenMain(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScreenMainTablet(
     currentRoute: String?,
@@ -172,7 +184,8 @@ fun ScreenMainTablet(
             getDetailPlatform = getDetailPlatform,
             setDetailType = setDetailType,
             getDetailType = getDetailType,
-            listState = listState
+            listState = listState,
+            modalSheetState = null
         )
     }
 }
@@ -204,11 +217,16 @@ fun ScreenMainMobile(
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
-        topBar = { MainTopBar(setDrawer = {
-            coroutineScope.launch {
-                drawerState.open()
-            }
-        }) },
+        topBar = {
+            MainTopBar(
+                setMenu = setMenu,
+                getMenu = getMenu,
+                setDrawer = {
+                    coroutineScope.launch {
+                        drawerState.open()
+                    }
+                })
+        },
         bottomBar = { BottomNavScreen(navController = navController, currentRoute = currentRoute) }
     ) {
         Box(
@@ -228,29 +246,31 @@ fun ScreenMainMobile(
                 getDetailPlatform = getDetailPlatform,
                 setDetailType = setDetailType,
                 getDetailType = getDetailType,
-                listState = listState
+                listState = listState,
+                modalSheetState = modalSheetState
             )
         }
     }
-//    ModalBottomSheetLayout(
-//        sheetState = modalSheetState,
-//        sheetElevation = 50.dp,
-//        sheetShape = RoundedCornerShape(
-//            topStart = 25.dp,
-//            topEnd = 25.dp
-//        ),
-//        sheetContent = {
-//            ScreenTest()
-//        },
-//    ) {}
+
+    ModalBottomSheetLayout(
+        sheetState = modalSheetState,
+        sheetElevation = 50.dp,
+        sheetShape = RoundedCornerShape(
+            topStart = 25.dp,
+            topEnd = 25.dp
+        ),
+        sheetContent = {
+            ScreenTest()
+        },
+    ) {}
 }
 
 @Composable
-fun MainTopBar(setDrawer: (Boolean) -> Unit) {
+fun MainTopBar(setDrawer: (Boolean) -> Unit, setMenu: (String) -> Unit, getMenu: String) {
     Row(
         Modifier
             .fillMaxWidth()
-            .background(color = Color.Cyan)
+            .background(color = Color.White)
             .padding(16.dp),
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically,
@@ -259,23 +279,45 @@ fun MainTopBar(setDrawer: (Boolean) -> Unit) {
         Box(
             modifier = Modifier.weight(1f)
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_launcher),
-                contentDescription = null,
-                modifier = Modifier
-                    .width(110.dp)
-                    .height(22.dp)
-                    .clickable { setDrawer(true) }
-            )
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable { setDrawer(true) }) {
+                Image(
+                    painter = painterResource(id = R.drawable.icon_drawer),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .width(22.dp)
+                        .height(22.dp)
+                )
+
+                Spacer(
+                    modifier = Modifier.size(8.dp)
+                )
+
+                Text(
+                    text = "웹소설 베스트",
+                    fontSize = 20.sp,
+                    textAlign = TextAlign.Left,
+                    color = color000000,
+                    fontWeight = FontWeight.Bold
+                )
+
+            }
+
         }
 
-        Image(
-            painter = painterResource(id = R.drawable.ic_launcher),
-            contentDescription = null,
-            modifier = Modifier
-                .width(22.dp)
-                .height(22.dp)
-                .clickable { }
+        Text(
+            modifier = Modifier.clickable { setMenu("TODAY") },
+            text = "투데이",
+            fontSize = 16.sp,
+            textAlign = TextAlign.Left,
+            color = if (getMenu.contains("TODAY")) {
+                color1E4394
+            } else {
+                color555b68
+            },
+            fontWeight = FontWeight.Bold
         )
 
         Spacer(
@@ -284,13 +326,36 @@ fun MainTopBar(setDrawer: (Boolean) -> Unit) {
                 .width(16.dp)
         )
 
-        Image(
-            painter = painterResource(id = R.drawable.ic_launcher),
-            contentDescription = null,
+        Text(
+            modifier = Modifier.clickable { setMenu("WEEK") },
+            text = "주간",
+            fontSize = 16.sp,
+            textAlign = TextAlign.Left,
+            color = if (getMenu.contains("WEEK")) {
+                color1E4394
+            } else {
+                color555b68
+            },
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(
             modifier = Modifier
-                .width(22.dp)
-                .height(22.dp)
-                .clickable { }
+                .wrapContentWidth()
+                .width(16.dp)
+        )
+
+        Text(
+            modifier = Modifier.clickable { setMenu("MONTH") },
+            text = "월간",
+            fontSize = 16.sp,
+            textAlign = TextAlign.Left,
+            color = if (getMenu.contains("MONTH")) {
+                color1E4394
+            } else {
+                color555b68
+            },
+            fontWeight = FontWeight.Bold
         )
     }
 }
@@ -306,7 +371,7 @@ fun BottomNavScreen(navController: NavHostController, currentRoute: String?) {
     )
 
     BottomNavigation(
-        backgroundColor = colorDCDCDD,
+        backgroundColor = Color.White,
         contentColor = color1E4394
     ) {
 
@@ -350,6 +415,7 @@ fun BottomNavScreen(navController: NavHostController, currentRoute: String?) {
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun NavigationGraph(
     navController: NavHostController,
@@ -363,6 +429,7 @@ fun NavigationGraph(
     setDetailType: (String) -> Unit,
     getDetailType: String,
     listState: LazyListState,
+    modalSheetState: ModalBottomSheetState? = null,
 ) {
 
     NavHost(
@@ -380,7 +447,8 @@ fun NavigationGraph(
                 getDetailPlatform = getDetailPlatform,
                 setDetailType = setDetailType,
                 getDetailType = getDetailType,
-                listState = listState
+                listState = listState,
+                modalSheetState = modalSheetState
             )
         }
         composable(ScreemBottomItem.COMIC.screenRoute) {
@@ -414,21 +482,46 @@ fun TableAppNavRail(
 
     NavigationRail(
         header = {
-            Image(
-                contentScale = ContentScale.FillWidth,
-                painter = painterResource(id = R.drawable.ic_launcher),
-                contentDescription = null,
+
+            Spacer(Modifier.size(8.dp))
+
+            Card(
                 modifier = Modifier
-                    .height(48.dp)
-                    .width(48.dp)
-            )
+                    .wrapContentSize(),
+                colors = CardDefaults.cardColors(containerColor = colorDCDCDD),
+                shape = RoundedCornerShape(50.dp, 50.dp, 50.dp, 50.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .height(44.dp)
+                        .width(44.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        contentScale = ContentScale.FillWidth,
+                        painter = painterResource(id = R.drawable.ic_launcher),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .height(32.dp)
+                            .width(32.dp)
+                    )
+                }
+            }
         },
-        modifier = Modifier.background(color = color1E1E20)
+        modifier = Modifier.background(color = Color.White)
     ) {
         Spacer(Modifier.weight(1f))
 
         items.forEach { item ->
             NavigationRailItem(
+                colors = NavigationRailItemDefaults
+                    .colors(
+                        selectedIconColor = color1E4394,
+                        selectedTextColor = color1E4394,
+                        unselectedIconColor = color555b68,
+                        unselectedTextColor = color555b68,
+                        indicatorColor = colorDCDCDD
+                    ),
                 selected = currentRoute == item.screenRoute,
                 onClick = {
                     navController.navigate(item.screenRoute) {
@@ -456,7 +549,8 @@ fun TableAppNavRail(
                     Text(
                         text = item.title,
                         fontSize = 13.sp,
-                        color = color1E4394
+                        color = color1E4394,
+                        fontWeight = FontWeight(weight = 700)
                     )
                 },
                 alwaysShowLabel = false

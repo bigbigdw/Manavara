@@ -24,13 +24,14 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,10 +66,9 @@ import com.bigbigdw.manavara.util.screen.ItemKeyword
 import com.bigbigdw.manavara.util.screen.spannableString
 import com.bigbigdw.manavara.util.weekList
 import com.bigbigdw.manavara.util.weekListAll
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun ScreenTodayBest(
@@ -76,7 +76,8 @@ fun ScreenTodayBest(
     viewModelBest: ViewModelBest,
     getDetailType: String,
     isExpandedScreen: Boolean,
-    listState: LazyListState
+    listState: LazyListState,
+    modalSheetState: ModalBottomSheetState?
 ) {
 
     val bestState = viewModelBest.state.collectAsState().value
@@ -102,18 +103,21 @@ fun ScreenTodayBest(
                 ListBestToday(
                     itemBookInfo = item,
                     index = index,
-                    listState = listState
+                    listState = listState,
+                    modalSheetState = modalSheetState
                 )
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ListBestToday(
     itemBookInfo: ItemBookInfo,
     index: Int,
     listState: LazyListState,
+    modalSheetState: ModalBottomSheetState?,
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -147,8 +151,7 @@ fun ListBestToday(
                 coroutineScope.launch {
 //                        viewModelBestList.getBottomBestData(bestItemData, index)
 //                        viewModelBestList.bottomDialogBestGetRank(userInfo, bestItemData)
-//                        modalSheetState.show()
-
+                        modalSheetState?.show()
                 }
             },
             contentPadding = PaddingValues(
@@ -246,6 +249,7 @@ fun ListBestToday(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScreenTodayWeek(
     viewModelMain: ViewModelMain,
@@ -281,7 +285,7 @@ fun ScreenTodayWeek(
             LazyColumn(
                 modifier = Modifier
                     .background(colorF6F6F6)
-                    .padding(0.dp, 0.dp, 16.dp, 0.dp)
+                    .padding(16.dp, 0.dp, 16.dp, 0.dp)
             ) {
 
                 itemsIndexed(bestState.weekTrophyList) { index, item ->
@@ -298,14 +302,14 @@ fun ScreenTodayWeek(
                 LazyColumn(
                     modifier = Modifier
                         .background(colorF6F6F6)
-                        .padding(0.dp, 0.dp, 16.dp, 0.dp)
                 ) {
 
                     itemsIndexed(bestState.weekList[getWeekDate(getDate)]) { index, item ->
                         ListBestToday(
                             itemBookInfo = item,
                             index = index,
-                            listState = listState
+                            listState = listState,
+                            modalSheetState = null
                         )
                     }
                 }
@@ -413,7 +417,7 @@ fun ScreenTodayMonth(
             LazyColumn(
                 modifier = Modifier
                     .background(colorF6F6F6)
-                    .padding(0.dp, 0.dp, 16.dp, 0.dp)
+                    .padding(16.dp, 0.dp, 16.dp, 0.dp)
             ) {
 
                 itemsIndexed(bestState.monthTrophyList) { index, item ->
@@ -430,7 +434,7 @@ fun ScreenTodayMonth(
                 LazyColumn(
                     modifier = Modifier
                         .background(colorF6F6F6)
-                        .padding(0.dp, 0.dp, 16.dp, 0.dp)
+                        .padding(16.dp, 0.dp, 16.dp, 0.dp)
                 ) {
 
                     itemsIndexed(bestState.monthList[geMonthDate(getDate)]) { index, item ->
