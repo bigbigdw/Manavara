@@ -22,6 +22,8 @@ fun comicKor(): List<String> {
         "챌린지리그",
         "베스트리그",
         "스테이지",
+        "리디 판타지",
+        "리디 로맨스",
         "리디북스",
         "원스토리",
         "문피아",
@@ -36,6 +38,8 @@ fun novelListKor(): List<String> {
         "시리즈",
         "챌린지리그",
         "베스트리그",
+        "리디 판타지",
+        "리디 로맨스",
         "스테이지",
         "원스토리",
         "문피아",
@@ -51,6 +55,10 @@ fun novelListEng(): List<String> {
         "NAVER_SERIES",
         "NAVER_CHALLENGE",
         "NAVER_BEST",
+        "NAVER_WEBNOVEL_PAY",
+        "NAVER_WEBNOVEL_FREE",
+        "RIDI_ROMANCE",
+        "RIDI_FANTAGY",
         "KAKAO_STAGE",
         "ONESTORY",
         "MUNPIA",
@@ -78,6 +86,12 @@ fun changePlatformNameEng(platform : String) : String {
         }
         "시리즈" -> {
             "NAVER_SERIES"
+        }
+        "리디 판타지" -> {
+            "RIDI_FANTAGY"
+        }
+        "리디 로맨스" -> {
+            "RIDI_ROMANCE"
         }
         "스테이지" -> {
             "KAKAO_STAGE"
@@ -167,6 +181,12 @@ fun getPlatformLogo(platform: String) : Int {
         "베스트리그" -> {
             R.drawable.logo_naver_challenge
         }
+        "리디 판타지" -> {
+            R.drawable.logo_ridibooks
+        }
+        "리디 로맨스" -> {
+            R.drawable.logo_ridibooks
+        }
         "스테이지" -> {
             R.drawable.logo_kakaostage
         }
@@ -205,6 +225,12 @@ fun getPlatformColor(platform: String): Color {
         "베스트리그" -> {
             colorCHALLENGE
         }
+        "리디 판타지" -> {
+            colorRIDI
+        }
+        "리디 로맨스" -> {
+            colorRIDI
+        }
         "스테이지" -> {
             colorKAKAO
         }
@@ -242,6 +268,12 @@ fun getPlatformDescription(platform: String) : String {
         }
         "베스트리그" -> {
             "네이버 베스트 리그"
+        }
+        "리디 판타지" -> {
+            "리디북스 판타지"
+        }
+        "리디 로맨스" -> {
+            "리디북스 로맨스"
         }
         "스테이지" -> {
             "카카오 스테이지"
