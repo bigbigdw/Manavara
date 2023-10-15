@@ -99,17 +99,19 @@ fun ScreenMain(
             val (getMenu, setMenu) = remember { mutableStateOf("TODAY") }
             val (getDetailPlatform, setDetailPlatform) = remember { mutableStateOf(novelListEng()[0]) }
             val (getDetailType, setDetailType) = remember { mutableStateOf("NOVEL") }
+            val (getBestType, setBestType) = remember { mutableStateOf("TODAY_BEST") }
 
             ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
 
-                ScreenBestTabletList(
-                    viewModelMain = viewModelMain,
+                ScreenBestPropertyList(
                     setMenu = setMenu,
                     getMenu = getMenu,
                     setDetailPlatform = setDetailPlatform,
                     setDetailType = setDetailType,
                     listState = listState,
                     isExpandedScreen = isExpandedScreen,
+                    setBestType = setBestType,
+                    getBestType = getBestType
                 ) {
                     coroutineScope.launch {
                         drawerState.close()
@@ -130,7 +132,9 @@ fun ScreenMain(
                     getDetailPlatform = getDetailPlatform,
                     setDetailType = setDetailType,
                     getDetailType = getDetailType,
-                    listState = listState
+                    listState = listState,
+                    setBestType = setBestType,
+                    getBestType = getBestType
                 )
             }
 
@@ -161,6 +165,7 @@ fun ScreenMainTablet(
     val (getMenu, setMenu) = remember { mutableStateOf("TODAY") }
     val (getDetailPlatform, setDetailPlatform) = remember { mutableStateOf(novelListEng()[0]) }
     val (getDetailType, setDetailType) = remember { mutableStateOf("NOVEL") }
+    val (getBestType, setBestType) = remember { mutableStateOf("TODAY_BEST") }
 
     Row {
         TableAppNavRail(currentRoute = currentRoute ?: "", navController = navController)
@@ -176,7 +181,9 @@ fun ScreenMainTablet(
             setDetailType = setDetailType,
             getDetailType = getDetailType,
             listState = listState,
-            modalSheetState = null
+            modalSheetState = null,
+            setBestType = setBestType,
+            getBestType = getBestType
         )
     }
 }
@@ -197,6 +204,8 @@ fun ScreenMainMobile(
     setDetailType: (String) -> Unit,
     getDetailType: String,
     listState: LazyListState,
+    setBestType: (String) -> Unit,
+    getBestType: String,
 ) {
 
     val modalSheetState = rememberModalBottomSheetState(
@@ -210,8 +219,8 @@ fun ScreenMainMobile(
     Scaffold(
         topBar = {
             MainTopBar(
-                setMenu = setMenu,
-                getMenu = getMenu,
+                setMenu = setBestType,
+                getMenu = getBestType,
                 setDrawer = {
                     coroutineScope.launch {
                         drawerState.open()
@@ -238,7 +247,9 @@ fun ScreenMainMobile(
                 setDetailType = setDetailType,
                 getDetailType = getDetailType,
                 listState = listState,
-                modalSheetState = modalSheetState
+                modalSheetState = modalSheetState,
+                setBestType = setBestType,
+                getBestType = getBestType
             )
         }
     }
@@ -430,6 +441,8 @@ fun NavigationGraph(
     setDetailType: (String) -> Unit,
     getDetailType: String,
     listState: LazyListState,
+    setBestType: (String) -> Unit,
+    getBestType: String,
     modalSheetState: ModalBottomSheetState? = null,
 ) {
 
@@ -449,7 +462,9 @@ fun NavigationGraph(
                 setDetailType = setDetailType,
                 getDetailType = getDetailType,
                 listState = listState,
-                modalSheetState = modalSheetState
+                modalSheetState = modalSheetState,
+                setBestType = setBestType,
+                getBestType = getBestType
             )
         }
         composable(ScreemBottomItem.COMIC.screenRoute) {

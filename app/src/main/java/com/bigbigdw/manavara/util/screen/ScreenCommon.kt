@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -513,14 +512,15 @@ fun ItemMainSettingSingleTablet(
     image: Int,
     title: String,
     body: String,
-    setMenu: (String) -> Unit,
-    getMenu: String,
-    onClick : () -> Unit
+    settter: (String) -> Unit,
+    getter: String,
+    onClick: () -> Unit,
+    value: String
 ) {
 
     Button(
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (getMenu == title) {
+            containerColor = if (getter == value) {
                 colorE9E9E9
             } else {
                 colorF7F7F7
@@ -528,7 +528,7 @@ fun ItemMainSettingSingleTablet(
         ),
         shape = RoundedCornerShape(50.dp),
         onClick = {
-            setMenu(title)
+            settter(value)
             onClick()
         },
         contentPadding = PaddingValues(
