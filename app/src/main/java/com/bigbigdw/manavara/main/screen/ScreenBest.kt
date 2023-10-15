@@ -48,12 +48,16 @@ import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.main.viewModels.ViewModelBest
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.ui.theme.color000000
+import com.bigbigdw.manavara.ui.theme.color21C2EC
+import com.bigbigdw.manavara.ui.theme.color31C3AE
 import com.bigbigdw.manavara.ui.theme.color4AD7CF
 import com.bigbigdw.manavara.ui.theme.color5372DE
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
 import com.bigbigdw.manavara.ui.theme.color998DF9
+import com.bigbigdw.manavara.ui.theme.colorABD436
 import com.bigbigdw.manavara.ui.theme.colorE9E9E9
 import com.bigbigdw.manavara.ui.theme.colorEA927C
+import com.bigbigdw.manavara.ui.theme.colorF17FA0
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorF7F7F7
 import com.bigbigdw.manavara.util.changeDetailNameKor
@@ -64,7 +68,6 @@ import com.bigbigdw.manavara.util.getPlatformLogo
 import com.bigbigdw.manavara.util.novelListKor
 import com.bigbigdw.manavara.util.screen.AlertTwoBtn
 import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
-import com.bigbigdw.manavara.util.screen.ScreenTest
 import com.bigbigdw.manavara.util.screen.TabletBorderLine
 import kotlinx.coroutines.launch
 
@@ -271,9 +274,51 @@ fun ScreenBestTabletList(
                 getMenu = getMenu,
                 onClick = { onClick() },
             )
-        } else {
+
             ItemMainSettingSingleTablet(
                 containerColor = color5372DE,
+                image = R.drawable.icon_novel_wht,
+                title = "마나바라 베스트 웹소설 DB",
+                body = "마나바라에 기록된 베스트 웹소설 리스트",
+                setMenu = setMenu,
+                getMenu = getMenu,
+                onClick = { onClick() },
+            )
+
+            ItemMainSettingSingleTablet(
+                containerColor = color998DF9,
+                image = R.drawable.icon_webtoon_wht,
+                title = "마나바라 베스트 웹툰 DB",
+                body = "마나바라에 기록된 웹툰 웹툰 리스트",
+                setMenu = setMenu,
+                getMenu = getMenu,
+                onClick = { onClick() },
+            )
+
+        } else {
+
+            ItemMainSettingSingleTablet(
+                containerColor = color4AD7CF,
+                image = R.drawable.icon_setting_wht,
+                title = "작품 검색",
+                body = "플랫폼과 무관하게 작품 검색 진행",
+                setMenu = setMenu,
+                getMenu = getMenu,
+                onClick = { onClick() },
+            )
+
+            ItemMainSettingSingleTablet(
+                containerColor = color5372DE,
+                image = R.drawable.icon_setting_wht,
+                title = "마나바라 베스트 DB",
+                body = "마나바라에 기록된 베스트 작품 리스트",
+                setMenu = setMenu,
+                getMenu = getMenu,
+                onClick = { onClick() },
+            )
+
+            ItemMainSettingSingleTablet(
+                containerColor = colorF17FA0,
                 image = R.drawable.icon_best_wht,
                 title = "투데이 장르 베스트",
                 body = "플랫폼별 투데이 베스트 장르 리스트 보기",
@@ -283,7 +328,7 @@ fun ScreenBestTabletList(
             )
 
             ItemMainSettingSingleTablet(
-                containerColor = color998DF9,
+                containerColor = color21C2EC,
                 image = R.drawable.icon_best_wht,
                 title = "주간 장르 베스트",
                 body = "플랫폼별 주간 베스트 장르 리스트 보기",
@@ -293,7 +338,7 @@ fun ScreenBestTabletList(
             )
 
             ItemMainSettingSingleTablet(
-                containerColor = colorEA927C,
+                containerColor = color31C3AE,
                 image = R.drawable.icon_best_wht,
                 title = "월간 장르 베스트",
                 body = "플랫폼별 월간 베스트 장르 리스트 보기",
@@ -307,7 +352,7 @@ fun ScreenBestTabletList(
 
         if (isExpandedScreen) {
             ItemMainSettingSingleTablet(
-                containerColor = color5372DE,
+                containerColor = colorF17FA0,
                 image = R.drawable.icon_best_wht,
                 title = "투데이 장르 베스트",
                 body = "플랫폼별 투데이 베스트 장르 리스트 보기",
@@ -342,7 +387,7 @@ fun ScreenBestTabletList(
             TabletBorderLine()
 
             ItemMainSettingSingleTablet(
-                containerColor = color998DF9,
+                containerColor = color21C2EC,
                 image = R.drawable.icon_best_wht,
                 title = "주간 장르 베스트",
                 body = "플랫폼별 주간 베스트 장르 리스트 보기",
@@ -368,7 +413,7 @@ fun ScreenBestTabletList(
             TabletBorderLine()
 
             ItemMainSettingSingleTablet(
-                containerColor = colorEA927C,
+                containerColor = color31C3AE,
                 image = R.drawable.icon_best_wht,
                 title = "월간 장르 베스트",
                 body = "플랫폼별 월간 베스트 장르 리스트 보기",
@@ -507,25 +552,27 @@ fun ScreenBestDetail(
             .background(color = colorF6F6F6)
     ) {
 
-        Spacer(modifier = Modifier.size(16.dp))
+        if(getMenu != "TODAY"){
+            Spacer(modifier = Modifier.size(16.dp))
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter = painterResource(id = R.drawable.icon_arrow_left),
-                contentDescription = null,
-                modifier = Modifier
-                    .width(30.dp)
-                    .height(30.dp)
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(id = R.drawable.icon_arrow_left),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .width(30.dp)
+                        .height(30.dp)
+                )
 
-            Text(
-                modifier = Modifier
-                    .padding(16.dp, 0.dp, 0.dp, 0.dp),
-                text = changeDetailNameKor(getMenu),
-                fontSize = 24.sp,
-                color = color000000,
-                fontWeight = FontWeight(weight = 700)
-            )
+                Text(
+                    modifier = Modifier
+                        .padding(16.dp, 0.dp, 0.dp, 0.dp),
+                    text = changeDetailNameKor(getMenu),
+                    fontSize = 24.sp,
+                    color = color000000,
+                    fontWeight = FontWeight(weight = 700)
+                )
+            }
         }
 
         if (getMenu.contains("TODAY_BEST")) {
@@ -581,8 +628,12 @@ fun ScreenBestDetail(
                 menuType = "월간"
             )
 
+        } else if (getMenu.contains("베스트 웹소설 DB")) {
+            ScreenBestDBListNovel(isInit = false, type = "NOVEL")
+        }  else if (getMenu.contains("베스트 웹툰 DB")) {
+            ScreenBestDBListNovel(isInit = false, type = "COMIC")
         } else {
-            ScreenTest()
+            ScreenBestDBListNovel(type = "NOVEL")
         }
     }
 }

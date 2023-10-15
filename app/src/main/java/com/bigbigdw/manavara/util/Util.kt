@@ -1,8 +1,20 @@
 import android.annotation.SuppressLint
+import android.content.Context
+import android.util.Log
 import com.bigbigdw.manavara.main.models.ItemBestInfo
 import com.bigbigdw.manavara.main.models.ItemBookInfo
 import com.bigbigdw.manavara.main.models.ItemKeyword
+import com.bigbigdw.manavara.util.DataStoreManager
+import com.bigbigdw.manavara.util.getPlatformDataKeyComic
+import com.bigbigdw.manavara.util.getPlatformDataKeyNovel
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.gson.JsonObject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 
 @SuppressLint("SuspiciousIndentation")
@@ -104,4 +116,31 @@ fun convertItemKeyword(jsonObject: JSONObject): ItemKeyword {
         title = jsonObject.optString("title"),
         value = jsonObject.optString("value")
     )
+}
+
+fun getBookCount(context : Context, type: String, platform: String) {
+    val mRootRef =
+        FirebaseDatabase.getInstance().reference.child("BOOK").child(type).child(platform)
+
+    mRootRef.addListenerForSingleValueEvent(object :
+        ValueEventListener {
+        override fun onDataChange(dataSnapshot: DataSnapshot) {
+
+            val dataStore = DataStoreManager(context)
+
+            if (dataSnapshot.exists()) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    if(type == "NOVEL"){
+                        dataStore.setDataStoreString(getPlatformDataKeyNovel(platform), dataSnapshot.childrenCount.toString())
+                    } else {
+                        dataStore.setDataStoreString(getPlatformDataKeyComic(platform), dataSnapshot.childrenCount.toString())
+                    }
+                }
+            } else {
+                Log.d("HIHIHI", "FAIL == NOT EXIST")
+            }
+        }
+
+        override fun onCancelled(databaseError: DatabaseError) {}
+    })
 }

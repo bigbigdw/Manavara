@@ -42,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -61,13 +62,22 @@ import com.bigbigdw.manavara.ui.theme.color8E8E8E
 import com.bigbigdw.manavara.ui.theme.colorDCDCDD
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorFF2366
+import com.bigbigdw.manavara.util.DataStoreManager
+import com.bigbigdw.manavara.util.changePlatformNameKor
+import com.bigbigdw.manavara.util.comicListEng
 import com.bigbigdw.manavara.util.geMonthDate
-import com.bigbigdw.manavara.util.getPlatformLogo
+import com.bigbigdw.manavara.util.getPlatformDataKeyComic
+import com.bigbigdw.manavara.util.getPlatformDataKeyNovel
+import com.bigbigdw.manavara.util.getPlatformLogoEng
 import com.bigbigdw.manavara.util.getWeekDate
+import com.bigbigdw.manavara.util.novelListEng
+import com.bigbigdw.manavara.util.screen.ScreenEmpty
 import com.bigbigdw.manavara.util.screen.ScreenItemKeyword
+import com.bigbigdw.manavara.util.screen.TabletContentWrapBtn
 import com.bigbigdw.manavara.util.screen.spannableString
 import com.bigbigdw.manavara.util.weekList
 import com.bigbigdw.manavara.util.weekListAll
+import getBookCount
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -273,7 +283,7 @@ fun ScreenTodayWeek(
     Column(modifier = Modifier.background(color = colorF6F6F6)) {
 
         LazyRow(
-            modifier =  Modifier.padding(16.dp, 8.dp, 0.dp, 8.dp),
+            modifier = Modifier.padding(16.dp, 8.dp, 0.dp, 8.dp),
         ) {
             itemsIndexed(weekListAll()) { index, item ->
                 Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
@@ -306,7 +316,7 @@ fun ScreenTodayWeek(
             }
         } else {
 
-            if(bestState.weekList[getWeekDate(getDate)].size > 0){
+            if (bestState.weekList[getWeekDate(getDate)].size > 0) {
                 LazyColumn(
                     modifier = Modifier
                         .background(colorF6F6F6)
@@ -360,11 +370,11 @@ fun ListBest(
 
                     Spacer(modifier = Modifier.size(4.dp))
 
-                    if(type == "WEEK"){
+                    if (type == "WEEK") {
                         ScreenItemWeek(
                             item = itemBookInfo,
                         )
-                    } else{
+                    } else {
                         ItemBestExpandMonth(
                             item = itemBookInfo,
                         )
@@ -397,7 +407,7 @@ fun ScreenTodayMonth(
 
     var count = 0
 
-    for(item in bestState.monthList){
+    for (item in bestState.monthList) {
         count += 1
         arrayList.add("${count}주차")
     }
@@ -405,7 +415,7 @@ fun ScreenTodayMonth(
     Column(modifier = Modifier.background(color = colorF6F6F6)) {
 
         LazyRow(
-            modifier =  Modifier.padding(16.dp, 8.dp, 0.dp, 8.dp),
+            modifier = Modifier.padding(16.dp, 8.dp, 0.dp, 8.dp),
         ) {
             itemsIndexed(arrayList) { index, item ->
 
@@ -439,7 +449,7 @@ fun ScreenTodayMonth(
             }
         } else {
 
-            if(bestState.monthList[geMonthDate(getDate)].size > 0){
+            if (bestState.monthList[geMonthDate(getDate)].size > 0) {
                 LazyColumn(
                     modifier = Modifier
                         .background(colorF6F6F6)
@@ -450,7 +460,7 @@ fun ScreenTodayMonth(
 
                         val itemBookInfo = bestState.itemBookInfoMap[item.bookCode]
 
-                        if(itemBookInfo != null){
+                        if (itemBookInfo != null) {
                             Text(
                                 modifier = Modifier.padding(16.dp, 8.dp),
                                 text = weekList()[index],
@@ -513,7 +523,7 @@ fun ScreenItemWeek(item: ItemBookInfo) {
                 )
 
                 Text(
-                    text =  "${item.writer}/${item.cntChapter}",
+                    text = "${item.writer}/${item.cntChapter}",
                     color = color000000,
                     fontSize = 16.sp,
                 )
@@ -585,47 +595,146 @@ fun ScreenItemWeek(item: ItemBookInfo) {
 }
 
 @Composable
-fun ScreenEmpty(str : String = "마나바라") {
+fun ScreenBestDBListNovel(isInit: Boolean = true, type: String) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(colorF6F6F6),
-        contentAlignment = Alignment.Center
+        contentAlignment = if(isInit){
+            Alignment.Center
+        } else {
+            Alignment.TopStart
+        }
     ) {
-        Column(modifier = Modifier.wrapContentSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+        val context = LocalContext.current
+        val dataStore = DataStoreManager(context)
 
-            Card(
-                modifier = Modifier
-                    .wrapContentSize(),
-                colors = CardDefaults.cardColors(containerColor = colorDCDCDD),
-                shape = RoundedCornerShape(50.dp, 50.dp, 50.dp, 50.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .height(90.dp)
-                        .width(90.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        contentScale = ContentScale.FillWidth,
-                        painter = painterResource(id = R.drawable.ic_launcher),
-                        contentDescription = null,
+        LazyColumn(
+            modifier = Modifier.wrapContentSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            if(isInit){
+                item {
+                    Card(
                         modifier = Modifier
-                            .height(72.dp)
-                            .width(72.dp)
+                            .wrapContentSize(),
+                        colors = CardDefaults.cardColors(containerColor = colorDCDCDD),
+                        shape = RoundedCornerShape(50.dp, 50.dp, 50.dp, 50.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .height(90.dp)
+                                .width(90.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                contentScale = ContentScale.FillWidth,
+                                painter = painterResource(id = R.drawable.ic_launcher),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .height(72.dp)
+                                    .width(72.dp)
+                            )
+                        }
+                    }
+                }
+
+                item { Spacer(modifier = Modifier.size(8.dp)) }
+
+                item {
+                    Text(
+                        text = "마나바라에 기록된 작품들",
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Center,
+                        color = color000000
                     )
                 }
             }
 
-            Spacer(
-                modifier = Modifier.size(8.dp)
-            )
-            Text(
-                text = str,
-                fontSize = 16.sp,
-                textAlign = TextAlign.Center,
-                color = color000000
-            )
+            item { Spacer(modifier = Modifier.size(8.dp)) }
+
+            if(type == "NOVEL"){
+                itemsIndexed(novelListEng()) { index, item ->
+                    Box(modifier = Modifier.padding(16.dp, 8.dp)) {
+                        TabletContentWrapBtn(
+                            onClick = {},
+                            content = {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Start,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+
+                                    Image(
+                                        painter = painterResource(id = getPlatformLogoEng(item)),
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .width(20.dp)
+                                            .height(20.dp)
+                                    )
+
+                                    Spacer(modifier = Modifier.size(8.dp))
+
+                                    getBookCount(context = context, type = type, platform = item)
+
+                                    Text(
+                                        text = spannableString(
+                                            textFront = "${changePlatformNameKor(item)} : ",
+                                            color = color000000,
+                                            textEnd = "${dataStore.getDataStoreString(
+                                                getPlatformDataKeyNovel(item)
+                                            ).collectAsState(initial = "").value ?: "0"} 작품"
+                                        ),
+                                        color = color20459E,
+                                        fontSize = 18.sp,
+                                    )
+                                }
+                            }
+                        )
+                    }
+                }
+            } else {
+                itemsIndexed(comicListEng()) { index, item ->
+                    Box(modifier = Modifier.padding(16.dp, 8.dp)) {
+                        TabletContentWrapBtn(
+                            onClick = {},
+                            content = {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Start,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+
+                                    Image(
+                                        painter = painterResource(id = getPlatformLogoEng(item)),
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .width(20.dp)
+                                            .height(20.dp)
+                                    )
+
+                                    Spacer(modifier = Modifier.size(8.dp))
+
+                                    getBookCount(context = context, type = type, platform = item)
+
+                                    Text(
+                                        text = spannableString(
+                                            textFront = "${changePlatformNameKor(item)} : ",
+                                            color = color000000,
+                                            textEnd = "${dataStore.getDataStoreString(
+                                                getPlatformDataKeyComic(item)
+                                            ).collectAsState(initial = "").value ?: "0"} 작품"
+                                        ),
+                                        color = color20459E,
+                                        fontSize = 18.sp,
+                                    )
+                                }
+                            }
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -669,7 +778,7 @@ fun ItemBestExpandMonth(item: ItemBookInfo) {
                 )
 
                 Text(
-                    text =  "${item.writer}/${item.cntChapter}",
+                    text = "${item.writer}/${item.cntChapter}",
                     color = color000000,
                     fontSize = 16.sp,
                 )
@@ -763,9 +872,11 @@ fun ItemBestExpandMonth(item: ItemBookInfo) {
 @Composable
 fun ScreenDialogBest(item: ItemBookInfo) {
 
-    Column(modifier = Modifier
-        .fillMaxWidth()
-        .padding(12.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(12.dp)
+    ) {
 
         Row(
             horizontalArrangement = Arrangement.Start,
@@ -775,7 +886,7 @@ fun ScreenDialogBest(item: ItemBookInfo) {
             Card(
                 modifier = Modifier
                     .requiredHeight(200.dp),
-                shape = RoundedCornerShape(10 .dp)
+                shape = RoundedCornerShape(10.dp)
             ) {
                 AsyncImage(
                     model = item.bookImg,
@@ -803,7 +914,7 @@ fun ScreenDialogBest(item: ItemBookInfo) {
 
                 Spacer(modifier = Modifier.size(4.dp))
 
-                if(item.genre.isNotEmpty()){
+                if (item.genre.isNotEmpty()) {
                     Text(
                         text = spannableString(
                             textFront = "장르 : ",
@@ -815,7 +926,7 @@ fun ScreenDialogBest(item: ItemBookInfo) {
                     )
                 }
 
-                if(item.cntChapter.isNotEmpty()){
+                if (item.cntChapter.isNotEmpty()) {
                     Text(
                         text = spannableString(
                             textFront = "챕터 수 : ",
@@ -827,7 +938,7 @@ fun ScreenDialogBest(item: ItemBookInfo) {
                     )
                 }
 
-                if(item.cntRecom.isNotEmpty()){
+                if (item.cntRecom.isNotEmpty()) {
                     Text(
                         text = spannableString(
                             textFront = "플랫폼 평점 : ",
@@ -839,7 +950,7 @@ fun ScreenDialogBest(item: ItemBookInfo) {
                     )
                 }
 
-                if(item.cntChapter.isNotEmpty()){
+                if (item.cntChapter.isNotEmpty()) {
                     Text(
                         text = spannableString(
                             textFront = "총 편수 : ",
@@ -851,7 +962,7 @@ fun ScreenDialogBest(item: ItemBookInfo) {
                     )
                 }
 
-                if(item.cntFavorite.isNotEmpty()){
+                if (item.cntFavorite.isNotEmpty()) {
                     Text(
                         text = spannableString(
                             textFront = "선호작 수 : ",
@@ -863,7 +974,7 @@ fun ScreenDialogBest(item: ItemBookInfo) {
                     )
                 }
 
-                if(item.cntPageRead.isNotEmpty()){
+                if (item.cntPageRead.isNotEmpty()) {
                     Text(
                         text = spannableString(
                             textFront = "조회 수 : ",
@@ -875,7 +986,7 @@ fun ScreenDialogBest(item: ItemBookInfo) {
                     )
                 }
 
-                if(item.cntTotalComment.isNotEmpty()){
+                if (item.cntTotalComment.isNotEmpty()) {
                     Text(
                         text = spannableString(
                             textFront = "댓글 수 : ",
@@ -914,14 +1025,14 @@ fun ScreenDialogBest(item: ItemBookInfo) {
 }
 
 @Composable
-fun ScreenItemBestCount(item : ItemBookInfo){
-    Row{
+fun ScreenItemBestCount(item: ItemBookInfo) {
+    Row {
         Box(
             modifier = Modifier.weight(1f)
         ) {
             Column {
 
-                Row{
+                Row {
                     Image(
                         contentScale = ContentScale.FillWidth,
                         painter = painterResource(id = R.drawable.icon_best),
@@ -944,7 +1055,7 @@ fun ScreenItemBestCount(item : ItemBookInfo){
                     )
                 }
 
-                Row{
+                Row {
                     Image(
                         contentScale = ContentScale.FillWidth,
                         painter = painterResource(id = R.drawable.icon_trophy),
@@ -967,7 +1078,7 @@ fun ScreenItemBestCount(item : ItemBookInfo){
                     )
                 }
 
-                Row{
+                Row {
                     Image(
                         contentScale = ContentScale.FillWidth,
                         painter = painterResource(id = R.drawable.icon_trophy),
@@ -997,7 +1108,7 @@ fun ScreenItemBestCount(item : ItemBookInfo){
         ) {
             Column {
 
-                Row{
+                Row {
                     Image(
                         contentScale = ContentScale.FillWidth,
                         painter = painterResource(id = R.drawable.icon_best_gr),
@@ -1020,7 +1131,7 @@ fun ScreenItemBestCount(item : ItemBookInfo){
                     )
                 }
 
-                Row{
+                Row {
                     Image(
                         contentScale = ContentScale.FillWidth,
                         painter = painterResource(id = R.drawable.icon_trophy_gr),
@@ -1044,7 +1155,7 @@ fun ScreenItemBestCount(item : ItemBookInfo){
 
                 }
 
-                Row{
+                Row {
                     Image(
                         contentScale = ContentScale.FillWidth,
                         painter = painterResource(id = R.drawable.icon_trophy_gr),

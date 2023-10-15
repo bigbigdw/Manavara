@@ -679,3 +679,49 @@ fun TabletBorderLine(){
         .background(color = color8E8E8E))
     Spacer(modifier = Modifier.size(8.dp))
 }
+
+@Composable
+fun ScreenEmpty(str : String = "마나바라") {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(colorF6F6F6),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(modifier = Modifier.wrapContentSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+
+            Card(
+                modifier = Modifier
+                    .wrapContentSize(),
+                colors = CardDefaults.cardColors(containerColor = colorDCDCDD),
+                shape = RoundedCornerShape(50.dp, 50.dp, 50.dp, 50.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .height(90.dp)
+                        .width(90.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        contentScale = ContentScale.FillWidth,
+                        painter = painterResource(id = R.drawable.ic_launcher),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .height(72.dp)
+                            .width(72.dp)
+                    )
+                }
+            }
+
+            Spacer(
+                modifier = Modifier.size(8.dp)
+            )
+            Text(
+                text = str,
+                fontSize = 16.sp,
+                textAlign = TextAlign.Center,
+                color = color000000
+            )
+        }
+    }
+}

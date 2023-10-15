@@ -1,6 +1,7 @@
 package com.bigbigdw.manavara.util
 
 import androidx.compose.ui.graphics.Color
+import androidx.datastore.preferences.core.Preferences
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.ui.theme.colorCHALLENGE
 import com.bigbigdw.manavara.ui.theme.colorJOARA
@@ -77,6 +78,12 @@ fun novelListEng(): List<String> {
         "MUNPIA_FREE",
         "TOKSODA",
         "TOKSODA_FREE",
+    )
+}
+
+fun comicListEng(): List<String> {
+    return listOf(
+        "NAVER_SERIES"
     )
 }
 
@@ -730,6 +737,85 @@ fun geMonthDate(date : String) : Int {
         }
         else -> {
             0
+        }
+    }
+}
+
+fun getPlatformDataKeyNovel(platform : String) : Preferences.Key<String> {
+    return when (platform) {
+        "JOARA" -> {
+           DataStoreManager.JOARA
+        }
+        "JOARA_NOBLESS" -> {
+            DataStoreManager.JOARA_NOBLESS
+        }
+        "JOARA_PREMIUM" -> {
+            DataStoreManager.JOARA_PREMIUM
+        }
+        "NAVER_CHALLENGE" -> {
+            DataStoreManager.NAVER_CHALLENGE
+        }
+        "NAVER_BEST" -> {
+            DataStoreManager.NAVER_BEST
+        }
+        "NAVER_SERIES" -> {
+            DataStoreManager.NAVER_SERIES_NOVEL
+        }
+        "NAVER_WEBNOVEL_PAY" -> {
+            DataStoreManager.NAVER_WEBNOVEL_PAY
+        }
+        "NAVER_WEBNOVEL_FREE" -> {
+            DataStoreManager.NAVER_WEBNOVEL_FREE
+        }
+        "RIDI_FANTAGY" -> {
+            DataStoreManager.RIDI_FANTAGY
+        }
+        "RIDI_ROMANCE" -> {
+            DataStoreManager.RIDI_ROMANCE
+        }
+        "RIDI_ROFAN" -> {
+            DataStoreManager.RIDI_ROFAN
+        }
+        "KAKAO_STAGE" -> {
+            DataStoreManager.KAKAO_STAGE
+        }
+        "ONESTORY_FANTAGY" -> {
+            DataStoreManager.ONESTORY_FANTAGY
+        }
+        "ONESTORY_ROMANCE" -> {
+            DataStoreManager.ONESTORY_ROMANCE
+        }
+        "ONESTORY_PASS_FANTAGY" -> {
+            DataStoreManager.ONESTORY_PASS_FANTAGY
+        }
+        "ONESTORY_PASS_ROMANCE" -> {
+            DataStoreManager.ONESTORY_PASS_ROMANCE
+        }
+        "MUNPIA_PAY" -> {
+            DataStoreManager.MUNPIA_PAY
+        }
+        "MUNPIA_FREE" -> {
+            DataStoreManager.MUNPIA_FREE
+        }
+        "TOKSODA" -> {
+            DataStoreManager.TOKSODA
+        }
+        "TOKSODA_FREE" -> {
+            DataStoreManager.TOKSODA_FREE
+        }
+        else -> {
+            DataStoreManager.TEST
+        }
+    }
+}
+
+fun getPlatformDataKeyComic(platform : String) : Preferences.Key<String> {
+    return when (platform) {
+        "NAVER_SERIES" -> {
+            DataStoreManager.NAVER_SERIES_COMIC
+        }
+        else -> {
+            DataStoreManager.TEST
         }
     }
 }
