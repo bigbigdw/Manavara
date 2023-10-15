@@ -132,12 +132,12 @@ fun ScreenBest(
                     ) {
                         AlertTwoBtn(
                             isShow = {  },
-                            onFetchClick = {},
-                            btnLeft = "뒤로가기",
+                            onFetchClick = { },
+                            btnLeft = "취소",
                             btnRight = "확인",
                             modifier = Modifier.requiredWidth(400.dp),
                             contents = {
-                                ScreenItemWeek(
+                                ScreenDialogBest(
                                     item = viewModelBest.state.collectAsState().value.itemBookInfo,
                                 )
                             })

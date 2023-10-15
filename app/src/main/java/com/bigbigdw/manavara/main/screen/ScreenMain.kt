@@ -260,7 +260,17 @@ fun ScreenMainMobile(
             topEnd = 25.dp
         ),
         sheetContent = {
-            ScreenTest()
+
+            if(currentRoute == "NOVEL" || currentRoute == "COMIC"){
+
+                Spacer(modifier = Modifier.size(4.dp))
+
+                ScreenDialogBest(
+                    item = viewModelBest.state.collectAsState().value.itemBookInfo,
+                )
+            } else {
+                ScreenTest()
+            }
         },
     ) {}
 }

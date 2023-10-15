@@ -260,8 +260,6 @@ fun AlertTwoBtn(
 ) {
 
     Box(
-        modifier = Modifier
-            .clickable { isShow() },
         contentAlignment = Alignment.Center
     ) {
         Box(

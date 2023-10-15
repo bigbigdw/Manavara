@@ -28,23 +28,25 @@ data class ItemBookInfo(
     @SerialName("cntChapter")
     var cntChapter: String = "",
     @SerialName("total")
-    var total:  Int = 1,
+    var total:  Int = 0,
     @SerialName("totalCount")
-    var totalCount:  Int = 1,
+    var totalCount:  Int = 0,
     @SerialName("totalWeek")
-    var totalWeek:  Int = 1,
+    var totalWeek:  Int = 0,
     @SerialName("totalWeekCount")
-    var totalWeekCount:  Int = 1,
+    var totalWeekCount:  Int = 0,
     @SerialName("totalMonth")
-    var totalMonth:  Int = 1,
+    var totalMonth:  Int = 0,
     @SerialName("totalMonthCount")
-    var totalMonthCount:  Int = 1,
+    var totalMonthCount:  Int = 0,
     @SerialName("currentDiff")
-    var currentDiff:  Int = 1,
+    var currentDiff:  Int = 0,
     @SerialName("number")
     var number: Int = 0,
     @SerialName("point")
     var point: Int = 0,
+    @SerialName("genre")
+    var genre: String = "",
 )
 @Serializable
 data class ItemBestInfo (
@@ -61,13 +63,13 @@ data class ItemBestInfo (
     @SerialName("cntTotalComment")
     var cntTotalComment: String = "",
     @SerialName("total")
-    var total:  Int = 1,
+    var total:  Int = 0,
     @SerialName("totalCount")
-    var totalCount:  Int = 1,
+    var totalCount:  Int = 0,
     @SerialName("bookCode")
     var bookCode: String = "",
     @SerialName("currentDiff")
-    var currentDiff:  Int = 1,
+    var currentDiff:  Int = 0,
 )
 
 @Serializable
