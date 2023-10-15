@@ -603,7 +603,7 @@ fun ItemMainSettingSingleTablet(
 }
 
 @Composable
-fun ItemKeyword(
+fun ScreenItemKeyword(
     getter: String,
     setter: (String) -> Unit,
     title: String,
@@ -659,7 +659,24 @@ fun ItemKeyword(
     }
 }
 
+@Composable
+fun TabletContentWrapBtn(content: @Composable () -> Unit, onClick: () -> Unit, isContinue: Boolean = true){
 
+    Button(
+        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+        onClick = { onClick() },
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(44.dp),
+        shape = RoundedCornerShape(50.dp),
+        content = {
+            content()
+        })
+
+    if(isContinue){
+        Spacer(modifier = Modifier.size(16.dp))
+    }
+}
 
 @Composable
 fun TabletBorderLine(){

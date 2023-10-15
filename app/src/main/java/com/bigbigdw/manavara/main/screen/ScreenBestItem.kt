@@ -62,7 +62,7 @@ import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorFF2366
 import com.bigbigdw.manavara.util.geMonthDate
 import com.bigbigdw.manavara.util.getWeekDate
-import com.bigbigdw.manavara.util.screen.ItemKeyword
+import com.bigbigdw.manavara.util.screen.ScreenItemKeyword
 import com.bigbigdw.manavara.util.screen.spannableString
 import com.bigbigdw.manavara.util.weekList
 import com.bigbigdw.manavara.util.weekListAll
@@ -269,7 +269,7 @@ fun ScreenTodayWeek(
         ) {
             itemsIndexed(weekListAll()) { index, item ->
                 Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
-                    ItemKeyword(
+                    ScreenItemKeyword(
                         getter = getDate,
                         setter = setDate,
                         title = item,
@@ -401,7 +401,7 @@ fun ScreenTodayMonth(
             itemsIndexed(arrayList) { index, item ->
 
                 Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
-                    ItemKeyword(
+                    ScreenItemKeyword(
                         getter = getDate,
                         setter = setDate,
                         title = item,

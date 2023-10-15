@@ -48,6 +48,7 @@ import com.bigbigdw.manavara.ui.theme.color5372DE
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
 import com.bigbigdw.manavara.ui.theme.color998DF9
 import com.bigbigdw.manavara.ui.theme.colorE9E9E9
+import com.bigbigdw.manavara.ui.theme.colorEA927C
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorF7F7F7
 import com.bigbigdw.manavara.ui.theme.colorea927C
@@ -215,16 +216,6 @@ fun ScreenBestTabletList(
             ItemMainSettingSingleTablet(
                 containerColor = color4AD7CF,
                 image = R.drawable.icon_setting_wht,
-                title = "유저 옵션",
-                body = "뷰모드 전환 및 플랫폼 선택",
-                setMenu = setMenu,
-                getMenu = getMenu,
-                onClick = { onClick() },
-            )
-
-            ItemMainSettingSingleTablet(
-                containerColor = color5372DE,
-                image = R.drawable.icon_setting_wht,
                 title = "작품 검색",
                 body = "플랫폼과 무관하게 작품 검색 진행",
                 setMenu = setMenu,
@@ -235,8 +226,8 @@ fun ScreenBestTabletList(
             ItemMainSettingSingleTablet(
                 containerColor = color5372DE,
                 image = R.drawable.icon_best_wht,
-                title = "마나바라 투데이 베스트",
-                body = "플랫폼별 1~5위에 랭크된 작품 리스트",
+                title = "투데이 장르 베스트",
+                body = "플랫폼별 투데이 베스트 장르 리스트 보기",
                 setMenu = setMenu,
                 getMenu = getMenu,
                 onClick = { onClick() },
@@ -245,18 +236,18 @@ fun ScreenBestTabletList(
             ItemMainSettingSingleTablet(
                 containerColor = color998DF9,
                 image = R.drawable.icon_best_wht,
-                title = "주간 베스트",
-                body = "주간 베스트 관련 옵션 진행",
+                title = "주간 장르 베스트",
+                body = "플랫폼별 주간 베스트 장르 리스트 보기",
                 setMenu = setMenu,
                 getMenu = getMenu,
                 onClick = { onClick() },
             )
 
             ItemMainSettingSingleTablet(
-                containerColor = colorea927C,
+                containerColor = colorEA927C,
                 image = R.drawable.icon_best_wht,
-                title = "월간 베스트",
-                body = "월간 베스트 관련 옵션 진행",
+                title = "월간 장르 베스트",
+                body = "플랫폼별 월간 베스트 장르 리스트 보기",
                 setMenu = setMenu,
                 getMenu = getMenu,
                 onClick = { onClick() },
@@ -269,8 +260,8 @@ fun ScreenBestTabletList(
             ItemMainSettingSingleTablet(
                 containerColor = color5372DE,
                 image = R.drawable.icon_best_wht,
-                title = "마나바라 투데이 베스트",
-                body = "플랫폼별 1~5위에 랭크된 작품 리스트",
+                title = "투데이 장르 베스트",
+                body = "플랫폼별 투데이 베스트 장르 리스트 보기",
                 setMenu = setMenu,
                 getMenu = getMenu,
                 onClick = { onClick() },
@@ -304,8 +295,8 @@ fun ScreenBestTabletList(
             ItemMainSettingSingleTablet(
                 containerColor = color998DF9,
                 image = R.drawable.icon_best_wht,
-                title = "주간 베스트",
-                body = "주간 베스트 관련 옵션 진행",
+                title = "주간 장르 베스트",
+                body = "플랫폼별 주간 베스트 장르 리스트 보기",
                 setMenu = setMenu,
                 getMenu = getMenu,
                 onClick = { onClick() },
@@ -323,35 +314,35 @@ fun ScreenBestTabletList(
                     setDetailPlatform = { setDetailPlatform(changePlatformNameEng(item)) },
                     setDetailType = { setDetailType("NOVEL") },
                 )
+            }
 
-                TabletBorderLine()
+            TabletBorderLine()
 
-                ItemMainSettingSingleTablet(
-                    containerColor = colorea927C,
-                    image = R.drawable.icon_best_wht,
-                    title = "월간 베스트",
-                    body = "월간 베스트 관련 옵션 진행",
+            ItemMainSettingSingleTablet(
+                containerColor = colorEA927C,
+                image = R.drawable.icon_best_wht,
+                title = "월간 장르 베스트",
+                body = "플랫폼별 월간 베스트 장르 리스트 보기",
+                setMenu = setMenu,
+                getMenu = getMenu,
+                onClick = { onClick() },
+            )
+
+            novelListKor().forEachIndexed { index, item ->
+                ItemBestListSingle(
+                    containerColor = getPlatformColor(item),
+                    image = getPlatformLogo(item),
+                    title = item,
+                    body = getPlatformDescription(item),
                     setMenu = setMenu,
                     getMenu = getMenu,
-                    onClick = { onClick() },
+                    bestType = "MONTH_BEST",
+                    setDetailPlatform = { setDetailPlatform(changePlatformNameEng(item)) },
+                    setDetailType = {
+                        setDetailType("NOVEL")
+                        onClick()
+                    },
                 )
-
-                novelListKor().forEachIndexed { index, item ->
-                    ItemBestListSingle(
-                        containerColor = getPlatformColor(item),
-                        image = getPlatformLogo(item),
-                        title = item,
-                        body = getPlatformDescription(item),
-                        setMenu = setMenu,
-                        getMenu = getMenu,
-                        bestType = "MONTH_BEST",
-                        setDetailPlatform = { setDetailPlatform(changePlatformNameEng(item)) },
-                        setDetailType = {
-                            setDetailType("NOVEL")
-                            onClick()
-                        },
-                    )
-                }
             }
         }
     }
@@ -509,6 +500,27 @@ fun ScreenBestDetail(
             ScreenTodayMonth(
                 viewModelMain = viewModelMain,
                 viewModelBest = viewModelBest
+            )
+
+        } else if (getMenu.contains("투데이 장르")) {
+            GenreDetailJson(
+                viewModelBest = viewModelBest,
+                getDetailType = getDetailType,
+                menuType = "투데이"
+            )
+
+        } else if (getMenu.contains("주간 장르")) {
+            GenreDetailJson(
+                viewModelBest = viewModelBest,
+                getDetailType = getDetailType,
+                menuType = "주간"
+            )
+
+        } else if (getMenu.contains("월간 장르")) {
+            GenreDetailJson(
+                viewModelBest = viewModelBest,
+                getDetailType = getDetailType,
+                menuType = "월간"
             )
 
         } else {

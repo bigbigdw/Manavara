@@ -1,6 +1,7 @@
 import android.annotation.SuppressLint
 import com.bigbigdw.manavara.main.models.ItemBestInfo
 import com.bigbigdw.manavara.main.models.ItemBookInfo
+import com.bigbigdw.manavara.main.models.ItemKeyword
 import com.google.gson.JsonObject
 import org.json.JSONObject
 
@@ -86,4 +87,21 @@ fun convertItemBest(bestItemData : ItemBestInfo) : JsonObject {
     jsonObject.addProperty("bookCode", bestItemData.bookCode)
     jsonObject.addProperty("currentDiff", bestItemData.currentDiff)
     return jsonObject
+}
+
+fun convertItemKeywordJson(itemBestKeyword : ItemKeyword) : JsonObject {
+    val jsonObject = JsonObject()
+
+    jsonObject.addProperty("title", itemBestKeyword.title)
+    jsonObject.addProperty("value", itemBestKeyword.value)
+    return jsonObject
+}
+
+@SuppressLint("SuspiciousIndentation")
+fun convertItemKeyword(jsonObject: JSONObject): ItemKeyword {
+
+    return ItemKeyword(
+        title = jsonObject.optString("title"),
+        value = jsonObject.optString("value")
+    )
 }

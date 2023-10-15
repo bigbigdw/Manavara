@@ -2,6 +2,7 @@ package com.bigbigdw.manavara.main.event
 
 import com.bigbigdw.manavara.main.models.ItemBestInfo
 import com.bigbigdw.manavara.main.models.ItemBookInfo
+import com.bigbigdw.manavara.main.models.ItemKeyword
 import com.bigbigdw.manavara.main.models.UserInfo
 
 sealed interface EventBest{
@@ -34,6 +35,15 @@ sealed interface EventBest{
     class SetMonthTrophyList(
         var monthTrophyList: ArrayList<ItemBestInfo> = ArrayList(),
     ) : EventBest
+
+    class SetGenreDay(
+        val genreDay : ArrayList<ItemKeyword> = ArrayList()
+    ) : EventBest
+
+    class SetGenreWeek(
+        val genreDay : ArrayList<ItemKeyword> = ArrayList(),
+        val genreDayList : ArrayList<ArrayList<ItemKeyword>> = ArrayList()
+    ) : EventBest
 }
 
 data class StateBest(
@@ -46,4 +56,6 @@ data class StateBest(
     val weekList : ArrayList<ArrayList<ItemBookInfo>> = ArrayList(),
     val monthList : ArrayList<ArrayList<ItemBookInfo>> = ArrayList(),
     var monthTrophyList: ArrayList<ItemBestInfo> = ArrayList(),
+    val genreDay : ArrayList<ItemKeyword> = ArrayList(),
+    val genreDayList : ArrayList<ArrayList<ItemKeyword>> = ArrayList()
 )

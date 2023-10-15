@@ -36,14 +36,22 @@ fun novelListKor(): List<String> {
         "노블레스",
         "프리미엄",
         "시리즈",
+        "네이버 웹소설 유료",
+        "네이버 웹소설 무료",
         "챌린지리그",
         "베스트리그",
         "리디 판타지",
         "리디 로맨스",
+        "리디 로맨스 판타지",
         "스테이지",
-        "원스토리",
-        "문피아",
+        "원스토리 판타지",
+        "원스토리 로맨스",
+        "원스토리 PASS 판타지",
+        "원스토리 PASS 로맨스",
+        "문피아 유료",
+        "문피아 무료",
         "톡소다",
+        "톡소다 자유연재",
     )
 }
 
@@ -53,18 +61,41 @@ fun novelListEng(): List<String> {
         "JOARA_NOBLESS",
         "JOARA_PREMIUM",
         "NAVER_SERIES",
-        "NAVER_CHALLENGE",
-        "NAVER_BEST",
         "NAVER_WEBNOVEL_PAY",
         "NAVER_WEBNOVEL_FREE",
-        "RIDI_ROMANCE",
+        "NAVER_CHALLENGE",
+        "NAVER_BEST",
         "RIDI_FANTAGY",
+        "RIDI_ROMANCE",
+        "RIDI_ROFAN",
         "KAKAO_STAGE",
-        "ONESTORY",
-        "MUNPIA",
+        "ONESTORY_FANTAGY",
+        "ONESTORY_ROMANCE",
+        "ONESTORY_PASS_FANTAGY",
+        "ONESTORY_PASS_ROMANCE",
+        "MUNPIA_PAY",
+        "MUNPIA_FREE",
         "TOKSODA",
+        "TOKSODA_FREE",
     )
 }
+
+fun genreListEng(): List<String> {
+    return listOf(
+        "JOARA",
+        "JOARA_NOBLESS",
+        "JOARA_PREMIUM",
+        "RIDI_FANTAGY",
+        "RIDI_ROMANCE",
+        "RIDI_ROFAN",
+        "KAKAO_STAGE",
+        "MUNPIA_PAY",
+        "MUNPIA_FREE",
+        "TOKSODA",
+        "TOKSODA_FREE",
+    )
+}
+
 
 
 fun changePlatformNameEng(platform : String) : String {
@@ -87,23 +118,47 @@ fun changePlatformNameEng(platform : String) : String {
         "시리즈" -> {
             "NAVER_SERIES"
         }
+        "네이버 웹소설 유료" -> {
+            "NAVER_WEBNOVEL_PAY"
+        }
+        "네이버 웹소설 무료" -> {
+            "NAVER_WEBNOVEL_FREE"
+        }
         "리디 판타지" -> {
             "RIDI_FANTAGY"
         }
         "리디 로맨스" -> {
             "RIDI_ROMANCE"
         }
+        "리디 로맨스 판타지" -> {
+            "RIDI_ROFAN"
+        }
         "스테이지" -> {
             "KAKAO_STAGE"
         }
-        "원스토리" -> {
-            "ONESTORY"
+        "원스토리 판타지" -> {
+            "ONESTORY_FANTAGY"
         }
-        "문피아" -> {
-            "MUNPIA"
+        "원스토리 로맨스" -> {
+            "ONESTORY_ROMANCE"
+        }
+        "원스토리 PASS 판타지" -> {
+            "ONESTORY_PASS_FANTAGY"
+        }
+        "원스토리 PASS 로맨스" -> {
+            "ONESTORY_PASS_ROMANCE"
+        }
+        "문피아 유료" -> {
+            "MUNPIA_PAY"
+        }
+        "문피아 무료" -> {
+            "MUNPIA_FREE"
         }
         "톡소다" -> {
             "TOKSODA"
+        }
+        "톡소다 자유연재" -> {
+            "TOKSODA_FREE"
         }
         else -> {
             platform
@@ -122,26 +177,56 @@ fun changePlatformNameKor(platform : String) : String {
         "JOARA_PREMIUM" -> {
             "프리미엄"
         }
-        "CHALLENGE_LEAGUE" -> {
+        "NAVER_CHALLENGE" -> {
             "챌린지리그"
         }
-        "BEST_LEAGUE" -> {
+        "NAVER_BEST" -> {
             "베스트리그"
         }
         "NAVER_SERIES" -> {
             "시리즈"
         }
+        "NAVER_WEBNOVEL_PAY" -> {
+            "네이버 웹소설 유료"
+        }
+        "NAVER_WEBNOVEL_FREE" -> {
+            "네이버 웹소설 무료"
+        }
+        "RIDI_FANTAGY" -> {
+            "리디 판타지"
+        }
+        "RIDI_ROMANCE" -> {
+            "리디 로맨스"
+        }
+        "RIDI_ROFAN" -> {
+            "리디 로맨스 판타지"
+        }
         "KAKAO_STAGE" -> {
             "스테이지"
         }
-        "ONESTORY" -> {
-            "원스토리"
+        "ONESTORY_FANTAGY" -> {
+            "원스토리 판타지"
         }
-        "MUNPIA" -> {
-            "문피아"
+        "ONESTORY_ROMANCE" -> {
+            "원스토리 로맨스"
+        }
+        "ONESTORY_PASS_FANTAGY" -> {
+            "원스토리 PASS 판타지"
+        }
+        "ONESTORY_PASS_ROMANCE" -> {
+            "원스토리 PASS 로맨스"
+        }
+        "MUNPIA_PAY" -> {
+            "문피아 유료"
+        }
+        "MUNPIA_FREE" -> {
+            "문피아 무료"
         }
         "TOKSODA" -> {
             "톡소다"
+        }
+        "TOKSODA_FREE" -> {
+            "톡소다 자유연재"
         }
         else -> {
             platform
@@ -175,6 +260,12 @@ fun getPlatformLogo(platform: String) : Int {
         "시리즈" -> {
             R.drawable.logo_naver
         }
+        "네이버 웹소설 유료" -> {
+            R.drawable.logo_naver
+        }
+        "네이버 웹소설 무료" -> {
+            R.drawable.logo_naver
+        }
         "챌린지리그" -> {
             R.drawable.logo_naver_challenge
         }
@@ -187,20 +278,106 @@ fun getPlatformLogo(platform: String) : Int {
         "리디 로맨스" -> {
             R.drawable.logo_ridibooks
         }
+        "리디 로맨스 판타지" -> {
+            R.drawable.logo_ridibooks
+        }
         "스테이지" -> {
             R.drawable.logo_kakaostage
         }
-        "원스토리" -> {
+        "원스토리 판타지" -> {
             R.drawable.logo_onestore
         }
-        "문피아" -> {
+        "원스토리 로맨스" -> {
+            R.drawable.logo_onestore
+        }
+        "원스토리 PASS 판타지" -> {
+            R.drawable.logo_onestore
+        }
+        "원스토리 PASS 로맨스" -> {
+            R.drawable.logo_onestore
+        }
+        "문피아 유료" -> {
+            R.drawable.logo_munpia
+        }
+        "문피아 무료" -> {
             R.drawable.logo_munpia
         }
         "톡소다" -> {
             R.drawable.logo_toksoda
         }
+        "톡소다 자유연재" -> {
+            R.drawable.logo_toksoda
+        }
         else -> {
             R.drawable.icon_best_wht
+        }
+    }
+}
+
+fun getPlatformLogoEng(platform: String) : Int {
+    return when (platform) {
+        "JOARA" -> {
+            R.drawable.logo_joara
+        }
+        "JOARA_NOBLESS" -> {
+            R.drawable.logo_joara_nobless
+        }
+        "JOARA_PREMIUM" -> {
+            R.drawable.logo_joara_premium
+        }
+        "NAVER_SERIES" -> {
+            R.drawable.logo_naver
+        }
+        "NAVER_WEBNOVEL_PAY" -> {
+            R.drawable.logo_naver
+        }
+        "NAVER_WEBNOVEL_FREE" -> {
+            R.drawable.logo_naver
+        }
+        "NAVER_CHALLENGE" -> {
+            R.drawable.logo_naver_challenge
+        }
+        "NAVER_BEST" -> {
+            R.drawable.logo_naver_challenge
+        }
+        "RIDI_FANTAGY" -> {
+            R.drawable.logo_ridibooks
+        }
+        "RIDI_ROMANCE" -> {
+            R.drawable.logo_ridibooks
+        }
+        "RIDI_ROFAN" -> {
+            R.drawable.logo_ridibooks
+        }
+        "KAKAO_STAGE" -> {
+            R.drawable.logo_kakaostage
+        }
+        "ONESTORY_FANTAGY" -> {
+            R.drawable.logo_onestore
+        }
+        "ONESTORY_ROMANCE" -> {
+            R.drawable.logo_onestore
+        }
+        "ONESTORY_PASS_FANTAGY" -> {
+            R.drawable.logo_onestore
+        }
+        "ONESTORY_PASS_ROMANCE" -> {
+            R.drawable.logo_onestore
+        }
+        "MUNPIA_PAY" -> {
+            R.drawable.logo_munpia
+        }
+        "MUNPIA_FREE" -> {
+            R.drawable.logo_munpia
+        }
+        "TOKSODA" -> {
+            R.drawable.logo_toksoda
+        }
+        "TOKSODA_FREE" -> {
+            R.drawable.logo_toksoda
+        }
+        else -> {
+            R.drawable.ic_launcher
         }
     }
 }
@@ -219,6 +396,12 @@ fun getPlatformColor(platform: String): Color {
         "시리즈" -> {
             colorNAVER
         }
+        "네이버 웹소설 유료" -> {
+            colorNAVER
+        }
+        "네이버 웹소설 무료" -> {
+            colorNAVER
+        }
         "챌린지리그" -> {
             colorCHALLENGE
         }
@@ -231,20 +414,174 @@ fun getPlatformColor(platform: String): Color {
         "리디 로맨스" -> {
             colorRIDI
         }
+        "리디 로맨스 판타지" -> {
+            colorRIDI
+        }
         "스테이지" -> {
             colorKAKAO
         }
-        "원스토리" -> {
+        "원스토리 판타지" -> {
             colorONESTORY
         }
-        "문피아" -> {
+        "원스토리 로맨스" -> {
+            colorONESTORY
+        }
+        "원스토리 PASS 판타지" -> {
+            colorONESTORY
+        }
+        "원스토리 PASS 로맨스" -> {
+            colorONESTORY
+        }
+        "문피아 유료" -> {
+            colorMUNPIA
+        }
+        "문피아 무료" -> {
             colorMUNPIA
         }
         "톡소다" -> {
             colorTOKSODA
         }
+        "톡소다 자유연재" -> {
+            colorTOKSODA
+        }
         else -> {
             Color.Black
+        }
+    }
+}
+
+fun getPlatformColorEng(platform: String): Color {
+    return when (platform) {
+        "JOARA" -> {
+            colorJOARA
+        }
+        "JOARA_NOBLESS" -> {
+            colorNOBLESS
+        }
+        "JOARA_PREMIUM" -> {
+            colorPREMIUM
+        }
+        "NAVER_SERIES" -> {
+            colorNAVER
+        }
+        "NAVER_WEBNOVEL_PAY" -> {
+            colorNAVER
+        }
+        "NAVER_WEBNOVEL_FREE" -> {
+            colorNAVER
+        }
+        "NAVER_CHALLENGE" -> {
+            colorCHALLENGE
+        }
+        "NAVER_BEST" -> {
+            colorCHALLENGE
+        }
+        "RIDI_FANTAGY" -> {
+            colorRIDI
+        }
+        "RIDI_ROMANCE" -> {
+            colorRIDI
+        }
+        "RIDI_ROFAN" -> {
+            colorRIDI
+        }
+        "KAKAO_STAGE" -> {
+            colorKAKAO
+        }
+        "ONESTORY_FANTAGY" -> {
+            colorONESTORY
+        }
+        "ONESTORY_ROMANCE" -> {
+            colorONESTORY
+        }
+        "ONESTORY_PASS_FANTAGY" -> {
+            colorONESTORY
+        }
+        "ONESTORY_PASS_ROMANCE" -> {
+            colorONESTORY
+        }
+        "MUNPIA_PAY" -> {
+            colorMUNPIA
+        }
+        "MUNPIA_FREE" -> {
+            colorMUNPIA
+        }
+        "TOKSODA" -> {
+            colorTOKSODA
+        }
+        "TOKSODA_FREE" -> {
+            colorTOKSODA
+        }
+        else -> {
+            Color.Black
+        }
+    }
+}
+
+fun getPlatformDescriptionEng(platform: String) : String {
+    return when (platform) {
+        "JOARA" -> {
+            "조아라"
+        }
+        "JOARA_NOBLESS" -> {
+            "조아라 노블레스"
+        }
+        "JOARA_PREMIUM" -> {
+            "조아라 프리미엄"
+        }
+        "NAVER_SERIES" -> {
+            "네이버 시리즈"
+        }
+        "NAVER_WEBNOVEL_PAY" -> {
+            "네이버 웹소설 유료"
+        }
+        "NAVER_WEBNOVEL_FREE" -> {
+            "네이버 웹소설 무료"
+        }
+        "NAVER_CHALLENGE" -> {
+            "네이버 챌린지 리그"
+        }
+        "NAVER_BEST" -> {
+            "네이버 베스트 리그"
+        }
+        "RIDI_FANTAGY" -> {
+            "리디북스 판타지"
+        }
+        "RIDI_ROMANCE" -> {
+            "리디북스 로맨스"
+        }
+        "RIDI_ROFAN" -> {
+            "리디 로맨스 판타지"
+        }
+        "KAKAO_STAGE" -> {
+            "카카오 스테이지"
+        }
+        "ONESTORY_FANTAGY" -> {
+            "원스토리 판타지"
+        }
+        "ONESTORY_ROMANCE" -> {
+            "원스토리 로맨스"
+        }
+        "ONESTORY_PASS_FANTAGY" -> {
+            "원스토리 PASS 판타지"
+        }
+        "ONESTORY_PASS_ROMANCE" -> {
+            "원스토리 PASS 로맨스"
+        }
+        "MUNPIA_PAY" -> {
+            "문피아 유료"
+        }
+        "MUNPIA_FREE" -> {
+            "문피아 무료"
+        }
+        "TOKSODA" -> {
+            "톡소다"
+        }
+        "TOKSODA_FREE" -> {
+            "톡소다 자유연재"
+        }
+        else -> {
+            "하하"
         }
     }
 }
@@ -263,6 +600,12 @@ fun getPlatformDescription(platform: String) : String {
         "조아라" -> {
             "조아라"
         }
+        "네이버 웹소설 유료" -> {
+            "네이버 웹소설 유료"
+        }
+        "네이버 웹소설 무료" -> {
+            "네이버 웹소설 무료"
+        }
         "챌린지리그" -> {
             "네이버 챌린지 리그"
         }
@@ -275,17 +618,35 @@ fun getPlatformDescription(platform: String) : String {
         "리디 로맨스" -> {
             "리디북스 로맨스"
         }
+        "리디 로맨스 판타지" -> {
+            "리디 로맨스 판타지"
+        }
         "스테이지" -> {
             "카카오 스테이지"
         }
-        "원스토리" -> {
-            "원스토리"
+        "원스토리 판타지" -> {
+            "원스토리 판타지"
         }
-        "문피아" -> {
-            "문피아"
+        "원스토리 로맨스" -> {
+            "원스토리 로맨스"
+        }
+        "원스토리 PASS 판타지" -> {
+            "원스토리 PASS 판타지"
+        }
+        "원스토리 PASS 로맨스" -> {
+            "원스토리 PASS 로맨스"
+        }
+        "문피아 유료" -> {
+            "문피아 유료"
+        }
+        "문피아 무료" -> {
+            "문피아 무료"
         }
         "톡소다" -> {
             "톡소다"
+        }
+        "톡소다 자유연재" -> {
+            "톡소다 자유연재"
         }
         else -> {
             "하하"

@@ -69,3 +69,11 @@ data class ItemBestInfo (
     @SerialName("currentDiff")
     var currentDiff:  Int = 1,
 )
+
+@Serializable
+class ItemKeyword(
+    @SerialName("title")
+    var title: String = "",
+    @SerialName("value")
+    var value: String = ""
+)
