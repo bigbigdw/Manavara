@@ -179,6 +179,8 @@ fun ScreenBest(
 
             } else {
 
+//                Box(modifier = Modifier.fillMaxWidth().height(300.dp).background(color = Color.Red))
+
                 if(getBestType.isEmpty()){
                     ScreenBestDBListNovel(type = "NOVEL")
                 } else if (getBestType.contains("TODAY_BEST")) {

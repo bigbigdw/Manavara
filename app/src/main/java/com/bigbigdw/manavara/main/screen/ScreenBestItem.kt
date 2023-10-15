@@ -140,7 +140,7 @@ fun ListBestToday(
     Row(
         Modifier
             .fillMaxWidth()
-            .padding(12.dp, 8.dp),
+            .padding(0.dp, 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
 
@@ -283,7 +283,7 @@ fun ScreenTodayWeek(
     Column(modifier = Modifier.background(color = colorF6F6F6)) {
 
         LazyRow(
-            modifier = Modifier.padding(16.dp, 8.dp, 0.dp, 8.dp),
+            modifier = Modifier.padding(0.dp, 8.dp, 0.dp, 8.dp),
         ) {
             itemsIndexed(weekListAll()) { index, item ->
                 Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
@@ -303,7 +303,7 @@ fun ScreenTodayWeek(
             LazyColumn(
                 modifier = Modifier
                     .background(colorF6F6F6)
-                    .padding(16.dp, 0.dp, 16.dp, 0.dp)
+                    .padding(0.dp, 0.dp, 16.dp, 0.dp)
             ) {
 
                 itemsIndexed(bestState.weekTrophyList) { index, item ->
@@ -415,7 +415,7 @@ fun ScreenTodayMonth(
     Column(modifier = Modifier.background(color = colorF6F6F6)) {
 
         LazyRow(
-            modifier = Modifier.padding(16.dp, 8.dp, 0.dp, 8.dp),
+            modifier = Modifier.padding(0.dp, 8.dp, 0.dp, 8.dp),
         ) {
             itemsIndexed(arrayList) { index, item ->
 
@@ -436,7 +436,7 @@ fun ScreenTodayMonth(
             LazyColumn(
                 modifier = Modifier
                     .background(colorF6F6F6)
-                    .padding(16.dp, 0.dp, 16.dp, 0.dp)
+                    .padding(0.dp, 0.dp, 16.dp, 0.dp)
             ) {
 
                 itemsIndexed(bestState.monthTrophyList) { index, item ->
