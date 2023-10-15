@@ -320,7 +320,7 @@ fun MainTopBar(setDrawer: (Boolean) -> Unit, setMenu: (String) -> Unit, getMenu:
         Text(
             modifier = Modifier.clickable { setMenu("TODAY") },
             text = "투데이",
-            fontSize = 16.sp,
+            fontSize = 18.sp,
             textAlign = TextAlign.Left,
             color = if (getMenu.contains("TODAY")) {
                 color1E4394
@@ -339,7 +339,7 @@ fun MainTopBar(setDrawer: (Boolean) -> Unit, setMenu: (String) -> Unit, getMenu:
         Text(
             modifier = Modifier.clickable { setMenu("WEEK") },
             text = "주간",
-            fontSize = 16.sp,
+            fontSize = 18.sp,
             textAlign = TextAlign.Left,
             color = if (getMenu.contains("WEEK")) {
                 color1E4394
@@ -358,7 +358,7 @@ fun MainTopBar(setDrawer: (Boolean) -> Unit, setMenu: (String) -> Unit, getMenu:
         Text(
             modifier = Modifier.clickable { setMenu("MONTH") },
             text = "월간",
-            fontSize = 16.sp,
+            fontSize = 18.sp,
             textAlign = TextAlign.Left,
             color = if (getMenu.contains("MONTH")) {
                 color1E4394

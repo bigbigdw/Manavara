@@ -222,7 +222,12 @@ fun ScreenBest(
                         getDetailType = getDetailType,
                         menuType = "월간"
                     )
-
+                } else if (getMenu.contains("베스트 웹소설 DB")) {
+                    ScreenBestDBListNovel(isInit = false, type = "NOVEL")
+                }  else if (getMenu.contains("베스트 웹툰 DB")) {
+                    ScreenBestDBListNovel(isInit = false, type = "COMIC")
+                } else {
+                    ScreenBestDBListNovel(type = "NOVEL")
                 }
             }
         }
@@ -309,9 +314,19 @@ fun ScreenBestTabletList(
 
             ItemMainSettingSingleTablet(
                 containerColor = color5372DE,
-                image = R.drawable.icon_setting_wht,
-                title = "마나바라 베스트 DB",
-                body = "마나바라에 기록된 베스트 작품 리스트",
+                image = R.drawable.icon_novel_wht,
+                title = "마나바라 베스트 웹소설 DB",
+                body = "마나바라에 기록된 베스트 웹소설 리스트",
+                setMenu = setMenu,
+                getMenu = getMenu,
+                onClick = { onClick() },
+            )
+
+            ItemMainSettingSingleTablet(
+                containerColor = color998DF9,
+                image = R.drawable.icon_webtoon_wht,
+                title = "마나바라 베스트 웹툰 DB",
+                body = "마나바라에 기록된 웹툰 웹툰 리스트",
                 setMenu = setMenu,
                 getMenu = getMenu,
                 onClick = { onClick() },
