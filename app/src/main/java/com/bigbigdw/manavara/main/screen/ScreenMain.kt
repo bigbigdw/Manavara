@@ -90,19 +90,17 @@ fun ScreenMain(
     val mainState = viewModelMain.state.collectAsState().value
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
-    val (getMenu, setMenu) = remember { mutableStateOf("TODAY") }
-    val (getDetailPlatform, setDetailPlatform) = remember { mutableStateOf(novelListEng()[0]) }
-    val (getDetailType, setDetailType) = remember { mutableStateOf("NOVEL") }
-
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
     if (mainState.userInfo.userEmail.isNotEmpty()) {
         if (!isExpandedScreen) {
 
-            ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
+            val (getMenu, setMenu) = remember { mutableStateOf("TODAY") }
+            val (getDetailPlatform, setDetailPlatform) = remember { mutableStateOf(novelListEng()[0]) }
+            val (getDetailType, setDetailType) = remember { mutableStateOf("NOVEL") }
 
-//                ModalDrawerSheet{}
+            ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
 
                 ScreenBestTabletList(
                     viewModelMain = viewModelMain,
@@ -143,12 +141,6 @@ fun ScreenMain(
                 viewModelMain = viewModelMain,
                 viewModelBest = viewModelBest,
                 isExpandedScreen = isExpandedScreen,
-                setMenu = setMenu,
-                getMenu = getMenu,
-                setDetailPlatform = setDetailPlatform,
-                getDetailPlatform = getDetailPlatform,
-                setDetailType = setDetailType,
-                getDetailType = getDetailType,
                 listState = listState
             )
         }
@@ -163,14 +155,13 @@ fun ScreenMainTablet(
     viewModelMain: ViewModelMain,
     isExpandedScreen: Boolean,
     viewModelBest: ViewModelBest,
-    setMenu: (String) -> Unit,
-    getMenu: String,
-    setDetailPlatform: (String) -> Unit,
-    getDetailPlatform: String,
-    setDetailType: (String) -> Unit,
-    getDetailType: String,
     listState: LazyListState,
 ) {
+
+    val (getMenu, setMenu) = remember { mutableStateOf("TODAY") }
+    val (getDetailPlatform, setDetailPlatform) = remember { mutableStateOf(novelListEng()[0]) }
+    val (getDetailType, setDetailType) = remember { mutableStateOf("NOVEL") }
+
     Row {
         TableAppNavRail(currentRoute = currentRoute ?: "", navController = navController)
         NavigationGraph(

@@ -300,6 +300,36 @@ fun ScreenBestTabletList(
                 onClick = { onClick() },
             )
 
+            ItemMainSettingSingleTablet(
+                containerColor = color31C3AE,
+                image = R.drawable.ic_launcher,
+                title = "투데이 베스트",
+                body = "베스트 모드를 투데이로 전환",
+                setMenu = setMenu,
+                getMenu = getMenu,
+                onClick = { onClick() },
+            )
+
+            ItemMainSettingSingleTablet(
+                containerColor = color31C3AE,
+                image = R.drawable.ic_launcher,
+                title = "주간 베스트",
+                body = "베스트 모드를 주간으로 전환",
+                setMenu = setMenu,
+                getMenu = getMenu,
+                onClick = { onClick() },
+            )
+
+            ItemMainSettingSingleTablet(
+                containerColor = color31C3AE,
+                image = R.drawable.ic_launcher,
+                title = "월간 베스트",
+                body = "베스트 모드를 월간으로 전환",
+                setMenu = setMenu,
+                getMenu = getMenu,
+                onClick = { onClick() },
+            )
+
         } else {
 
             ItemMainSettingSingleTablet(
