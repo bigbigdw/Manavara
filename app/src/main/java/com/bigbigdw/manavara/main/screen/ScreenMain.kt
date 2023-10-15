@@ -99,7 +99,7 @@ fun ScreenMain(
             val (getMenu, setMenu) = remember { mutableStateOf("TODAY") }
             val (getDetailPlatform, setDetailPlatform) = remember { mutableStateOf(novelListEng()[0]) }
             val (getDetailType, setDetailType) = remember { mutableStateOf("NOVEL") }
-            val (getBestType, setBestType) = remember { mutableStateOf("TODAY_BEST") }
+            val (getBestType, setBestType) = remember { mutableStateOf("") }
 
             ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
 
@@ -165,7 +165,13 @@ fun ScreenMainTablet(
     val (getMenu, setMenu) = remember { mutableStateOf("TODAY") }
     val (getDetailPlatform, setDetailPlatform) = remember { mutableStateOf(novelListEng()[0]) }
     val (getDetailType, setDetailType) = remember { mutableStateOf("NOVEL") }
-    val (getBestType, setBestType) = remember { mutableStateOf("TODAY_BEST") }
+    val (getBestType, setBestType) = remember { mutableStateOf("") }
+
+    if(getBestType.isEmpty()){
+        setBestType("TODAY_BEST")
+        setDetailPlatform("JOARA")
+        setMenu("조아라")
+    }
 
     Row {
         TableAppNavRail(currentRoute = currentRoute ?: "", navController = navController)
@@ -208,6 +214,12 @@ fun ScreenMainMobile(
     getBestType: String,
 ) {
 
+    if(getBestType.isEmpty()){
+        setBestType("TODAY_BEST")
+        setDetailPlatform("JOARA")
+        setMenu("조아라")
+    }
+
     val modalSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
         confirmValueChange = { it != ModalBottomSheetValue.HalfExpanded },
@@ -219,8 +231,8 @@ fun ScreenMainMobile(
     Scaffold(
         topBar = {
             MainTopBar(
-                setMenu = setBestType,
-                getMenu = getBestType,
+                setter = setBestType,
+                getter = getBestType,
                 setDrawer = {
                     coroutineScope.launch {
                         drawerState.open()
@@ -278,7 +290,7 @@ fun ScreenMainMobile(
 }
 
 @Composable
-fun MainTopBar(setDrawer: (Boolean) -> Unit, setMenu: (String) -> Unit, getMenu: String) {
+fun MainTopBar(setDrawer: (Boolean) -> Unit, setter: (String) -> Unit, getter: String) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -320,11 +332,11 @@ fun MainTopBar(setDrawer: (Boolean) -> Unit, setMenu: (String) -> Unit, getMenu:
         }
 
         Text(
-            modifier = Modifier.clickable { setMenu("TODAY") },
+            modifier = Modifier.clickable { setter("TODAY_BEST") },
             text = "투데이",
             fontSize = 18.sp,
             textAlign = TextAlign.Left,
-            color = if (getMenu.contains("TODAY")) {
+            color = if (getter.contains("TODAY_BEST")) {
                 color1E4394
             } else {
                 color555b68
@@ -339,11 +351,11 @@ fun MainTopBar(setDrawer: (Boolean) -> Unit, setMenu: (String) -> Unit, getMenu:
         )
 
         Text(
-            modifier = Modifier.clickable { setMenu("WEEK") },
+            modifier = Modifier.clickable { setter("WEEK_BEST") },
             text = "주간",
             fontSize = 18.sp,
             textAlign = TextAlign.Left,
-            color = if (getMenu.contains("WEEK")) {
+            color = if (getter.contains("WEEK_BEST")) {
                 color1E4394
             } else {
                 color555b68
@@ -358,11 +370,11 @@ fun MainTopBar(setDrawer: (Boolean) -> Unit, setMenu: (String) -> Unit, getMenu:
         )
 
         Text(
-            modifier = Modifier.clickable { setMenu("MONTH") },
+            modifier = Modifier.clickable { setter("MONTH_BEST") },
             text = "월간",
             fontSize = 18.sp,
             textAlign = TextAlign.Left,
-            color = if (getMenu.contains("MONTH")) {
+            color = if (getter.contains("MONTH_BEST")) {
                 color1E4394
             } else {
                 color555b68

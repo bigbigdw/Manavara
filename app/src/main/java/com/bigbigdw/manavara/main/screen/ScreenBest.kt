@@ -18,7 +18,9 @@ import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -49,8 +51,10 @@ import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.main.viewModels.ViewModelBest
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.ui.theme.color000000
-import com.bigbigdw.manavara.ui.theme.color31C3AE
+import com.bigbigdw.manavara.ui.theme.color4AD7CF
+import com.bigbigdw.manavara.ui.theme.color5372DE
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
+import com.bigbigdw.manavara.ui.theme.color998DF9
 import com.bigbigdw.manavara.ui.theme.colorE9E9E9
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorF7F7F7
@@ -126,7 +130,6 @@ fun ScreenBest(
 
                 val (getDialogOpen, setDialogOpen) = remember { mutableStateOf(false) }
 
-
                 if(getDialogOpen){
                     Dialog(
                         onDismissRequest = { setDialogOpen(false) },
@@ -166,7 +169,6 @@ fun ScreenBest(
                 ScreenBestDetail(
                     getMenu = getMenu,
                     viewModelMain = viewModelMain,
-                    getDetailPlatform = getDetailPlatform,
                     getDetailType = getDetailType,
                     viewModelBest = viewModelBest,
                     isExpandedScreen = isExpandedScreen,
@@ -177,7 +179,12 @@ fun ScreenBest(
 
             } else {
 
-                if (getMenu.contains("TODAY")) {
+                if(getBestType.isEmpty()){
+                    ScreenBestDBListNovel(type = "NOVEL")
+                } else if (getBestType.contains("TODAY_BEST")) {
+
+                    Spacer(modifier = Modifier.size(16.dp))
+
                     ScreenTodayBest(
                         viewModelMain = viewModelMain,
                         viewModelBest = viewModelBest,
@@ -188,47 +195,53 @@ fun ScreenBest(
                         setDialogOpen = null
                     )
 
-                } else if (getMenu.contains("WEEK")) {
+                } else if (getBestType.contains("WEEK_BEST")) {
+
+                    Spacer(modifier = Modifier.size(16.dp))
 
                     ScreenTodayWeek(
                         viewModelMain = viewModelMain,
                         viewModelBest = viewModelBest
                     )
 
-                } else if (getMenu.contains("MONTH")) {
+                } else if (getBestType.contains("MONTH_BEST")) {
+
+                    Spacer(modifier = Modifier.size(16.dp))
 
                     ScreenTodayMonth(
                         viewModelMain = viewModelMain,
                         viewModelBest = viewModelBest
                     )
 
-                } else if (getMenu.contains("투데이 장르")) {
-                    GenreDetailJson(
-                        viewModelBest = viewModelBest,
-                        getDetailType = getDetailType,
-                        menuType = "투데이"
-                    )
-
-                } else if (getMenu.contains("주간 장르")) {
-                    GenreDetailJson(
-                        viewModelBest = viewModelBest,
-                        getDetailType = getDetailType,
-                        menuType = "주간"
-                    )
-
-                } else if (getMenu.contains("월간 장르")) {
-                    GenreDetailJson(
-                        viewModelBest = viewModelBest,
-                        getDetailType = getDetailType,
-                        menuType = "월간"
-                    )
-                } else if (getMenu.contains("베스트 웹소설 DB")) {
-                    ScreenBestDBListNovel(isInit = false, type = "NOVEL")
-                }  else if (getMenu.contains("베스트 웹툰 DB")) {
-                    ScreenBestDBListNovel(isInit = false, type = "COMIC")
-                } else {
-                    ScreenBestDBListNovel(type = "NOVEL")
                 }
+
+//                else if (getMenu.contains("투데이 장르")) {
+//                    GenreDetailJson(
+//                        viewModelBest = viewModelBest,
+//                        getDetailType = getDetailType,
+//                        menuType = "투데이"
+//                    )
+//
+//                } else if (getMenu.contains("주간 장르")) {
+//                    GenreDetailJson(
+//                        viewModelBest = viewModelBest,
+//                        getDetailType = getDetailType,
+//                        menuType = "주간"
+//                    )
+//
+//                } else if (getMenu.contains("월간 장르")) {
+//                    GenreDetailJson(
+//                        viewModelBest = viewModelBest,
+//                        getDetailType = getDetailType,
+//                        menuType = "월간"
+//                    )
+//                } else if (getMenu.contains("베스트 웹소설 DB")) {
+//                    ScreenBestDBListNovel(isInit = false, type = "NOVEL")
+//                }  else if (getMenu.contains("베스트 웹툰 DB")) {
+//                    ScreenBestDBListNovel(isInit = false, type = "COMIC")
+//                } else {
+//                    ScreenBestDBListNovel(type = "NOVEL")
+//                }
             }
         }
     }
@@ -249,85 +262,118 @@ fun ScreenBestPropertyList(
 
     val coroutineScope = rememberCoroutineScope()
 
-    Column(
-        modifier = Modifier
-            .width(330.dp)
-            .fillMaxHeight()
-            .background(color = colorF6F6F6)
-            .padding(8.dp, 0.dp)
-            .verticalScroll(rememberScrollState())
-            .semantics { contentDescription = "Overview Screen" },
-    ) {
+    if (isExpandedScreen) {
+        Column(
+            modifier = Modifier
+                .width(330.dp)
+                .fillMaxHeight()
+                .background(color = colorF6F6F6)
+                .padding(8.dp, 0.dp)
+                .semantics { contentDescription = "Overview Screen" },
+        ) {
 
-        Spacer(modifier = Modifier.size(16.dp))
+            Column {
+                Spacer(modifier = Modifier.size(16.dp))
 
-        if (isExpandedScreen) {
+                LaunchedEffect(getBestType){
+                    setDetailPlatform("JOARA")
+                }
 
-            LaunchedEffect(getBestType){
-                setDetailPlatform("JOARA")
+                Text(
+                    modifier = Modifier.padding(16.dp, 0.dp, 0.dp, 0.dp),
+                    text = "웹소설 베스트",
+                    fontSize = 24.sp,
+                    color = Color.Black,
+                    fontWeight = FontWeight(weight = 700)
+                )
+
+                ItemMainSettingSingleTablet(
+                    containerColor = color4AD7CF,
+                    image = R.drawable.ic_launcher,
+                    title = "투데이 베스트",
+                    body = "베스트 모드를 투데이로 전환",
+                    settter = setBestType,
+                    getter = getBestType,
+                    value = "TODAY_BEST",
+                    onClick = {  },
+                )
+
+                ItemMainSettingSingleTablet(
+                    containerColor = color5372DE,
+                    image = R.drawable.ic_launcher,
+                    title = "주간 베스트",
+                    body = "베스트 모드를 주간으로 전환",
+                    settter = setBestType,
+                    getter = getBestType,
+                    onClick = { onClick() },
+                    value = "WEEK_BEST",
+                )
+
+                ItemMainSettingSingleTablet(
+                    containerColor = color998DF9,
+                    image = R.drawable.ic_launcher,
+                    title = "월간 베스트",
+                    body = "베스트 모드를 월간으로 전환",
+                    settter = setBestType,
+                    getter = getBestType,
+                    onClick = { onClick() },
+                    value = "MONTH_BEST",
+                )
+
+                TabletBorderLine()
             }
 
-            Text(
-                modifier = Modifier.padding(16.dp, 0.dp, 0.dp, 0.dp),
-                text = "웹소설 베스트",
-                fontSize = 24.sp,
-                color = Color.Black,
-                fontWeight = FontWeight(weight = 700)
-            )
-
-            ItemMainSettingSingleTablet(
-                containerColor = color31C3AE,
-                image = R.drawable.ic_launcher,
-                title = "투데이 베스트",
-                body = "베스트 모드를 투데이로 전환",
-                settter = setBestType,
-                getter = getBestType,
-                value = "TODAY_BEST",
-                onClick = {  },
-            )
-
-            ItemMainSettingSingleTablet(
-                containerColor = color31C3AE,
-                image = R.drawable.ic_launcher,
-                title = "주간 베스트",
-                body = "베스트 모드를 주간으로 전환",
-                settter = setBestType,
-                getter = getBestType,
-                onClick = { onClick() },
-                value = "WEEK_BEST",
-            )
-
-            ItemMainSettingSingleTablet(
-                containerColor = color31C3AE,
-                image = R.drawable.ic_launcher,
-                title = "월간 베스트",
-                body = "베스트 모드를 월간으로 전환",
-                settter = setBestType,
-                getter = getBestType,
-                onClick = { onClick() },
-                value = "MONTH_BEST",
-            )
-
-            TabletBorderLine()
+            LazyColumn {
+                itemsIndexed(novelListKor()) { index, item ->
+                    ItemBestListSingle(
+                        containerColor = getPlatformColor(item),
+                        image = getPlatformLogo(item),
+                        title = item,
+                        body = getPlatformDescription(item),
+                        setMenu = setMenu,
+                        getMenu = getMenu,
+                        setDetailPlatform = { setDetailPlatform(changePlatformNameEng(item)) }
+                    ) {
+                        setDetailType("NOVEL")
+                        coroutineScope.launch {
+                            listState.scrollToItem(index = 0)
+                        }
+                        onClick()
+                    }
+                }
+            }
         }
+    } else {
+        Column(
+            modifier = Modifier
+                .width(330.dp)
+                .fillMaxHeight()
+                .background(color = colorF6F6F6)
+                .padding(8.dp, 0.dp)
+                .verticalScroll(rememberScrollState())
+                .semantics { contentDescription = "Overview Screen" },
+        ) {
 
-        novelListKor().forEachIndexed { index, item ->
-            ItemBestListSingle(
-                containerColor = getPlatformColor(item),
-                image = getPlatformLogo(item),
-                title = item,
-                body = getPlatformDescription(item),
-                setMenu = setMenu,
-                getMenu = getMenu,
-                bestType = getBestType,
-                setDetailPlatform = { setDetailPlatform(changePlatformNameEng(item)) },
-                setDetailType = {
+            Spacer(modifier = Modifier.size(16.dp))
+
+            novelListKor().forEachIndexed { index, item ->
+                ItemBestListSingle(
+                    containerColor = getPlatformColor(item),
+                    image = getPlatformLogo(item),
+                    title = item,
+                    body = getPlatformDescription(item),
+                    setMenu = setMenu,
+                    getMenu = getMenu,
+                    setDetailPlatform = { setDetailPlatform(changePlatformNameEng(item)) }
+                ) {
                     setDetailType("NOVEL")
                     coroutineScope.launch {
                         listState.scrollToItem(index = 0)
                     }
                     onClick()
-                })
+                }
+            }
+
         }
     }
 }
@@ -340,14 +386,13 @@ fun ItemBestListSingle(
     body: String,
     setMenu: (String) -> Unit,
     getMenu: String,
-    bestType: String,
     setDetailPlatform: () -> Unit,
     setDetailType: () -> Unit
 ) {
 
     Button(
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (getMenu == "$bestType $title") {
+            containerColor = if (getMenu == title) {
                 colorE9E9E9
             } else {
                 colorF7F7F7
@@ -355,7 +400,7 @@ fun ItemBestListSingle(
         ),
         shape = RoundedCornerShape(50.dp),
         onClick = {
-            setMenu("$bestType $title")
+            setMenu(title)
             setDetailPlatform()
             setDetailType()
         },
@@ -428,7 +473,6 @@ fun ItemBestListSingle(
 fun ScreenBestDetail(
     getMenu: String,
     viewModelMain: ViewModelMain,
-    getDetailPlatform: String,
     getDetailType: String,
     viewModelBest: ViewModelBest,
     isExpandedScreen: Boolean,
@@ -443,7 +487,7 @@ fun ScreenBestDetail(
             .background(color = colorF6F6F6)
     ) {
 
-        if(getMenu != "TODAY"){
+        if(getMenu.isNotEmpty()){
             Spacer(modifier = Modifier.size(16.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -466,9 +510,9 @@ fun ScreenBestDetail(
             }
         }
 
-        if (getBestType.contains("TODAY_BEST")) {
-
-            Spacer(modifier = Modifier.size(16.dp))
+        if(getBestType.isEmpty()){
+            ScreenBestDBListNovel(type = "NOVEL")
+        } else if (getBestType.contains("TODAY_BEST")) {
 
             ScreenTodayBest(
                 viewModelMain = viewModelMain,
@@ -482,8 +526,6 @@ fun ScreenBestDetail(
 
         } else if (getBestType.contains("WEEK_BEST")) {
 
-            Spacer(modifier = Modifier.size(16.dp))
-
             ScreenTodayWeek(
                 viewModelMain = viewModelMain,
                 viewModelBest = viewModelBest
@@ -491,40 +533,40 @@ fun ScreenBestDetail(
 
         } else if (getBestType.contains("MONTH_BEST")) {
 
-            Spacer(modifier = Modifier.size(16.dp))
-
             ScreenTodayMonth(
                 viewModelMain = viewModelMain,
                 viewModelBest = viewModelBest
             )
 
-        } else if (getMenu.contains("투데이 장르")) {
-            GenreDetailJson(
-                viewModelBest = viewModelBest,
-                getDetailType = getDetailType,
-                menuType = "투데이"
-            )
-
-        } else if (getMenu.contains("주간 장르")) {
-            GenreDetailJson(
-                viewModelBest = viewModelBest,
-                getDetailType = getDetailType,
-                menuType = "주간"
-            )
-
-        } else if (getMenu.contains("월간 장르")) {
-            GenreDetailJson(
-                viewModelBest = viewModelBest,
-                getDetailType = getDetailType,
-                menuType = "월간"
-            )
-
-        } else if (getMenu.contains("베스트 웹소설 DB")) {
-            ScreenBestDBListNovel(isInit = false, type = "NOVEL")
-        }  else if (getMenu.contains("베스트 웹툰 DB")) {
-            ScreenBestDBListNovel(isInit = false, type = "COMIC")
-        } else {
-            ScreenBestDBListNovel(type = "NOVEL")
         }
+
+//        else if (getMenu.contains("투데이 장르")) {
+//            GenreDetailJson(
+//                viewModelBest = viewModelBest,
+//                getDetailType = getDetailType,
+//                menuType = "투데이"
+//            )
+//
+//        } else if (getMenu.contains("주간 장르")) {
+//            GenreDetailJson(
+//                viewModelBest = viewModelBest,
+//                getDetailType = getDetailType,
+//                menuType = "주간"
+//            )
+//
+//        } else if (getMenu.contains("월간 장르")) {
+//            GenreDetailJson(
+//                viewModelBest = viewModelBest,
+//                getDetailType = getDetailType,
+//                menuType = "월간"
+//            )
+//
+//        } else if (getMenu.contains("베스트 웹소설 DB")) {
+//            ScreenBestDBListNovel(isInit = false, type = "NOVEL")
+//        }  else if (getMenu.contains("베스트 웹툰 DB")) {
+//            ScreenBestDBListNovel(isInit = false, type = "COMIC")
+//        } else {
+//            ScreenBestDBListNovel(type = "NOVEL")
+//        }
     }
 }
