@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
@@ -28,6 +29,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,6 +43,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.main.viewModels.ViewModelBest
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
@@ -51,13 +56,13 @@ import com.bigbigdw.manavara.ui.theme.colorE9E9E9
 import com.bigbigdw.manavara.ui.theme.colorEA927C
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorF7F7F7
-import com.bigbigdw.manavara.ui.theme.colorea927C
 import com.bigbigdw.manavara.util.changeDetailNameKor
 import com.bigbigdw.manavara.util.changePlatformNameEng
 import com.bigbigdw.manavara.util.getPlatformColor
 import com.bigbigdw.manavara.util.getPlatformDescription
 import com.bigbigdw.manavara.util.getPlatformLogo
 import com.bigbigdw.manavara.util.novelListKor
+import com.bigbigdw.manavara.util.screen.AlertTwoBtn
 import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
 import com.bigbigdw.manavara.util.screen.ScreenTest
 import com.bigbigdw.manavara.util.screen.TabletBorderLine
@@ -118,6 +123,27 @@ fun ScreenBest(
 
         Row {
             if (isExpandedScreen) {
+
+                val (getDialogOpen, setDialogOpen) = remember { mutableStateOf(false) }
+
+                if(getDialogOpen){
+                    Dialog(
+                        onDismissRequest = { setDialogOpen(false) },
+                    ) {
+                        AlertTwoBtn(
+                            isShow = {  },
+                            onFetchClick = {},
+                            btnLeft = "뒤로가기",
+                            btnRight = "확인",
+                            modifier = Modifier.requiredWidth(400.dp),
+                            contents = {
+                                ScreenItemWeek(
+                                    item = viewModelBest.state.collectAsState().value.itemBookInfo,
+                                )
+                            })
+                    }
+                }
+
                 ScreenBestTabletList(
                     viewModelMain = viewModelMain,
                     setMenu = setMenu,
@@ -142,7 +168,8 @@ fun ScreenBest(
                     getDetailType = getDetailType,
                     viewModelBest = viewModelBest,
                     isExpandedScreen = isExpandedScreen,
-                    listState = listState
+                    listState = listState,
+                    setDialogOpen = setDialogOpen
                 )
 
             } else {
@@ -154,7 +181,8 @@ fun ScreenBest(
                         getDetailType = getDetailType,
                         isExpandedScreen = isExpandedScreen,
                         listState = listState,
-                        modalSheetState = modalSheetState
+                        modalSheetState = modalSheetState,
+                        setDialogOpen = null
                     )
 
                 } else if (getMenu.contains("WEEK")) {
@@ -169,6 +197,27 @@ fun ScreenBest(
                     ScreenTodayMonth(
                         viewModelMain = viewModelMain,
                         viewModelBest = viewModelBest
+                    )
+
+                } else if (getMenu.contains("투데이 장르")) {
+                    GenreDetailJson(
+                        viewModelBest = viewModelBest,
+                        getDetailType = getDetailType,
+                        menuType = "투데이"
+                    )
+
+                } else if (getMenu.contains("주간 장르")) {
+                    GenreDetailJson(
+                        viewModelBest = viewModelBest,
+                        getDetailType = getDetailType,
+                        menuType = "주간"
+                    )
+
+                } else if (getMenu.contains("월간 장르")) {
+                    GenreDetailJson(
+                        viewModelBest = viewModelBest,
+                        getDetailType = getDetailType,
+                        menuType = "월간"
                     )
 
                 }
@@ -448,7 +497,8 @@ fun ScreenBestDetail(
     getDetailType: String,
     viewModelBest: ViewModelBest,
     isExpandedScreen: Boolean,
-    listState: LazyListState
+    listState: LazyListState,
+    setDialogOpen: (Boolean) -> Unit
 ) {
 
     Column(
@@ -478,25 +528,33 @@ fun ScreenBestDetail(
             )
         }
 
-        Spacer(modifier = Modifier.size(16.dp))
-
         if (getMenu.contains("TODAY_BEST")) {
+
+            Spacer(modifier = Modifier.size(16.dp))
+
             ScreenTodayBest(
                 viewModelMain = viewModelMain,
                 viewModelBest = viewModelBest,
                 getDetailType = getDetailType,
                 isExpandedScreen = isExpandedScreen,
                 listState = listState,
-                modalSheetState = null
+                modalSheetState = null,
+                setDialogOpen = setDialogOpen
             )
 
         } else if (getMenu.contains("WEEK_BEST")) {
+
+            Spacer(modifier = Modifier.size(16.dp))
+
             ScreenTodayWeek(
                 viewModelMain = viewModelMain,
                 viewModelBest = viewModelBest
             )
 
         } else if (getMenu.contains("MONTH_BEST")) {
+
+            Spacer(modifier = Modifier.size(16.dp))
+
             ScreenTodayMonth(
                 viewModelMain = viewModelMain,
                 viewModelBest = viewModelBest

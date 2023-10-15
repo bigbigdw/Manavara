@@ -44,6 +44,10 @@ sealed interface EventBest{
         val genreDay : ArrayList<ItemKeyword> = ArrayList(),
         val genreDayList : ArrayList<ArrayList<ItemKeyword>> = ArrayList()
     ) : EventBest
+
+    class SetItemBookInfo(
+        val itemBookInfo : ItemBookInfo = ItemBookInfo()
+    ) : EventBest
 }
 
 data class StateBest(
@@ -57,5 +61,6 @@ data class StateBest(
     val monthList : ArrayList<ArrayList<ItemBookInfo>> = ArrayList(),
     var monthTrophyList: ArrayList<ItemBestInfo> = ArrayList(),
     val genreDay : ArrayList<ItemKeyword> = ArrayList(),
-    val genreDayList : ArrayList<ArrayList<ItemKeyword>> = ArrayList()
+    val genreDayList : ArrayList<ArrayList<ItemKeyword>> = ArrayList(),
+    val itemBookInfo : ItemBookInfo = ItemBookInfo()
 )

@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
@@ -105,7 +106,9 @@ fun ScreenLogin(
                 },
                 btnLeft = "뒤로가기",
                 btnRight = "확인",
-                contents = { RegisterInfo(state = state) })
+                contents = { RegisterInfo(state = state) },
+                modifier = Modifier.Companion.requiredWidth(220.dp)
+            )
         }
     }
 
@@ -541,7 +544,9 @@ fun ScreenRegisterMobile(
                 },
                 btnLeft = "뒤로가기",
                 btnRight = "확인",
-                contents = { RegisterInfo(state = state) })
+                contents = { RegisterInfo(state = state) },
+                modifier = Modifier.Companion.requiredWidth(400.dp)
+            )
         }
     }
 

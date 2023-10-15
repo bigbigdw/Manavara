@@ -90,6 +90,12 @@ class ViewModelBest @Inject constructor() : ViewModel() {
                 )
             }
 
+            is EventBest.SetItemBookInfo -> {
+                current.copy(
+                    itemBookInfo = event.itemBookInfo
+                )
+            }
+
             else -> {
                 current.copy(Loaded = false)
             }
@@ -647,6 +653,12 @@ class ViewModelBest @Inject constructor() : ViewModel() {
             viewModelScope.launch {
                 events.send(EventBest.SetGenreWeek(genreDayList = weekJsonList, genreDay = arrayList))
             }
+        }
+    }
+
+    fun getBookItemInfo(itemBookInfo: ItemBookInfo){
+        viewModelScope.launch {
+            events.send(EventBest.SetItemBookInfo(itemBookInfo = itemBookInfo))
         }
     }
 

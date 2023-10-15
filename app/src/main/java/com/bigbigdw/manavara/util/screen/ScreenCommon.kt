@@ -255,7 +255,8 @@ fun AlertTwoBtn(
     onFetchClick: () -> Unit,
     btnLeft: String,
     btnRight: String,
-    contents: @Composable () -> Unit
+    contents: @Composable () -> Unit,
+    modifier: Modifier
 ) {
 
     Box(
@@ -264,21 +265,16 @@ fun AlertTwoBtn(
         contentAlignment = Alignment.Center
     ) {
         Box(
-            modifier = Modifier
-                .requiredWidth(260.dp),
+            modifier = modifier,
         ) {
             Column(
-                modifier = Modifier
-                    .requiredWidth(260.dp)
-                    .wrapContentHeight(),
+                modifier = modifier.wrapContentHeight(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
                 Spacer(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(36.dp)
+                    modifier = Modifier.size(36.dp)
                 )
 
                 Card(
@@ -289,9 +285,7 @@ fun AlertTwoBtn(
                 ) {
 
                     Spacer(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(40.dp)
+                        modifier = Modifier.size(40.dp)
                     )
 
                     Column(
@@ -354,7 +348,7 @@ fun AlertTwoBtn(
             }
 
             Column(
-                modifier = Modifier.width(260.dp),
+                modifier = modifier,
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {

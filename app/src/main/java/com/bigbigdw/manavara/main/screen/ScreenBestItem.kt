@@ -77,7 +77,8 @@ fun ScreenTodayBest(
     getDetailType: String,
     isExpandedScreen: Boolean,
     listState: LazyListState,
-    modalSheetState: ModalBottomSheetState?
+    modalSheetState: ModalBottomSheetState?,
+    setDialogOpen: ((Boolean) -> Unit)?
 ) {
 
     val bestState = viewModelBest.state.collectAsState().value
@@ -103,8 +104,9 @@ fun ScreenTodayBest(
                 ListBestToday(
                     itemBookInfo = item,
                     index = index,
-                    listState = listState,
-                    modalSheetState = modalSheetState
+                    modalSheetState = modalSheetState,
+                    viewModelBest = viewModelBest,
+                    setDialogOpen = setDialogOpen
                 )
             }
         }
@@ -116,8 +118,9 @@ fun ScreenTodayBest(
 fun ListBestToday(
     itemBookInfo: ItemBookInfo,
     index: Int,
-    listState: LazyListState,
     modalSheetState: ModalBottomSheetState?,
+    viewModelBest: ViewModelBest,
+    setDialogOpen: ((Boolean) -> Unit)?,
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -149,9 +152,12 @@ fun ListBestToday(
             colors = ButtonDefaults.buttonColors(containerColor = Color.White),
             onClick = {
                 coroutineScope.launch {
-//                        viewModelBestList.getBottomBestData(bestItemData, index)
-//                        viewModelBestList.bottomDialogBestGetRank(userInfo, bestItemData)
-                        modalSheetState?.show()
+                    viewModelBest.getBookItemInfo(itemBookInfo = itemBookInfo)
+                    modalSheetState?.show()
+
+                    if (setDialogOpen != null) {
+                        setDialogOpen(true)
+                    }
                 }
             },
             contentPadding = PaddingValues(
@@ -308,8 +314,9 @@ fun ScreenTodayWeek(
                         ListBestToday(
                             itemBookInfo = item,
                             index = index,
-                            listState = listState,
-                            modalSheetState = null
+                            viewModelBest = viewModelBest,
+                            modalSheetState = null,
+                            setDialogOpen = null
                         )
                     }
                 }
@@ -352,7 +359,7 @@ fun ListBest(
                     Spacer(modifier = Modifier.size(4.dp))
 
                     if(type == "WEEK"){
-                        ItemBestExpandWeek(
+                        ScreenItemWeek(
                             item = itemBookInfo,
                         )
                     } else{
@@ -466,7 +473,7 @@ fun ScreenTodayMonth(
 }
 
 @Composable
-fun ItemBestExpandWeek(item: ItemBookInfo) {
+fun ScreenItemWeek(item: ItemBookInfo) {
     Spacer(modifier = Modifier.size(4.dp))
 
     Column(modifier = Modifier.fillMaxWidth()) {

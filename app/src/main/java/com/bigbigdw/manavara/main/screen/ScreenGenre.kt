@@ -83,25 +83,27 @@ fun GenreDetailJson(
 
     val state = viewModelBest.state.collectAsState().value
 
-    LazyRow {
-        itemsIndexed(genreListEng()) { index, item ->
-            Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 16.dp)) {
-                ScreenItemKeyword(
-                    getter = getPlatform,
-                    setter = setPlatform,
-                    title =  changePlatformNameKor(item),
-                    getValue = item
-                )
+    Column(modifier = Modifier.padding(16.dp)) {
+        LazyRow {
+            itemsIndexed(genreListEng()) { index, item ->
+                Box {
+                    ScreenItemKeyword(
+                        getter = getPlatform,
+                        setter = setPlatform,
+                        title =  changePlatformNameKor(item),
+                        getValue = item
+                    )
+                }
             }
         }
-    }
 
-    LazyColumn(modifier = Modifier.padding(0.dp, 0.dp, 16.dp, 0.dp)) {
-        itemsIndexed(state.genreDay) { index, item ->
-            ListGenreToday(
-                itemBestKeyword = item,
-                index = index
-            )
+        LazyColumn(modifier = Modifier.padding(0.dp, 16.dp)) {
+            itemsIndexed(state.genreDay) { index, item ->
+                ListGenreToday(
+                    itemBestKeyword = item,
+                    index = index
+                )
+            }
         }
     }
 
