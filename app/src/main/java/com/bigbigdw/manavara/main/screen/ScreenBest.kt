@@ -77,45 +77,45 @@ fun ScreenBest(
     viewModelMain: ViewModelMain,
     setMenu: (String) -> Unit,
     getMenu: String,
-    setDetailPlatform: (String) -> Unit,
-    getDetailPlatform: String,
-    setDetailType: (String) -> Unit,
-    getDetailType: String,
+    setPlatform: (String) -> Unit,
+    getPlatform: String,
+    setType: (String) -> Unit,
+    getType: String,
     listState: LazyListState,
     setBestType: (String) -> Unit,
     getBestType: String,
     modalSheetState: ModalBottomSheetState? = null,
 ) {
 
-    LaunchedEffect(getDetailPlatform,getDetailType){
+    LaunchedEffect(getPlatform,getType){
         viewModelBest.getBestListToday(
-            platform = getDetailPlatform,
-            type = getDetailType,
+            platform = getPlatform,
+            type = getType,
         )
 
         viewModelBest.getBestWeekTrophy(
-            platform = getDetailPlatform,
-            type = getDetailType,
+            platform = getPlatform,
+            type = getType,
         )
 
         viewModelBest.getBestMapToday(
-            platform = getDetailPlatform,
-            type = getDetailType,
+            platform = getPlatform,
+            type = getType,
         )
 
         viewModelBest.getBestWeekList(
-            platform = getDetailPlatform,
-            type = getDetailType,
+            platform = getPlatform,
+            type = getType,
         )
 
         viewModelBest.getBestMonthTrophy(
-            platform = getDetailPlatform,
-            type = getDetailType,
+            platform = getPlatform,
+            type = getType,
         )
 
         viewModelBest.getBestMonthList(
-            platform = getDetailPlatform,
-            type = getDetailType,
+            platform = getPlatform,
+            type = getType,
         )
     }
 
@@ -143,6 +143,8 @@ fun ScreenBest(
                             contents = {
                                 ScreenDialogBest(
                                     item = viewModelBest.state.collectAsState().value.itemBookInfo,
+                                    trophy = viewModelBest.state.collectAsState().value.itemBestInfoTrophyList,
+                                    isExpandedScreen = isExpandedScreen
                                 )
                             })
                     }
@@ -151,8 +153,8 @@ fun ScreenBest(
                 ScreenBestPropertyList(
                     setMenu = setMenu,
                     getMenu = getMenu,
-                    setDetailPlatform = setDetailPlatform,
-                    setDetailType = setDetailType,
+                    setDetailPlatform = setPlatform,
+                    setDetailType = setType,
                     listState = listState,
                     isExpandedScreen = isExpandedScreen,
                     setBestType = setBestType,
@@ -169,17 +171,16 @@ fun ScreenBest(
                 ScreenBestDetail(
                     getMenu = getMenu,
                     viewModelMain = viewModelMain,
-                    getDetailType = getDetailType,
+                    getDetailType = getType,
                     viewModelBest = viewModelBest,
                     isExpandedScreen = isExpandedScreen,
                     listState = listState,
                     setDialogOpen = setDialogOpen,
-                    getBestType = getBestType
+                    getBestType = getBestType,
+                    getPlatform = getPlatform
                 )
 
             } else {
-
-//                Box(modifier = Modifier.fillMaxWidth().height(300.dp).background(color = Color.Red))
 
                 if(getBestType.isEmpty()){
                     ScreenBestDBListNovel(type = "NOVEL")
@@ -190,7 +191,8 @@ fun ScreenBest(
                     ScreenTodayBest(
                         viewModelMain = viewModelMain,
                         viewModelBest = viewModelBest,
-                        getDetailType = getDetailType,
+                        getType = getType,
+                        getPlatform = getPlatform,
                         isExpandedScreen = isExpandedScreen,
                         listState = listState,
                         modalSheetState = modalSheetState,
@@ -203,7 +205,9 @@ fun ScreenBest(
 
                     ScreenTodayWeek(
                         viewModelMain = viewModelMain,
-                        viewModelBest = viewModelBest
+                        viewModelBest = viewModelBest,
+                        getDetailType = getType,
+                        getDetailPlatform = getPlatform,
                     )
 
                 } else if (getBestType.contains("MONTH_BEST")) {
@@ -480,7 +484,8 @@ fun ScreenBestDetail(
     isExpandedScreen: Boolean,
     listState: LazyListState,
     setDialogOpen: (Boolean) -> Unit,
-    getBestType: String
+    getBestType: String,
+    getPlatform: String
 ) {
 
     Column(
@@ -519,18 +524,21 @@ fun ScreenBestDetail(
             ScreenTodayBest(
                 viewModelMain = viewModelMain,
                 viewModelBest = viewModelBest,
-                getDetailType = getDetailType,
+                getType = getDetailType,
                 isExpandedScreen = isExpandedScreen,
                 listState = listState,
                 modalSheetState = null,
-                setDialogOpen = setDialogOpen
+                setDialogOpen = setDialogOpen,
+                getPlatform = getPlatform
             )
 
         } else if (getBestType.contains("WEEK_BEST")) {
 
             ScreenTodayWeek(
                 viewModelMain = viewModelMain,
-                viewModelBest = viewModelBest
+                viewModelBest = viewModelBest,
+                getDetailType = getDetailType,
+                getDetailPlatform = getPlatform,
             )
 
         } else if (getBestType.contains("MONTH_BEST")) {

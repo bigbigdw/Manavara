@@ -96,6 +96,12 @@ class ViewModelBest @Inject constructor() : ViewModel() {
                 )
             }
 
+            is EventBest.SetItemBestInfoTrophyList ->{
+                current.copy(
+                    itemBestInfoTrophyList = event.itemBestInfoTrophyList
+                )
+            }
+
             else -> {
                 current.copy(Loaded = false)
             }
@@ -660,6 +666,47 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         viewModelScope.launch {
             events.send(EventBest.SetItemBookInfo(itemBookInfo = itemBookInfo))
         }
+    }
+
+    fun getBookItemWeekTrophy(itemBookInfo: ItemBookInfo, type : String, platform: String){
+
+        val weekArray = ArrayList<ItemBestInfo>()
+
+        val mRootRef =
+            FirebaseDatabase.getInstance().reference.child("BEST").child(type).child(platform)
+                .child("TROPHY_WEEK").child(itemBookInfo.bookCode)
+
+        mRootRef.addListenerForSingleValueEvent(object :
+            ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (dataSnapshot.exists()) {
+
+                    for(i in 0..6){
+                        weekArray.add(ItemBestInfo())
+                    }
+
+                    for (snapshot in dataSnapshot.children) {
+                        val key = snapshot.key
+                        val value = snapshot.value
+
+                        if (key != null && value != null) {
+
+                            val item = snapshot.getValue(ItemBestInfo::class.java)
+
+                            if (item != null) {
+                                weekArray[key.toInt()] = item
+                            }
+                        }
+                    }
+
+                    viewModelScope.launch {
+                        events.send(EventBest.SetItemBestInfoTrophyList(itemBestInfoTrophyList = weekArray))
+                    }
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {}
+        })
     }
 
 }

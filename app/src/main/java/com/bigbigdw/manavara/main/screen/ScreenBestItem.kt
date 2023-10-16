@@ -30,7 +30,6 @@ import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -42,7 +41,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -51,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.bigbigdw.manavara.R
+import com.bigbigdw.manavara.main.models.ItemBestInfo
 import com.bigbigdw.manavara.main.models.ItemBookInfo
 import com.bigbigdw.manavara.main.viewModels.ViewModelBest
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
@@ -59,25 +58,22 @@ import com.bigbigdw.manavara.ui.theme.color02BC77
 import com.bigbigdw.manavara.ui.theme.color1CE3EE
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
-import com.bigbigdw.manavara.ui.theme.colorDCDCDD
+import com.bigbigdw.manavara.ui.theme.color8F8F8F
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorFF2366
-import com.bigbigdw.manavara.util.DataStoreManager
-import com.bigbigdw.manavara.util.changePlatformNameKor
-import com.bigbigdw.manavara.util.comicListEng
+import com.bigbigdw.manavara.util.changePlatformNameEng
 import com.bigbigdw.manavara.util.geMonthDate
-import com.bigbigdw.manavara.util.getPlatformDataKeyComic
-import com.bigbigdw.manavara.util.getPlatformDataKeyNovel
-import com.bigbigdw.manavara.util.getPlatformLogoEng
+import com.bigbigdw.manavara.util.getPlatformColor
+import com.bigbigdw.manavara.util.getPlatformDescription
+import com.bigbigdw.manavara.util.getPlatformLogo
 import com.bigbigdw.manavara.util.getWeekDate
-import com.bigbigdw.manavara.util.novelListEng
+import com.bigbigdw.manavara.util.novelListKor
 import com.bigbigdw.manavara.util.screen.ScreenEmpty
 import com.bigbigdw.manavara.util.screen.ScreenItemKeyword
-import com.bigbigdw.manavara.util.screen.TabletContentWrapBtn
 import com.bigbigdw.manavara.util.screen.spannableString
 import com.bigbigdw.manavara.util.weekList
 import com.bigbigdw.manavara.util.weekListAll
-import getBookCount
+import com.bigbigdw.manavara.util.weekListOneWord
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -86,11 +82,12 @@ import kotlinx.coroutines.launch
 fun ScreenTodayBest(
     viewModelMain: ViewModelMain,
     viewModelBest: ViewModelBest,
-    getDetailType: String,
     isExpandedScreen: Boolean,
     listState: LazyListState,
     modalSheetState: ModalBottomSheetState?,
-    setDialogOpen: ((Boolean) -> Unit)?
+    setDialogOpen: ((Boolean) -> Unit)?,
+    getType: String,
+    getPlatform: String
 ) {
 
     val bestState = viewModelBest.state.collectAsState().value
@@ -99,17 +96,10 @@ fun ScreenTodayBest(
 
         LazyColumn(
             state = listState,
-            modifier = if (!isExpandedScreen) {
-                Modifier
-                    .background(colorF6F6F6)
-                    .padding(0.dp, 0.dp, 0.dp, 0.dp)
-                    .fillMaxSize()
-            } else {
-                Modifier
-                    .background(colorF6F6F6)
-                    .padding(0.dp, 0.dp, 16.dp, 0.dp)
-                    .fillMaxSize()
-            },
+            modifier = Modifier
+                .background(colorF6F6F6)
+                .padding(0.dp, 0.dp, 16.dp, 0.dp)
+                .fillMaxSize(),
         ) {
 
             itemsIndexed(bestState.itemBookInfoList) { index, item ->
@@ -118,7 +108,9 @@ fun ScreenTodayBest(
                     index = index,
                     modalSheetState = modalSheetState,
                     viewModelBest = viewModelBest,
-                    setDialogOpen = setDialogOpen
+                    setDialogOpen = setDialogOpen,
+                    getDetailType = getType,
+                    getDetailPlatform = getPlatform
                 )
             }
         }
@@ -133,6 +125,8 @@ fun ListBestToday(
     modalSheetState: ModalBottomSheetState?,
     viewModelBest: ViewModelBest,
     setDialogOpen: ((Boolean) -> Unit)?,
+    getDetailType: String,
+    getDetailPlatform: String,
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -165,6 +159,13 @@ fun ListBestToday(
             onClick = {
                 coroutineScope.launch {
                     viewModelBest.getBookItemInfo(itemBookInfo = itemBookInfo)
+
+                    viewModelBest.getBookItemWeekTrophy(
+                        itemBookInfo = itemBookInfo,
+                        type = getDetailType,
+                        platform = getDetailPlatform
+                    )
+
                     modalSheetState?.show()
 
                     if (setDialogOpen != null) {
@@ -272,6 +273,8 @@ fun ListBestToday(
 fun ScreenTodayWeek(
     viewModelMain: ViewModelMain,
     viewModelBest: ViewModelBest,
+    getDetailType: String,
+    getDetailPlatform: String
 ) {
 
     val bestState = viewModelBest.state.collectAsState().value
@@ -320,15 +323,18 @@ fun ScreenTodayWeek(
                 LazyColumn(
                     modifier = Modifier
                         .background(colorF6F6F6)
+                        .padding(0.dp, 0.dp, 16.dp, 0.dp)
                 ) {
 
                     itemsIndexed(bestState.weekList[getWeekDate(getDate)]) { index, item ->
                         ListBestToday(
                             itemBookInfo = item,
                             index = index,
-                            viewModelBest = viewModelBest,
                             modalSheetState = null,
-                            setDialogOpen = null
+                            viewModelBest = viewModelBest,
+                            setDialogOpen = null,
+                            getDetailType = getDetailType,
+                            getDetailPlatform = getDetailPlatform
                         )
                     }
                 }
@@ -727,7 +733,7 @@ fun ItemBestExpandMonth(item: ItemBookInfo) {
 }
 
 @Composable
-fun ScreenDialogBest(item: ItemBookInfo) {
+fun ScreenDialogBest(item: ItemBookInfo, trophy: ArrayList<ItemBestInfo>, isExpandedScreen: Boolean) {
 
     Column(
         modifier = Modifier
@@ -735,150 +741,244 @@ fun ScreenDialogBest(item: ItemBookInfo) {
             .padding(12.dp)
     ) {
 
-        Row(
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.Top,
-        ) {
-
-            Card(
-                modifier = Modifier
-                    .requiredHeight(200.dp),
-                shape = RoundedCornerShape(10.dp)
-            ) {
-                AsyncImage(
-                    model = item.bookImg,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .requiredHeight(200.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.size(8.dp))
-
-            Column(modifier = Modifier.wrapContentHeight()) {
-                Text(
-                    text = item.title,
-                    color = color20459E,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight(weight = 500),
-                )
-
-                Text(
-                    text = item.writer,
-                    color = color000000,
-                    fontSize = 16.sp,
-                )
-
-                Spacer(modifier = Modifier.size(4.dp))
-
-                if (item.genre.isNotEmpty()) {
-                    Text(
-                        text = spannableString(
-                            textFront = "장르 : ",
-                            color = color000000,
-                            textEnd = item.genre
-                        ),
-                        color = color8E8E8E,
-                        fontSize = 16.sp,
-                    )
-                }
-
-                if (item.cntChapter.isNotEmpty()) {
-                    Text(
-                        text = spannableString(
-                            textFront = "챕터 수 : ",
-                            color = color000000,
-                            textEnd = item.cntChapter
-                        ),
-                        color = color8E8E8E,
-                        fontSize = 16.sp,
-                    )
-                }
-
-                if (item.cntRecom.isNotEmpty()) {
-                    Text(
-                        text = spannableString(
-                            textFront = "플랫폼 평점 : ",
-                            color = color000000,
-                            textEnd = item.cntRecom
-                        ),
-                        color = color8E8E8E,
-                        fontSize = 16.sp,
-                    )
-                }
-
-                if (item.cntChapter.isNotEmpty()) {
-                    Text(
-                        text = spannableString(
-                            textFront = "총 편수 : ",
-                            color = color000000,
-                            textEnd = item.cntChapter
-                        ),
-                        color = color8E8E8E,
-                        fontSize = 16.sp,
-                    )
-                }
-
-                if (item.cntFavorite.isNotEmpty()) {
-                    Text(
-                        text = spannableString(
-                            textFront = "선호작 수 : ",
-                            color = color000000,
-                            textEnd = item.cntFavorite
-                        ),
-                        color = color8E8E8E,
-                        fontSize = 16.sp,
-                    )
-                }
-
-                if (item.cntPageRead.isNotEmpty()) {
-                    Text(
-                        text = spannableString(
-                            textFront = "조회 수 : ",
-                            color = color000000,
-                            textEnd = item.cntPageRead
-                        ),
-                        color = color8E8E8E,
-                        fontSize = 16.sp,
-                    )
-                }
-
-                if (item.cntTotalComment.isNotEmpty()) {
-                    Text(
-                        text = spannableString(
-                            textFront = "댓글 수 : ",
-                            color = color000000,
-                            textEnd = item.cntTotalComment
-                        ),
-                        color = color8E8E8E,
-                        fontSize = 16.sp,
-                    )
-                }
-            }
-        }
-
-//        if(item.intro.isNotEmpty()){
-//
-//            Spacer(modifier = Modifier.size(16.dp))
-//
-//            Text(
-//                modifier = Modifier.padding(4.dp),
-//                text = item.intro,
-//                color = color8E8E8E,
-//                fontSize = 16.sp,
-//                maxLines = 5,
-//                overflow = TextOverflow.Ellipsis
-//            )
-//        }
+        ScreenItemBestCard(item = item)
 
         Spacer(modifier = Modifier.size(8.dp))
 
-
     }
 
-    Spacer(modifier = Modifier.size(4.dp))
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(16.dp, 0.dp, 16.dp, 16.dp),
+    ) {
+        trophy.forEachIndexed { index, item ->
+            Box(
+                modifier = Modifier.weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                Column {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = weekListOneWord()[index],
+                        color = if (item.number != 0) {
+                            color1CE3EE
+                        } else {
+                            color8F8F8F
+                        },
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Center
+                    )
 
-    Spacer(modifier = Modifier.size(80.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(4.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            contentScale = ContentScale.FillWidth,
+                            painter = painterResource(
+                                id = if (item.number != 0) {
+                                    R.drawable.icon_trophy_fill_on
+                                } else {
+                                    R.drawable.icon_trophy_fill_off
+                                }
+                            ),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .width(28.dp)
+                                .height(28.dp)
+                        )
+                    }
+
+                    if(item.number != 0){
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = "${item.number}등",
+                            color = color1CE3EE,
+                            fontSize = 16.sp,
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    if(!isExpandedScreen){
+        Row(
+            Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Button(
+                colors = ButtonDefaults.buttonColors(containerColor = color8F8F8F),
+
+                onClick = {  },
+                modifier = Modifier
+                    .weight(1f)
+                    .height(48.dp),
+                shape = RoundedCornerShape(0.dp, 0.dp, 0.dp, 10.dp)
+
+            ) {
+                Text(
+                    text = "취소",
+                    textAlign = TextAlign.Center,
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Button(
+                colors = ButtonDefaults.buttonColors(containerColor = color20459E),
+                onClick = {
+
+                },
+                modifier = Modifier
+                    .weight(1f)
+                    .height(48.dp),
+                shape = RoundedCornerShape(0.dp, 0.dp, 10.dp, 0.dp)
+
+            ) {
+                Text(
+                    text = "확인",
+                    textAlign = TextAlign.Center,
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ScreenItemBestCard(item: ItemBookInfo){
+    Row(
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.Top,
+    ) {
+
+        Card(
+            modifier = Modifier
+                .requiredHeight(200.dp),
+            shape = RoundedCornerShape(10.dp)
+        ) {
+            AsyncImage(
+                model = item.bookImg,
+                contentDescription = null,
+                modifier = Modifier
+                    .requiredHeight(200.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.size(12.dp))
+
+        Column(modifier = Modifier.wrapContentHeight()) {
+            Text(
+                text = item.title,
+                color = color20459E,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            Text(
+                text = item.writer,
+                color = color000000,
+                fontSize = 16.sp,
+            )
+
+            Spacer(modifier = Modifier.size(4.dp))
+
+            if (item.genre.isNotEmpty()) {
+                Text(
+                    text = spannableString(
+                        textFront = "장르 : ",
+                        color = color000000,
+                        textEnd = item.genre
+                    ),
+                    color = color8E8E8E,
+                    fontSize = 16.sp,
+                )
+            }
+
+            if (item.cntChapter.isNotEmpty()) {
+                Text(
+                    text = spannableString(
+                        textFront = "챕터 수 : ",
+                        color = color000000,
+                        textEnd = item.cntChapter
+                    ),
+                    color = color8E8E8E,
+                    fontSize = 16.sp,
+                )
+            }
+
+            if (item.cntRecom.isNotEmpty()) {
+                Text(
+                    text = spannableString(
+                        textFront = "플랫폼 평점 : ",
+                        color = color000000,
+                        textEnd = item.cntRecom
+                    ),
+                    color = color8E8E8E,
+                    fontSize = 16.sp,
+                )
+            }
+
+            if (item.cntChapter.isNotEmpty()) {
+                Text(
+                    text = spannableString(
+                        textFront = "총 편수 : ",
+                        color = color000000,
+                        textEnd = item.cntChapter
+                    ),
+                    color = color8E8E8E,
+                    fontSize = 16.sp,
+                )
+            }
+
+            if (item.cntFavorite.isNotEmpty()) {
+                Text(
+                    text = spannableString(
+                        textFront = "선호작 수 : ",
+                        color = color000000,
+                        textEnd = item.cntFavorite
+                    ),
+                    color = color8E8E8E,
+                    fontSize = 16.sp,
+                )
+            }
+
+            if (item.cntPageRead.isNotEmpty()) {
+                Text(
+                    text = spannableString(
+                        textFront = "조회 수 : ",
+                        color = color000000,
+                        textEnd = item.cntPageRead
+                    ),
+                    color = color8E8E8E,
+                    fontSize = 16.sp,
+                )
+            }
+
+            if (item.cntTotalComment.isNotEmpty()) {
+                Text(
+                    text = spannableString(
+                        textFront = "댓글 수 : ",
+                        color = color000000,
+                        textEnd = item.cntTotalComment
+                    ),
+                    color = color8E8E8E,
+                    fontSize = 16.sp,
+                )
+            }
+        }
+    }
 }
 
 @Composable

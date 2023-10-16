@@ -163,13 +163,13 @@ fun ScreenMainTablet(
 ) {
 
     val (getMenu, setMenu) = remember { mutableStateOf("TODAY") }
-    val (getDetailPlatform, setDetailPlatform) = remember { mutableStateOf(novelListEng()[0]) }
-    val (getDetailType, setDetailType) = remember { mutableStateOf("NOVEL") }
+    val (getPlatform, setPlatform) = remember { mutableStateOf(novelListEng()[0]) }
+    val (getType, setType) = remember { mutableStateOf("NOVEL") }
     val (getBestType, setBestType) = remember { mutableStateOf("") }
 
     if(getBestType.isEmpty()){
         setBestType("TODAY_BEST")
-        setDetailPlatform("JOARA")
+        setPlatform("JOARA")
         setMenu("조아라")
     }
 
@@ -182,10 +182,10 @@ fun ScreenMainTablet(
             viewModelBest = viewModelBest,
             setMenu = setMenu,
             getMenu = getMenu,
-            setDetailPlatform = setDetailPlatform,
-            getDetailPlatform = getDetailPlatform,
-            setDetailType = setDetailType,
-            getDetailType = getDetailType,
+            setPlatform = setPlatform,
+            getPlatform = getPlatform,
+            setType = setType,
+            getType = getType,
             listState = listState,
             modalSheetState = null,
             setBestType = setBestType,
@@ -254,10 +254,10 @@ fun ScreenMainMobile(
                 viewModelBest = viewModelBest,
                 setMenu = setMenu,
                 getMenu = getMenu,
-                setDetailPlatform = setDetailPlatform,
-                getDetailPlatform = getDetailPlatform,
-                setDetailType = setDetailType,
-                getDetailType = getDetailType,
+                setPlatform = setDetailPlatform,
+                getPlatform = getDetailPlatform,
+                setType = setDetailType,
+                getType = getDetailType,
                 listState = listState,
                 modalSheetState = modalSheetState,
                 setBestType = setBestType,
@@ -281,6 +281,8 @@ fun ScreenMainMobile(
 
                 ScreenDialogBest(
                     item = viewModelBest.state.collectAsState().value.itemBookInfo,
+                    trophy = viewModelBest.state.collectAsState().value.itemBestInfoTrophyList,
+                    isExpandedScreen = isExpandedScreen
                 )
             } else {
                 ScreenTest()
@@ -448,10 +450,10 @@ fun NavigationGraph(
     viewModelBest: ViewModelBest,
     setMenu: (String) -> Unit,
     getMenu: String,
-    setDetailPlatform: (String) -> Unit,
-    getDetailPlatform: String,
-    setDetailType: (String) -> Unit,
-    getDetailType: String,
+    setPlatform: (String) -> Unit,
+    getPlatform: String,
+    setType: (String) -> Unit,
+    getType: String,
     listState: LazyListState,
     setBestType: (String) -> Unit,
     getBestType: String,
@@ -469,10 +471,10 @@ fun NavigationGraph(
                 viewModelMain = viewModelMain,
                 setMenu = setMenu,
                 getMenu = getMenu,
-                setDetailPlatform = setDetailPlatform,
-                getDetailPlatform = getDetailPlatform,
-                setDetailType = setDetailType,
-                getDetailType = getDetailType,
+                setPlatform = setPlatform,
+                getPlatform = getPlatform,
+                setType = setType,
+                getType = getType,
                 listState = listState,
                 modalSheetState = modalSheetState,
                 setBestType = setBestType,

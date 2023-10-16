@@ -58,6 +58,7 @@ import com.bigbigdw.manavara.main.viewModels.ViewModelBest
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
+import com.bigbigdw.manavara.ui.theme.color8F8F8F
 import com.bigbigdw.manavara.ui.theme.colorDCDCDD
 import com.bigbigdw.manavara.ui.theme.colorE9E9E9
 import com.bigbigdw.manavara.ui.theme.colorEDE6FD
@@ -301,7 +302,7 @@ fun AlertTwoBtn(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Button(
-                                colors = ButtonDefaults.buttonColors(containerColor = colorF6F6F6),
+                                colors = ButtonDefaults.buttonColors(containerColor = color8F8F8F),
 
                                 onClick = { isShow() },
                                 modifier = Modifier
@@ -313,8 +314,8 @@ fun AlertTwoBtn(
                                 Text(
                                     text = btnLeft,
                                     textAlign = TextAlign.Center,
-                                    color = color000000,
-                                    fontSize = 14.sp,
+                                    color = Color.White,
+                                    fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                             }
@@ -335,7 +336,7 @@ fun AlertTwoBtn(
                                     text = btnRight,
                                     textAlign = TextAlign.Center,
                                     color = Color.White,
-                                    fontSize = 14.sp,
+                                    fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                             }

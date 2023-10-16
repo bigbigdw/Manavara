@@ -686,6 +686,18 @@ fun weekList(): List<String> {
     )
 }
 
+fun weekListOneWord(): List<String> {
+    return listOf(
+        "일",
+        "월",
+        "화",
+        "수",
+        "목",
+        "금",
+        "토"
+    )
+}
+
 fun getWeekDate(date : String) : Int {
     return when (date) {
         "일요일" -> {
