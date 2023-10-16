@@ -505,7 +505,20 @@ fun NavigationGraph(
             )
         }
         composable(ScreemBottomItem.MANAVARA.screenRoute) {
-            ScreenTest()
+            ScreenManavara(
+                isExpandedScreen = isExpandedScreen,
+                viewModelBest = viewModelBest,
+                viewModelMain = viewModelMain,
+                setMenu = setMenu,
+                getMenu = getMenu,
+                setPlatform = setPlatform,
+                getPlatform = getPlatform,
+                getType = getType,
+                listState = listState,
+                setBestType = setBestType,
+                getBestType = getBestType,
+                modalSheetState = modalSheetState
+            )
         }
         composable(ScreemBottomItem.PICK.screenRoute) {
             ScreenTest()
