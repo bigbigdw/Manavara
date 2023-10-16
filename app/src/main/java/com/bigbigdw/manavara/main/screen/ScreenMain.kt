@@ -100,7 +100,7 @@ fun ScreenMain(
 
             val (getMenu, setMenu) = remember { mutableStateOf("TODAY") }
             val (getDetailPlatform, setDetailPlatform) = remember { mutableStateOf(novelListEng()[0]) }
-            val (getDetailType, setDetailType) = remember { mutableStateOf("NOVEL") }
+            val (getType, setType) = remember { mutableStateOf("") }
             val (getBestType, setBestType) = remember { mutableStateOf("") }
 
             ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
@@ -108,12 +108,12 @@ fun ScreenMain(
                 ScreenBestPropertyList(
                     setMenu = setMenu,
                     getMenu = getMenu,
-                    setDetailPlatform = setDetailPlatform,
-                    setDetailType = setDetailType,
+                    setPlatform = setDetailPlatform,
                     listState = listState,
                     isExpandedScreen = isExpandedScreen,
                     setBestType = setBestType,
-                    getBestType = getBestType
+                    getBestType = getBestType,
+                    getType = getType
                 ) {
                     coroutineScope.launch {
                         drawerState.close()
@@ -130,10 +130,10 @@ fun ScreenMain(
                     drawerState = drawerState,
                     setMenu = setMenu,
                     getMenu = getMenu,
-                    setDetailPlatform = setDetailPlatform,
-                    getDetailPlatform = getDetailPlatform,
-                    setDetailType = setDetailType,
-                    getDetailType = getDetailType,
+                    setPlatform = setDetailPlatform,
+                    getPlatform = getDetailPlatform,
+                    setType = setType,
+                    getType = getType,
                     listState = listState,
                     setBestType = setBestType,
                     getBestType = getBestType
@@ -207,10 +207,10 @@ fun ScreenMainMobile(
     drawerState: DrawerState,
     setMenu: (String) -> Unit,
     getMenu: String,
-    setDetailPlatform: (String) -> Unit,
-    getDetailPlatform: String,
-    setDetailType: (String) -> Unit,
-    getDetailType: String,
+    setPlatform: (String) -> Unit,
+    getPlatform: String,
+    setType: (String) -> Unit,
+    getType: String,
     listState: LazyListState,
     setBestType: (String) -> Unit,
     getBestType: String,
@@ -218,7 +218,7 @@ fun ScreenMainMobile(
 
     if(getBestType.isEmpty()){
         setBestType("TODAY_BEST")
-        setDetailPlatform("JOARA")
+        setPlatform("JOARA")
         setMenu("조아라")
     }
 
@@ -256,10 +256,10 @@ fun ScreenMainMobile(
                 viewModelBest = viewModelBest,
                 setMenu = setMenu,
                 getMenu = getMenu,
-                setPlatform = setDetailPlatform,
-                getPlatform = getDetailPlatform,
-                setType = setDetailType,
-                getType = getDetailType,
+                setPlatform = setPlatform,
+                getPlatform = getPlatform,
+                setType = setType,
+                getType = getType,
                 listState = listState,
                 modalSheetState = modalSheetState,
                 setBestType = setBestType,
@@ -393,9 +393,9 @@ fun BottomNavScreen(navController: NavHostController, currentRoute: String?) {
     val items = listOf(
         ScreemBottomItem.NOVEL,
         ScreemBottomItem.COMIC,
-        ScreemBottomItem.FCM,
-        ScreemBottomItem.JSON,
-        ScreemBottomItem.TROPHY,
+        ScreemBottomItem.MANAVARA,
+        ScreemBottomItem.PICK,
+        ScreemBottomItem.EVENT,
     )
 
     BottomNavigation(
@@ -467,6 +467,9 @@ fun NavigationGraph(
         startDestination = ScreemBottomItem.NOVEL.screenRoute
     ) {
         composable(ScreemBottomItem.NOVEL.screenRoute) {
+
+            setType("NOVEL")
+
             ScreenBest(
                 isExpandedScreen = isExpandedScreen,
                 viewModelBest = viewModelBest,
@@ -475,24 +478,39 @@ fun NavigationGraph(
                 getMenu = getMenu,
                 setPlatform = setPlatform,
                 getPlatform = getPlatform,
-                setType = setType,
                 getType = getType,
                 listState = listState,
-                modalSheetState = modalSheetState,
                 setBestType = setBestType,
-                getBestType = getBestType
+                getBestType = getBestType,
+                modalSheetState = modalSheetState
             )
         }
         composable(ScreemBottomItem.COMIC.screenRoute) {
+
+            setType("COMIC")
+
+            ScreenBest(
+                isExpandedScreen = isExpandedScreen,
+                viewModelBest = viewModelBest,
+                viewModelMain = viewModelMain,
+                setMenu = setMenu,
+                getMenu = getMenu,
+                setPlatform = setPlatform,
+                getPlatform = getPlatform,
+                getType = getType,
+                listState = listState,
+                setBestType = setBestType,
+                getBestType = getBestType,
+                modalSheetState = modalSheetState
+            )
+        }
+        composable(ScreemBottomItem.MANAVARA.screenRoute) {
             ScreenTest()
         }
-        composable(ScreemBottomItem.FCM.screenRoute) {
+        composable(ScreemBottomItem.PICK.screenRoute) {
             ScreenTest()
         }
-        composable(ScreemBottomItem.JSON.screenRoute) {
-            ScreenTest()
-        }
-        composable(ScreemBottomItem.TROPHY.screenRoute) {
+        composable(ScreemBottomItem.EVENT.screenRoute) {
             ScreenTest()
         }
     }
@@ -507,9 +525,9 @@ fun TableAppNavRail(
     val items = listOf(
         ScreemBottomItem.NOVEL,
         ScreemBottomItem.COMIC,
-        ScreemBottomItem.FCM,
-        ScreemBottomItem.JSON,
-        ScreemBottomItem.TROPHY,
+        ScreemBottomItem.MANAVARA,
+        ScreemBottomItem.PICK,
+        ScreemBottomItem.EVENT,
     )
 
     val context = LocalContext.current

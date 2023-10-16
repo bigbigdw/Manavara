@@ -60,6 +60,7 @@ import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorF7F7F7
 import com.bigbigdw.manavara.util.changeDetailNameKor
 import com.bigbigdw.manavara.util.changePlatformNameEng
+import com.bigbigdw.manavara.util.comicListKor
 import com.bigbigdw.manavara.util.getPlatformColor
 import com.bigbigdw.manavara.util.getPlatformDescription
 import com.bigbigdw.manavara.util.getPlatformLogo
@@ -79,7 +80,6 @@ fun ScreenBest(
     getMenu: String,
     setPlatform: (String) -> Unit,
     getPlatform: String,
-    setType: (String) -> Unit,
     getType: String,
     listState: LazyListState,
     setBestType: (String) -> Unit,
@@ -153,12 +153,12 @@ fun ScreenBest(
                 ScreenBestPropertyList(
                     setMenu = setMenu,
                     getMenu = getMenu,
-                    setDetailPlatform = setPlatform,
-                    setDetailType = setType,
+                    setPlatform = setPlatform,
                     listState = listState,
                     isExpandedScreen = isExpandedScreen,
                     setBestType = setBestType,
-                    getBestType = getBestType
+                    getBestType = getBestType,
+                    getType = getType
                 ) {}
 
                 Spacer(
@@ -264,12 +264,12 @@ fun ScreenBest(
 fun ScreenBestPropertyList(
     setMenu: (String) -> Unit,
     getMenu: String,
-    setDetailPlatform: (String) -> Unit,
-    setDetailType: (String) -> Unit,
+    setPlatform: (String) -> Unit,
     listState: LazyListState,
     isExpandedScreen: Boolean,
     setBestType: (String) -> Unit,
     getBestType: String,
+    getType: String,
     onClick: () -> Unit,
 ) {
 
@@ -289,12 +289,16 @@ fun ScreenBestPropertyList(
                 Spacer(modifier = Modifier.size(16.dp))
 
                 LaunchedEffect(getBestType){
-                    setDetailPlatform("JOARA")
+                    setPlatform("JOARA")
                 }
 
                 Text(
                     modifier = Modifier.padding(16.dp, 0.dp, 0.dp, 0.dp),
-                    text = "웹소설 베스트",
+                    text = if (getType == "NOVEL") {
+                        "웹소설 베스트"
+                    } else {
+                        "웹툰 베스트"
+                    },
                     fontSize = 24.sp,
                     color = Color.Black,
                     fontWeight = FontWeight(weight = 700)
@@ -336,25 +340,47 @@ fun ScreenBestPropertyList(
                 TabletBorderLine()
             }
 
-            LazyColumn {
-                itemsIndexed(novelListKor()) { index, item ->
-                    ItemBestListSingle(
-                        containerColor = getPlatformColor(item),
-                        image = getPlatformLogo(item),
-                        title = item,
-                        body = getPlatformDescription(item),
-                        setMenu = setMenu,
-                        getMenu = getMenu,
-                        setDetailPlatform = { setDetailPlatform(changePlatformNameEng(item)) }
-                    ) {
-                        setDetailType("NOVEL")
-                        coroutineScope.launch {
-                            listState.scrollToItem(index = 0)
+            if (getType == "NOVEL") {
+                LazyColumn {
+                    itemsIndexed(novelListKor()) { index, item ->
+                        ItemBestListSingle(
+                            containerColor = getPlatformColor(item),
+                            image = getPlatformLogo(item),
+                            title = item,
+                            body = getPlatformDescription(item),
+                            setMenu = setMenu,
+                            getMenu = getMenu,
+                            setDetailPlatform = { setPlatform(changePlatformNameEng(item)) }
+                        ) {
+                            coroutineScope.launch {
+                                listState.scrollToItem(index = 0)
+                            }
+                            onClick()
                         }
-                        onClick()
+                    }
+                }
+            } else {
+                LazyColumn {
+                    itemsIndexed(comicListKor()) { index, item ->
+                        ItemBestListSingle(
+                            containerColor = getPlatformColor(item),
+                            image = getPlatformLogo(item),
+                            title = item,
+                            body = getPlatformDescription(item),
+                            setMenu = setMenu,
+                            getMenu = getMenu,
+                            setDetailPlatform = { setPlatform(changePlatformNameEng(item)) }
+                        ) {
+                            coroutineScope.launch {
+                                listState.scrollToItem(index = 0)
+                            }
+                            onClick()
+                        }
                     }
                 }
             }
+
+
         }
     } else {
         Column(
@@ -390,9 +416,8 @@ fun ScreenBestPropertyList(
                     body = getPlatformDescription(item),
                     setMenu = setMenu,
                     getMenu = getMenu,
-                    setDetailPlatform = { setDetailPlatform(changePlatformNameEng(item)) }
+                    setDetailPlatform = { setPlatform(changePlatformNameEng(item)) }
                 ) {
-                    setDetailType("NOVEL")
                     coroutineScope.launch {
                         listState.scrollToItem(index = 0)
                     }
