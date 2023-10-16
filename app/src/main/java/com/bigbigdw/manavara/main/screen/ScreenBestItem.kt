@@ -30,6 +30,7 @@ import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -61,13 +62,8 @@ import com.bigbigdw.manavara.ui.theme.color8E8E8E
 import com.bigbigdw.manavara.ui.theme.color8F8F8F
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorFF2366
-import com.bigbigdw.manavara.util.changePlatformNameEng
 import com.bigbigdw.manavara.util.geMonthDate
-import com.bigbigdw.manavara.util.getPlatformColor
-import com.bigbigdw.manavara.util.getPlatformDescription
-import com.bigbigdw.manavara.util.getPlatformLogo
 import com.bigbigdw.manavara.util.getWeekDate
-import com.bigbigdw.manavara.util.novelListKor
 import com.bigbigdw.manavara.util.screen.ScreenEmpty
 import com.bigbigdw.manavara.util.screen.ScreenItemKeyword
 import com.bigbigdw.manavara.util.screen.spannableString
@@ -109,8 +105,8 @@ fun ScreenTodayBest(
                     modalSheetState = modalSheetState,
                     viewModelBest = viewModelBest,
                     setDialogOpen = setDialogOpen,
-                    getDetailType = getType,
-                    getDetailPlatform = getPlatform
+                    getType = getType,
+                    getPlatform = getPlatform
                 )
             }
         }
@@ -125,8 +121,8 @@ fun ListBestToday(
     modalSheetState: ModalBottomSheetState?,
     viewModelBest: ViewModelBest,
     setDialogOpen: ((Boolean) -> Unit)?,
-    getDetailType: String,
-    getDetailPlatform: String,
+    getType: String,
+    getPlatform: String,
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -162,8 +158,8 @@ fun ListBestToday(
 
                     viewModelBest.getBookItemWeekTrophy(
                         itemBookInfo = itemBookInfo,
-                        type = getDetailType,
-                        platform = getDetailPlatform
+                        type = getType,
+                        platform = getPlatform
                     )
 
                     modalSheetState?.show()
@@ -273,8 +269,11 @@ fun ListBestToday(
 fun ScreenTodayWeek(
     viewModelMain: ViewModelMain,
     viewModelBest: ViewModelBest,
-    getDetailType: String,
-    getDetailPlatform: String
+    isExpandedScreen: Boolean,
+    modalSheetState: ModalBottomSheetState?,
+    setDialogOpen: ((Boolean) -> Unit)?,
+    getType: String,
+    getPlatform: String
 ) {
 
     val bestState = viewModelBest.state.collectAsState().value
@@ -311,9 +310,14 @@ fun ScreenTodayWeek(
 
                 itemsIndexed(bestState.weekTrophyList) { index, item ->
                     ListBest(
+                        viewModelBest = viewModelBest,
                         itemBookInfoMap = bestState.itemBookInfoMap,
                         bookCode = item.bookCode,
-                        type = "WEEK"
+                        type = "WEEK",
+                        getType = getType,
+                        getPlatform = getPlatform,
+                        setDialogOpen = setDialogOpen,
+                        modalSheetState = modalSheetState,
                     )
                 }
             }
@@ -328,13 +332,13 @@ fun ScreenTodayWeek(
 
                     itemsIndexed(bestState.weekList[getWeekDate(getDate)]) { index, item ->
                         ListBestToday(
+                            viewModelBest = viewModelBest,
                             itemBookInfo = item,
                             index = index,
-                            modalSheetState = null,
-                            viewModelBest = viewModelBest,
-                            setDialogOpen = null,
-                            getDetailType = getDetailType,
-                            getDetailPlatform = getDetailPlatform
+                            getType = getType,
+                            getPlatform = getPlatform,
+                            setDialogOpen = setDialogOpen,
+                            modalSheetState = modalSheetState,
                         )
                     }
                 }
@@ -345,14 +349,21 @@ fun ScreenTodayWeek(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ListBest(
+    viewModelBest: ViewModelBest,
     itemBookInfoMap: MutableMap<String, ItemBookInfo>,
     bookCode: String,
     type: String,
+    modalSheetState: ModalBottomSheetState?,
+    setDialogOpen: ((Boolean) -> Unit)?,
+    getType: String,
+    getPlatform: String
 ) {
 
     val itemBookInfo = itemBookInfoMap[bookCode]
+    val coroutineScope = rememberCoroutineScope()
 
     if (itemBookInfo != null) {
 
@@ -366,7 +377,21 @@ fun ListBest(
             ),
             shape = RoundedCornerShape(20.dp),
             onClick = {
+                coroutineScope.launch {
+                    viewModelBest.getBookItemInfo(itemBookInfo = itemBookInfo)
 
+                    viewModelBest.getBookItemWeekTrophy(
+                        itemBookInfo = itemBookInfo,
+                        type = getType,
+                        platform = getPlatform
+                    )
+
+                    modalSheetState?.show()
+
+                    if (setDialogOpen != null) {
+                        setDialogOpen(true)
+                    }
+                }
             },
             content = {
                 Column(
@@ -376,13 +401,24 @@ fun ListBest(
 
                     Spacer(modifier = Modifier.size(4.dp))
 
-                    if (type == "WEEK") {
-                        ScreenItemWeek(
-                            item = itemBookInfo,
-                        )
-                    } else {
-                        ItemBestExpandMonth(
-                            item = itemBookInfo,
+                    Spacer(modifier = Modifier.size(4.dp))
+
+                    Column(modifier = Modifier.fillMaxWidth()) {
+
+                        ScreenItemBestCard(item = itemBookInfo)
+
+                        if (type == "MONTH") {
+                            Spacer(modifier = Modifier.size(8.dp))
+
+                            ScreenItemBestCount(item = itemBookInfo,)
+                        }
+
+                        Spacer(modifier = Modifier.size(16.dp))
+
+                        Text(
+                            text = itemBookInfo.intro,
+                            color = color8E8E8E,
+                            fontSize = 16.sp,
                         )
                     }
 
@@ -394,10 +430,15 @@ fun ListBest(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScreenTodayMonth(
     viewModelMain: ViewModelMain,
     viewModelBest: ViewModelBest,
+    modalSheetState: ModalBottomSheetState?,
+    setDialogOpen: ((Boolean) -> Unit)?,
+    getType: String,
+    getPlatform: String
 ) {
 
     val bestState = viewModelBest.state.collectAsState().value
@@ -447,9 +488,14 @@ fun ScreenTodayMonth(
 
                 itemsIndexed(bestState.monthTrophyList) { index, item ->
                     ListBest(
+                        viewModelBest = viewModelBest,
                         itemBookInfoMap = bestState.itemBookInfoMap,
                         bookCode = item.bookCode,
-                        type = "MONTH"
+                        type = "MONTH",
+                        getType = getType,
+                        getPlatform = getPlatform,
+                        setDialogOpen = setDialogOpen,
+                        modalSheetState = modalSheetState,
                     )
                 }
             }
@@ -477,9 +523,14 @@ fun ScreenTodayMonth(
                         }
 
                         ListBest(
+                            viewModelBest = viewModelBest,
                             itemBookInfoMap = bestState.itemBookInfoMap,
                             bookCode = item.bookCode,
-                            type = "WEEK"
+                            type = "WEEK",
+                            getType = getType,
+                            getPlatform = getPlatform,
+                            setDialogOpen = null,
+                            modalSheetState = null,
                         )
                     }
                 }
@@ -491,102 +542,14 @@ fun ScreenTodayMonth(
 }
 
 @Composable
-fun ScreenItemWeek(item: ItemBookInfo) {
+fun ScreenBestListItemWeek(
+    item: ItemBookInfo
+) {
     Spacer(modifier = Modifier.size(4.dp))
 
     Column(modifier = Modifier.fillMaxWidth()) {
 
-        Row(
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.Top,
-        ) {
-
-            Box(
-                modifier = Modifier
-                    .height(160.dp)
-                    .width(120.dp)
-            ) {
-                AsyncImage(
-                    model = item.bookImg,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .height(160.dp)
-                        .width(120.dp)
-                )
-
-            }
-
-            Spacer(modifier = Modifier.size(16.dp))
-
-            Column(modifier = Modifier.wrapContentHeight()) {
-                Text(
-                    text = item.title,
-                    color = color20459E,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight(weight = 500),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Text(
-                    text = "${item.writer}/${item.cntChapter}",
-                    color = color000000,
-                    fontSize = 16.sp,
-                )
-
-                Spacer(modifier = Modifier.size(4.dp))
-
-                Text(
-                    text = spannableString(
-                        textFront = "헌재 스코어 : ",
-                        color = color000000,
-                        textEnd = "${item.number}"
-                    ),
-                    color = color8E8E8E,
-                    fontSize = 16.sp,
-                )
-
-                Text(
-                    text = spannableString(
-                        textFront = "플랫폼 평점 : ",
-                        color = color000000,
-                        textEnd = item.cntRecom
-                    ),
-                    color = color8E8E8E,
-                    fontSize = 16.sp,
-                )
-
-                Text(
-                    text = spannableString(
-                        textFront = "베스트 총합 : ",
-                        color = color000000,
-                        textEnd = "${item.total}"
-                    ),
-                    color = color8E8E8E,
-                    fontSize = 16.sp,
-                )
-
-                Text(
-                    text = spannableString(
-                        textFront = "주간 총점 : ",
-                        color = color000000,
-                        textEnd = "${item.totalWeek}"
-                    ),
-                    color = color8E8E8E,
-                    fontSize = 16.sp,
-                )
-
-                Text(
-                    text = spannableString(
-                        textFront = "주간 베스트 횟수 : ",
-                        color = color000000,
-                        textEnd = item.totalWeekCount.toString()
-                    ),
-                    color = color8E8E8E,
-                    fontSize = 16.sp,
-                )
-            }
-        }
+        ScreenItemBestCard(item = item)
 
         Spacer(modifier = Modifier.size(16.dp))
 
@@ -603,7 +566,7 @@ fun ScreenItemWeek(item: ItemBookInfo) {
 
 
 @Composable
-fun ItemBestExpandMonth(item: ItemBookInfo) {
+fun ScreenBestListItemMonth(item: ItemBookInfo) {
     Spacer(modifier = Modifier.size(4.dp))
 
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -745,6 +708,20 @@ fun ScreenDialogBest(item: ItemBookInfo, trophy: ArrayList<ItemBestInfo>, isExpa
 
         Spacer(modifier = Modifier.size(8.dp))
 
+        if(isExpandedScreen){
+
+            Spacer(modifier = Modifier.size(8.dp))
+
+            if (item.intro.isNotEmpty()) {
+                Text(
+                    text = item.intro,
+                    maxLines = 5,
+                    overflow = TextOverflow.Ellipsis,
+                    color = color8E8E8E,
+                    fontSize = 16.sp,
+                )
+            }
+        }
     }
 
     Row(
@@ -761,7 +738,7 @@ fun ScreenDialogBest(item: ItemBookInfo, trophy: ArrayList<ItemBestInfo>, isExpa
                     Text(
                         modifier = Modifier.fillMaxWidth(),
                         text = weekListOneWord()[index],
-                        color = if (item.number != 0) {
+                        color = if (item.number > -1) {
                             color1CE3EE
                         } else {
                             color8F8F8F
@@ -779,7 +756,7 @@ fun ScreenDialogBest(item: ItemBookInfo, trophy: ArrayList<ItemBestInfo>, isExpa
                         Image(
                             contentScale = ContentScale.FillWidth,
                             painter = painterResource(
-                                id = if (item.number != 0) {
+                                id = if (item.number > -1) {
                                     R.drawable.icon_trophy_fill_on
                                 } else {
                                     R.drawable.icon_trophy_fill_off
@@ -792,10 +769,10 @@ fun ScreenDialogBest(item: ItemBookInfo, trophy: ArrayList<ItemBestInfo>, isExpa
                         )
                     }
 
-                    if(item.number != 0){
+                    if(item.number > -1){
                         Text(
                             modifier = Modifier.fillMaxWidth(),
-                            text = "${item.number}등",
+                            text = "${item.number + 1}등",
                             color = color1CE3EE,
                             fontSize = 16.sp,
                             textAlign = TextAlign.Center,
@@ -866,7 +843,8 @@ fun ScreenItemBestCard(item: ItemBookInfo){
         Card(
             modifier = Modifier
                 .requiredHeight(200.dp),
-            shape = RoundedCornerShape(10.dp)
+            shape = RoundedCornerShape(10.dp),
+            elevation = CardDefaults.cardElevation(2.dp)
         ) {
             AsyncImage(
                 model = item.bookImg,

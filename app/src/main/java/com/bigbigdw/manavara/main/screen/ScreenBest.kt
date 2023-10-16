@@ -206,8 +206,11 @@ fun ScreenBest(
                     ScreenTodayWeek(
                         viewModelMain = viewModelMain,
                         viewModelBest = viewModelBest,
-                        getDetailType = getType,
-                        getDetailPlatform = getPlatform,
+                        isExpandedScreen = isExpandedScreen,
+                        modalSheetState = modalSheetState,
+                        setDialogOpen = null,
+                        getType = getType,
+                        getPlatform = getPlatform,
                     )
 
                 } else if (getBestType.contains("MONTH_BEST")) {
@@ -216,7 +219,11 @@ fun ScreenBest(
 
                     ScreenTodayMonth(
                         viewModelMain = viewModelMain,
-                        viewModelBest = viewModelBest
+                        viewModelBest = viewModelBest,
+                        modalSheetState = modalSheetState,
+                        setDialogOpen = null,
+                        getType = getType,
+                        getPlatform = getPlatform,
                     )
 
                 }
@@ -361,6 +368,19 @@ fun ScreenBestPropertyList(
         ) {
 
             Spacer(modifier = Modifier.size(16.dp))
+
+            ItemMainSettingSingleTablet(
+                containerColor = color4AD7CF,
+                image = R.drawable.ic_launcher,
+                title = "유저 옵션",
+                body = "마나바라 유저 옵션",
+                settter = setBestType,
+                getter = getBestType,
+                value = "TODAY_BEST",
+                onClick = {  },
+            )
+
+            TabletBorderLine()
 
             novelListKor().forEachIndexed { index, item ->
                 ItemBestListSingle(
@@ -537,15 +557,22 @@ fun ScreenBestDetail(
             ScreenTodayWeek(
                 viewModelMain = viewModelMain,
                 viewModelBest = viewModelBest,
-                getDetailType = getDetailType,
-                getDetailPlatform = getPlatform,
+                isExpandedScreen = isExpandedScreen,
+                modalSheetState = null,
+                setDialogOpen = setDialogOpen,
+                getType = getDetailType,
+                getPlatform = getPlatform
             )
 
         } else if (getBestType.contains("MONTH_BEST")) {
 
             ScreenTodayMonth(
                 viewModelMain = viewModelMain,
-                viewModelBest = viewModelBest
+                viewModelBest = viewModelBest,
+                modalSheetState = null,
+                setDialogOpen = setDialogOpen,
+                getType = getDetailType,
+                getPlatform = getPlatform
             )
 
         }

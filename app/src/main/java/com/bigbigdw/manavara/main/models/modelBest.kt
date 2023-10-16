@@ -51,9 +51,9 @@ data class ItemBookInfo(
 @Serializable
 data class ItemBestInfo (
     @SerialName("number")
-    var number: Int = 0,
+    var number: Int = -1,
     @SerialName("point")
-    var point: Int = 0,
+    var point: Int = -1,
     @SerialName("cntPageRead")
     var cntPageRead: String = "",
     @SerialName("cntFavorite")
