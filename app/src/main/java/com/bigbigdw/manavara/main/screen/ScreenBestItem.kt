@@ -413,13 +413,17 @@ fun ListBest(
                             ScreenItemBestCount(item = itemBookInfo,)
                         }
 
-                        Spacer(modifier = Modifier.size(16.dp))
+                        if(itemBookInfo.intro.isNotEmpty()){
+                            Spacer(modifier = Modifier.size(16.dp))
 
-                        Text(
-                            text = itemBookInfo.intro,
-                            color = color8E8E8E,
-                            fontSize = 16.sp,
-                        )
+                            Text(
+                                text = itemBookInfo.intro,
+                                color = color8E8E8E,
+                                fontSize = 16.sp,
+                            )
+                        } else {
+                            Spacer(modifier = Modifier.size(8.dp))
+                        }
                     }
 
                     Spacer(modifier = Modifier.size(4.dp))

@@ -819,3 +819,20 @@ fun getPlatformDataKeyComic(platform : String) : Preferences.Key<String> {
         }
     }
 }
+
+fun manavaraListKor(): List<String> {
+    return listOf(
+        "베스트 웹소설 DB",
+        "웹소설 투데이 장르",
+        "웹소설 주간 장르",
+        "웹소설 월간 장르",
+        "베스트 웹툰 DB",
+        "웹툰 투데이 장르",
+        "웹툰 주간 장르",
+        "웹툰 월간 장르",
+        "작품 검색",
+        "북코드 검색",
+        "웹소설 DB 검색",
+        "웹툰 DB 검색"
+    )
+}

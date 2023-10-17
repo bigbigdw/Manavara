@@ -171,7 +171,7 @@ fun ScreenBest(
                 ScreenBestDetail(
                     getMenu = getMenu,
                     viewModelMain = viewModelMain,
-                    getDetailType = getType,
+                    getType = getType,
                     viewModelBest = viewModelBest,
                     isExpandedScreen = isExpandedScreen,
                     listState = listState,
@@ -182,79 +182,18 @@ fun ScreenBest(
 
             } else {
 
-                if(getBestType.isEmpty()){
-                    ScreenBestDBListNovel(type = "NOVEL")
-                } else if (getBestType.contains("TODAY_BEST")) {
+                ScreenBestItemDetail(
+                    isExpandedScreen = isExpandedScreen,
+                    viewModelBest = viewModelBest,
+                    viewModelMain = viewModelMain,
+                    getPlatform = getPlatform,
+                    getType = getType,
+                    listState = listState,
+                    getBestType = getBestType,
+                    setDialogOpen = null,
+                    modalSheetState = modalSheetState
+                )
 
-                    Spacer(modifier = Modifier.size(16.dp))
-
-                    ScreenTodayBest(
-                        viewModelMain = viewModelMain,
-                        viewModelBest = viewModelBest,
-                        getType = getType,
-                        getPlatform = getPlatform,
-                        isExpandedScreen = isExpandedScreen,
-                        listState = listState,
-                        modalSheetState = modalSheetState,
-                        setDialogOpen = null
-                    )
-
-                } else if (getBestType.contains("WEEK_BEST")) {
-
-                    Spacer(modifier = Modifier.size(16.dp))
-
-                    ScreenTodayWeek(
-                        viewModelMain = viewModelMain,
-                        viewModelBest = viewModelBest,
-                        isExpandedScreen = isExpandedScreen,
-                        modalSheetState = modalSheetState,
-                        setDialogOpen = null,
-                        getType = getType,
-                        getPlatform = getPlatform,
-                    )
-
-                } else if (getBestType.contains("MONTH_BEST")) {
-
-                    Spacer(modifier = Modifier.size(16.dp))
-
-                    ScreenTodayMonth(
-                        viewModelMain = viewModelMain,
-                        viewModelBest = viewModelBest,
-                        modalSheetState = modalSheetState,
-                        setDialogOpen = null,
-                        getType = getType,
-                        getPlatform = getPlatform,
-                    )
-
-                }
-
-//                else if (getMenu.contains("투데이 장르")) {
-//                    GenreDetailJson(
-//                        viewModelBest = viewModelBest,
-//                        getDetailType = getDetailType,
-//                        menuType = "투데이"
-//                    )
-//
-//                } else if (getMenu.contains("주간 장르")) {
-//                    GenreDetailJson(
-//                        viewModelBest = viewModelBest,
-//                        getDetailType = getDetailType,
-//                        menuType = "주간"
-//                    )
-//
-//                } else if (getMenu.contains("월간 장르")) {
-//                    GenreDetailJson(
-//                        viewModelBest = viewModelBest,
-//                        getDetailType = getDetailType,
-//                        menuType = "월간"
-//                    )
-//                } else if (getMenu.contains("베스트 웹소설 DB")) {
-//                    ScreenBestDBListNovel(isInit = false, type = "NOVEL")
-//                }  else if (getMenu.contains("베스트 웹툰 DB")) {
-//                    ScreenBestDBListNovel(isInit = false, type = "COMIC")
-//                } else {
-//                    ScreenBestDBListNovel(type = "NOVEL")
-//                }
             }
         }
     }
@@ -524,7 +463,7 @@ fun ItemBestListSingle(
 fun ScreenBestDetail(
     getMenu: String,
     viewModelMain: ViewModelMain,
-    getDetailType: String,
+    getType: String,
     viewModelBest: ViewModelBest,
     isExpandedScreen: Boolean,
     listState: LazyListState,
@@ -562,73 +501,76 @@ fun ScreenBestDetail(
             }
         }
 
-        if(getBestType.isEmpty()){
-            ScreenBestDBListNovel(type = "NOVEL")
-        } else if (getBestType.contains("TODAY_BEST")) {
+        ScreenBestItemDetail(
+            isExpandedScreen = isExpandedScreen,
+            viewModelBest = viewModelBest,
+            viewModelMain = viewModelMain,
+            getPlatform = getPlatform,
+            getType = getType,
+            listState = listState,
+            getBestType = getBestType,
+            setDialogOpen = setDialogOpen,
+            modalSheetState = null
+        )
+    }
+}
 
-            ScreenTodayBest(
-                viewModelMain = viewModelMain,
-                viewModelBest = viewModelBest,
-                getType = getDetailType,
-                isExpandedScreen = isExpandedScreen,
-                listState = listState,
-                modalSheetState = null,
-                setDialogOpen = setDialogOpen,
-                getPlatform = getPlatform
-            )
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun ScreenBestItemDetail(
+    isExpandedScreen: Boolean,
+    viewModelBest: ViewModelBest,
+    viewModelMain: ViewModelMain,
+    getPlatform: String,
+    getType: String,
+    listState: LazyListState,
+    getBestType: String,
+    modalSheetState: ModalBottomSheetState? = null,
+    setDialogOpen: ((Boolean) -> Unit)?,
+) {
+    if(getBestType.isEmpty()){
+        ScreenBestDBListNovel(type = "NOVEL")
+    } else if (getBestType.contains("TODAY_BEST")) {
 
-        } else if (getBestType.contains("WEEK_BEST")) {
+        Spacer(modifier = Modifier.size(16.dp))
 
-            ScreenTodayWeek(
-                viewModelMain = viewModelMain,
-                viewModelBest = viewModelBest,
-                isExpandedScreen = isExpandedScreen,
-                modalSheetState = null,
-                setDialogOpen = setDialogOpen,
-                getType = getDetailType,
-                getPlatform = getPlatform
-            )
+        ScreenTodayBest(
+            viewModelMain = viewModelMain,
+            viewModelBest = viewModelBest,
+            getType = getType,
+            getPlatform = getPlatform,
+            isExpandedScreen = isExpandedScreen,
+            listState = listState,
+            modalSheetState = modalSheetState,
+            setDialogOpen = setDialogOpen
+        )
 
-        } else if (getBestType.contains("MONTH_BEST")) {
+    } else if (getBestType.contains("WEEK_BEST")) {
 
-            ScreenTodayMonth(
-                viewModelMain = viewModelMain,
-                viewModelBest = viewModelBest,
-                modalSheetState = null,
-                setDialogOpen = setDialogOpen,
-                getType = getDetailType,
-                getPlatform = getPlatform
-            )
+        Spacer(modifier = Modifier.size(16.dp))
 
-        }
+        ScreenTodayWeek(
+            viewModelMain = viewModelMain,
+            viewModelBest = viewModelBest,
+            isExpandedScreen = isExpandedScreen,
+            modalSheetState = modalSheetState,
+            setDialogOpen = setDialogOpen,
+            getType = getType,
+            getPlatform = getPlatform,
+        )
 
-//        else if (getMenu.contains("투데이 장르")) {
-//            GenreDetailJson(
-//                viewModelBest = viewModelBest,
-//                getDetailType = getDetailType,
-//                menuType = "투데이"
-//            )
-//
-//        } else if (getMenu.contains("주간 장르")) {
-//            GenreDetailJson(
-//                viewModelBest = viewModelBest,
-//                getDetailType = getDetailType,
-//                menuType = "주간"
-//            )
-//
-//        } else if (getMenu.contains("월간 장르")) {
-//            GenreDetailJson(
-//                viewModelBest = viewModelBest,
-//                getDetailType = getDetailType,
-//                menuType = "월간"
-//            )
-//
-//        } else if (getMenu.contains("베스트 웹소설 DB")) {
-//            ScreenBestDBListNovel(isInit = false, type = "NOVEL")
-//        }  else if (getMenu.contains("베스트 웹툰 DB")) {
-//            ScreenBestDBListNovel(isInit = false, type = "COMIC")
-//        } else {
-//            ScreenBestDBListNovel(type = "NOVEL")
-//        }
+    } else if (getBestType.contains("MONTH_BEST")) {
+
+        Spacer(modifier = Modifier.size(16.dp))
+
+        ScreenTodayMonth(
+            viewModelMain = viewModelMain,
+            viewModelBest = viewModelBest,
+            modalSheetState = modalSheetState,
+            setDialogOpen = setDialogOpen,
+            getType = getType,
+            getPlatform = getPlatform,
+        )
+
     }
 }

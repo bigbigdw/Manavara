@@ -70,6 +70,9 @@ import com.bigbigdw.manavara.ui.theme.color1E1E20
 import com.bigbigdw.manavara.ui.theme.color1E4394
 import com.bigbigdw.manavara.ui.theme.color555b68
 import com.bigbigdw.manavara.ui.theme.colorDCDCDD
+import com.bigbigdw.manavara.util.changePlatformNameEng
+import com.bigbigdw.manavara.util.changePlatformNameKor
+import com.bigbigdw.manavara.util.comicListEng
 import com.bigbigdw.manavara.util.novelListEng
 import com.bigbigdw.manavara.util.screen.ScreenTest
 import kotlinx.coroutines.launch
@@ -216,10 +219,12 @@ fun ScreenMainMobile(
     getBestType: String,
 ) {
 
-    if(getBestType.isEmpty()){
-        setBestType("TODAY_BEST")
-        setPlatform("JOARA")
-        setMenu("조아라")
+    if(currentRoute == "NOVEL" || currentRoute == "COMIC"){
+        if(getBestType.isEmpty()){
+            setBestType("TODAY_BEST")
+            setPlatform("JOARA")
+            setMenu("조아라")
+        }
     }
 
     val modalSheetState = rememberModalBottomSheetState(
@@ -470,6 +475,12 @@ fun NavigationGraph(
 
             setType("NOVEL")
 
+            if(!novelListEng().contains(getPlatform)){
+                setPlatform("JOARA")
+                setBestType("TODAY_BEST")
+                setMenu(changePlatformNameKor("JOARA"))
+            }
+
             ScreenBest(
                 isExpandedScreen = isExpandedScreen,
                 viewModelBest = viewModelBest,
@@ -489,6 +500,12 @@ fun NavigationGraph(
 
             setType("COMIC")
 
+            if(!comicListEng().contains(getPlatform)){
+                setPlatform("NAVER_SERIES")
+                setBestType("TODAY_BEST")
+                setMenu(changePlatformNameKor("NAVER_SERIES"))
+            }
+
             ScreenBest(
                 isExpandedScreen = isExpandedScreen,
                 viewModelBest = viewModelBest,
@@ -505,6 +522,9 @@ fun NavigationGraph(
             )
         }
         composable(ScreemBottomItem.MANAVARA.screenRoute) {
+
+            setType("MANAVARA")
+
             ScreenManavara(
                 isExpandedScreen = isExpandedScreen,
                 viewModelBest = viewModelBest,
