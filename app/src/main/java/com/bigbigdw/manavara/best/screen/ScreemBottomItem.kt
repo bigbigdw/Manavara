@@ -1,4 +1,4 @@
-package com.bigbigdw.manavara.main.screen
+package com.bigbigdw.manavara.best.screen
 
 import com.bigbigdw.manavara.R
 

@@ -1,8 +1,8 @@
-package com.bigbigdw.manavara.main.event
+package com.bigbigdw.manavara.best.event
 
-import com.bigbigdw.manavara.main.models.ItemBestInfo
-import com.bigbigdw.manavara.main.models.ItemBookInfo
-import com.bigbigdw.manavara.main.models.ItemKeyword
+import com.bigbigdw.manavara.best.models.ItemBestInfo
+import com.bigbigdw.manavara.best.models.ItemBookInfo
+import com.bigbigdw.manavara.best.models.ItemKeyword
 import com.bigbigdw.manavara.main.models.UserInfo
 
 sealed interface EventBest{

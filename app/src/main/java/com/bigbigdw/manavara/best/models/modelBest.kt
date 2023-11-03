@@ -1,4 +1,4 @@
-package com.bigbigdw.manavara.main.models
+package com.bigbigdw.manavara.best.models
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

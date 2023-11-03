@@ -8,9 +8,8 @@ import androidx.activity.viewModels
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.lifecycle.lifecycleScope
-import com.bigbigdw.manavara.login.viewModels.ViewModelLogin
 import com.bigbigdw.manavara.main.screen.ScreenMain
-import com.bigbigdw.manavara.main.viewModels.ViewModelBest
+import com.bigbigdw.manavara.best.viewModels.ViewModelBest
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.util.screen.BackOnPressed
 import kotlinx.coroutines.flow.launchIn

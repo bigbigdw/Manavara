@@ -1,9 +1,9 @@
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
-import com.bigbigdw.manavara.main.models.ItemBestInfo
-import com.bigbigdw.manavara.main.models.ItemBookInfo
-import com.bigbigdw.manavara.main.models.ItemKeyword
+import com.bigbigdw.manavara.best.models.ItemBestInfo
+import com.bigbigdw.manavara.best.models.ItemBookInfo
+import com.bigbigdw.manavara.best.models.ItemKeyword
 import com.bigbigdw.manavara.util.DataStoreManager
 import com.bigbigdw.manavara.util.getPlatformDataKeyComic
 import com.bigbigdw.manavara.util.getPlatformDataKeyNovel

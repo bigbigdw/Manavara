@@ -1,6 +1,7 @@
-package com.bigbigdw.manavara.main.screen
+package com.bigbigdw.manavara.best.screen
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -40,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -48,8 +50,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.bigbigdw.manavara.R
-import com.bigbigdw.manavara.main.viewModels.ViewModelBest
-import com.bigbigdw.manavara.main.viewModels.ViewModelMain
+import com.bigbigdw.manavara.best.ActivityBestDetail
+import com.bigbigdw.manavara.main.screen.ScreenBestDBListNovel
+import com.bigbigdw.manavara.best.viewModels.ViewModelBest
+import com.bigbigdw.manavara.main.ActivityMain
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color4AD7CF
 import com.bigbigdw.manavara.ui.theme.color5372DE
@@ -75,7 +79,6 @@ import kotlinx.coroutines.launch
 fun ScreenBest(
     isExpandedScreen: Boolean,
     viewModelBest: ViewModelBest,
-    viewModelMain: ViewModelMain,
     setMenu: (String) -> Unit,
     getMenu: String,
     setPlatform: (String) -> Unit,
@@ -87,37 +90,7 @@ fun ScreenBest(
     modalSheetState: ModalBottomSheetState? = null,
 ) {
 
-    LaunchedEffect(getPlatform,getType){
-        viewModelBest.getBestListToday(
-            platform = getPlatform,
-            type = getType,
-        )
-
-        viewModelBest.getBestWeekTrophy(
-            platform = getPlatform,
-            type = getType,
-        )
-
-        viewModelBest.getBestMapToday(
-            platform = getPlatform,
-            type = getType,
-        )
-
-        viewModelBest.getBestWeekList(
-            platform = getPlatform,
-            type = getType,
-        )
-
-        viewModelBest.getBestMonthTrophy(
-            platform = getPlatform,
-            type = getType,
-        )
-
-        viewModelBest.getBestMonthList(
-            platform = getPlatform,
-            type = getType,
-        )
-    }
+    val context = LocalContext.current
 
     Box(
         modifier = Modifier
@@ -135,10 +108,13 @@ fun ScreenBest(
                         onDismissRequest = { setDialogOpen(false) },
                     ) {
                         AlertTwoBtn(
-                            isShow = {  },
-                            onFetchClick = { },
+                            isShow = { setDialogOpen(false) },
+                            onFetchClick = {
+                                val intent = Intent(context, ActivityBestDetail::class.java)
+                                context.startActivity(intent)
+                            },
                             btnLeft = "취소",
-                            btnRight = "확인",
+                            btnRight = "작품 보러가기",
                             modifier = Modifier.requiredWidth(400.dp),
                             contents = {
                                 ScreenDialogBest(
@@ -170,10 +146,8 @@ fun ScreenBest(
 
                 ScreenBestDetail(
                     getMenu = getMenu,
-                    viewModelMain = viewModelMain,
                     getType = getType,
                     viewModelBest = viewModelBest,
-                    isExpandedScreen = isExpandedScreen,
                     listState = listState,
                     setDialogOpen = setDialogOpen,
                     getBestType = getBestType,
@@ -183,15 +157,13 @@ fun ScreenBest(
             } else {
 
                 ScreenBestItemDetail(
-                    isExpandedScreen = isExpandedScreen,
                     viewModelBest = viewModelBest,
-                    viewModelMain = viewModelMain,
                     getPlatform = getPlatform,
                     getType = getType,
                     listState = listState,
                     getBestType = getBestType,
-                    setDialogOpen = null,
-                    modalSheetState = modalSheetState
+                    modalSheetState = modalSheetState,
+                    setDialogOpen = null
                 )
 
             }
@@ -281,7 +253,7 @@ fun ScreenBestPropertyList(
 
             if (getType == "NOVEL") {
                 LazyColumn {
-                    itemsIndexed(novelListKor()) { index, item ->
+                    itemsIndexed(novelListKor()) { _, item ->
                         ItemBestListSingle(
                             containerColor = getPlatformColor(item),
                             image = getPlatformLogo(item),
@@ -300,7 +272,7 @@ fun ScreenBestPropertyList(
                 }
             } else {
                 LazyColumn {
-                    itemsIndexed(comicListKor()) { index, item ->
+                    itemsIndexed(comicListKor()) { _, item ->
                         ItemBestListSingle(
                             containerColor = getPlatformColor(item),
                             image = getPlatformLogo(item),
@@ -347,7 +319,7 @@ fun ScreenBestPropertyList(
 
             TabletBorderLine()
 
-            novelListKor().forEachIndexed { index, item ->
+            novelListKor().forEachIndexed { _, item ->
                 ItemBestListSingle(
                     containerColor = getPlatformColor(item),
                     image = getPlatformLogo(item),
@@ -462,10 +434,8 @@ fun ItemBestListSingle(
 @Composable
 fun ScreenBestDetail(
     getMenu: String,
-    viewModelMain: ViewModelMain,
     getType: String,
     viewModelBest: ViewModelBest,
-    isExpandedScreen: Boolean,
     listState: LazyListState,
     setDialogOpen: (Boolean) -> Unit,
     getBestType: String,
@@ -502,15 +472,13 @@ fun ScreenBestDetail(
         }
 
         ScreenBestItemDetail(
-            isExpandedScreen = isExpandedScreen,
             viewModelBest = viewModelBest,
-            viewModelMain = viewModelMain,
             getPlatform = getPlatform,
             getType = getType,
             listState = listState,
             getBestType = getBestType,
-            setDialogOpen = setDialogOpen,
-            modalSheetState = null
+            modalSheetState = null,
+            setDialogOpen = setDialogOpen
         )
     }
 }
@@ -518,9 +486,7 @@ fun ScreenBestDetail(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScreenBestItemDetail(
-    isExpandedScreen: Boolean,
     viewModelBest: ViewModelBest,
-    viewModelMain: ViewModelMain,
     getPlatform: String,
     getType: String,
     listState: LazyListState,
@@ -535,14 +501,13 @@ fun ScreenBestItemDetail(
         Spacer(modifier = Modifier.size(16.dp))
 
         ScreenTodayBest(
-            viewModelMain = viewModelMain,
             viewModelBest = viewModelBest,
-            getType = getType,
-            getPlatform = getPlatform,
-            isExpandedScreen = isExpandedScreen,
             listState = listState,
             modalSheetState = modalSheetState,
-            setDialogOpen = setDialogOpen
+            setDialogOpen = setDialogOpen,
+            getType = getType,
+            getPlatform = getPlatform,
+            getBestType = getBestType
         )
 
     } else if (getBestType.contains("WEEK_BEST")) {
@@ -550,13 +515,12 @@ fun ScreenBestItemDetail(
         Spacer(modifier = Modifier.size(16.dp))
 
         ScreenTodayWeek(
-            viewModelMain = viewModelMain,
             viewModelBest = viewModelBest,
-            isExpandedScreen = isExpandedScreen,
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen,
             getType = getType,
             getPlatform = getPlatform,
+            getBestType = getBestType
         )
 
     } else if (getBestType.contains("MONTH_BEST")) {
@@ -564,12 +528,12 @@ fun ScreenBestItemDetail(
         Spacer(modifier = Modifier.size(16.dp))
 
         ScreenTodayMonth(
-            viewModelMain = viewModelMain,
             viewModelBest = viewModelBest,
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen,
             getType = getType,
             getPlatform = getPlatform,
+            getBestType = getBestType
         )
 
     }

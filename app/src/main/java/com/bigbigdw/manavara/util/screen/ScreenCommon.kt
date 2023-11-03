@@ -54,7 +54,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bigbigdw.manavara.R
-import com.bigbigdw.manavara.main.viewModels.ViewModelBest
+import com.bigbigdw.manavara.best.viewModels.ViewModelBest
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color8E8E8E

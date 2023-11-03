@@ -63,14 +63,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.bigbigdw.manavara.R
-import com.bigbigdw.manavara.main.viewModels.ViewModelBest
+import com.bigbigdw.manavara.best.screen.ScreemBottomItem
+import com.bigbigdw.manavara.best.screen.ScreenBest
+import com.bigbigdw.manavara.best.screen.ScreenBestPropertyList
+import com.bigbigdw.manavara.best.screen.ScreenDialogBest
+import com.bigbigdw.manavara.best.viewModels.ViewModelBest
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color1E1E20
 import com.bigbigdw.manavara.ui.theme.color1E4394
 import com.bigbigdw.manavara.ui.theme.color555b68
 import com.bigbigdw.manavara.ui.theme.colorDCDCDD
-import com.bigbigdw.manavara.util.changePlatformNameEng
 import com.bigbigdw.manavara.util.changePlatformNameKor
 import com.bigbigdw.manavara.util.comicListEng
 import com.bigbigdw.manavara.util.novelListEng
@@ -484,7 +487,6 @@ fun NavigationGraph(
             ScreenBest(
                 isExpandedScreen = isExpandedScreen,
                 viewModelBest = viewModelBest,
-                viewModelMain = viewModelMain,
                 setMenu = setMenu,
                 getMenu = getMenu,
                 setPlatform = setPlatform,
@@ -509,7 +511,6 @@ fun NavigationGraph(
             ScreenBest(
                 isExpandedScreen = isExpandedScreen,
                 viewModelBest = viewModelBest,
-                viewModelMain = viewModelMain,
                 setMenu = setMenu,
                 getMenu = getMenu,
                 setPlatform = setPlatform,

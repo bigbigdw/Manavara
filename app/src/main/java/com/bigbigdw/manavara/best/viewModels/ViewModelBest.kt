@@ -1,13 +1,13 @@
-package com.bigbigdw.manavara.main.viewModels
+package com.bigbigdw.manavara.best.viewModels
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bigbigdw.manavara.main.event.EventBest
-import com.bigbigdw.manavara.main.event.StateBest
-import com.bigbigdw.manavara.main.models.ItemBestInfo
-import com.bigbigdw.manavara.main.models.ItemBookInfo
-import com.bigbigdw.manavara.main.models.ItemKeyword
+import com.bigbigdw.manavara.best.event.EventBest
+import com.bigbigdw.manavara.best.event.StateBest
+import com.bigbigdw.manavara.best.models.ItemBestInfo
+import com.bigbigdw.manavara.best.models.ItemBookInfo
+import com.bigbigdw.manavara.best.models.ItemKeyword
 import com.bigbigdw.manavara.util.DBDate
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -109,6 +109,11 @@ class ViewModelBest @Inject constructor() : ViewModel() {
     }
 
     fun getBestListToday(platform: String, type: String){
+
+        viewModelScope.launch {
+            events.send(EventBest.SetItemBestInfoList(itemBookInfoList = ArrayList()))
+        }
+
         val storage = Firebase.storage
         val storageRef = storage.reference
         val todayFileRef = storageRef.child("${platform}/${type}/DAY/${DBDate.dateMMDD()}.json")
@@ -140,6 +145,10 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         val weekTrophyRef = storageRef.child("${platform}/${type}/WEEK_TROPHY/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
         val weekTrophyFile = weekTrophyRef.getBytes(1024 * 1024)
 
+        viewModelScope.launch {
+            events.send(EventBest.SetWeekTrophyList(weekTrophyList = ArrayList()))
+        }
+
         weekTrophyFile.addOnSuccessListener { bytes ->
             val jsonString = String(bytes, Charset.forName("UTF-8"))
             val json = Json { ignoreUnknownKeys = true }
@@ -168,6 +177,10 @@ class ViewModelBest @Inject constructor() : ViewModel() {
 
         val todayFile = todayFileRef.getBytes(1024 * 1024)
 
+        viewModelScope.launch {
+            events.send(EventBest.SetItemBookInfoMap(itemBookInfoMap = mutableMapOf()))
+        }
+
         todayFile.addOnSuccessListener { bytes ->
             val todayJson = Json { ignoreUnknownKeys = true }
             val itemList = todayJson.decodeFromString<List<ItemBookInfo>>(String(bytes,Charset.forName("UTF-8")))
@@ -189,6 +202,10 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         val storageRef = storage.reference
         val weekRef =   storageRef.child("${platform}/${type}/WEEK/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
         val weekFile = weekRef.getBytes(1024 * 1024)
+
+        viewModelScope.launch {
+            events.send(EventBest.SetWeekList(weekList = ArrayList()))
+        }
 
         weekFile.addOnSuccessListener { bytes ->
             val jsonString = String(bytes, Charset.forName("UTF-8"))
@@ -231,6 +248,10 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         val monthRef = storageRef.child("${platform}/${type}/MONTH/${DBDate.year()}_${DBDate.month()}.json")
         val monthFile = monthRef.getBytes(1024 * 1024)
 
+        viewModelScope.launch {
+            events.send(EventBest.SetMonthList(monthList = ArrayList()))
+        }
+
         monthFile.addOnSuccessListener { bytes ->
             val jsonString = String(bytes, Charset.forName("UTF-8"))
 
@@ -271,6 +292,10 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         val storageRef = storage.reference
         val monthTrophyRef =  storageRef.child("${platform}/${type}/MONTH_TROPHY/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
         val monthTrophyFile = monthTrophyRef.getBytes(1024 * 1024)
+
+        viewModelScope.launch {
+            events.send(EventBest.SetMonthTrophyList(monthTrophyList = ArrayList()))
+        }
 
         monthTrophyFile.addOnSuccessListener { bytes ->
             val jsonString = String(bytes, Charset.forName("UTF-8"))

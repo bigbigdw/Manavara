@@ -1,4 +1,4 @@
-package com.bigbigdw.manavara.main.screen
+package com.bigbigdw.manavara.best.screen
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
@@ -33,6 +33,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,10 +51,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.bigbigdw.manavara.R
-import com.bigbigdw.manavara.main.models.ItemBestInfo
-import com.bigbigdw.manavara.main.models.ItemBookInfo
-import com.bigbigdw.manavara.main.viewModels.ViewModelBest
-import com.bigbigdw.manavara.main.viewModels.ViewModelMain
+import com.bigbigdw.manavara.best.models.ItemBestInfo
+import com.bigbigdw.manavara.best.models.ItemBookInfo
+import com.bigbigdw.manavara.best.viewModels.ViewModelBest
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color02BC77
 import com.bigbigdw.manavara.ui.theme.color1CE3EE
@@ -76,15 +76,26 @@ import kotlinx.coroutines.launch
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun ScreenTodayBest(
-    viewModelMain: ViewModelMain,
     viewModelBest: ViewModelBest,
-    isExpandedScreen: Boolean,
     listState: LazyListState,
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
     getType: String,
-    getPlatform: String
+    getPlatform: String,
+    getBestType : String
 ) {
+
+    LaunchedEffect(getPlatform, getType, getBestType) {
+        viewModelBest.getBestListToday(
+            platform = getPlatform,
+            type = getType,
+        )
+
+        viewModelBest.getBestMapToday(
+            platform = getPlatform,
+            type = getType,
+        )
+    }
 
     val bestState = viewModelBest.state.collectAsState().value
 
@@ -267,14 +278,27 @@ fun ListBestToday(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScreenTodayWeek(
-    viewModelMain: ViewModelMain,
     viewModelBest: ViewModelBest,
-    isExpandedScreen: Boolean,
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
     getType: String,
-    getPlatform: String
+    getPlatform: String,
+    getBestType: String
 ) {
+
+    LaunchedEffect(getPlatform, getType) {
+
+        viewModelBest.getBestWeekTrophy(
+            platform = getPlatform,
+            type = getType,
+        )
+
+        viewModelBest.getBestWeekList(
+            platform = getPlatform,
+            type = getType,
+        )
+
+    }
 
     val bestState = viewModelBest.state.collectAsState().value
 
@@ -437,13 +461,25 @@ fun ListBest(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScreenTodayMonth(
-    viewModelMain: ViewModelMain,
     viewModelBest: ViewModelBest,
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
     getType: String,
-    getPlatform: String
+    getPlatform: String,
+    getBestType: String
 ) {
+
+    LaunchedEffect(getPlatform, getType) {
+        viewModelBest.getBestMonthTrophy(
+            platform = getPlatform,
+            type = getType,
+        )
+
+        viewModelBest.getBestMonthList(
+            platform = getPlatform,
+            type = getType,
+        )
+    }
 
     val bestState = viewModelBest.state.collectAsState().value
 
@@ -454,11 +490,12 @@ fun ScreenTodayMonth(
     val monthList = bestState.monthList
 
     val arrayList = ArrayList<String>()
+
     arrayList.add("전체")
 
     var count = 0
 
-    for (item in bestState.monthList) {
+    for (item in monthList) {
         count += 1
         arrayList.add("${count}주차")
     }
@@ -505,14 +542,14 @@ fun ScreenTodayMonth(
             }
         } else {
 
-            if (bestState.monthList[geMonthDate(getDate)].size > 0) {
+            if (monthList[geMonthDate(getDate)].size > 0) {
                 LazyColumn(
                     modifier = Modifier
                         .background(colorF6F6F6)
                         .padding(16.dp, 0.dp, 16.dp, 0.dp)
                 ) {
 
-                    itemsIndexed(bestState.monthList[geMonthDate(getDate)]) { index, item ->
+                    itemsIndexed(monthList[geMonthDate(getDate)]) { index, item ->
 
                         val itemBookInfo = bestState.itemBookInfoMap[item.bookCode]
 
