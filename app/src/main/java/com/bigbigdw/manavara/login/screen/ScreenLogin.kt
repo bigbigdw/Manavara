@@ -1,14 +1,12 @@
 package com.bigbigdw.manavara.login.screen
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -40,7 +38,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -55,10 +52,9 @@ import com.bigbigdw.manavara.ui.theme.color1CE3EE
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color898989
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
-import com.bigbigdw.manavara.ui.theme.colorE9E9E9
 import com.bigbigdw.manavara.ui.theme.colorEDE6FD
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
-import com.bigbigdw.manavara.util.changePlatformNameEng
+import com.bigbigdw.manavara.util.DBDate
 import com.bigbigdw.manavara.util.screen.AlertTwoBtn
 import com.bigbigdw.manavara.util.screen.BtnMobile
 import com.bigbigdw.manavara.util.screen.ItemTabletTitle
@@ -66,6 +62,7 @@ import com.bigbigdw.manavara.util.screen.MainHeader
 import com.bigbigdw.manavara.util.screen.ScreenTabletWrap
 import com.bigbigdw.manavara.util.screen.TabletContentWrap
 import com.bigbigdw.manavara.util.screen.spannableString
+import postFCM
 
 @SuppressLint("MutableCollectionMutableState")
 @Composable
@@ -317,7 +314,7 @@ fun ScreenRegister(
         ) {
             Text(
                 text = "마나바라는 김대우가 AOS/iOS 스터디를 위해 혼자 만든 웹소설/웹툰 수집 어플리케이션입니다. 유익하게 사용 하실 수 있는 분이라면 유익하게 사용해주시면 감사드리겠습니다." +
-                        "\n\n마나바라는 기존에 유성아 파트장님, 박주은 프로님과 같이 진행했던 웹소설 모음 어플리케이션 모아바라 어플리케이션의 개량형입니다.",
+                        "\n\n회원 가입 후 승인이 되어야 마나바라 서비스를 이용할 수 있습니다.",
                 color = color8E8E8E,
                 fontSize = 16.sp,
             )
@@ -345,19 +342,6 @@ fun ScreenRegister(
             modifier = Modifier.fillMaxWidth()
         )
 
-        TextField(
-            value = getUserInfo.userEmail,
-            enabled = false,
-            onValueChange = {},
-            label = { Text("이메일 주소", color = color898989) },
-            singleLine = true,
-            colors = TextFieldDefaults.textFieldColors(
-                containerColor = Color(0),
-                textColor = color000000
-            ),
-            modifier = Modifier.fillMaxWidth()
-        )
-
         Spacer(modifier = Modifier.size(16.dp))
     }
 
@@ -366,6 +350,18 @@ fun ScreenRegister(
             func = {
                 viewModelLogin.doRegister(
                     getUserInfo = getUserInfo
+                )
+
+                val year = DBDate.dateMMDDHHMMss().substring(0, 4)
+                val month = DBDate.dateMMDDHHMMss().substring(4, 6)
+                val day = DBDate.dateMMDDHHMMss().substring(6, 8)
+                val hour = DBDate.dateMMDDHHMMss().substring(8, 10)
+                val min = DBDate.dateMMDDHHMMss().substring(10, 12)
+                val sec = DBDate.dateMMDDHHMMss().substring(12, 14)
+
+                postFCM(
+                    data = " 회원가입 - ${viewModelLogin.state.value.userInfo.userEmail}",
+                    time = "${year}.${month}.${day} ${hour}:${min}:${sec}",
                 )
             },
             btnText = "회원 가입"
@@ -376,73 +372,6 @@ fun ScreenRegister(
         Spacer(modifier = Modifier.size(20.dp))
     }
 
-}
-
-@Composable
-fun ItemChooseGenre(
-    title: String,
-    isLast: Boolean,
-    setRange: (ArrayList<String>) -> Unit,
-    getRange: ArrayList<String>,
-) {
-
-    Column {
-        Button(
-            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-            contentPadding = PaddingValues(
-                start = 0.dp,
-                top = 0.dp,
-                end = 0.dp,
-                bottom = 0.dp,
-            ),
-            shape = RoundedCornerShape(0.dp),
-            onClick = {
-                if (getRange.contains(changePlatformNameEng(title))) {
-                    getRange.remove(changePlatformNameEng(title))
-                    setRange(getRange)
-                    Log.d("HIHIHI", "getRangeComic == $getRange")
-                } else {
-                    getRange.add(changePlatformNameEng(title))
-                    setRange(getRange)
-                    Log.d("HIHIHI", "getRangeComic == $getRange")
-                }
-            },
-            content = {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = title,
-                        fontSize = 18.sp,
-                        textAlign = TextAlign.Center,
-                        color = if (getRange.contains(changePlatformNameEng(title))) {
-                            color1CE3EE
-                        } else {
-                            color000000
-                        },
-                        fontWeight = if (getRange.contains(changePlatformNameEng(title))) {
-                            FontWeight(weight = 800)
-                        } else {
-                            FontWeight(weight = 400)
-                        }
-                    )
-                }
-            })
-
-        if (!isLast) {
-            Spacer(modifier = Modifier.size(2.dp))
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(color = colorE9E9E9)
-            )
-            Spacer(modifier = Modifier.size(2.dp))
-        }
-    }
 }
 
 @Composable
@@ -523,7 +452,7 @@ fun RegisterInfo(state: StateLogin) {
 }
 
 @Composable
-fun ScreenRegisterMobile(
+fun ScreenAfterSplash(
     viewModelLogin: ViewModelLogin,
     setUserInfo: (UserInfo) -> Unit,
     getUserInfo: UserInfo,

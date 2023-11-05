@@ -5,4 +5,5 @@ data class UserInfo (
     var userEmail: String = "",
     var userFcmToken : String = "",
     var userUID : String = "",
+    var userStatus : String = "LOCKED",
 )

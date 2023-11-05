@@ -9,7 +9,7 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.lifecycle.lifecycleScope
-import com.bigbigdw.manavara.login.screen.ScreenRegisterMobile
+import com.bigbigdw.manavara.login.screen.ScreenAfterSplash
 import com.bigbigdw.manavara.login.viewModels.ViewModelLogin
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -36,7 +36,7 @@ class ActivityRegister : ComponentActivity() {
         setContent {
             val (getUserInfo, setUserInfo) = remember { mutableStateOf(state.userInfo) }
 
-            ScreenRegisterMobile(
+            ScreenAfterSplash(
                 viewModelLogin = viewModelLogin,
                 setUserInfo = setUserInfo,
                 getUserInfo = getUserInfo,

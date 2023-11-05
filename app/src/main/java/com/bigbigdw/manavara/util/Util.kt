@@ -7,6 +7,11 @@ import com.bigbigdw.manavara.best.models.ItemKeyword
 import com.bigbigdw.manavara.util.DataStoreManager
 import com.bigbigdw.manavara.util.getPlatformDataKeyComic
 import com.bigbigdw.manavara.util.getPlatformDataKeyNovel
+import com.bigbigdw.manavara.firebase.DataFCMBody
+import com.bigbigdw.manavara.firebase.DataFCMBodyData
+import com.bigbigdw.manavara.firebase.DataFCMBodyNotification
+import com.bigbigdw.manavara.firebase.FWorkManagerResult
+import com.bigbigdw.manavara.firebase.FirebaseService
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -16,6 +21,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.json.JSONObject
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 @SuppressLint("SuspiciousIndentation")
 fun convertItemBook(bestItemData : ItemBookInfo) : JsonObject {
@@ -142,5 +151,44 @@ fun getBookCount(context : Context, type: String, platform: String) {
         }
 
         override fun onCancelled(databaseError: DatabaseError) {}
+    })
+}
+
+fun postFCM(data: String, time: String) {
+
+    val fcmBody = DataFCMBody(
+        "/topics/adminAll",
+        "high",
+        DataFCMBodyData("마나바라", data),
+        DataFCMBodyNotification(
+            title = "마나바라",
+            body = "$time $data",
+            click_action = "best"
+        ),
+    )
+
+    val call = Retrofit.Builder()
+        .baseUrl("https://fcm.googleapis.com")
+        .addConverterFactory(GsonConverterFactory.create()).build()
+        .create(FirebaseService::class.java)
+        .postRetrofit(
+            fcmBody
+        )
+
+    call.enqueue(object : Callback<FWorkManagerResult?> {
+        override fun onResponse(
+            call: Call<FWorkManagerResult?>,
+            response: retrofit2.Response<FWorkManagerResult?>
+        ) {
+            if (response.isSuccessful) {
+                Log.d("FCM", "성공")
+            } else {
+                Log.d("FCM", "실패2")
+            }
+        }
+
+        override fun onFailure(call: Call<FWorkManagerResult?>, t: Throwable) {
+            Log.d("FCM", "실패");
+        }
     })
 }

@@ -1,7 +1,10 @@
 package com.bigbigdw.manavara.login.viewModels
 
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,6 +12,7 @@ import com.bigbigdw.manavara.main.ActivityMain
 import com.bigbigdw.manavara.login.ActivityRegister
 import com.bigbigdw.manavara.login.events.EventLogin
 import com.bigbigdw.manavara.login.events.StateLogin
+import com.bigbigdw.manavara.main.ActivitySplash
 import com.bigbigdw.manavara.main.models.UserInfo
 import com.bigbigdw.manavara.util.changePlatformNameEng
 import com.bigbigdw.manavara.util.changePlatformNameKor
@@ -115,14 +119,25 @@ class ViewModelLogin @Inject constructor() : ViewModel() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if(dataSnapshot.exists()){
 
-                    viewModelScope.launch {
-                        _sideEffects.send("이미 가입된 계정입니다")
+                    val userInfo = dataSnapshot.child("USERINFO").getValue(UserInfo::class.java)
+
+                    if(userInfo?.userStatus == "ALLOW"){
+                        viewModelScope.launch {
+                            _sideEffects.send("이미 가입된 계정입니다")
+                        }
+
+                        val intent = Intent(activity, ActivityMain::class.java)
+                        activity.startActivity(intent)
+                        activity.finish()
+                    } else {
+                        viewModelScope.launch {
+                            _sideEffects.send("가입 승인 대기중입니다.")
+                        }
                     }
 
-                    val intent = Intent(activity, ActivityMain::class.java)
-                    activity.startActivity(intent)
-                    activity.finish()
                 } else {
+
+                    Firebase.auth.signOut()
 
                     viewModelScope.launch {
                         _sideEffects.send("회원가입을 진행합니다.")
@@ -196,12 +211,12 @@ class ViewModelLogin @Inject constructor() : ViewModel() {
 
         mRootRef.child("USER").child(state.value.userInfo.userUID).child("USERINFO").setValue(state.value.userInfo)
 
-        val intent = Intent(activity, ActivityMain::class.java)
+        val intent = Intent(activity, ActivitySplash::class.java)
         activity.startActivity(intent)
         activity.finish()
 
         viewModelScope.launch {
-            _sideEffects.send("가입이 완료되었습니다.")
+            _sideEffects.send("가입이 완료되었습니다. 가입 승인을 기다려주세요.")
         }
     }
 

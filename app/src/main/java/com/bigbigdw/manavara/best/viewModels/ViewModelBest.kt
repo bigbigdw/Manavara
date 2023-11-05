@@ -135,8 +135,39 @@ class ViewModelBest @Inject constructor() : ViewModel() {
                 events.send(EventBest.SetItemBestInfoList(itemBookInfoList = todayJsonList))
             }
         }.addOnFailureListener {
-            Log.d("getBestJsonList", "ScreenTodayBest--getBestJsonList--addOnFailureListener == $it")
+            getBestList(platform = platform, type = type)
         }
+    }
+
+    private fun getBestList(platform: String, type: String) {
+        val mRootRef =
+            FirebaseDatabase.getInstance().reference.child("BEST").child(type).child(platform)
+                .child("DAY")
+
+        mRootRef.addListenerForSingleValueEvent(object :
+            ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (dataSnapshot.exists()) {
+
+                    val bestList = ArrayList<ItemBookInfo>()
+
+                    for (book in dataSnapshot.children) {
+                        val item: ItemBookInfo? =
+                            dataSnapshot.child(book.key ?: "").getValue(ItemBookInfo::class.java)
+                        if (item != null) {
+                            bestList.add(item)
+                        }
+                    }
+
+                    viewModelScope.launch {
+                        events.send(EventBest.SetItemBestInfoList(itemBookInfoList = bestList))
+                    }
+
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {}
+        })
     }
 
     fun getBestWeekTrophy(platform: String, type: String){

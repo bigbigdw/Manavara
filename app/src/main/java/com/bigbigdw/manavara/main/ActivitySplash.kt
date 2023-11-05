@@ -5,10 +5,11 @@ import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Intent
-import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -18,13 +19,13 @@ import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.collectAsState
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.login.ActivityLogin
 import com.bigbigdw.manavara.login.screen.ScreenSplash
 import com.bigbigdw.manavara.login.viewModels.ViewModelLogin
+import com.bigbigdw.manavara.main.models.UserInfo
 import com.bigbigdw.manavara.util.DataStoreManager
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
@@ -43,6 +44,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+
 
 class ActivitySplash : ComponentActivity() {
 
@@ -155,6 +157,7 @@ class ActivitySplash : ComponentActivity() {
             checkLogin()
         } else {
             requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            checkLogin()
         }
     }
 
@@ -171,9 +174,19 @@ class ActivitySplash : ComponentActivity() {
 
                     CoroutineScope(Dispatchers.IO).launch {
                         dataStore.setDataStoreString(DataStoreManager.UID, uid)
-                        val intent = Intent(this@ActivitySplash, ActivityMain::class.java)
-                        startActivity(intent)
-                        finish()
+
+                        val userInfo = dataSnapshot.child("USERINFO").getValue(UserInfo::class.java)
+
+                        if(userInfo?.userStatus == "ALLOW"){
+                            val intent = Intent(this@ActivitySplash, ActivityMain::class.java)
+                            startActivity(intent)
+                            finish()
+                        } else {
+                            val handler = Handler(Looper.getMainLooper())
+                            handler.postDelayed({
+                                Toast.makeText(this@ActivitySplash, "가입 승인 대기중입니다.", Toast.LENGTH_SHORT).show()
+                            }, 0)
+                        }
                     }
 
                 } else {
@@ -191,19 +204,4 @@ class ActivitySplash : ComponentActivity() {
         })
     }
 
-    private fun doLogin() {
-        oneTapClient.beginSignIn(signInRequest)
-            .addOnSuccessListener(this) { result ->
-                try {
-                    storagePermissionLauncher?.launch(
-                        IntentSenderRequest.Builder(result.pendingIntent.intentSender).build()
-                    )
-                } catch (e: IntentSender.SendIntentException) {
-                    Log.e("ActivityLogin", "Couldn't start One Tap UI: ${e.localizedMessage}")
-                }
-            }
-            .addOnFailureListener(this) { e ->
-                Log.d("ActivityLogin", e.localizedMessage)
-            }
-    }
 }
