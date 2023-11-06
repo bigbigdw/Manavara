@@ -36,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -44,6 +45,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.bigbigdw.manavara.R
+import com.bigbigdw.manavara.firebase.DataFCMBody
+import com.bigbigdw.manavara.firebase.DataFCMBodyData
+import com.bigbigdw.manavara.firebase.DataFCMBodyNotification
 import com.bigbigdw.manavara.login.events.StateLogin
 import com.bigbigdw.manavara.main.models.UserInfo
 import com.bigbigdw.manavara.login.viewModels.ViewModelLogin
@@ -287,6 +291,8 @@ fun ScreenRegister(
     isEdit: Boolean = false
 ) {
 
+    val context = LocalContext.current
+
     if (isEdit) {
         Spacer(modifier = Modifier.size(4.dp))
     }
@@ -359,9 +365,20 @@ fun ScreenRegister(
                 val min = DBDate.dateMMDDHHMMss().substring(10, 12)
                 val sec = DBDate.dateMMDDHHMMss().substring(12, 14)
 
+                val fcmBody = DataFCMBody(
+                    "/topics/user",
+                    "high",
+                    DataFCMBodyData("마나바라", " 회원가입 - ${viewModelLogin.state.value.userInfo.userEmail}"),
+                    DataFCMBodyNotification(
+                        title = "마나바라",
+                        body = "${year}.${month}.${day} ${hour}:${min}:${sec}  회원가입 - ${viewModelLogin.state.value.userInfo.userEmail}",
+                        click_action = "best"
+                    ),
+                )
+
                 postFCM(
-                    data = " 회원가입 - ${viewModelLogin.state.value.userInfo.userEmail}",
-                    time = "${year}.${month}.${day} ${hour}:${min}:${sec}",
+                    context = context,
+                    fcmBody = fcmBody,
                 )
             },
             btnText = "회원 가입"

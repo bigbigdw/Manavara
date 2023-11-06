@@ -1,5 +1,6 @@
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
@@ -10,12 +11,15 @@ import com.bigbigdw.manavara.util.getPlatformDataKeyNovel
 import com.bigbigdw.manavara.firebase.DataFCMBody
 import com.bigbigdw.manavara.firebase.DataFCMBodyData
 import com.bigbigdw.manavara.firebase.DataFCMBodyNotification
+import com.bigbigdw.manavara.firebase.FCMAlert
 import com.bigbigdw.manavara.firebase.FWorkManagerResult
 import com.bigbigdw.manavara.firebase.FirebaseService
+import com.bigbigdw.manavara.util.DBDate
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -154,18 +158,10 @@ fun getBookCount(context : Context, type: String, platform: String) {
     })
 }
 
-fun postFCM(data: String, time: String) {
+fun postFCM(context : Context, fcmBody : DataFCMBody) {
 
-    val fcmBody = DataFCMBody(
-        "/topics/adminAll",
-        "high",
-        DataFCMBodyData("마나바라", data),
-        DataFCMBodyNotification(
-            title = "마나바라",
-            body = "$time $data",
-            click_action = "best"
-        ),
-    )
+    val fcm = Intent(context.applicationContext, FirebaseMessaging::class.java)
+    context.startService(fcm)
 
     val call = Retrofit.Builder()
         .baseUrl("https://fcm.googleapis.com")
@@ -181,14 +177,47 @@ fun postFCM(data: String, time: String) {
             response: retrofit2.Response<FWorkManagerResult?>
         ) {
             if (response.isSuccessful) {
-                Log.d("FCM", "성공")
+                response.body()?.let { it ->
+                    miningAlert(title = fcmBody.notification?.title ?: "", message = fcmBody.notification?.body ?: "", path = "USER")
+                }
             } else {
-                Log.d("FCM", "실패2")
+
             }
         }
 
         override fun onFailure(call: Call<FWorkManagerResult?>, t: Throwable) {
-            Log.d("FCM", "실패");
+
         }
     })
+}
+
+fun postFCMAlert(context: Context, getFCM : DataFCMBodyNotification) {
+
+    val fcmBody = DataFCMBody(
+        "/topics/cs",
+        "high",
+        DataFCMBodyData("ALERT_ALL", ""),
+        DataFCMBodyNotification(
+            getFCM.title,
+            getFCM.body,
+            ""
+        ),
+    )
+
+    postFCM(context = context, fcmBody = fcmBody)
+
+    miningAlert(title = getFCM.title, message = getFCM.body)
+}
+
+private fun miningAlert(
+    title: String,
+    message: String,
+    activity: String = "",
+    data: String = "",
+    path : String = "CS"
+) {
+
+    FirebaseDatabase.getInstance().reference.child("MESSAGE").child(path).child(DBDate.dateMMDDHHMM()).setValue(
+        FCMAlert(DBDate.dateMMDDHHMM(), title, message, data = data, activity = activity)
+    )
 }

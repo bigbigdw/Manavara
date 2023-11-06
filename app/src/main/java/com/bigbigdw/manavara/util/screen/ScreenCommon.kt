@@ -726,3 +726,4 @@ fun ScreenEmpty(str : String = "마나바라") {
         }
     }
 }
+

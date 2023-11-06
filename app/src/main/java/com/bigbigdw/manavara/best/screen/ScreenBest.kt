@@ -53,7 +53,7 @@ import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.ActivityBestDetail
 import com.bigbigdw.manavara.main.screen.ScreenBestDBListNovel
 import com.bigbigdw.manavara.best.viewModels.ViewModelBest
-import com.bigbigdw.manavara.main.ActivityMain
+import com.bigbigdw.manavara.main.screen.ScreenUser
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color4AD7CF
 import com.bigbigdw.manavara.ui.theme.color5372DE
@@ -163,7 +163,8 @@ fun ScreenBest(
                     listState = listState,
                     getBestType = getBestType,
                     modalSheetState = modalSheetState,
-                    setDialogOpen = null
+                    setDialogOpen = null,
+                    isExpandedScreen = isExpandedScreen,
                 )
 
             }
@@ -313,8 +314,11 @@ fun ScreenBestPropertyList(
                 body = "마나바라 유저 옵션",
                 settter = setBestType,
                 getter = getBestType,
-                value = "TODAY_BEST",
-                onClick = {  },
+                value = "USER_OPTION",
+                onClick = {
+                    setMenu("USER_OPTION")
+                    onClick()
+                },
             )
 
             TabletBorderLine()
@@ -327,7 +331,13 @@ fun ScreenBestPropertyList(
                     body = getPlatformDescription(item),
                     setMenu = setMenu,
                     getMenu = getMenu,
-                    setDetailPlatform = { setPlatform(changePlatformNameEng(item)) }
+                    setDetailPlatform = {
+                        setPlatform(changePlatformNameEng(item))
+
+                        if (getBestType == "USER_OPTION") {
+                            setBestType("TODAY_BEST")
+                        }
+                    }
                 ) {
                     coroutineScope.launch {
                         listState.scrollToItem(index = 0)
@@ -478,7 +488,8 @@ fun ScreenBestDetail(
             listState = listState,
             getBestType = getBestType,
             modalSheetState = null,
-            setDialogOpen = setDialogOpen
+            setDialogOpen = setDialogOpen,
+            isExpandedScreen = false
         )
     }
 }
@@ -493,8 +504,9 @@ fun ScreenBestItemDetail(
     getBestType: String,
     modalSheetState: ModalBottomSheetState? = null,
     setDialogOpen: ((Boolean) -> Unit)?,
+    isExpandedScreen: Boolean,
 ) {
-    if(getBestType.isEmpty()){
+    if(getBestType.isEmpty() && isExpandedScreen){
         ScreenBestDBListNovel(type = "NOVEL")
     } else if (getBestType.contains("TODAY_BEST")) {
 
@@ -535,6 +547,12 @@ fun ScreenBestItemDetail(
             getPlatform = getPlatform,
             getBestType = getBestType
         )
+
+    } else if (getBestType.contains("USER_OPTION")) {
+
+        Spacer(modifier = Modifier.size(16.dp))
+
+        ScreenUser()
 
     }
 }

@@ -211,12 +211,9 @@ class ViewModelLogin @Inject constructor() : ViewModel() {
 
         mRootRef.child("USER").child(state.value.userInfo.userUID).child("USERINFO").setValue(state.value.userInfo)
 
-        val intent = Intent(activity, ActivitySplash::class.java)
-        activity.startActivity(intent)
-        activity.finish()
-
         viewModelScope.launch {
             _sideEffects.send("가입이 완료되었습니다. 가입 승인을 기다려주세요.")
+            activity.finish()
         }
     }
 

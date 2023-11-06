@@ -7,6 +7,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import com.bigbigdw.manavara.util.screen.BtnMobile
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -39,6 +41,8 @@ import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
@@ -68,17 +72,22 @@ import com.bigbigdw.manavara.best.screen.ScreenBest
 import com.bigbigdw.manavara.best.screen.ScreenBestPropertyList
 import com.bigbigdw.manavara.best.screen.ScreenDialogBest
 import com.bigbigdw.manavara.best.viewModels.ViewModelBest
+import com.bigbigdw.manavara.firebase.DataFCMBodyNotification
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color1E1E20
 import com.bigbigdw.manavara.ui.theme.color1E4394
 import com.bigbigdw.manavara.ui.theme.color555b68
+import com.bigbigdw.manavara.ui.theme.color898989
 import com.bigbigdw.manavara.ui.theme.colorDCDCDD
 import com.bigbigdw.manavara.util.changePlatformNameKor
 import com.bigbigdw.manavara.util.comicListEng
 import com.bigbigdw.manavara.util.novelListEng
+import com.bigbigdw.manavara.util.screen.ItemTabletTitle
 import com.bigbigdw.manavara.util.screen.ScreenTest
+import com.bigbigdw.manavara.util.screen.TabletContentWrap
 import kotlinx.coroutines.launch
+import postFCMAlert
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -343,56 +352,58 @@ fun MainTopBar(setDrawer: (Boolean) -> Unit, setter: (String) -> Unit, getter: S
 
         }
 
-        Text(
-            modifier = Modifier.clickable { setter("TODAY_BEST") },
-            text = "투데이",
-            fontSize = 18.sp,
-            textAlign = TextAlign.Left,
-            color = if (getter.contains("TODAY_BEST")) {
-                color1E4394
-            } else {
-                color555b68
-            },
-            fontWeight = FontWeight.Bold
-        )
+        if(getter != "USER_OPTION"){
+            Text(
+                modifier = Modifier.clickable { setter("TODAY_BEST") },
+                text = "투데이",
+                fontSize = 18.sp,
+                textAlign = TextAlign.Left,
+                color = if (getter.contains("TODAY_BEST")) {
+                    color1E4394
+                } else {
+                    color555b68
+                },
+                fontWeight = FontWeight.Bold
+            )
 
-        Spacer(
-            modifier = Modifier
-                .wrapContentWidth()
-                .width(16.dp)
-        )
+            Spacer(
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .width(16.dp)
+            )
 
-        Text(
-            modifier = Modifier.clickable { setter("WEEK_BEST") },
-            text = "주간",
-            fontSize = 18.sp,
-            textAlign = TextAlign.Left,
-            color = if (getter.contains("WEEK_BEST")) {
-                color1E4394
-            } else {
-                color555b68
-            },
-            fontWeight = FontWeight.Bold
-        )
+            Text(
+                modifier = Modifier.clickable { setter("WEEK_BEST") },
+                text = "주간",
+                fontSize = 18.sp,
+                textAlign = TextAlign.Left,
+                color = if (getter.contains("WEEK_BEST")) {
+                    color1E4394
+                } else {
+                    color555b68
+                },
+                fontWeight = FontWeight.Bold
+            )
 
-        Spacer(
-            modifier = Modifier
-                .wrapContentWidth()
-                .width(16.dp)
-        )
+            Spacer(
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .width(16.dp)
+            )
 
-        Text(
-            modifier = Modifier.clickable { setter("MONTH_BEST") },
-            text = "월간",
-            fontSize = 18.sp,
-            textAlign = TextAlign.Left,
-            color = if (getter.contains("MONTH_BEST")) {
-                color1E4394
-            } else {
-                color555b68
-            },
-            fontWeight = FontWeight.Bold
-        )
+            Text(
+                modifier = Modifier.clickable { setter("MONTH_BEST") },
+                text = "월간",
+                fontSize = 18.sp,
+                textAlign = TextAlign.Left,
+                color = if (getter.contains("MONTH_BEST")) {
+                    color1E4394
+                } else {
+                    color555b68
+                },
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
 }
 
@@ -649,5 +660,59 @@ fun TableAppNavRail(
         }
 
         Spacer(Modifier.weight(1f))
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ScreenUser() {
+
+    val context = LocalContext.current
+    val (getFCM, setFCM) = remember { mutableStateOf(DataFCMBodyNotification()) }
+
+    Column {
+
+        ItemTabletTitle(str = "문의 사항 전송")
+
+        TabletContentWrap {
+            TextField(
+                value = getFCM.title,
+                onValueChange = {
+                    setFCM(getFCM.copy(title = it))
+                },
+                label = { androidx.compose.material3.Text("푸시 알림 제목", color = color898989) },
+                singleLine = true,
+                colors = TextFieldDefaults.textFieldColors(
+                    containerColor = Color(0),
+                    textColor = color000000
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.size(16.dp))
+
+            TextField(
+                value = getFCM.body,
+                onValueChange = {
+                    setFCM(getFCM.copy(body = it))
+                },
+                label = { androidx.compose.material3.Text("푸시 알림 내용", color = color898989) },
+                singleLine = true,
+                colors = TextFieldDefaults.textFieldColors(
+                    containerColor = Color(0),
+                    textColor = color000000
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Box(modifier = Modifier.padding(16.dp), contentAlignment = Alignment.Center) {
+                BtnMobile(
+                    func = { postFCMAlert(context = context, getFCM = getFCM) },
+                    btnText = "문의사항 등록"
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.size(60.dp))
     }
 }

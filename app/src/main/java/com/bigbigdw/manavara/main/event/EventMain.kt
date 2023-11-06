@@ -15,3 +15,9 @@ data class StateMain(
     val Loaded: Boolean = false,
     val userInfo: UserInfo = UserInfo(),
 )
+
+data class MainSettingLine (
+    var title: String = "",
+    var value: String = "",
+    var onClick : () -> Unit = {}
+)
