@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -85,10 +86,13 @@ fun ScreenTodayBest(
     getBestType : String
 ) {
 
+    val context = LocalContext.current
+
     LaunchedEffect(getPlatform, getType, getBestType) {
-        viewModelBest.getBestListToday(
+        viewModelBest.getBestListTodayJson(
             platform = getPlatform,
             type = getType,
+            context = context
         )
 
         viewModelBest.getBestMapToday(
@@ -919,18 +923,6 @@ fun ScreenItemBestCard(item: ItemBookInfo){
                         textFront = "장르 : ",
                         color = color000000,
                         textEnd = item.genre
-                    ),
-                    color = color8E8E8E,
-                    fontSize = 16.sp,
-                )
-            }
-
-            if (item.cntChapter.isNotEmpty()) {
-                Text(
-                    text = spannableString(
-                        textFront = "챕터 수 : ",
-                        color = color000000,
-                        textEnd = item.cntChapter
                     ),
                     color = color8E8E8E,
                     fontSize = 16.sp,

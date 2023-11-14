@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.lifecycle.lifecycleScope
+import checkMining
 import com.bigbigdw.manavara.main.screen.ScreenMain
 import com.bigbigdw.manavara.best.viewModels.ViewModelBest
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
@@ -30,6 +31,8 @@ class ActivityMain : ComponentActivity() {
         viewModelBest.sideEffects
             .onEach { Toast.makeText(this@ActivityMain, it, Toast.LENGTH_SHORT).show() }
             .launchIn(lifecycleScope)
+
+        checkMining(this@ActivityMain)
 
         setContent {
             val widthSizeClass = calculateWindowSizeClass(this).widthSizeClass

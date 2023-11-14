@@ -1,14 +1,21 @@
 package com.bigbigdw.manavara.best.viewModels
 
+import android.content.Context
+import android.content.Intent
 import android.util.Log
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bigbigdw.manavara.best.event.EventBest
+import com.bigbigdw.manavara.best.event.EventBestDetail
 import com.bigbigdw.manavara.best.event.StateBest
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.models.ItemKeyword
+import com.bigbigdw.manavara.login.ActivityLogin
 import com.bigbigdw.manavara.util.DBDate
+import com.bigbigdw.manavara.util.DataStoreManager
+import com.bigbigdw.manavara.util.getPlatformDataKeyNovel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -18,6 +25,8 @@ import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import convertItemBookJson
 import convertItemKeyword
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -27,6 +36,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.json.JSONArray
+import java.io.File
 import java.nio.charset.Charset
 import java.util.Collections
 import javax.inject.Inject
@@ -108,7 +118,45 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         }
     }
 
-    fun getBestListToday(platform: String, type: String){
+    fun getBestListTodayJson(platform: String, type: String, context: Context){
+
+        val dataStore = DataStoreManager(context)
+
+        CoroutineScope(Dispatchers.IO).launch {
+
+            dataStore.getDataStoreString(DataStoreManager.MINING).collect { value ->
+
+                if (value != null) {
+                    if(value.toFloat() < DBDate.dateMMDDHHMM().toFloat()){
+                        val filePath = File(context.filesDir, "${platform}.json").absolutePath
+
+                        try {
+                            val jsonString = File(filePath).readText(Charset.forName("UTF-8"))
+
+                            val json = Json { ignoreUnknownKeys = true }
+                            val itemList = json.decodeFromString<List<ItemBookInfo>>(jsonString)
+
+                            val todayJsonList = ArrayList<ItemBookInfo>()
+
+                            for (item in itemList) {
+                                todayJsonList.add(item)
+                            }
+
+                            viewModelScope.launch {
+                                events.send(EventBest.SetItemBestInfoList(itemBookInfoList = todayJsonList))
+                            }
+                        } catch (e: Exception) {
+                            getBestListTodayStorage(context = context, platform = platform, type = type)
+                        }
+                    } else {
+                        getBestListTodayStorage(context = context, platform = platform, type = type)
+                    }
+                }
+            }
+        }
+    }
+
+    fun getBestListTodayStorage(platform: String, type: String, context: Context){
 
         viewModelScope.launch {
             events.send(EventBest.SetItemBestInfoList(itemBookInfoList = ArrayList()))
@@ -117,11 +165,10 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         val storage = Firebase.storage
         val storageRef = storage.reference
         val todayFileRef = storageRef.child("${platform}/${type}/DAY/${DBDate.dateMMDD()}.json")
+        val localFile = File(context.filesDir, "${platform}.json")
 
-        val todayFile = todayFileRef.getBytes(1024 * 1024)
-
-        todayFile.addOnSuccessListener { bytes ->
-            val jsonString = String(bytes, Charset.forName("UTF-8"))
+        todayFileRef.getFile(localFile).addOnSuccessListener {
+            val jsonString = localFile.readText(Charset.forName("UTF-8"))
             val json = Json { ignoreUnknownKeys = true }
             val itemList = json.decodeFromString<List<ItemBookInfo>>(jsonString)
 
@@ -137,6 +184,7 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         }.addOnFailureListener {
             getBestList(platform = platform, type = type)
         }
+
     }
 
     private fun getBestList(platform: String, type: String) {

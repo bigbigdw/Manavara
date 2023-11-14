@@ -38,6 +38,7 @@ class DataStoreManager(private val context: Context) {
         val MUNPIA_FREE = stringPreferencesKey("MUNPIA_FREE")
         val TOKSODA = stringPreferencesKey("TOKSODA")
         val TOKSODA_FREE = stringPreferencesKey("TOKSODA_FREE")
+        val MINING = stringPreferencesKey("MINING")
     }
 
     fun getDataStoreString(key : Preferences.Key<String>): Flow<String?> {

@@ -114,10 +114,13 @@ fun ScreenManavara(
     modalSheetState: ModalBottomSheetState? = null,
 ) {
 
+    val context = LocalContext.current
+
     LaunchedEffect(getPlatform,getType){
-        viewModelBest.getBestListToday(
+        viewModelBest.getBestListTodayStorage(
             platform = getPlatform,
             type = getType,
+            context = context,
         )
 
         viewModelBest.getBestWeekTrophy(

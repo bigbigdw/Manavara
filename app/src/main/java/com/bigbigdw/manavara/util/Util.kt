@@ -1,7 +1,10 @@
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import android.widget.Toast
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.models.ItemKeyword
@@ -14,6 +17,8 @@ import com.bigbigdw.manavara.firebase.DataFCMBodyNotification
 import com.bigbigdw.manavara.firebase.FCMAlert
 import com.bigbigdw.manavara.firebase.FWorkManagerResult
 import com.bigbigdw.manavara.firebase.FirebaseService
+import com.bigbigdw.manavara.main.ActivityMain
+import com.bigbigdw.manavara.main.models.UserInfo
 import com.bigbigdw.manavara.util.DBDate
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -220,4 +225,30 @@ private fun miningAlert(
     FirebaseDatabase.getInstance().reference.child("MESSAGE").child(path).child(DBDate.dateMMDDHHMM()).setValue(
         FCMAlert(DBDate.dateMMDDHHMM(), title, message, data = data, activity = activity)
     )
+}
+
+fun checkMining(context: Context){
+    val mRootRef =
+        FirebaseDatabase.getInstance().reference.child("MINING")
+
+    mRootRef.addListenerForSingleValueEvent(object :
+        ValueEventListener {
+        override fun onDataChange(dataSnapshot: DataSnapshot) {
+
+            if (dataSnapshot.exists()) {
+
+                val dataStore = DataStoreManager(context)
+
+                val item = dataSnapshot.getValue(String::class.java)
+
+                if(item != null){
+                    CoroutineScope(Dispatchers.IO).launch {
+                        dataStore.setDataStoreString(DataStoreManager.MINING, item)
+                    }
+                }
+            }
+        }
+
+        override fun onCancelled(databaseError: DatabaseError) {}
+    })
 }

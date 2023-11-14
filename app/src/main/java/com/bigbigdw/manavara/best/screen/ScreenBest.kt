@@ -114,6 +114,7 @@ fun ScreenBest(
                                 val intent = Intent(context, ActivityBestDetail::class.java)
                                 intent.putExtra("BOOKCODE", item.bookCode)
                                 intent.putExtra("PLATFORM", item.type)
+                                intent.putExtra("TYPE", getType)
                                 context.startActivity(intent)
                             },
                             btnLeft = "취소",
@@ -218,6 +219,8 @@ fun ScreenBestPropertyList(
                     color = Color.Black,
                     fontWeight = FontWeight(weight = 700)
                 )
+
+                Spacer(modifier = Modifier.size(16.dp))
 
                 ItemMainSettingSingleTablet(
                     containerColor = color4AD7CF,

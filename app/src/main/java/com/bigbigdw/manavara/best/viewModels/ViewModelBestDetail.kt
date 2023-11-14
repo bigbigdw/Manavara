@@ -1,16 +1,24 @@
 package com.bigbigdw.manavara.best.viewModels
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bigbigdw.manavara.best.event.EventBestDetail
 import com.bigbigdw.manavara.best.event.StateBestDetail
 import com.bigbigdw.manavara.best.models.ItemBestDetailInfo
-import com.bigbigdw.manavara.main.event.EventMain
+import com.bigbigdw.manavara.best.models.ItemBestInfo
+import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.retrofit.Param
 import com.bigbigdw.moavara.Retrofit.JoaraBestDetailResult
 import com.bigbigdw.moavara.Retrofit.RetrofitDataListener
 import com.bigbigdw.moavara.Retrofit.RetrofitJoara
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -44,6 +52,10 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
 
             is EventBestDetail.SetItemBestDetailInfo -> {
                 current.copy(itemBestDetailInfo = event.itemBestDetailInfo)
+            }
+
+            is EventBestDetail.SetItemBookInfo -> {
+                current.copy(itemBestInfo = event.itemBestInfo)
             }
 
             else -> {
@@ -129,7 +141,7 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
                             cntRecom = data.book.cntRecom,
                             cntTotalComment = data.book.cntTotalComment,
                             genre = data.book.category_ko_name,
-                            tabInfo = arrayListOf("작품 댓글", "작가의 다른 작품", "작품 분석"),
+                            tabInfo = arrayListOf("작품 댓글", "작가의 다른 작품", "작품 분석", "랭킹 분석"),
                             keyword = data.book.keyword
                         )
 
@@ -141,5 +153,70 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
                     }
                 }
             })
+    }
+
+    fun setManavaraBestInfo(bookCode : String, type : String, platform : String) {
+        val mRootRef =
+            FirebaseDatabase.getInstance().reference.child("BOOK").child(type).child(platform).child(bookCode)
+
+        mRootRef.addListenerForSingleValueEvent(object :
+            ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+
+                if (dataSnapshot.exists()) {
+
+                    val item = dataSnapshot.getValue(ItemBookInfo::class.java)
+
+                    if(item != null){
+                        viewModelScope.launch {
+                            events.send(
+                                EventBestDetail.SetItemBookInfo(itemBestInfo = item)
+                            )
+                        }
+                    }
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {}
+        })
+    }
+
+    fun gotoUrl(platform : String, bookCode : String, context: Context){
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(getUrl(bookCode = bookCode, platform = platform)))
+        context.startActivity(intent)
+    }
+
+    private fun getUrl(platform : String, bookCode: String): String {
+
+        return when (platform) {
+            "MrBlue" -> {
+                "https://www.mrblue.com/novel/${bookCode}"
+            }
+            "Naver_Today", "Naver_Challenge", "Naver" -> {
+                "https://novel.naver.com/webnovel/list?novelId=${bookCode}"
+            }
+            "Ridi" -> {
+                "https://ridibooks.com/books/${bookCode}"
+            }
+            "Kakao_Stage" -> {
+                "https://pagestage.kakao.com/novels/${bookCode}"
+            }
+            "Kakao" -> {
+                "https://page.kakao.com/home?seriesId=${bookCode}"
+            }
+            "OneStore" -> {
+                "https://onestory.co.kr/detail/${bookCode}"
+            }
+            "JOARA", "JOARA_PREMIUM", "JOARA_NOBLESS" -> {
+                "https://www.joara.com/book/${bookCode}"
+            }
+            "Munpia" -> {
+                "https://novel.munpia.com/${bookCode}"
+            }
+            "Toksoda" -> {
+                "https://www.tocsoda.co.kr/product/productView?brcd=${bookCode}"
+            }
+            else -> ""
+        }
     }
 }

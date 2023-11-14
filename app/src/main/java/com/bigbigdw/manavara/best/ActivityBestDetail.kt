@@ -17,6 +17,7 @@ class ActivityBestDetail : ComponentActivity() {
 
     private var bookCode : String = ""
     private var platform : String = ""
+    private var type : String = ""
     private val viewModelBestDetail: ViewModelBestDetail by viewModels()
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -29,6 +30,7 @@ class ActivityBestDetail : ComponentActivity() {
 
         bookCode = intent.getStringExtra("BOOKCODE") ?: ""
         platform = intent.getStringExtra("PLATFORM") ?: ""
+        type = intent.getStringExtra("TYPE") ?: ""
 
         setContent {
 
@@ -38,7 +40,8 @@ class ActivityBestDetail : ComponentActivity() {
                 viewModelBestDetail = viewModelBestDetail,
                 widthSizeClass = widthSizeClass,
                 bookCode = bookCode,
-                platform = platform
+                platform = platform,
+                type = type
             )
         }
     }
