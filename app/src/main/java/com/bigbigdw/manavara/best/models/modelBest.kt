@@ -4,12 +4,18 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
+data class ItemBestComment(
+    var date : String = "",
+    var comment : String = "",
+)
+
+@Serializable
 data class ItemBestDetailInfo(
     var writer: String = "",
     var title: String = "",
     var bookImg: String = "",
     var bookCode: String = "",
-    var type: String = "",
+    var platform: String = "",
     var intro: String = "",
     var cntPageRead: String = "",
     var cntFavorite: String = "",

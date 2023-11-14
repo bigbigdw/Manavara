@@ -2,12 +2,14 @@ package com.bigbigdw.manavara.best.screen
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -19,12 +21,13 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -40,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
@@ -51,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.bigbigdw.manavara.R
+import com.bigbigdw.manavara.best.ActivityBestDetail
 import com.bigbigdw.manavara.best.models.ItemBestDetailInfo
 import com.bigbigdw.manavara.best.viewModels.ViewModelBestDetail
 import com.bigbigdw.manavara.ui.theme.color000000
@@ -59,7 +64,10 @@ import com.bigbigdw.manavara.ui.theme.color8E8E8E
 import com.bigbigdw.manavara.ui.theme.colorE9E9E9
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.util.screen.ItemTabletTitle
+import com.bigbigdw.manavara.util.screen.ScreenEmpty
 import com.bigbigdw.manavara.util.screen.TabletContentWrap
+import getRandomColor
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -171,8 +179,6 @@ fun ScreenTabletBestDetail(
                     ScreenBestDetailTabs(
                         getMenu = getMenu,
                         viewModelBestDetail = viewModelBestDetail,
-                        listState = listState,
-                        setDialogOpen = setDialogOpen,
                         platform = platform,
                         bookCode = bookCode,
                         type = type
@@ -332,14 +338,12 @@ fun ScreenBestDetailTabsEmpty(
 fun ScreenBestDetailTabs(
     getMenu: String,
     viewModelBestDetail: ViewModelBestDetail,
-    listState: LazyListState,
-    setDialogOpen: (Boolean) -> Unit,
     platform: String,
     bookCode: String,
     type: String
 ) {
 
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
             .background(color = colorF6F6F6)
@@ -347,39 +351,42 @@ fun ScreenBestDetailTabs(
     ) {
 
         if (getMenu.isNotEmpty()) {
-            Spacer(modifier = Modifier.size(16.dp))
+           item{  Spacer(modifier = Modifier.size(16.dp)) }
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    painter = painterResource(id = R.drawable.icon_arrow_left),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(30.dp)
-                        .height(30.dp)
-                )
+            item{
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Image(
+                        painter = painterResource(id = R.drawable.icon_arrow_left),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .width(30.dp)
+                            .height(30.dp)
+                    )
 
-                Text(
-                    modifier = Modifier
-                        .padding(16.dp, 0.dp, 0.dp, 0.dp),
-                    text = getMenu,
-                    fontSize = 24.sp,
-                    color = color000000,
-                    fontWeight = FontWeight(weight = 700)
-                )
+                    Text(
+                        modifier = Modifier
+                            .padding(16.dp, 0.dp, 0.dp, 0.dp),
+                        text = getMenu,
+                        fontSize = 24.sp,
+                        color = color000000,
+                        fontWeight = FontWeight(weight = 700)
+                    )
+                }
             }
         }
 
-        ScreenBestItemDetailTabItem(
-            viewModelBestDetail = viewModelBestDetail,
-            getMenu = getMenu,
-            platform = platform,
-            bookCode = bookCode,
-            type = type
-        )
+        item{
+            ScreenBestItemDetailTabItem(
+                viewModelBestDetail = viewModelBestDetail,
+                getMenu = getMenu,
+                platform = platform,
+                bookCode = bookCode,
+                type = type
+            )
+        }
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScreenBestItemDetailTabItem(
     viewModelBestDetail: ViewModelBestDetail,
@@ -389,25 +396,160 @@ fun ScreenBestItemDetailTabItem(
     type: String
 ) {
 
-    if (getMenu.contains("작품 정보")) {
+    val context = LocalContext.current
 
-        viewModelBestDetail.setManavaraBestInfo(
+    if (getMenu.contains("작품 댓글")) {
+
+        viewModelBestDetail.setComment(
             platform = platform,
             bookCode = bookCode,
-            type = type
+            context = context
         )
 
-        val item = viewModelBestDetail.state.collectAsState().value.itemBestDetailInfo
+        val item = viewModelBestDetail.state.collectAsState().value.listComment
 
         Spacer(modifier = Modifier.size(16.dp))
 
-        ScreenItemBestDetailCard(
-            item = item,
-            viewModelBestDetail = viewModelBestDetail,
+        if(item.size > 1){
+            item.forEachIndexed { index, itemBestComment ->
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(0.dp, 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+
+                    Card(
+                        modifier = Modifier
+                            .wrapContentSize(),
+                        colors = CardDefaults.cardColors(containerColor = getRandomColor()),
+                        shape = RoundedCornerShape(50.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .height(36.dp)
+                                .width(36.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                contentScale = ContentScale.FillWidth,
+                                painter = painterResource(id = R.drawable.logo_transparents),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .height(28.dp)
+                                    .width(28.dp)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(4.dp))
+
+                    Button(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(4.dp, 0.dp, 0.dp, 0.dp)
+                            .fillMaxWidth(),
+                        shape = RoundedCornerShape(25.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                        onClick = {},
+                        contentPadding = PaddingValues(
+                            start = 0.dp,
+                            top = 2.dp,
+                            end = 0.dp,
+                            bottom = 2.dp,
+                        ),
+                        content = {
+
+                            Text(
+                                text = itemBestComment.comment,
+                                modifier = Modifier
+                                    .wrapContentHeight()
+                                    .weight(1f).padding(12.dp, 0.dp, 0.dp, 0.dp),
+                                fontSize = 18.sp,
+                                textAlign = TextAlign.Left,
+                                color = Color.Black,
+                            )
+                        })
+                }
+            }
+        } else {
+            Box(modifier = Modifier
+                .height(500.dp)
+                .fillMaxWidth()) {
+                ScreenEmpty(str = "댓글이 없습니다")
+            }
+        }
+
+    } else if (getMenu.contains("작가의 다른 작품")) {
+
+        viewModelBestDetail.setOtherBooks(
             platform = platform,
-            bookCode = bookCode
+            bookCode = bookCode,
+            context = context
         )
 
+        val item = viewModelBestDetail.state.collectAsState().value.listBestOther
+
+        Spacer(modifier = Modifier.size(16.dp))
+
+        if(item.size > 1){
+            item.forEachIndexed { index, itemBookInfo ->
+                Button(
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                    contentPadding = PaddingValues(
+                        start = 0.dp,
+                        top = 0.dp,
+                        end = 0.dp,
+                        bottom = 0.dp,
+                    ),
+                    shape = RoundedCornerShape(20.dp),
+                    onClick = {
+                        val intent = Intent(context, ActivityBestDetail::class.java)
+                        intent.putExtra("BOOKCODE", itemBookInfo.bookCode)
+                        intent.putExtra("PLATFORM", itemBookInfo.type)
+                        intent.putExtra("TYPE", type)
+                        context.startActivity(intent)
+                    },
+                    content = {
+                        Column(
+                            modifier = Modifier
+                                .padding(24.dp, 4.dp)
+                        ) {
+
+                            Spacer(modifier = Modifier.size(4.dp))
+
+                            Spacer(modifier = Modifier.size(4.dp))
+
+                            Column(modifier = Modifier.fillMaxWidth()) {
+
+                                ScreenItemBestCard(item = itemBookInfo)
+
+                                if(itemBookInfo.intro.isNotEmpty()){
+                                    Spacer(modifier = Modifier.size(16.dp))
+
+                                    Text(
+                                        text = itemBookInfo.intro,
+                                        color = color8E8E8E,
+                                        fontSize = 16.sp,
+                                    )
+                                } else {
+                                    Spacer(modifier = Modifier.size(8.dp))
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.size(4.dp))
+                        }
+                    })
+
+                Spacer(modifier = Modifier.size(16.dp))
+            }
+        } else {
+            Box(modifier = Modifier
+                .height(500.dp)
+                .fillMaxWidth()) {
+                ScreenEmpty(str = "작품이 없습니다")
+            }
+        }
     }
 }
 
@@ -560,13 +702,14 @@ fun ScreenItemBestDetailCard(
                     modifier = Modifier
                         .fillMaxWidth(),
                     text = item.intro,
-                    maxLines = 5,
                     overflow = TextOverflow.Ellipsis,
                     color = color8E8E8E,
                     fontSize = 16.sp,
                 )
             }
         }
+
+        Spacer(modifier = Modifier.size(32.dp))
     }
 }
 

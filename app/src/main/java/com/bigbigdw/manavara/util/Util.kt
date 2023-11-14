@@ -5,6 +5,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.ui.graphics.Color
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.models.ItemKeyword
@@ -19,6 +20,28 @@ import com.bigbigdw.manavara.firebase.FWorkManagerResult
 import com.bigbigdw.manavara.firebase.FirebaseService
 import com.bigbigdw.manavara.main.ActivityMain
 import com.bigbigdw.manavara.main.models.UserInfo
+import com.bigbigdw.manavara.ui.theme.color21C2EC
+import com.bigbigdw.manavara.ui.theme.color2EA259
+import com.bigbigdw.manavara.ui.theme.color31C3AE
+import com.bigbigdw.manavara.ui.theme.color4996E8
+import com.bigbigdw.manavara.ui.theme.color4AD7CF
+import com.bigbigdw.manavara.ui.theme.color536FD2
+import com.bigbigdw.manavara.ui.theme.color5372DE
+import com.bigbigdw.manavara.ui.theme.color64C157
+import com.bigbigdw.manavara.ui.theme.color79B4F8
+import com.bigbigdw.manavara.ui.theme.color7C81FF
+import com.bigbigdw.manavara.ui.theme.color808CF8
+import com.bigbigdw.manavara.ui.theme.color80BF78
+import com.bigbigdw.manavara.ui.theme.color8AA6BD
+import com.bigbigdw.manavara.ui.theme.color8F8F8F
+import com.bigbigdw.manavara.ui.theme.color91CEC7
+import com.bigbigdw.manavara.ui.theme.color998DF9
+import com.bigbigdw.manavara.ui.theme.colorABD436
+import com.bigbigdw.manavara.ui.theme.colorEA927C
+import com.bigbigdw.manavara.ui.theme.colorF17666
+import com.bigbigdw.manavara.ui.theme.colorF17FA0
+import com.bigbigdw.manavara.ui.theme.colorFDC24E
+import com.bigbigdw.manavara.ui.theme.colorFFAC59
 import com.bigbigdw.manavara.util.DBDate
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -36,7 +59,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 @SuppressLint("SuspiciousIndentation")
-fun convertItemBook(bestItemData : ItemBookInfo) : JsonObject {
+fun convertItemBook(bestItemData: ItemBookInfo): JsonObject {
     val jsonObject = JsonObject()
     jsonObject.addProperty("writer", bestItemData.writer)
     jsonObject.addProperty("title", bestItemData.title)
@@ -88,7 +111,7 @@ fun convertItemBookJson(jsonObject: JSONObject): ItemBookInfo {
     )
 }
 
-fun convertItemBestJson(jsonObject : JSONObject) : ItemBestInfo {
+fun convertItemBestJson(jsonObject: JSONObject): ItemBestInfo {
 
     return ItemBestInfo(
         point = jsonObject.optInt("point"),
@@ -104,7 +127,7 @@ fun convertItemBestJson(jsonObject : JSONObject) : ItemBestInfo {
     )
 }
 
-fun convertItemBest(bestItemData : ItemBestInfo) : JsonObject {
+fun convertItemBest(bestItemData: ItemBestInfo): JsonObject {
     val jsonObject = JsonObject()
     jsonObject.addProperty("number", bestItemData.number)
     jsonObject.addProperty("point", bestItemData.point)
@@ -119,7 +142,7 @@ fun convertItemBest(bestItemData : ItemBestInfo) : JsonObject {
     return jsonObject
 }
 
-fun convertItemKeywordJson(itemBestKeyword : ItemKeyword) : JsonObject {
+fun convertItemKeywordJson(itemBestKeyword: ItemKeyword): JsonObject {
     val jsonObject = JsonObject()
 
     jsonObject.addProperty("title", itemBestKeyword.title)
@@ -136,7 +159,7 @@ fun convertItemKeyword(jsonObject: JSONObject): ItemKeyword {
     )
 }
 
-fun getBookCount(context : Context, type: String, platform: String) {
+fun getBookCount(context: Context, type: String, platform: String) {
     val mRootRef =
         FirebaseDatabase.getInstance().reference.child("BOOK").child(type).child(platform)
 
@@ -148,10 +171,16 @@ fun getBookCount(context : Context, type: String, platform: String) {
 
             if (dataSnapshot.exists()) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    if(type == "NOVEL"){
-                        dataStore.setDataStoreString(getPlatformDataKeyNovel(platform), dataSnapshot.childrenCount.toString())
+                    if (type == "NOVEL") {
+                        dataStore.setDataStoreString(
+                            getPlatformDataKeyNovel(platform),
+                            dataSnapshot.childrenCount.toString()
+                        )
                     } else {
-                        dataStore.setDataStoreString(getPlatformDataKeyComic(platform), dataSnapshot.childrenCount.toString())
+                        dataStore.setDataStoreString(
+                            getPlatformDataKeyComic(platform),
+                            dataSnapshot.childrenCount.toString()
+                        )
                     }
                 }
             } else {
@@ -163,7 +192,7 @@ fun getBookCount(context : Context, type: String, platform: String) {
     })
 }
 
-fun postFCM(context : Context, fcmBody : DataFCMBody) {
+fun postFCM(context: Context, fcmBody: DataFCMBody) {
 
     val fcm = Intent(context.applicationContext, FirebaseMessaging::class.java)
     context.startService(fcm)
@@ -183,7 +212,11 @@ fun postFCM(context : Context, fcmBody : DataFCMBody) {
         ) {
             if (response.isSuccessful) {
                 response.body()?.let { it ->
-                    miningAlert(title = fcmBody.notification?.title ?: "", message = fcmBody.notification?.body ?: "", path = "USER")
+                    miningAlert(
+                        title = fcmBody.notification?.title ?: "",
+                        message = fcmBody.notification?.body ?: "",
+                        path = "USER"
+                    )
                 }
             } else {
 
@@ -196,7 +229,7 @@ fun postFCM(context : Context, fcmBody : DataFCMBody) {
     })
 }
 
-fun postFCMAlert(context: Context, getFCM : DataFCMBodyNotification) {
+fun postFCMAlert(context: Context, getFCM: DataFCMBodyNotification) {
 
     val fcmBody = DataFCMBody(
         "/topics/cs",
@@ -219,15 +252,16 @@ private fun miningAlert(
     message: String,
     activity: String = "",
     data: String = "",
-    path : String = "CS"
+    path: String = "CS"
 ) {
 
-    FirebaseDatabase.getInstance().reference.child("MESSAGE").child(path).child(DBDate.dateMMDDHHMM()).setValue(
-        FCMAlert(DBDate.dateMMDDHHMM(), title, message, data = data, activity = activity)
-    )
+    FirebaseDatabase.getInstance().reference.child("MESSAGE").child(path)
+        .child(DBDate.dateMMDDHHMM()).setValue(
+            FCMAlert(DBDate.dateMMDDHHMM(), title, message, data = data, activity = activity)
+        )
 }
 
-fun checkMining(context: Context){
+fun checkMining(context: Context) {
     val mRootRef =
         FirebaseDatabase.getInstance().reference.child("MINING")
 
@@ -241,7 +275,7 @@ fun checkMining(context: Context){
 
                 val item = dataSnapshot.getValue(String::class.java)
 
-                if(item != null){
+                if (item != null) {
                     CoroutineScope(Dispatchers.IO).launch {
                         dataStore.setDataStoreString(DataStoreManager.MINING, item)
                     }
@@ -251,4 +285,34 @@ fun checkMining(context: Context){
 
         override fun onCancelled(databaseError: DatabaseError) {}
     })
+}
+
+fun getRandomColor(): Color {
+    val list = arrayListOf(
+        color4AD7CF,
+        color5372DE,
+        color998DF9,
+        colorEA927C,
+        colorABD436,
+        colorF17FA0,
+        color21C2EC,
+        color31C3AE,
+        color7C81FF,
+        color64C157,
+        colorF17666,
+        color536FD2,
+        color4996E8,
+        colorFDC24E,
+        color80BF78,
+        color91CEC7,
+        color79B4F8,
+        color8AA6BD,
+        color2EA259,
+        color808CF8,
+        colorFFAC59,
+        color8F8F8F
+    )
+
+    val randomIndex = (0 until list.size).random()
+    return list[randomIndex]
 }

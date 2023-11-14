@@ -128,7 +128,7 @@ class ViewModelBest @Inject constructor() : ViewModel() {
 
                 if (value != null) {
                     if(value.toFloat() < DBDate.dateMMDDHHMM().toFloat()){
-                        val filePath = File(context.filesDir, "${platform}.json").absolutePath
+                        val filePath = File(context.filesDir, "${platform}_${type}.json").absolutePath
 
                         try {
                             val jsonString = File(filePath).readText(Charset.forName("UTF-8"))

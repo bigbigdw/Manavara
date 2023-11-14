@@ -3,16 +3,17 @@ package com.bigbigdw.manavara.best.viewModels
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bigbigdw.manavara.best.event.EventBestDetail
 import com.bigbigdw.manavara.best.event.StateBestDetail
+import com.bigbigdw.manavara.best.models.ItemBestComment
 import com.bigbigdw.manavara.best.models.ItemBestDetailInfo
-import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.retrofit.Param
+import com.bigbigdw.moavara.Retrofit.JoaraBestDetailCommentsResult
 import com.bigbigdw.moavara.Retrofit.JoaraBestDetailResult
+import com.bigbigdw.moavara.Retrofit.JoaraBestListResult
 import com.bigbigdw.moavara.Retrofit.RetrofitDataListener
 import com.bigbigdw.moavara.Retrofit.RetrofitJoara
 import com.google.firebase.database.DataSnapshot
@@ -41,7 +42,7 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
     val sideEffects = _sideEffects.receiveAsFlow()
 
     private fun reduceState(current: StateBestDetail, event: EventBestDetail): StateBestDetail {
-        return when(event){
+        return when (event) {
             EventBestDetail.Loaded -> {
                 current.copy(Loaded = true)
             }
@@ -58,17 +59,25 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
                 current.copy(itemBestInfo = event.itemBestInfo)
             }
 
+            is EventBestDetail.SetListComment -> {
+                current.copy(listComment = event.listComment)
+            }
+
+            is EventBestDetail.SetListBestOther -> {
+                current.copy(listBestOther = event.listBestOther)
+            }
+
             else -> {
                 current.copy(Loaded = false)
             }
         }
     }
 
-    fun setBestDetailInfo(platform : String, bookCode: String, context: Context) {
+    fun setBestDetailInfo(platform: String, bookCode: String, context: Context) {
 
         when (platform) {
-            "JOARA", "JOARA_NOBLESS", "JOARAPREMIUM" -> {
-                setLayoutJoara(bookCode = bookCode, context = context)
+            "JOARA", "JOARA_NOBLESS", "JOARA_PREMIUM" -> {
+                setLayoutJoara(bookCode = bookCode, context = context, platform = platform)
             }
 //            "Naver_Today", "Naver_Challenge", "Naver" -> {
 //                setLayoutNaverToday()
@@ -114,7 +123,7 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
 //        }
     }
 
-    private fun setLayoutJoara(bookCode : String, context : Context) {
+    private fun setLayoutJoara(bookCode: String, context: Context, platform: String) {
         val apiJoara = RetrofitJoara()
         val JoaraRef = Param.getItemAPI(context)
         JoaraRef["book_code"] = bookCode
@@ -141,8 +150,16 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
                             cntRecom = data.book.cntRecom,
                             cntTotalComment = data.book.cntTotalComment,
                             genre = data.book.category_ko_name,
-                            tabInfo = arrayListOf("작품 댓글", "작가의 다른 작품", "작품 분석", "랭킹 분석"),
-                            keyword = data.book.keyword
+                            tabInfo = arrayListOf(
+                                "작품 댓글",
+                                "작가의 다른 작품",
+                                "선호작 현황",
+                                "조회 현황",
+                                "댓글 현황",
+                                "랭킹 분석"
+                            ),
+                            keyword = data.book.keyword,
+                            platform = platform
                         )
 
                         viewModelScope.launch {
@@ -155,9 +172,10 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
             })
     }
 
-    fun setManavaraBestInfo(bookCode : String, type : String, platform : String) {
+    fun setManavaraBestInfo(bookCode: String, type: String, platform: String) {
         val mRootRef =
-            FirebaseDatabase.getInstance().reference.child("BOOK").child(type).child(platform).child(bookCode)
+            FirebaseDatabase.getInstance().reference.child("BOOK").child(type).child(platform)
+                .child(bookCode)
 
         mRootRef.addListenerForSingleValueEvent(object :
             ValueEventListener {
@@ -167,7 +185,7 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
 
                     val item = dataSnapshot.getValue(ItemBookInfo::class.java)
 
-                    if(item != null){
+                    if (item != null) {
                         viewModelScope.launch {
                             events.send(
                                 EventBestDetail.SetItemBookInfo(itemBestInfo = item)
@@ -181,42 +199,185 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
         })
     }
 
-    fun gotoUrl(platform : String, bookCode : String, context: Context){
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(getUrl(bookCode = bookCode, platform = platform)))
+    fun gotoUrl(platform: String, bookCode: String, context: Context) {
+        val intent =
+            Intent(Intent.ACTION_VIEW, Uri.parse(getUrl(bookCode = bookCode, platform = platform)))
         context.startActivity(intent)
     }
 
-    private fun getUrl(platform : String, bookCode: String): String {
+    private fun getUrl(platform: String, bookCode: String): String {
 
         return when (platform) {
             "MrBlue" -> {
                 "https://www.mrblue.com/novel/${bookCode}"
             }
+
             "Naver_Today", "Naver_Challenge", "Naver" -> {
                 "https://novel.naver.com/webnovel/list?novelId=${bookCode}"
             }
+
             "Ridi" -> {
                 "https://ridibooks.com/books/${bookCode}"
             }
+
             "Kakao_Stage" -> {
                 "https://pagestage.kakao.com/novels/${bookCode}"
             }
+
             "Kakao" -> {
                 "https://page.kakao.com/home?seriesId=${bookCode}"
             }
+
             "OneStore" -> {
                 "https://onestory.co.kr/detail/${bookCode}"
             }
+
             "JOARA", "JOARA_PREMIUM", "JOARA_NOBLESS" -> {
                 "https://www.joara.com/book/${bookCode}"
             }
+
             "Munpia" -> {
                 "https://novel.munpia.com/${bookCode}"
             }
+
             "Toksoda" -> {
                 "https://www.tocsoda.co.kr/product/productView?brcd=${bookCode}"
             }
+
             else -> ""
         }
+    }
+
+    fun setComment(context: Context, bookCode: String, platform: String) {
+        when (platform) {
+            "JOARA", "JOARA_NOBLESS", "JOARA_PREMIUM" -> {
+                getCommentsJoara(context = context, bookCode = bookCode)
+            }
+//            "Kakao" -> {
+//                getCommentsKakao()
+//            }
+//            "Kakao_Stage" -> {
+//                getCommentsKakaoStage()
+//            }
+//            "OneStore" -> {
+//                getCommentsOneStory()
+//            }
+//            "Munpia" -> {
+//                getCommentsMunpia()
+//            }
+//            "Toksoda" -> {
+//                getCommentsToksoda()
+//            }
+        }
+
+    }
+
+    private fun getCommentsJoara(context: Context, bookCode: String) {
+        val apiJoara = RetrofitJoara()
+        val param = Param.getItemAPI(context)
+        param["book_code"] = bookCode
+        param["category"] = "1"
+        param["page"] = "1"
+        param["orderby"] = "redate"
+        param["offset"] = "100"
+
+        apiJoara.getBookCommentJoa(
+            param,
+            object : RetrofitDataListener<JoaraBestDetailCommentsResult> {
+                override fun onSuccess(data: JoaraBestDetailCommentsResult) {
+                    if (data.status == "1" && data.comments != null) {
+
+                        val items = ArrayList<ItemBestComment>()
+
+                        for (i in data.comments.indices) {
+                            items.add(
+                                ItemBestComment(
+                                    comment = data.comments[i].comment,
+                                    date = data.comments[i].created,
+                                )
+                            )
+                        }
+
+                        viewModelScope.launch {
+                            events.send(
+                                EventBestDetail.SetListComment(listComment = items)
+                            )
+                        }
+                    }
+                }
+            })
+    }
+
+    fun setOtherBooks(context: Context, bookCode: String, platform: String) {
+        when (platform) {
+            "JOARA", "JOARA_NOBLESS", "JOARA_PREMIUM" -> {
+                getOthersJoa(context = context, bookCode = bookCode, platform = platform)
+            }
+//            "Kakao" -> {
+//                getCommentsKakao()
+//            }
+//            "Kakao_Stage" -> {
+//                getCommentsKakaoStage()
+//            }
+//            "OneStore" -> {
+//                getCommentsOneStory()
+//            }
+//            "Munpia" -> {
+//                getCommentsMunpia()
+//            }
+//            "Toksoda" -> {
+//                getCommentsToksoda()
+//            }
+        }
+
+    }
+
+    private fun getOthersJoa(context: Context, bookCode: String, platform: String) {
+        val apiJoara = RetrofitJoara()
+        val param = Param.getItemAPI(context)
+        param["book_code"] = bookCode
+        param["category"] = "1"
+        param["orderby"] = "redate"
+        param["offset"] = "25"
+
+        apiJoara.getBookOtherJoa(
+            param,
+            object : RetrofitDataListener<JoaraBestListResult> {
+                override fun onSuccess(data: JoaraBestListResult) {
+
+                    if (data.bookLists != null) {
+
+                        val items = ArrayList<ItemBookInfo>()
+
+                        for (i in data.bookLists.indices) {
+                            items.add(
+                                ItemBookInfo(
+                                    writer = data.bookLists[i].writerName,
+                                    title = data.bookLists[i].subject,
+                                    bookImg = data.bookLists[i].bookImg.replace(
+                                        "http://",
+                                        "https://"
+                                    ),
+                                    bookCode = data.bookLists[i].bookCode,
+                                    intro = data.bookLists[i].intro,
+                                    cntChapter = "총 ${data.bookLists[i].cntChapter}화",
+                                    cntPageRead = data.bookLists[i].cntPageRead,
+                                    cntFavorite = data.bookLists[i].cntFavorite,
+                                    cntRecom = data.bookLists[i].cntRecom,
+                                    cntTotalComment = data.bookLists[i].cntTotalComment,
+                                    genre = data.bookLists[i].category_ko_name,
+                                    type = platform
+                                )
+                            )
+                        }
+
+                        viewModelScope.launch {
+                            events.send(
+                                EventBestDetail.SetListBestOther(listBestOther = items)
+                            )
+                        }
+                    }
+                }
+            })
     }
 }

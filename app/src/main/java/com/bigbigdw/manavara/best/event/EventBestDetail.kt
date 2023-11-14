@@ -1,5 +1,6 @@
 package com.bigbigdw.manavara.best.event
 
+import com.bigbigdw.manavara.best.models.ItemBestComment
 import com.bigbigdw.manavara.best.models.ItemBestDetailInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.main.models.UserInfo
@@ -18,11 +19,21 @@ sealed interface EventBestDetail{
     class SetItemBookInfo(
         val itemBestInfo : ItemBookInfo = ItemBookInfo()
     ) : EventBestDetail
+
+    class SetListComment(
+        val listComment : ArrayList<ItemBestComment> = ArrayList()
+    ) : EventBestDetail
+
+    class SetListBestOther(
+        val listBestOther : ArrayList<ItemBookInfo> = ArrayList()
+    ) : EventBestDetail
 }
 
 data class StateBestDetail(
     val Loaded: Boolean = false,
     val userInfo: UserInfo = UserInfo(),
     val itemBestDetailInfo : ItemBestDetailInfo = ItemBestDetailInfo(),
-    val itemBestInfo : ItemBookInfo = ItemBookInfo()
+    val itemBestInfo : ItemBookInfo = ItemBookInfo(),
+    val listComment : ArrayList<ItemBestComment> = ArrayList(),
+    val listBestOther : ArrayList<ItemBookInfo> = ArrayList(),
 )
