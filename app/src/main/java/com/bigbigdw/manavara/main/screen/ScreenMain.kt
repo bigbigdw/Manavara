@@ -67,7 +67,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.bigbigdw.manavara.R
-import com.bigbigdw.manavara.best.screen.ScreemBottomItem
 import com.bigbigdw.manavara.best.screen.ScreenBest
 import com.bigbigdw.manavara.best.screen.ScreenBestPropertyList
 import com.bigbigdw.manavara.best.screen.ScreenDialogBest
@@ -95,7 +94,6 @@ fun ScreenMain(
     viewModelMain: ViewModelMain,
     widthSizeClass: WindowWidthSizeClass,
     viewModelBest: ViewModelBest
-
 ) {
 
     viewModelMain.setUserInfo()

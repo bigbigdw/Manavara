@@ -50,35 +50,6 @@ class ViewModelMain @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setPlatformRange(type : String){
-
-        val currentUser :  FirebaseUser?
-        val auth: FirebaseAuth = Firebase.auth
-        currentUser = auth.currentUser
-
-        val mRootRef = FirebaseDatabase.getInstance().reference
-
-        mRootRef.child("USER").child(currentUser?.uid ?: "").child(type).addListenerForSingleValueEvent(object :
-            ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-
-                val platformArray = ArrayList<String>()
-
-                if(dataSnapshot.exists()){
-
-                    for(item in dataSnapshot.children){
-                        val platform: String? = item.getValue(String::class.java)
-                        if (platform != null) {
-                            platformArray.add(platform)
-                        }
-                    }
-                }
-            }
-
-            override fun onCancelled(databaseError: DatabaseError) {}
-        })
-    }
-
     fun setUserInfo(){
 
         val currentUser :  FirebaseUser?

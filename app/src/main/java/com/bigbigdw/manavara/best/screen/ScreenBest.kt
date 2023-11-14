@@ -91,6 +91,7 @@ fun ScreenBest(
 ) {
 
     val context = LocalContext.current
+    val item = viewModelBest.state.collectAsState().value.itemBookInfo
 
     Box(
         modifier = Modifier
@@ -111,6 +112,8 @@ fun ScreenBest(
                             isShow = { setDialogOpen(false) },
                             onFetchClick = {
                                 val intent = Intent(context, ActivityBestDetail::class.java)
+                                intent.putExtra("BOOKCODE", item.bookCode)
+                                intent.putExtra("PLATFORM", item.type)
                                 context.startActivity(intent)
                             },
                             btnLeft = "취소",
@@ -118,7 +121,7 @@ fun ScreenBest(
                             modifier = Modifier.requiredWidth(400.dp),
                             contents = {
                                 ScreenDialogBest(
-                                    item = viewModelBest.state.collectAsState().value.itemBookInfo,
+                                    item = item,
                                     trophy = viewModelBest.state.collectAsState().value.itemBestInfoTrophyList,
                                     isExpandedScreen = isExpandedScreen
                                 )
@@ -144,7 +147,7 @@ fun ScreenBest(
                         .background(color = colorF6F6F6)
                 )
 
-                ScreenBestDetail(
+                ScreenMainBestDetail(
                     getMenu = getMenu,
                     getType = getType,
                     viewModelBest = viewModelBest,
@@ -156,7 +159,7 @@ fun ScreenBest(
 
             } else {
 
-                ScreenBestItemDetail(
+                ScreenMainBestItemDetail(
                     viewModelBest = viewModelBest,
                     getPlatform = getPlatform,
                     getType = getType,
@@ -442,7 +445,7 @@ fun ItemBestListSingle(
 @OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("MutableCollectionMutableState")
 @Composable
-fun ScreenBestDetail(
+fun ScreenMainBestDetail(
     getMenu: String,
     getType: String,
     viewModelBest: ViewModelBest,
@@ -481,7 +484,7 @@ fun ScreenBestDetail(
             }
         }
 
-        ScreenBestItemDetail(
+        ScreenMainBestItemDetail(
             viewModelBest = viewModelBest,
             getPlatform = getPlatform,
             getType = getType,
@@ -496,7 +499,7 @@ fun ScreenBestDetail(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ScreenBestItemDetail(
+fun ScreenMainBestItemDetail(
     viewModelBest: ViewModelBest,
     getPlatform: String,
     getType: String,

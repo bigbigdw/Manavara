@@ -4,6 +4,23 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
+data class ItemBestDetailInfo(
+    var writer: String = "",
+    var title: String = "",
+    var bookImg: String = "",
+    var bookCode: String = "",
+    var type: String = "",
+    var intro: String = "",
+    var cntPageRead: String = "",
+    var cntFavorite: String = "",
+    var cntRecom: String = "",
+    var cntTotalComment: String = "",
+    var cntChapter: String = "",
+    var genre: String = "",
+    var tabInfo: ArrayList<String> = arrayListOf(),
+    var keyword: ArrayList<String> = arrayListOf(),
+)
+@Serializable
 data class ItemBookInfo(
     @SerialName("writer")
     var writer: String = "",
