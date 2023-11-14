@@ -43,6 +43,7 @@ import com.bigbigdw.manavara.ui.theme.colorF17FA0
 import com.bigbigdw.manavara.ui.theme.colorFDC24E
 import com.bigbigdw.manavara.ui.theme.colorFFAC59
 import com.bigbigdw.manavara.util.DBDate
+import com.bigbigdw.manavara.util.colorList
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -288,31 +289,7 @@ fun checkMining(context: Context) {
 }
 
 fun getRandomColor(): Color {
-    val list = arrayListOf(
-        color4AD7CF,
-        color5372DE,
-        color998DF9,
-        colorEA927C,
-        colorABD436,
-        colorF17FA0,
-        color21C2EC,
-        color31C3AE,
-        color7C81FF,
-        color64C157,
-        colorF17666,
-        color536FD2,
-        color4996E8,
-        colorFDC24E,
-        color80BF78,
-        color91CEC7,
-        color79B4F8,
-        color8AA6BD,
-        color2EA259,
-        color808CF8,
-        colorFFAC59,
-        color8F8F8F
-    )
 
-    val randomIndex = (0 until list.size).random()
-    return list[randomIndex]
+    val randomIndex = (0 until colorList.size).random()
+    return colorList[randomIndex]
 }

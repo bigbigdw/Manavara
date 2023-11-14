@@ -59,8 +59,6 @@ class ActivityMain : ComponentActivity() {
                 widthSizeClass = widthSizeClass,
                 needDataUpdate = needDataUpdate
             )
-
-            BackOnPressed()
         }
     }
 }

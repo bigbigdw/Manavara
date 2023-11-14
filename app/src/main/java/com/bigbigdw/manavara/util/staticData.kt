@@ -3,7 +3,29 @@ package com.bigbigdw.manavara.util
 import androidx.compose.ui.graphics.Color
 import androidx.datastore.preferences.core.Preferences
 import com.bigbigdw.manavara.R
+import com.bigbigdw.manavara.ui.theme.color21C2EC
+import com.bigbigdw.manavara.ui.theme.color2EA259
+import com.bigbigdw.manavara.ui.theme.color31C3AE
+import com.bigbigdw.manavara.ui.theme.color4996E8
+import com.bigbigdw.manavara.ui.theme.color4AD7CF
+import com.bigbigdw.manavara.ui.theme.color536FD2
+import com.bigbigdw.manavara.ui.theme.color5372DE
+import com.bigbigdw.manavara.ui.theme.color64C157
+import com.bigbigdw.manavara.ui.theme.color79B4F8
+import com.bigbigdw.manavara.ui.theme.color7C81FF
+import com.bigbigdw.manavara.ui.theme.color808CF8
+import com.bigbigdw.manavara.ui.theme.color80BF78
+import com.bigbigdw.manavara.ui.theme.color8AA6BD
+import com.bigbigdw.manavara.ui.theme.color8F8F8F
+import com.bigbigdw.manavara.ui.theme.color91CEC7
+import com.bigbigdw.manavara.ui.theme.color998DF9
+import com.bigbigdw.manavara.ui.theme.colorABD436
 import com.bigbigdw.manavara.ui.theme.colorCHALLENGE
+import com.bigbigdw.manavara.ui.theme.colorEA927C
+import com.bigbigdw.manavara.ui.theme.colorF17666
+import com.bigbigdw.manavara.ui.theme.colorF17FA0
+import com.bigbigdw.manavara.ui.theme.colorFDC24E
+import com.bigbigdw.manavara.ui.theme.colorFFAC59
 import com.bigbigdw.manavara.ui.theme.colorJOARA
 import com.bigbigdw.manavara.ui.theme.colorKAKAO
 import com.bigbigdw.manavara.ui.theme.colorMUNPIA
@@ -835,4 +857,125 @@ fun manavaraListKor(): List<String> {
         "웹소설 DB 검색",
         "웹툰 DB 검색"
     )
+}
+
+val colorList = arrayListOf(
+    color4AD7CF,
+    color5372DE,
+    color998DF9,
+    colorEA927C,
+    colorABD436,
+    colorF17FA0,
+    color21C2EC,
+    color31C3AE,
+    color7C81FF,
+    color64C157,
+    colorF17666,
+    color536FD2,
+    color4996E8,
+    colorFDC24E,
+    color80BF78,
+    color91CEC7,
+    color79B4F8,
+    color8AA6BD,
+    color2EA259,
+    color808CF8,
+    colorFFAC59,
+    color8F8F8F
+)
+
+fun getBestDetailLogoMobile(menu: String) : Int {
+    return when (menu) {
+        "작품 정보" -> {
+            R.drawable.icon_novel_wht
+        }
+        "작품 댓글" -> {
+            R.drawable.icon_comment_wht
+        }
+        "작가의 다른 작품" -> {
+            R.drawable.icon_auther_other_wht
+        }
+        "평점 분석" -> {
+            R.drawable.icon_recom_wht
+        }
+        "선호작 분석" -> {
+            R.drawable.icon_fav_wht
+        }
+        "조회 분석" -> {
+            R.drawable.icon_watch_wht
+        }
+        "댓글 분석" -> {
+            R.drawable.icon_commentlist_wht
+        }
+        "랭킹 분석" -> {
+            R.drawable.icon_trophy_wht
+        }
+        else -> {
+            R.drawable.icon_best_wht
+        }
+    }
+}
+
+fun getBestDetailLogo(menu: String) : Int {
+    return when (menu) {
+        "작품 정보" -> {
+            R.drawable.icon_novel_gr
+        }
+        "작품 댓글" -> {
+            R.drawable.icon_comment
+        }
+        "작가의 다른 작품" -> {
+            R.drawable.icon_auther_other
+        }
+        "평점 분석" -> {
+            R.drawable.icon_recom
+        }
+        "선호작 분석" -> {
+            R.drawable.icon_fav
+        }
+        "조회 분석" -> {
+            R.drawable.icon_watch
+        }
+        "댓글 분석" -> {
+            R.drawable.icon_commentlist
+        }
+        "랭킹 분석" -> {
+            R.drawable.icon_trophy_gr
+        }
+        else -> {
+            R.drawable.icon_best_gr
+        }
+    }
+}
+
+fun getBestDetailDescription(menu: String) : String {
+    return when (menu) {
+        "작품 정보" -> {
+           "작품이 가진 정보"
+        }
+        "작품 댓글" -> {
+            "작품에 달린 댓글"
+        }
+        "작가의 다른 작품" -> {
+            "작가가 쓴 다른 작품 조회"
+        }
+        "평점 분석" -> {
+            "마나바라에서 수집한 평점 현황"
+        }
+        "선호작 분석" -> {
+            "마나바라에서 수집한 선호작 현황"
+        }
+        "조회 분석" -> {
+            "마나바라에서 수집한 조회 현황"
+        }
+        "댓글 분석" -> {
+            "마나바라에서 수집한 댓글 현황"
+        }
+        "랭킹 분석" -> {
+            "마나바라에서 수집한 랭킹 현황"
+        }
+        else -> {
+            ""
+        }
+    }
 }

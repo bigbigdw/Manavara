@@ -71,9 +71,14 @@ import com.bigbigdw.manavara.ui.theme.color1E1E20
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color4AD7CF
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
+import com.bigbigdw.manavara.ui.theme.color8F8F8F
 import com.bigbigdw.manavara.ui.theme.colorE9E9E9
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorFF2366
+import com.bigbigdw.manavara.util.colorList
+import com.bigbigdw.manavara.util.getBestDetailDescription
+import com.bigbigdw.manavara.util.getBestDetailLogo
+import com.bigbigdw.manavara.util.getBestDetailLogoMobile
 import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
 import com.bigbigdw.manavara.util.screen.ItemTabletTitle
 import com.bigbigdw.manavara.util.screen.ScreenEmpty
@@ -104,7 +109,6 @@ fun ScreenBestDetail(
     }
 
     val (getMenu, setMenu) = remember { mutableStateOf("") }
-
     val item = viewModelBestDetail.state.collectAsState().value.itemBestDetailInfo
 
     if (!isExpandedScreen) {
@@ -140,13 +144,66 @@ fun ScreenBestDetail(
                             }
                         })
                 },
+                bottomBar = {
+                    Row(
+                        Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Button(
+                            colors = ButtonDefaults.buttonColors(containerColor = color8F8F8F),
+
+                            onClick = {  },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(48.dp),
+                            shape = RoundedCornerShape(0.dp, 0.dp, 0.dp, 10.dp)
+
+                        ) {
+                            Text(
+                                text = "취소",
+                                textAlign = TextAlign.Center,
+                                color = Color.White,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                        Button(
+                            colors = ButtonDefaults.buttonColors(containerColor = color20459E),
+                            onClick = {
+                                viewModelBestDetail.gotoUrl(
+                                    platform = platform,
+                                    bookCode = bookCode,
+                                    context = context
+                                )
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(48.dp),
+                            shape = RoundedCornerShape(0.dp, 0.dp, 10.dp, 0.dp)
+
+                        ) {
+                            Text(
+                                text = "작품 보러가기",
+                                textAlign = TextAlign.Center,
+                                color = Color.White,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
             ) {
+
                 Box(
                     Modifier
                         .padding(it)
                         .background(color = color1E1E20)
                         .fillMaxSize()
                 ) {
+
                     ScreenItemBestDetailMenu(
                         item = item,
                         viewModelBestDetail = viewModelBestDetail,
@@ -157,6 +214,7 @@ fun ScreenBestDetail(
                         type = type
                     )
                 }
+
             }
         }
 
@@ -335,11 +393,23 @@ fun ScreenBestDetailTabsEmpty(
                 shape = RoundedCornerShape(50.dp),
                 content = {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+
                         horizontalArrangement = Arrangement.Start,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+
+                        Image(
+                            painter = painterResource(id = getBestDetailLogo(menu = title)),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .width(20.dp)
+                                .height(20.dp)
+                        )
+
+                        Spacer(modifier = Modifier.size(8.dp))
+
                         Text(
+                            modifier = Modifier.fillMaxWidth(),
                             text = title,
                             color = color000000,
                             fontSize = 18.sp,
@@ -560,101 +630,54 @@ fun ScreenItemBestDetailCard(
                     }
                 }
             )
-        }
 
-        if (getMenu == "작품 상세" || getMenu.isEmpty()) {
-            ItemTabletTitle(str = "작품 정보")
+            ScreenBestDetailInfo(item = item)
 
-            TabletContentWrap {
-                ItemBestDetailInfoLine(title = "작가 : ", value = item.writer)
+        } else {
+            if (getMenu == "작품 상세" || getMenu.isEmpty()) {
 
-                if (item.genre.isNotEmpty()) {
-                    ItemBestDetailInfoLine(title = "장르 : ", value = item.genre)
-                }
+                ScreenBestDetailInfo(item = item)
 
-                if (item.cntRecom.isNotEmpty()) {
-                    ItemBestDetailInfoLine(title = "플랫폼 평점 : ", value = item.cntRecom)
-                }
+                if (!isExpandedScreen) {
 
-                if (item.cntChapter.isNotEmpty()) {
-                    ItemBestDetailInfoLine(title = "총 편수 : ", value = item.cntChapter)
-                }
-
-                if (item.cntFavorite.isNotEmpty()) {
-                    ItemBestDetailInfoLine(title = "선호작 수 : ", value = item.cntFavorite)
-                }
-
-                if (item.cntPageRead.isNotEmpty()) {
-                    ItemBestDetailInfoLine(title = "조회 수 : ", value = item.cntPageRead)
-                }
-
-                if (item.cntTotalComment.isNotEmpty()) {
-                    ItemBestDetailInfoLine(title = "댓글 수 : ", value = item.cntTotalComment)
-                }
-
-                if (item.keyword.isNotEmpty()) {
-                    ItemBestDetailInfoLine(
-                        title = "키워드 : ",
-                        value = item.keyword.joinToString(", "),
-                        isLast = true
+                    viewModelBestDetail.setManavaraBestInfo(
+                        platform = platform,
+                        bookCode = bookCode,
+                        type = type
                     )
+
+                    val bestItem = viewModelBestDetail.state.collectAsState().value.itemBestInfo
+
+                    ScreenItemBestDetailManavara(bestItem = bestItem)
                 }
-            }
+            } else if (getMenu == "작품 댓글" && !isExpandedScreen) {
+                ScreenBestDetailComment(
+                    viewModelBestDetail = viewModelBestDetail,
+                    platform = platform,
+                    bookCode = bookCode
+                )
+            } else if (getMenu == "작가의 다른 작품" && !isExpandedScreen) {
+                ScreenBestDetailOther(
+                    viewModelBestDetail = viewModelBestDetail,
+                    platform = platform,
+                    bookCode = bookCode,
+                    type = type
+                )
+            } else if (getMenu.contains("분석") && !isExpandedScreen) {
 
-            if (item.intro.isNotEmpty()) {
-                ItemTabletTitle(str = "줄거리")
-
-                TabletContentWrap {
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        text = item.intro,
-                        overflow = TextOverflow.Ellipsis,
-                        color = color8E8E8E,
-                        fontSize = 16.sp,
-                    )
-                }
-            }
-
-            if (!isExpandedScreen) {
-
-                viewModelBestDetail.setManavaraBestInfo(
+                viewModelBestDetail.setBestDetailAnalyze(
                     platform = platform,
                     bookCode = bookCode,
                     type = type
                 )
 
-                val bestItem = viewModelBestDetail.state.collectAsState().value.itemBestInfo
+                val listBestInfo = viewModelBestDetail.state.collectAsState().value.listBestInfo
 
-                ScreenItemBestDetailManavara(bestItem = bestItem)
+                ScreenBestDetailAnalyze(
+                    item = listBestInfo,
+                    getMenu = getMenu
+                )
             }
-        } else if (getMenu == "작품 댓글") {
-            ScreenBestDetailComment(
-                viewModelBestDetail = viewModelBestDetail,
-                platform = platform,
-                bookCode = bookCode
-            )
-        } else if (getMenu == "작가의 다른 작품") {
-            ScreenBestDetailOther(
-                viewModelBestDetail = viewModelBestDetail,
-                platform = platform,
-                bookCode = bookCode,
-                type = type
-            )
-        } else if (getMenu.contains("분석")) {
-
-            viewModelBestDetail.setBestDetailAnalyze(
-                platform = platform,
-                bookCode = bookCode,
-                type = type
-            )
-
-            val listBestInfo = viewModelBestDetail.state.collectAsState().value.listBestInfo
-
-            ScreenBestDetailAnalyze(
-                item = listBestInfo,
-                getMenu = getMenu
-            )
         }
 
         Spacer(modifier = Modifier.size(32.dp))
@@ -732,7 +755,7 @@ fun ItemBestDetailInfoAnalyze(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = value,
+                    text = value.replace(".0", ""),
                     color = color8E8E8E,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
@@ -758,7 +781,7 @@ fun ItemBestDetailInfoAnalyze(
 
                     if (currentDiff != 0f) {
                         Text(
-                            text = currentDiff.toString(),
+                            text = currentDiff.toString().replace(".0", ""),
                             modifier = Modifier
                                 .wrapContentHeight()
                                 .wrapContentSize(),
@@ -831,7 +854,7 @@ fun DrawerBestDetail(
 
             Text(
                 modifier = Modifier.padding(16.dp, 0.dp, 0.dp, 0.dp),
-                text = "웹소설 베스트",
+                text = "베스트 작품 상세",
                 fontSize = 24.sp,
                 color = Color.Black,
                 fontWeight = FontWeight(weight = 700)
@@ -852,10 +875,10 @@ fun DrawerBestDetail(
 
             item.tabInfo.forEachIndexed { index, title ->
                 ItemMainSettingSingleTablet(
-                    containerColor = color4AD7CF,
-                    image = R.drawable.ic_launcher,
+                    containerColor = colorList[index + 1],
+                    image = getBestDetailLogoMobile(menu = title),
                     title = title,
-                    body = "베스트 모드를 투데이로 전환",
+                    body = getBestDetailDescription(menu = title),
                     settter = setter,
                     getter = getter,
                     value = title,
@@ -1155,6 +1178,62 @@ fun ScreenBestDetailAnalyze(
                 },
                 type = getMenu,
                 isLast = index == item.size - 1
+            )
+        }
+    }
+}
+
+@Composable
+fun ScreenBestDetailInfo(item : ItemBestDetailInfo){
+    ItemTabletTitle(str = "작품 정보")
+
+    TabletContentWrap {
+        ItemBestDetailInfoLine(title = "작가 : ", value = item.writer)
+
+        if (item.genre.isNotEmpty()) {
+            ItemBestDetailInfoLine(title = "장르 : ", value = item.genre)
+        }
+
+        if (item.cntRecom.isNotEmpty()) {
+            ItemBestDetailInfoLine(title = "플랫폼 평점 : ", value = item.cntRecom)
+        }
+
+        if (item.cntChapter.isNotEmpty()) {
+            ItemBestDetailInfoLine(title = "총 편수 : ", value = item.cntChapter)
+        }
+
+        if (item.cntFavorite.isNotEmpty()) {
+            ItemBestDetailInfoLine(title = "선호작 수 : ", value = item.cntFavorite)
+        }
+
+        if (item.cntPageRead.isNotEmpty()) {
+            ItemBestDetailInfoLine(title = "조회 수 : ", value = item.cntPageRead)
+        }
+
+        if (item.cntTotalComment.isNotEmpty()) {
+            ItemBestDetailInfoLine(title = "댓글 수 : ", value = item.cntTotalComment)
+        }
+
+        if (item.keyword.isNotEmpty()) {
+            ItemBestDetailInfoLine(
+                title = "키워드 : ",
+                value = item.keyword.joinToString(", "),
+                isLast = true
+            )
+        }
+    }
+
+    if (item.intro.isNotEmpty()) {
+        ItemTabletTitle(str = "줄거리")
+
+        TabletContentWrap {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                text = item.intro,
+                overflow = TextOverflow.Ellipsis,
+                color = color8E8E8E,
+                fontSize = 16.sp,
             )
         }
     }

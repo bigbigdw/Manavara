@@ -82,6 +82,8 @@ import com.bigbigdw.manavara.ui.theme.colorDCDCDD
 import com.bigbigdw.manavara.util.changePlatformNameKor
 import com.bigbigdw.manavara.util.comicListEng
 import com.bigbigdw.manavara.util.novelListEng
+import com.bigbigdw.manavara.util.screen.BackOnPressed
+import com.bigbigdw.manavara.util.screen.BackOnPressedMobile
 import com.bigbigdw.manavara.util.screen.ItemTabletTitle
 import com.bigbigdw.manavara.util.screen.ScreenTest
 import com.bigbigdw.manavara.util.screen.TabletContentWrap
@@ -165,6 +167,7 @@ fun ScreenMain(
                 listState = listState,
                 needDataUpdate = needDataUpdate,
             )
+            BackOnPressed()
         }
     }
 }
@@ -314,6 +317,8 @@ fun ScreenMainMobile(
             }
         },
     ) {}
+
+    BackOnPressedMobile(modalSheetState = modalSheetState)
 }
 
 @Composable

@@ -128,7 +128,7 @@ fun ScreenLogin(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                MainHeader(image = R.drawable.ic_launcher, title = "마나바라")
+                MainHeader(image = R.drawable.logo_transparents, title = "마나바라")
 
                 if (isExpandedLogin) {
                     Text(
@@ -241,7 +241,7 @@ fun ScreenSplash() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            MainHeader(image = R.drawable.ic_launcher, title = "마나바라")
+            MainHeader(image = R.drawable.logo_transparents, title = "마나바라")
 
             Text(
                 text = "웹툰/웹소설 수집 어플리케이션",
@@ -514,7 +514,7 @@ fun ScreenAfterSplash(
         )
 
         MainHeader(
-            image = R.drawable.ic_launcher,
+            image = R.drawable.logo_transparents,
             title = "회원 가입"
         )
 

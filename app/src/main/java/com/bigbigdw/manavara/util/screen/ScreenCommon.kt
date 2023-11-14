@@ -26,6 +26,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -81,6 +83,31 @@ fun BackOnPressed() {
             Toast.makeText(context, "한 번 더 누르시면 앱이 종료됩니다.", Toast.LENGTH_SHORT).show()
         }
         backPressedTime = System.currentTimeMillis()
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun BackOnPressedMobile(modalSheetState: ModalBottomSheetState) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    var backPressedTime = 0L
+    var backPressedState by remember { mutableStateOf(true) }
+
+    BackHandler(enabled = true) {
+        if (modalSheetState.isVisible) {
+            coroutineScope.launch {
+                modalSheetState.hide()
+            }
+        } else {
+            if (System.currentTimeMillis() - backPressedTime <= 400L) {
+                (context as Activity).finish()
+            } else {
+                backPressedState = true
+                Toast.makeText(context, "한 번 더 누르시면 앱이 종료됩니다.", Toast.LENGTH_SHORT).show()
+            }
+            backPressedTime = System.currentTimeMillis()
+        }
     }
 }
 
@@ -474,7 +501,7 @@ fun MainHeader(image: Int, title: String) {
     Card(
         modifier = Modifier
             .wrapContentSize(),
-        colors = CardDefaults.cardColors(containerColor = colorDCDCDD),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(50.dp, 50.dp, 50.dp, 50.dp)
     ) {
         Box(
@@ -694,7 +721,7 @@ fun ScreenEmpty(str : String = "마나바라") {
             Card(
                 modifier = Modifier
                     .wrapContentSize(),
-                colors = CardDefaults.cardColors(containerColor = colorDCDCDD),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
                 shape = RoundedCornerShape(50.dp, 50.dp, 50.dp, 50.dp)
             ) {
                 Box(
@@ -705,7 +732,7 @@ fun ScreenEmpty(str : String = "마나바라") {
                 ) {
                     Image(
                         contentScale = ContentScale.FillWidth,
-                        painter = painterResource(id = R.drawable.ic_launcher),
+                        painter = painterResource(id = R.drawable.logo_transparents),
                         contentDescription = null,
                         modifier = Modifier
                             .height(72.dp)
