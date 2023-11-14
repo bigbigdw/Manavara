@@ -306,9 +306,14 @@ fun ScreenItemBestDetailMenu(
     type: String
 ) {
 
+    val modifier = if(isExpandedScreen){
+        Modifier.width(400.dp)
+    } else {
+        Modifier.fillMaxWidth()
+    }
+
     Column(
-        modifier = Modifier
-            .width(400.dp)
+        modifier = modifier
             .fillMaxHeight()
             .verticalScroll(rememberScrollState())
             .background(color = colorF6F6F6)

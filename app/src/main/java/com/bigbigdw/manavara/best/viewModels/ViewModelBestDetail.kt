@@ -161,7 +161,6 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
                                 "평점 분석",
                                 "선호작 분석",
                                 "조회 분석",
-                                "댓글 분석",
                                 "랭킹 분석"
                             ),
                             keyword = data.book.keyword,
