@@ -9,6 +9,7 @@ import com.bigbigdw.manavara.best.event.EventBestDetail
 import com.bigbigdw.manavara.best.event.StateBestDetail
 import com.bigbigdw.manavara.best.models.ItemBestComment
 import com.bigbigdw.manavara.best.models.ItemBestDetailInfo
+import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.retrofit.Param
 import com.bigbigdw.moavara.Retrofit.JoaraBestDetailCommentsResult
@@ -65,6 +66,10 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
 
             is EventBestDetail.SetListBestOther -> {
                 current.copy(listBestOther = event.listBestOther)
+            }
+
+            is EventBestDetail.SetListBestInfo -> {
+                current.copy(listBestInfo = event.listBestInfo)
             }
 
             else -> {
@@ -153,9 +158,10 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
                             tabInfo = arrayListOf(
                                 "작품 댓글",
                                 "작가의 다른 작품",
-                                "선호작 현황",
-                                "조회 현황",
-                                "댓글 현황",
+                                "평점 분석",
+                                "선호작 분석",
+                                "조회 분석",
+                                "댓글 분석",
                                 "랭킹 분석"
                             ),
                             keyword = data.book.keyword,
@@ -191,6 +197,44 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
                                 EventBestDetail.SetItemBookInfo(itemBestInfo = item)
                             )
                         }
+                    }
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {}
+        })
+    }
+
+    fun setBestDetailAnalyze(bookCode: String, type: String, platform: String) {
+        val mRootRef =
+            FirebaseDatabase.getInstance().reference.child("DATA").child(type).child(platform)
+                .child(bookCode)
+
+        mRootRef.addListenerForSingleValueEvent(object :
+            ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+
+                if (dataSnapshot.exists()) {
+
+                    val items = ArrayList<ItemBestInfo>()
+
+                    for(item in dataSnapshot.children) {
+                        val bestInfo = item.getValue(ItemBestInfo::class.java)
+
+                        if (bestInfo != null) {
+
+                            if(bestInfo.date.isEmpty()){
+                                bestInfo.date = item.key.toString()
+                            }
+
+                            items.add(bestInfo)
+                        }
+                    }
+
+                    viewModelScope.launch {
+                        events.send(
+                            EventBestDetail.SetListBestInfo(listBestInfo = items)
+                        )
                     }
                 }
             }

@@ -3,6 +3,7 @@ package com.bigbigdw.manavara.best.screen
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -59,15 +60,17 @@ import com.bigbigdw.manavara.best.ActivityBestDetail
 import com.bigbigdw.manavara.best.models.ItemBestDetailInfo
 import com.bigbigdw.manavara.best.viewModels.ViewModelBestDetail
 import com.bigbigdw.manavara.ui.theme.color000000
+import com.bigbigdw.manavara.ui.theme.color02BC77
+import com.bigbigdw.manavara.ui.theme.color1CE3EE
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
 import com.bigbigdw.manavara.ui.theme.colorE9E9E9
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
+import com.bigbigdw.manavara.ui.theme.colorFF2366
 import com.bigbigdw.manavara.util.screen.ItemTabletTitle
 import com.bigbigdw.manavara.util.screen.ScreenEmpty
 import com.bigbigdw.manavara.util.screen.TabletContentWrap
 import getRandomColor
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -351,9 +354,9 @@ fun ScreenBestDetailTabs(
     ) {
 
         if (getMenu.isNotEmpty()) {
-           item{  Spacer(modifier = Modifier.size(16.dp)) }
+            item { Spacer(modifier = Modifier.size(16.dp)) }
 
-            item{
+            item {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Image(
                         painter = painterResource(id = R.drawable.icon_arrow_left),
@@ -375,7 +378,7 @@ fun ScreenBestDetailTabs(
             }
         }
 
-        item{
+        item {
             ScreenBestItemDetailTabItem(
                 viewModelBestDetail = viewModelBestDetail,
                 getMenu = getMenu,
@@ -410,7 +413,7 @@ fun ScreenBestItemDetailTabItem(
 
         Spacer(modifier = Modifier.size(16.dp))
 
-        if(item.size > 1){
+        if (item.size > 1) {
             item.forEachIndexed { index, itemBestComment ->
                 Row(
                     Modifier
@@ -464,7 +467,8 @@ fun ScreenBestItemDetailTabItem(
                                 text = itemBestComment.comment,
                                 modifier = Modifier
                                     .wrapContentHeight()
-                                    .weight(1f).padding(12.dp, 0.dp, 0.dp, 0.dp),
+                                    .weight(1f)
+                                    .padding(12.dp, 0.dp, 0.dp, 0.dp),
                                 fontSize = 18.sp,
                                 textAlign = TextAlign.Left,
                                 color = Color.Black,
@@ -473,9 +477,11 @@ fun ScreenBestItemDetailTabItem(
                 }
             }
         } else {
-            Box(modifier = Modifier
-                .height(500.dp)
-                .fillMaxWidth()) {
+            Box(
+                modifier = Modifier
+                    .height(500.dp)
+                    .fillMaxWidth()
+            ) {
                 ScreenEmpty(str = "댓글이 없습니다")
             }
         }
@@ -492,7 +498,7 @@ fun ScreenBestItemDetailTabItem(
 
         Spacer(modifier = Modifier.size(16.dp))
 
-        if(item.size > 1){
+        if (item.size > 1) {
             item.forEachIndexed { index, itemBookInfo ->
                 Button(
                     colors = ButtonDefaults.buttonColors(containerColor = Color.White),
@@ -524,7 +530,7 @@ fun ScreenBestItemDetailTabItem(
 
                                 ScreenItemBestCard(item = itemBookInfo)
 
-                                if(itemBookInfo.intro.isNotEmpty()){
+                                if (itemBookInfo.intro.isNotEmpty()) {
                                     Spacer(modifier = Modifier.size(16.dp))
 
                                     Text(
@@ -544,10 +550,64 @@ fun ScreenBestItemDetailTabItem(
                 Spacer(modifier = Modifier.size(16.dp))
             }
         } else {
-            Box(modifier = Modifier
-                .height(500.dp)
-                .fillMaxWidth()) {
+            Box(
+                modifier = Modifier
+                    .height(500.dp)
+                    .fillMaxWidth()
+            ) {
                 ScreenEmpty(str = "작품이 없습니다")
+            }
+        }
+    } else if (getMenu.contains("분석")) {
+        viewModelBestDetail.setBestDetailAnalyze(
+            platform = platform,
+            bookCode = bookCode,
+            type = type
+        )
+
+        val item = viewModelBestDetail.state.collectAsState().value.listBestInfo
+
+        Spacer(modifier = Modifier.size(16.dp))
+
+        TabletContentWrap {
+
+            item.forEachIndexed { index, itemBestInfo ->
+
+                val year = itemBestInfo.date.substring(0,4)
+                val month = itemBestInfo.date.substring(4,6)
+                val day = itemBestInfo.date.substring(6,8)
+
+                ItemBestDetailInfoAnalyze(
+                    title = "${year}년 ${month}월 ${day}일",
+                    value = if (getMenu.contains("평점 분석")) {
+                        itemBestInfo.cntRecom
+                    } else if (getMenu.contains("선호작 분석")) {
+                        itemBestInfo.cntFavorite
+                    } else if (getMenu.contains("조회 분석")) {
+                        itemBestInfo.cntPageRead
+                    }  else if (getMenu.contains("댓글 분석")) {
+                        itemBestInfo.cntTotalComment
+                    } else {
+                        (itemBestInfo.number + 1).toString()
+                    },
+                    beforeValue = if (index == 0) {
+                        "0"
+                    } else {
+                        if (getMenu.contains("평점 분석")) {
+                            item[index - 1].cntRecom
+                        } else if (getMenu.contains("선호작 분석")) {
+                            item[index - 1].cntFavorite
+                        } else if (getMenu.contains("조회 분석")) {
+                            item[index - 1].cntPageRead
+                        }  else if (getMenu.contains("댓글 분석")) {
+                            item[index - 1].cntTotalComment
+                        } else {
+                            (item[index - 1].number + 1).toString()
+                        }
+                    },
+                    type = getMenu,
+                    isLast = index == item.size - 1
+                )
             }
         }
     }
@@ -736,6 +796,99 @@ fun ItemBestDetailInfoLine(title: String, value: String, isLast: Boolean = false
                 fontSize = 18.sp,
                 textAlign = TextAlign.End
             )
+        }
+
+        if (!isLast) {
+            Spacer(modifier = Modifier.size(4.dp))
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(color = colorE9E9E9)
+            )
+            Spacer(modifier = Modifier.size(8.dp))
+        }
+    }
+}
+
+@Composable
+fun ItemBestDetailInfoAnalyze(
+    title: String,
+    beforeValue: String,
+    value: String,
+    isLast: Boolean = false,
+    type : String,
+) {
+
+    val currentDiff = if(type == "랭킹 분석"){
+        (beforeValue.toFloat() - value.toFloat())
+    } else {
+        (value.toFloat() - beforeValue.toFloat())
+    }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(0.dp, 4.dp)
+        ) {
+            Text(
+                text = title,
+                color = color000000,
+                fontSize = 18.sp,
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = value,
+                    color = color8E8E8E,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.End
+                )
+
+                if(beforeValue != "0"){
+                    if (currentDiff > 0) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_arrow_drop_up_24px),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    } else if (currentDiff < 0) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_arrow_drop_down_24px),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+
+                    if(currentDiff != 0f){
+                        Text(
+                            text = currentDiff.toString(),
+                            modifier = Modifier
+                                .wrapContentHeight()
+                                .wrapContentSize(),
+                            fontSize = 14.sp,
+                            textAlign = TextAlign.Left,
+                            color = if (currentDiff > 0f) {
+                                color02BC77
+                            } else if (currentDiff < 0f) {
+                                colorFF2366
+                            } else {
+                                color1CE3EE
+                            },
+                            fontWeight = FontWeight.Bold,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            }
         }
 
         if (!isLast) {

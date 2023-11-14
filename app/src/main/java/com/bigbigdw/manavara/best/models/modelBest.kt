@@ -93,6 +93,8 @@ data class ItemBestInfo (
     var bookCode: String = "",
     @SerialName("currentDiff")
     var currentDiff:  Int = 0,
+    @SerialName("date")
+    var date: String = "",
 )
 
 @Serializable
