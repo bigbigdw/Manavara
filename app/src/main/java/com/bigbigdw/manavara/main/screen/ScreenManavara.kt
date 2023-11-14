@@ -174,7 +174,8 @@ fun ScreenManavara(
                                 ScreenDialogBest(
                                     item = viewModelBest.state.collectAsState().value.itemBookInfo,
                                     trophy = viewModelBest.state.collectAsState().value.itemBestInfoTrophyList,
-                                    isExpandedScreen = isExpandedScreen
+                                    isExpandedScreen = isExpandedScreen,
+                                    currentRoute = "NOVEL"
                                 )
                             })
                     }

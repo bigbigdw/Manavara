@@ -88,6 +88,7 @@ fun ScreenBest(
     setBestType: (String) -> Unit,
     getBestType: String,
     modalSheetState: ModalBottomSheetState? = null,
+    needDataUpdate: Boolean,
 ) {
 
     val context = LocalContext.current
@@ -124,7 +125,8 @@ fun ScreenBest(
                                 ScreenDialogBest(
                                     item = item,
                                     trophy = viewModelBest.state.collectAsState().value.itemBestInfoTrophyList,
-                                    isExpandedScreen = isExpandedScreen
+                                    isExpandedScreen = isExpandedScreen,
+                                    currentRoute = getType
                                 )
                             })
                     }
@@ -155,7 +157,8 @@ fun ScreenBest(
                     listState = listState,
                     setDialogOpen = setDialogOpen,
                     getBestType = getBestType,
-                    getPlatform = getPlatform
+                    getPlatform = getPlatform,
+                    needDataUpdate = needDataUpdate
                 )
 
             } else {
@@ -169,6 +172,7 @@ fun ScreenBest(
                     modalSheetState = modalSheetState,
                     setDialogOpen = null,
                     isExpandedScreen = isExpandedScreen,
+                    needDataUpdate = needDataUpdate
                 )
 
             }
@@ -455,7 +459,8 @@ fun ScreenMainBestDetail(
     listState: LazyListState,
     setDialogOpen: (Boolean) -> Unit,
     getBestType: String,
-    getPlatform: String
+    getPlatform: String,
+    needDataUpdate : Boolean
 ) {
 
     Column(
@@ -495,7 +500,8 @@ fun ScreenMainBestDetail(
             getBestType = getBestType,
             modalSheetState = null,
             setDialogOpen = setDialogOpen,
-            isExpandedScreen = false
+            isExpandedScreen = false,
+            needDataUpdate = needDataUpdate
         )
     }
 }
@@ -511,6 +517,7 @@ fun ScreenMainBestItemDetail(
     modalSheetState: ModalBottomSheetState? = null,
     setDialogOpen: ((Boolean) -> Unit)?,
     isExpandedScreen: Boolean,
+    needDataUpdate : Boolean
 ) {
     if(getBestType.isEmpty() && isExpandedScreen){
         ScreenBestDBListNovel(type = "NOVEL")
@@ -525,7 +532,8 @@ fun ScreenMainBestItemDetail(
             setDialogOpen = setDialogOpen,
             getType = getType,
             getPlatform = getPlatform,
-            getBestType = getBestType
+            getBestType = getBestType,
+            needDataUpdate = needDataUpdate
         )
 
     } else if (getBestType.contains("WEEK_BEST")) {

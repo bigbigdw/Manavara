@@ -1,6 +1,7 @@
 package com.bigbigdw.manavara.best.screen
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -52,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.bigbigdw.manavara.R
+import com.bigbigdw.manavara.best.ActivityBestDetail
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.viewModels.ViewModelBest
@@ -83,7 +85,8 @@ fun ScreenTodayBest(
     setDialogOpen: ((Boolean) -> Unit)?,
     getType: String,
     getPlatform: String,
-    getBestType : String
+    getBestType : String,
+    needDataUpdate : Boolean
 ) {
 
     val context = LocalContext.current
@@ -92,7 +95,8 @@ fun ScreenTodayBest(
         viewModelBest.getBestListTodayJson(
             platform = getPlatform,
             type = getType,
-            context = context
+            context = context,
+            needDataUpdate = needDataUpdate
         )
 
         viewModelBest.getBestMapToday(
@@ -741,7 +745,14 @@ fun ScreenBestListItemMonth(item: ItemBookInfo) {
 }
 
 @Composable
-fun ScreenDialogBest(item: ItemBookInfo, trophy: ArrayList<ItemBestInfo>, isExpandedScreen: Boolean) {
+fun ScreenDialogBest(
+    item: ItemBookInfo,
+    trophy: ArrayList<ItemBestInfo>,
+    isExpandedScreen: Boolean,
+    currentRoute: String
+) {
+
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -858,7 +869,11 @@ fun ScreenDialogBest(item: ItemBookInfo, trophy: ArrayList<ItemBestInfo>, isExpa
             Button(
                 colors = ButtonDefaults.buttonColors(containerColor = color20459E),
                 onClick = {
-
+                    val intent = Intent(context, ActivityBestDetail::class.java)
+                    intent.putExtra("BOOKCODE", item.bookCode)
+                    intent.putExtra("PLATFORM", item.type)
+                    intent.putExtra("TYPE", currentRoute)
+                    context.startActivity(intent)
                 },
                 modifier = Modifier
                     .weight(1f)
@@ -867,7 +882,7 @@ fun ScreenDialogBest(item: ItemBookInfo, trophy: ArrayList<ItemBestInfo>, isExpa
 
             ) {
                 Text(
-                    text = "확인",
+                    text = "작품 보러가기",
                     textAlign = TextAlign.Center,
                     color = Color.White,
                     fontSize = 16.sp,

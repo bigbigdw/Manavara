@@ -118,41 +118,31 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         }
     }
 
-    fun getBestListTodayJson(platform: String, type: String, context: Context){
+    fun getBestListTodayJson(platform: String, type: String, context: Context, needDataUpdate : Boolean){
 
-        val dataStore = DataStoreManager(context)
+        if(needDataUpdate){
+            val filePath = File(context.filesDir, "${platform}_${type}.json").absolutePath
 
-        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val jsonString = File(filePath).readText(Charset.forName("UTF-8"))
 
-            dataStore.getDataStoreString(DataStoreManager.MINING).collect { value ->
+                val json = Json { ignoreUnknownKeys = true }
+                val itemList = json.decodeFromString<List<ItemBookInfo>>(jsonString)
 
-                if (value != null) {
-                    if(value.toFloat() < DBDate.dateMMDDHHMM().toFloat()){
-                        val filePath = File(context.filesDir, "${platform}_${type}.json").absolutePath
+                val todayJsonList = ArrayList<ItemBookInfo>()
 
-                        try {
-                            val jsonString = File(filePath).readText(Charset.forName("UTF-8"))
-
-                            val json = Json { ignoreUnknownKeys = true }
-                            val itemList = json.decodeFromString<List<ItemBookInfo>>(jsonString)
-
-                            val todayJsonList = ArrayList<ItemBookInfo>()
-
-                            for (item in itemList) {
-                                todayJsonList.add(item)
-                            }
-
-                            viewModelScope.launch {
-                                events.send(EventBest.SetItemBestInfoList(itemBookInfoList = todayJsonList))
-                            }
-                        } catch (e: Exception) {
-                            getBestListTodayStorage(context = context, platform = platform, type = type)
-                        }
-                    } else {
-                        getBestListTodayStorage(context = context, platform = platform, type = type)
-                    }
+                for (item in itemList) {
+                    todayJsonList.add(item)
                 }
+
+                viewModelScope.launch {
+                    events.send(EventBest.SetItemBestInfoList(itemBookInfoList = todayJsonList))
+                }
+            } catch (e: Exception) {
+                getBestListTodayStorage(context = context, platform = platform, type = type)
             }
+        } else {
+            getBestListTodayStorage(context = context, platform = platform, type = type)
         }
     }
 
@@ -165,7 +155,7 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         val storage = Firebase.storage
         val storageRef = storage.reference
         val todayFileRef = storageRef.child("${platform}/${type}/DAY/${DBDate.dateMMDD()}.json")
-        val localFile = File(context.filesDir, "${platform}.json")
+        val localFile = File(context.filesDir, "${platform}_${type}.json")
 
         todayFileRef.getFile(localFile).addOnSuccessListener {
             val jsonString = localFile.readText(Charset.forName("UTF-8"))

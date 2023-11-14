@@ -3,10 +3,10 @@ package com.bigbigdw.manavara.best.screen
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,8 +24,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -33,14 +31,19 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -58,19 +61,25 @@ import coil.compose.AsyncImage
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.ActivityBestDetail
 import com.bigbigdw.manavara.best.models.ItemBestDetailInfo
+import com.bigbigdw.manavara.best.models.ItemBestInfo
+import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.viewModels.ViewModelBestDetail
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color02BC77
 import com.bigbigdw.manavara.ui.theme.color1CE3EE
+import com.bigbigdw.manavara.ui.theme.color1E1E20
 import com.bigbigdw.manavara.ui.theme.color20459E
+import com.bigbigdw.manavara.ui.theme.color4AD7CF
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
 import com.bigbigdw.manavara.ui.theme.colorE9E9E9
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorFF2366
+import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
 import com.bigbigdw.manavara.util.screen.ItemTabletTitle
 import com.bigbigdw.manavara.util.screen.ScreenEmpty
 import com.bigbigdw.manavara.util.screen.TabletContentWrap
 import getRandomColor
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,9 +93,6 @@ fun ScreenBestDetail(
 
     val isExpandedScreen = widthSizeClass == WindowWidthSizeClass.Expanded
 
-    val listState = rememberLazyListState()
-    val (getDialogOpen, setDialogOpen) = remember { mutableStateOf(false) }
-
     val context = LocalContext.current
 
     LaunchedEffect(bookCode) {
@@ -97,34 +103,64 @@ fun ScreenBestDetail(
         )
     }
 
+    val (getMenu, setMenu) = remember { mutableStateOf("") }
+
+    val item = viewModelBestDetail.state.collectAsState().value.itemBestDetailInfo
+
     if (!isExpandedScreen) {
 
-//        val (getMenu, setMenu) = remember { mutableStateOf("TODAY") }
-//        val (getDetailPlatform, setDetailPlatform) = remember { mutableStateOf(novelListEng()[0]) }
-//        val (getType, setType) = remember { mutableStateOf("") }
-//        val (getBestType, setBestType) = remember { mutableStateOf("") }
-//
-//        ScreenMainMobile(
-//            navController = navController,
-//            currentRoute = currentRoute,
-//            viewModelMain = viewModelMain,
-//            viewModelBest = viewModelBest,
-//            isExpandedScreen = isExpandedScreen,
-//            drawerState = drawerState,
-//            setMenu = setMenu,
-//            getMenu = getMenu,
-//            setPlatform = setDetailPlatform,
-//            getPlatform = getDetailPlatform,
-//            setType = setType,
-//            getType = getType,
-//            listState = listState,
-//            setBestType = setBestType,
-//            getBestType = getBestType
-//        )
+        if (getMenu.isEmpty()) {
+            setMenu("작품 상세")
+        }
+
+        val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+        val coroutineScope = rememberCoroutineScope()
+
+        ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
+
+            DrawerBestDetail(
+                setter = setMenu,
+                getter = getMenu,
+                item = item
+            ) {
+                coroutineScope.launch {
+                    drawerState.close()
+                }
+            }
+
+        }) {
+            Scaffold(
+                topBar = {
+                    TopbarBestDetail(
+                        setter = setMenu,
+                        getter = getMenu,
+                        setDrawer = {
+                            coroutineScope.launch {
+                                drawerState.open()
+                            }
+                        })
+                },
+            ) {
+                Box(
+                    Modifier
+                        .padding(it)
+                        .background(color = color1E1E20)
+                        .fillMaxSize()
+                ) {
+                    ScreenItemBestDetailMenu(
+                        item = item,
+                        viewModelBestDetail = viewModelBestDetail,
+                        platform = platform,
+                        bookCode = bookCode,
+                        isExpandedScreen = isExpandedScreen,
+                        getMenu = getMenu,
+                        type = type
+                    )
+                }
+            }
+        }
 
     } else {
-
-        val (getMenu, setMenu) = remember { mutableStateOf("") }
 
         ScreenTabletBestDetail(
             viewModelBestDetail = viewModelBestDetail,
@@ -132,10 +168,9 @@ fun ScreenBestDetail(
             platform = platform,
             bookCode = bookCode,
             type = type,
-            listState = listState,
-            setDialogOpen = setDialogOpen,
             getMenu = getMenu,
-            setMenu = setMenu
+            setMenu = setMenu,
+            item = item
         )
 
         BestDetailBackOnPressed(
@@ -151,14 +186,11 @@ fun ScreenTabletBestDetail(
     isExpandedScreen: Boolean,
     platform: String,
     bookCode: String,
-    listState: LazyListState,
-    setDialogOpen: (Boolean) -> Unit,
     type: String,
     getMenu: String,
-    setMenu: (String) -> Unit
+    setMenu: (String) -> Unit,
+    item: ItemBestDetailInfo
 ) {
-
-    val item = viewModelBestDetail.state.collectAsState().value.itemBestDetailInfo
 
     Box(
         modifier = Modifier
@@ -170,10 +202,13 @@ fun ScreenTabletBestDetail(
             if (isExpandedScreen) {
 
                 ScreenItemBestDetailMenu(
-                    viewModelBestDetail = viewModelBestDetail,
                     item = item,
+                    viewModelBestDetail = viewModelBestDetail,
                     platform = platform,
                     bookCode = bookCode,
+                    isExpandedScreen = isExpandedScreen,
+                    getMenu = getMenu,
+                    type = type
                 )
 
                 Spacer(modifier = Modifier.size(16.dp))
@@ -207,7 +242,10 @@ fun ScreenItemBestDetailMenu(
     item: ItemBestDetailInfo,
     viewModelBestDetail: ViewModelBestDetail,
     platform: String,
-    bookCode: String
+    bookCode: String,
+    isExpandedScreen: Boolean,
+    getMenu: String,
+    type: String
 ) {
 
     Column(
@@ -222,13 +260,15 @@ fun ScreenItemBestDetailMenu(
 
         Spacer(modifier = Modifier.size(16.dp))
 
-        Text(
-            modifier = Modifier.padding(16.dp, 0.dp, 0.dp, 0.dp),
-            text = "베스트 작품 상세",
-            fontSize = 24.sp,
-            color = Color.Black,
-            fontWeight = FontWeight(weight = 700)
-        )
+        if (isExpandedScreen) {
+            Text(
+                modifier = Modifier.padding(16.dp, 0.dp, 0.dp, 0.dp),
+                text = "베스트 작품 상세",
+                fontSize = 24.sp,
+                color = Color.Black,
+                fontWeight = FontWeight(weight = 700)
+            )
+        }
 
         Spacer(modifier = Modifier.size(16.dp))
 
@@ -236,7 +276,10 @@ fun ScreenItemBestDetailMenu(
             item = item,
             viewModelBestDetail = viewModelBestDetail,
             platform = platform,
-            bookCode = bookCode
+            bookCode = bookCode,
+            type = type,
+            isExpandedScreen = isExpandedScreen,
+            getMenu = getMenu
         )
 
     }
@@ -310,28 +353,7 @@ fun ScreenBestDetailTabsEmpty(
             }
         }
 
-        ItemTabletTitle(str = "마나바라 수집 정보")
-
-        TabletContentWrap {
-            ItemBestDetailInfoLine(title = "베스트 총합 : ", value = bestItem.total.toString())
-
-            ItemBestDetailInfoLine(title = "주간 총점 : ", value = bestItem.totalWeek.toString())
-
-            ItemBestDetailInfoLine(title = "월간 총합 : ", value = bestItem.totalMonth.toString())
-
-            ItemBestDetailInfoLine(title = "총 베스트 횟수 : ", value = bestItem.totalCount.toString())
-
-            ItemBestDetailInfoLine(
-                title = "주간 베스트 횟수 : ",
-                value = bestItem.totalWeekCount.toString()
-            )
-
-            ItemBestDetailInfoLine(
-                title = "월간 베스트 횟수 : ",
-                value = bestItem.totalMonthCount.toString(),
-                isLast = true
-            )
-        }
+        ScreenItemBestDetailManavara(bestItem = bestItem)
 
     }
 }
@@ -399,165 +421,23 @@ fun ScreenBestItemDetailTabItem(
     type: String
 ) {
 
-    val context = LocalContext.current
-
     if (getMenu.contains("작품 댓글")) {
 
-        viewModelBestDetail.setComment(
+        ScreenBestDetailComment(
+            viewModelBestDetail = viewModelBestDetail,
             platform = platform,
-            bookCode = bookCode,
-            context = context
+            bookCode = bookCode
         )
-
-        val item = viewModelBestDetail.state.collectAsState().value.listComment
-
-        Spacer(modifier = Modifier.size(16.dp))
-
-        if (item.size > 1) {
-            item.forEachIndexed { index, itemBestComment ->
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(0.dp, 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-
-                    Card(
-                        modifier = Modifier
-                            .wrapContentSize(),
-                        colors = CardDefaults.cardColors(containerColor = getRandomColor()),
-                        shape = RoundedCornerShape(50.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .height(36.dp)
-                                .width(36.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Image(
-                                contentScale = ContentScale.FillWidth,
-                                painter = painterResource(id = R.drawable.logo_transparents),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .height(28.dp)
-                                    .width(28.dp)
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.width(4.dp))
-
-                    Button(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(4.dp, 0.dp, 0.dp, 0.dp)
-                            .fillMaxWidth(),
-                        shape = RoundedCornerShape(25.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                        onClick = {},
-                        contentPadding = PaddingValues(
-                            start = 0.dp,
-                            top = 2.dp,
-                            end = 0.dp,
-                            bottom = 2.dp,
-                        ),
-                        content = {
-
-                            Text(
-                                text = itemBestComment.comment,
-                                modifier = Modifier
-                                    .wrapContentHeight()
-                                    .weight(1f)
-                                    .padding(12.dp, 0.dp, 0.dp, 0.dp),
-                                fontSize = 18.sp,
-                                textAlign = TextAlign.Left,
-                                color = Color.Black,
-                            )
-                        })
-                }
-            }
-        } else {
-            Box(
-                modifier = Modifier
-                    .height(500.dp)
-                    .fillMaxWidth()
-            ) {
-                ScreenEmpty(str = "댓글이 없습니다")
-            }
-        }
 
     } else if (getMenu.contains("작가의 다른 작품")) {
 
-        viewModelBestDetail.setOtherBooks(
+        ScreenBestDetailOther(
+            viewModelBestDetail = viewModelBestDetail,
             platform = platform,
             bookCode = bookCode,
-            context = context
+            type = type
         )
 
-        val item = viewModelBestDetail.state.collectAsState().value.listBestOther
-
-        Spacer(modifier = Modifier.size(16.dp))
-
-        if (item.size > 1) {
-            item.forEachIndexed { index, itemBookInfo ->
-                Button(
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                    contentPadding = PaddingValues(
-                        start = 0.dp,
-                        top = 0.dp,
-                        end = 0.dp,
-                        bottom = 0.dp,
-                    ),
-                    shape = RoundedCornerShape(20.dp),
-                    onClick = {
-                        val intent = Intent(context, ActivityBestDetail::class.java)
-                        intent.putExtra("BOOKCODE", itemBookInfo.bookCode)
-                        intent.putExtra("PLATFORM", itemBookInfo.type)
-                        intent.putExtra("TYPE", type)
-                        context.startActivity(intent)
-                    },
-                    content = {
-                        Column(
-                            modifier = Modifier
-                                .padding(24.dp, 4.dp)
-                        ) {
-
-                            Spacer(modifier = Modifier.size(4.dp))
-
-                            Spacer(modifier = Modifier.size(4.dp))
-
-                            Column(modifier = Modifier.fillMaxWidth()) {
-
-                                ScreenItemBestCard(item = itemBookInfo)
-
-                                if (itemBookInfo.intro.isNotEmpty()) {
-                                    Spacer(modifier = Modifier.size(16.dp))
-
-                                    Text(
-                                        text = itemBookInfo.intro,
-                                        color = color8E8E8E,
-                                        fontSize = 16.sp,
-                                    )
-                                } else {
-                                    Spacer(modifier = Modifier.size(8.dp))
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.size(4.dp))
-                        }
-                    })
-
-                Spacer(modifier = Modifier.size(16.dp))
-            }
-        } else {
-            Box(
-                modifier = Modifier
-                    .height(500.dp)
-                    .fillMaxWidth()
-            ) {
-                ScreenEmpty(str = "작품이 없습니다")
-            }
-        }
     } else if (getMenu.contains("분석")) {
         viewModelBestDetail.setBestDetailAnalyze(
             platform = platform,
@@ -567,49 +447,10 @@ fun ScreenBestItemDetailTabItem(
 
         val item = viewModelBestDetail.state.collectAsState().value.listBestInfo
 
-        Spacer(modifier = Modifier.size(16.dp))
-
-        TabletContentWrap {
-
-            item.forEachIndexed { index, itemBestInfo ->
-
-                val year = itemBestInfo.date.substring(0,4)
-                val month = itemBestInfo.date.substring(4,6)
-                val day = itemBestInfo.date.substring(6,8)
-
-                ItemBestDetailInfoAnalyze(
-                    title = "${year}년 ${month}월 ${day}일",
-                    value = if (getMenu.contains("평점 분석")) {
-                        itemBestInfo.cntRecom
-                    } else if (getMenu.contains("선호작 분석")) {
-                        itemBestInfo.cntFavorite
-                    } else if (getMenu.contains("조회 분석")) {
-                        itemBestInfo.cntPageRead
-                    }  else if (getMenu.contains("댓글 분석")) {
-                        itemBestInfo.cntTotalComment
-                    } else {
-                        (itemBestInfo.number + 1).toString()
-                    },
-                    beforeValue = if (index == 0) {
-                        "0"
-                    } else {
-                        if (getMenu.contains("평점 분석")) {
-                            item[index - 1].cntRecom
-                        } else if (getMenu.contains("선호작 분석")) {
-                            item[index - 1].cntFavorite
-                        } else if (getMenu.contains("조회 분석")) {
-                            item[index - 1].cntPageRead
-                        }  else if (getMenu.contains("댓글 분석")) {
-                            item[index - 1].cntTotalComment
-                        } else {
-                            (item[index - 1].number + 1).toString()
-                        }
-                    },
-                    type = getMenu,
-                    isLast = index == item.size - 1
-                )
-            }
-        }
+        ScreenBestDetailAnalyze(
+            item = item,
+            getMenu = getMenu
+        )
     }
 }
 
@@ -618,7 +459,10 @@ fun ScreenItemBestDetailCard(
     item: ItemBestDetailInfo,
     viewModelBestDetail: ViewModelBestDetail,
     platform: String,
-    bookCode: String
+    bookCode: String,
+    type: String,
+    isExpandedScreen: Boolean,
+    getMenu: String
 ) {
 
     val context = LocalContext.current
@@ -662,111 +506,155 @@ fun ScreenItemBestDetailCard(
 
         Spacer(modifier = Modifier.size(16.dp))
 
-        Button(
-            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-            onClick = {
+        if (isExpandedScreen) {
+            Button(
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                onClick = {
 
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(44.dp),
-            shape = RoundedCornerShape(50.dp),
-            content = {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "PICK 하기",
-                        color = color000000,
-                        fontSize = 18.sp,
-                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(44.dp),
+                shape = RoundedCornerShape(50.dp),
+                content = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "PICK 하기",
+                            color = color000000,
+                            fontSize = 18.sp,
+                        )
+                    }
                 }
-            }
-        )
+            )
 
-        Spacer(modifier = Modifier.size(16.dp))
+            Spacer(modifier = Modifier.size(16.dp))
 
-        Button(
-            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-            onClick = {
-                viewModelBestDetail.gotoUrl(
-                    platform = platform,
-                    bookCode = bookCode,
-                    context = context
-                )
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(44.dp),
-            shape = RoundedCornerShape(50.dp),
-            content = {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "작품 보러가기",
-                        color = color000000,
-                        fontSize = 18.sp,
+            Button(
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                onClick = {
+                    viewModelBestDetail.gotoUrl(
+                        platform = platform,
+                        bookCode = bookCode,
+                        context = context
                     )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(44.dp),
+                shape = RoundedCornerShape(50.dp),
+                content = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "작품 보러가기",
+                            color = color000000,
+                            fontSize = 18.sp,
+                        )
+                    }
                 }
-            }
-        )
-
-        ItemTabletTitle(str = "작품 정보")
-
-        TabletContentWrap {
-            ItemBestDetailInfoLine(title = "작가 : ", value = item.writer)
-
-            if (item.genre.isNotEmpty()) {
-                ItemBestDetailInfoLine(title = "장르 : ", value = item.genre)
-            }
-
-            if (item.cntRecom.isNotEmpty()) {
-                ItemBestDetailInfoLine(title = "플랫폼 평점 : ", value = item.cntRecom)
-            }
-
-            if (item.cntChapter.isNotEmpty()) {
-                ItemBestDetailInfoLine(title = "총 편수 : ", value = item.cntChapter)
-            }
-
-            if (item.cntFavorite.isNotEmpty()) {
-                ItemBestDetailInfoLine(title = "선호작 수 : ", value = item.cntFavorite)
-            }
-
-            if (item.cntPageRead.isNotEmpty()) {
-                ItemBestDetailInfoLine(title = "조회 수 : ", value = item.cntPageRead)
-            }
-
-            if (item.cntTotalComment.isNotEmpty()) {
-                ItemBestDetailInfoLine(title = "댓글 수 : ", value = item.cntTotalComment)
-            }
-
-            if (item.keyword.isNotEmpty()) {
-                ItemBestDetailInfoLine(
-                    title = "키워드 : ",
-                    value = item.keyword.joinToString(", "),
-                    isLast = true
-                )
-            }
+            )
         }
 
-        if (item.intro.isNotEmpty()) {
-            ItemTabletTitle(str = "줄거리")
+        if (getMenu == "작품 상세" || getMenu.isEmpty()) {
+            ItemTabletTitle(str = "작품 정보")
 
             TabletContentWrap {
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    text = item.intro,
-                    overflow = TextOverflow.Ellipsis,
-                    color = color8E8E8E,
-                    fontSize = 16.sp,
-                )
+                ItemBestDetailInfoLine(title = "작가 : ", value = item.writer)
+
+                if (item.genre.isNotEmpty()) {
+                    ItemBestDetailInfoLine(title = "장르 : ", value = item.genre)
+                }
+
+                if (item.cntRecom.isNotEmpty()) {
+                    ItemBestDetailInfoLine(title = "플랫폼 평점 : ", value = item.cntRecom)
+                }
+
+                if (item.cntChapter.isNotEmpty()) {
+                    ItemBestDetailInfoLine(title = "총 편수 : ", value = item.cntChapter)
+                }
+
+                if (item.cntFavorite.isNotEmpty()) {
+                    ItemBestDetailInfoLine(title = "선호작 수 : ", value = item.cntFavorite)
+                }
+
+                if (item.cntPageRead.isNotEmpty()) {
+                    ItemBestDetailInfoLine(title = "조회 수 : ", value = item.cntPageRead)
+                }
+
+                if (item.cntTotalComment.isNotEmpty()) {
+                    ItemBestDetailInfoLine(title = "댓글 수 : ", value = item.cntTotalComment)
+                }
+
+                if (item.keyword.isNotEmpty()) {
+                    ItemBestDetailInfoLine(
+                        title = "키워드 : ",
+                        value = item.keyword.joinToString(", "),
+                        isLast = true
+                    )
+                }
             }
+
+            if (item.intro.isNotEmpty()) {
+                ItemTabletTitle(str = "줄거리")
+
+                TabletContentWrap {
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        text = item.intro,
+                        overflow = TextOverflow.Ellipsis,
+                        color = color8E8E8E,
+                        fontSize = 16.sp,
+                    )
+                }
+            }
+
+            if (!isExpandedScreen) {
+
+                viewModelBestDetail.setManavaraBestInfo(
+                    platform = platform,
+                    bookCode = bookCode,
+                    type = type
+                )
+
+                val bestItem = viewModelBestDetail.state.collectAsState().value.itemBestInfo
+
+                ScreenItemBestDetailManavara(bestItem = bestItem)
+            }
+        } else if (getMenu == "작품 댓글") {
+            ScreenBestDetailComment(
+                viewModelBestDetail = viewModelBestDetail,
+                platform = platform,
+                bookCode = bookCode
+            )
+        } else if (getMenu == "작가의 다른 작품") {
+            ScreenBestDetailOther(
+                viewModelBestDetail = viewModelBestDetail,
+                platform = platform,
+                bookCode = bookCode,
+                type = type
+            )
+        } else if (getMenu.contains("분석")) {
+
+            viewModelBestDetail.setBestDetailAnalyze(
+                platform = platform,
+                bookCode = bookCode,
+                type = type
+            )
+
+            val listBestInfo = viewModelBestDetail.state.collectAsState().value.listBestInfo
+
+            ScreenBestDetailAnalyze(
+                item = listBestInfo,
+                getMenu = getMenu
+            )
         }
 
         Spacer(modifier = Modifier.size(32.dp))
@@ -817,10 +705,10 @@ fun ItemBestDetailInfoAnalyze(
     beforeValue: String,
     value: String,
     isLast: Boolean = false,
-    type : String,
+    type: String,
 ) {
 
-    val currentDiff = if(type == "랭킹 분석"){
+    val currentDiff = if (type == "랭킹 분석") {
         (beforeValue.toFloat() - value.toFloat())
     } else {
         (value.toFloat() - beforeValue.toFloat())
@@ -851,7 +739,7 @@ fun ItemBestDetailInfoAnalyze(
                     textAlign = TextAlign.End
                 )
 
-                if(beforeValue != "0"){
+                if (beforeValue != "0") {
                     if (currentDiff > 0) {
                         Image(
                             painter = painterResource(id = R.drawable.ic_arrow_drop_up_24px),
@@ -868,7 +756,7 @@ fun ItemBestDetailInfoAnalyze(
                         )
                     }
 
-                    if(currentDiff != 0f){
+                    if (currentDiff != 0f) {
                         Text(
                             text = currentDiff.toString(),
                             modifier = Modifier
@@ -917,6 +805,357 @@ fun BestDetailBackOnPressed(
             setMenu("")
         } else {
             (context as Activity).finish()
+        }
+    }
+}
+
+@Composable
+fun DrawerBestDetail(
+    setter: (String) -> Unit,
+    getter: String,
+    item: ItemBestDetailInfo,
+    onClick: () -> Unit,
+) {
+
+    Column(
+        modifier = Modifier
+            .width(330.dp)
+            .fillMaxHeight()
+            .background(color = colorF6F6F6)
+            .padding(8.dp, 0.dp)
+            .semantics { contentDescription = "Overview Screen" },
+    ) {
+
+        Column {
+            Spacer(modifier = Modifier.size(16.dp))
+
+            Text(
+                modifier = Modifier.padding(16.dp, 0.dp, 0.dp, 0.dp),
+                text = "웹소설 베스트",
+                fontSize = 24.sp,
+                color = Color.Black,
+                fontWeight = FontWeight(weight = 700)
+            )
+
+            Spacer(modifier = Modifier.size(16.dp))
+
+            ItemMainSettingSingleTablet(
+                containerColor = color4AD7CF,
+                image = R.drawable.icon_novel_wht,
+                title = "작품 정보",
+                body = "작품의 상세 정보 보기",
+                settter = setter,
+                getter = getter,
+                value = "작품 상세",
+                onClick = { onClick() },
+            )
+
+            item.tabInfo.forEachIndexed { index, title ->
+                ItemMainSettingSingleTablet(
+                    containerColor = color4AD7CF,
+                    image = R.drawable.ic_launcher,
+                    title = title,
+                    body = "베스트 모드를 투데이로 전환",
+                    settter = setter,
+                    getter = getter,
+                    value = title,
+                    onClick = { onClick() },
+                )
+            }
+        }
+
+    }
+}
+
+@Composable
+fun TopbarBestDetail(setDrawer: (Boolean) -> Unit, setter: (String) -> Unit, getter: String) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .background(color = Color.White)
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+
+        Box(
+            modifier = Modifier.weight(1f)
+        ) {
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable { setDrawer(true) }) {
+                Image(
+                    painter = painterResource(id = R.drawable.icon_drawer),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .width(22.dp)
+                        .height(22.dp)
+                )
+
+                Spacer(
+                    modifier = Modifier.size(8.dp)
+                )
+
+                androidx.compose.material.Text(
+                    text = getter,
+                    fontSize = 20.sp,
+                    textAlign = TextAlign.Left,
+                    color = color000000,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ScreenItemBestDetailManavara(bestItem: ItemBookInfo) {
+    ItemTabletTitle(str = "마나바라 수집 정보")
+
+    TabletContentWrap {
+        ItemBestDetailInfoLine(title = "베스트 총합 : ", value = bestItem.total.toString())
+
+        ItemBestDetailInfoLine(title = "주간 총점 : ", value = bestItem.totalWeek.toString())
+
+        ItemBestDetailInfoLine(title = "월간 총합 : ", value = bestItem.totalMonth.toString())
+
+        ItemBestDetailInfoLine(title = "총 베스트 횟수 : ", value = bestItem.totalCount.toString())
+
+        ItemBestDetailInfoLine(
+            title = "주간 베스트 횟수 : ",
+            value = bestItem.totalWeekCount.toString()
+        )
+
+        ItemBestDetailInfoLine(
+            title = "월간 베스트 횟수 : ",
+            value = bestItem.totalMonthCount.toString(),
+            isLast = true
+        )
+    }
+}
+
+@Composable
+fun ScreenBestDetailComment(
+    viewModelBestDetail: ViewModelBestDetail,
+    platform: String,
+    bookCode: String
+) {
+
+    val context = LocalContext.current
+
+    viewModelBestDetail.setComment(
+        platform = platform,
+        bookCode = bookCode,
+        context = context
+    )
+
+    val item = viewModelBestDetail.state.collectAsState().value.listComment
+
+    Spacer(modifier = Modifier.size(16.dp))
+
+    if (item.size > 1) {
+        item.forEachIndexed { index, itemBestComment ->
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(0.dp, 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+
+                Card(
+                    modifier = Modifier
+                        .wrapContentSize(),
+                    colors = CardDefaults.cardColors(containerColor = getRandomColor()),
+                    shape = RoundedCornerShape(50.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .height(36.dp)
+                            .width(36.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            contentScale = ContentScale.FillWidth,
+                            painter = painterResource(id = R.drawable.logo_transparents),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .height(28.dp)
+                                .width(28.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(4.dp))
+
+                Button(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(4.dp, 0.dp, 0.dp, 0.dp)
+                        .fillMaxWidth(),
+                    shape = RoundedCornerShape(25.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                    onClick = {},
+                    contentPadding = PaddingValues(
+                        start = 0.dp,
+                        top = 2.dp,
+                        end = 0.dp,
+                        bottom = 2.dp,
+                    ),
+                    content = {
+
+                        Text(
+                            text = itemBestComment.comment,
+                            modifier = Modifier
+                                .wrapContentHeight()
+                                .weight(1f)
+                                .padding(12.dp, 0.dp, 0.dp, 0.dp),
+                            fontSize = 18.sp,
+                            textAlign = TextAlign.Left,
+                            color = Color.Black,
+                        )
+                    })
+            }
+        }
+    } else {
+        Box(
+            modifier = Modifier
+                .height(500.dp)
+                .fillMaxWidth()
+        ) {
+            ScreenEmpty(str = "댓글이 없습니다")
+        }
+    }
+}
+
+@Composable
+fun ScreenBestDetailOther(
+    viewModelBestDetail: ViewModelBestDetail,
+    platform: String,
+    bookCode: String,
+    type : String
+) {
+    val context = LocalContext.current
+
+    viewModelBestDetail.setOtherBooks(
+        platform = platform,
+        bookCode = bookCode,
+        context = context
+    )
+
+    val item = viewModelBestDetail.state.collectAsState().value.listBestOther
+
+    Spacer(modifier = Modifier.size(16.dp))
+
+    if (item.size > 1) {
+        item.forEachIndexed { index, itemBookInfo ->
+            Button(
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                contentPadding = PaddingValues(
+                    start = 0.dp,
+                    top = 0.dp,
+                    end = 0.dp,
+                    bottom = 0.dp,
+                ),
+                shape = RoundedCornerShape(20.dp),
+                onClick = {
+                    val intent = Intent(context, ActivityBestDetail::class.java)
+                    intent.putExtra("BOOKCODE", itemBookInfo.bookCode)
+                    intent.putExtra("PLATFORM", itemBookInfo.type)
+                    intent.putExtra("TYPE", type)
+                    context.startActivity(intent)
+                },
+                content = {
+                    Column(
+                        modifier = Modifier
+                            .padding(24.dp, 4.dp)
+                    ) {
+
+                        Spacer(modifier = Modifier.size(4.dp))
+
+                        Spacer(modifier = Modifier.size(4.dp))
+
+                        Column(modifier = Modifier.fillMaxWidth()) {
+
+                            ScreenItemBestCard(item = itemBookInfo)
+
+                            if (itemBookInfo.intro.isNotEmpty()) {
+                                Spacer(modifier = Modifier.size(16.dp))
+
+                                Text(
+                                    text = itemBookInfo.intro,
+                                    color = color8E8E8E,
+                                    fontSize = 16.sp,
+                                )
+                            } else {
+                                Spacer(modifier = Modifier.size(8.dp))
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.size(4.dp))
+                    }
+                })
+
+            Spacer(modifier = Modifier.size(16.dp))
+        }
+    } else {
+        Box(
+            modifier = Modifier
+                .height(500.dp)
+                .fillMaxWidth()
+        ) {
+            ScreenEmpty(str = "작품이 없습니다")
+        }
+    }
+}
+
+@Composable
+fun ScreenBestDetailAnalyze(
+    item: ArrayList<ItemBestInfo>,
+    getMenu: String
+) {
+
+    Spacer(modifier = Modifier.size(16.dp))
+
+    TabletContentWrap {
+
+        item.forEachIndexed { index, itemBestInfo ->
+
+            val year = itemBestInfo.date.substring(0, 4)
+            val month = itemBestInfo.date.substring(4, 6)
+            val day = itemBestInfo.date.substring(6, 8)
+
+            ItemBestDetailInfoAnalyze(
+                title = "${year}년 ${month}월 ${day}일",
+                value = if (getMenu.contains("평점 분석")) {
+                    itemBestInfo.cntRecom
+                } else if (getMenu.contains("선호작 분석")) {
+                    itemBestInfo.cntFavorite
+                } else if (getMenu.contains("조회 분석")) {
+                    itemBestInfo.cntPageRead
+                } else if (getMenu.contains("댓글 분석")) {
+                    itemBestInfo.cntTotalComment
+                } else {
+                    (itemBestInfo.number + 1).toString()
+                },
+                beforeValue = if (index == 0) {
+                    "0"
+                } else {
+                    if (getMenu.contains("평점 분석")) {
+                        item[index - 1].cntRecom
+                    } else if (getMenu.contains("선호작 분석")) {
+                        item[index - 1].cntFavorite
+                    } else if (getMenu.contains("조회 분석")) {
+                        item[index - 1].cntPageRead
+                    } else if (getMenu.contains("댓글 분석")) {
+                        item[index - 1].cntTotalComment
+                    } else {
+                        (item[index - 1].number + 1).toString()
+                    }
+                },
+                type = getMenu,
+                isLast = index == item.size - 1
+            )
         }
     }
 }

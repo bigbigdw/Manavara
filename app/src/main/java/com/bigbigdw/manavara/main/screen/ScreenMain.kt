@@ -93,7 +93,8 @@ import postFCMAlert
 fun ScreenMain(
     viewModelMain: ViewModelMain,
     widthSizeClass: WindowWidthSizeClass,
-    viewModelBest: ViewModelBest
+    viewModelBest: ViewModelBest,
+    needDataUpdate: Boolean
 ) {
 
     viewModelMain.setUserInfo()
@@ -149,7 +150,8 @@ fun ScreenMain(
                     getType = getType,
                     listState = listState,
                     setBestType = setBestType,
-                    getBestType = getBestType
+                    getBestType = getBestType,
+                    needDataUpdate = needDataUpdate,
                 )
             }
 
@@ -160,7 +162,8 @@ fun ScreenMain(
                 viewModelMain = viewModelMain,
                 viewModelBest = viewModelBest,
                 isExpandedScreen = isExpandedScreen,
-                listState = listState
+                listState = listState,
+                needDataUpdate = needDataUpdate,
             )
         }
     }
@@ -175,6 +178,7 @@ fun ScreenMainTablet(
     isExpandedScreen: Boolean,
     viewModelBest: ViewModelBest,
     listState: LazyListState,
+    needDataUpdate: Boolean,
 ) {
 
     val (getMenu, setMenu) = remember { mutableStateOf("TODAY") }
@@ -204,7 +208,8 @@ fun ScreenMainTablet(
             listState = listState,
             modalSheetState = null,
             setBestType = setBestType,
-            getBestType = getBestType
+            getBestType = getBestType,
+            needDataUpdate = needDataUpdate
         )
     }
 }
@@ -227,6 +232,7 @@ fun ScreenMainMobile(
     listState: LazyListState,
     setBestType: (String) -> Unit,
     getBestType: String,
+    needDataUpdate: Boolean,
 ) {
 
     if(currentRoute == "NOVEL" || currentRoute == "COMIC"){
@@ -247,7 +253,7 @@ fun ScreenMainMobile(
 
     Scaffold(
         topBar = {
-            MainTopBar(
+            TopbarMain(
                 setter = setBestType,
                 getter = getBestType,
                 setDrawer = {
@@ -276,9 +282,10 @@ fun ScreenMainMobile(
                 setType = setType,
                 getType = getType,
                 listState = listState,
-                modalSheetState = modalSheetState,
                 setBestType = setBestType,
-                getBestType = getBestType
+                getBestType = getBestType,
+                modalSheetState = modalSheetState,
+                needDataUpdate = needDataUpdate
             )
         }
     }
@@ -299,7 +306,8 @@ fun ScreenMainMobile(
                 ScreenDialogBest(
                     item = viewModelBest.state.collectAsState().value.itemBookInfo,
                     trophy = viewModelBest.state.collectAsState().value.itemBestInfoTrophyList,
-                    isExpandedScreen = isExpandedScreen
+                    isExpandedScreen = isExpandedScreen,
+                    currentRoute = currentRoute
                 )
             } else {
                 ScreenTest()
@@ -309,7 +317,7 @@ fun ScreenMainMobile(
 }
 
 @Composable
-fun MainTopBar(setDrawer: (Boolean) -> Unit, setter: (String) -> Unit, getter: String) {
+fun TopbarMain(setDrawer: (Boolean) -> Unit, setter: (String) -> Unit, getter: String) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -477,6 +485,7 @@ fun NavigationGraph(
     setBestType: (String) -> Unit,
     getBestType: String,
     modalSheetState: ModalBottomSheetState? = null,
+    needDataUpdate: Boolean,
 ) {
 
     NavHost(
@@ -504,7 +513,8 @@ fun NavigationGraph(
                 listState = listState,
                 setBestType = setBestType,
                 getBestType = getBestType,
-                modalSheetState = modalSheetState
+                modalSheetState = modalSheetState,
+                needDataUpdate = needDataUpdate
             )
         }
         composable(ScreemBottomItem.COMIC.screenRoute) {
@@ -528,7 +538,8 @@ fun NavigationGraph(
                 listState = listState,
                 setBestType = setBestType,
                 getBestType = getBestType,
-                modalSheetState = modalSheetState
+                modalSheetState = modalSheetState,
+                needDataUpdate = needDataUpdate
             )
         }
         composable(ScreemBottomItem.MANAVARA.screenRoute) {
