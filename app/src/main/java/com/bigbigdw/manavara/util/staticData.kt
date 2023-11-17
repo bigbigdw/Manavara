@@ -47,18 +47,18 @@ fun novelListKor(): List<String> {
         "노블레스",
         "프리미엄",
         "시리즈",
-        "네이버 웹소설 유료",
-        "네이버 웹소설 무료",
+        "네이버 유료",
+        "네이버 무료",
         "챌린지리그",
         "베스트리그",
         "리디 판타지",
         "리디 로맨스",
-        "리디 로맨스 판타지",
+        "리디 로판",
         "스테이지",
         "원스토리 판타지",
         "원스토리 로맨스",
-        "원스토리 PASS 판타지",
-        "원스토리 PASS 로맨스",
+        "PASS 판타지",
+        "PASS 로맨스",
         "문피아 유료",
         "문피아 무료",
         "톡소다",
@@ -277,10 +277,10 @@ fun getPlatformLogo(platform: String) : Int {
         "시리즈" -> {
             R.drawable.logo_naver
         }
-        "네이버 웹소설 유료" -> {
+        "네이버 유료" -> {
             R.drawable.logo_naver
         }
-        "네이버 웹소설 무료" -> {
+        "네이버 무료" -> {
             R.drawable.logo_naver
         }
         "챌린지리그" -> {
@@ -295,7 +295,7 @@ fun getPlatformLogo(platform: String) : Int {
         "리디 로맨스" -> {
             R.drawable.logo_ridibooks
         }
-        "리디 로맨스 판타지" -> {
+        "리디 로판" -> {
             R.drawable.logo_ridibooks
         }
         "스테이지" -> {
@@ -307,10 +307,10 @@ fun getPlatformLogo(platform: String) : Int {
         "원스토리 로맨스" -> {
             R.drawable.logo_onestore
         }
-        "원스토리 PASS 판타지" -> {
+        "PASS 판타지" -> {
             R.drawable.logo_onestore
         }
-        "원스토리 PASS 로맨스" -> {
+        "PASS 로맨스" -> {
             R.drawable.logo_onestore
         }
         "문피아 유료" -> {
@@ -413,10 +413,10 @@ fun getPlatformColor(platform: String): Color {
         "시리즈" -> {
             colorNAVER
         }
-        "네이버 웹소설 유료" -> {
+        "네이버 유료" -> {
             colorNAVER
         }
-        "네이버 웹소설 무료" -> {
+        "네이버 무료" -> {
             colorNAVER
         }
         "챌린지리그" -> {
@@ -431,7 +431,7 @@ fun getPlatformColor(platform: String): Color {
         "리디 로맨스" -> {
             colorRIDI
         }
-        "리디 로맨스 판타지" -> {
+        "리디 로판" -> {
             colorRIDI
         }
         "스테이지" -> {
@@ -443,10 +443,10 @@ fun getPlatformColor(platform: String): Color {
         "원스토리 로맨스" -> {
             colorONESTORY
         }
-        "원스토리 PASS 판타지" -> {
+        "PASS 판타지" -> {
             colorONESTORY
         }
-        "원스토리 PASS 로맨스" -> {
+        "PASS 로맨스" -> {
             colorONESTORY
         }
         "문피아 유료" -> {
@@ -550,10 +550,10 @@ fun getPlatformDescriptionEng(platform: String) : String {
             "네이버 시리즈"
         }
         "NAVER_WEBNOVEL_PAY" -> {
-            "네이버 웹소설 유료"
+            "네이버 유료"
         }
         "NAVER_WEBNOVEL_FREE" -> {
-            "네이버 웹소설 무료"
+            "네이버 무료"
         }
         "NAVER_CHALLENGE" -> {
             "네이버 챌린지 리그"
@@ -568,7 +568,7 @@ fun getPlatformDescriptionEng(platform: String) : String {
             "리디북스 로맨스"
         }
         "RIDI_ROFAN" -> {
-            "리디 로맨스 판타지"
+            "리디 로판"
         }
         "KAKAO_STAGE" -> {
             "카카오 스테이지"
@@ -580,10 +580,10 @@ fun getPlatformDescriptionEng(platform: String) : String {
             "원스토리 로맨스"
         }
         "ONESTORY_PASS_FANTAGY" -> {
-            "원스토리 PASS 판타지"
+            "PASS 판타지"
         }
         "ONESTORY_PASS_ROMANCE" -> {
-            "원스토리 PASS 로맨스"
+            "PASS 로맨스"
         }
         "MUNPIA_PAY" -> {
             "문피아 유료"
@@ -617,10 +617,10 @@ fun getPlatformDescription(platform: String) : String {
         "조아라" -> {
             "조아라"
         }
-        "네이버 웹소설 유료" -> {
+        "네이버 유료" -> {
             "네이버 웹소설 유료"
         }
-        "네이버 웹소설 무료" -> {
+        "네이버 무료" -> {
             "네이버 웹소설 무료"
         }
         "챌린지리그" -> {
@@ -635,7 +635,7 @@ fun getPlatformDescription(platform: String) : String {
         "리디 로맨스" -> {
             "리디북스 로맨스"
         }
-        "리디 로맨스 판타지" -> {
+        "리디 로판" -> {
             "리디 로맨스 판타지"
         }
         "스테이지" -> {
@@ -647,7 +647,7 @@ fun getPlatformDescription(platform: String) : String {
         "원스토리 로맨스" -> {
             "원스토리 로맨스"
         }
-        "원스토리 PASS 판타지" -> {
+        "PASS 판타지" -> {
             "원스토리 PASS 판타지"
         }
         "원스토리 PASS 로맨스" -> {
@@ -666,7 +666,7 @@ fun getPlatformDescription(platform: String) : String {
             "톡소다 자유연재"
         }
         else -> {
-            "하하"
+            platform
         }
     }
 }
@@ -910,6 +910,9 @@ fun getBestDetailLogoMobile(menu: String) : Int {
         "랭킹 분석" -> {
             R.drawable.icon_trophy_wht
         }
+        "최근 분석" -> {
+            R.drawable.logo_transparents
+        }
         else -> {
             R.drawable.icon_best_wht
         }
@@ -942,6 +945,9 @@ fun getBestDetailLogo(menu: String) : Int {
         "랭킹 분석" -> {
             R.drawable.icon_trophy_gr
         }
+        "최근 분석" -> {
+            R.drawable.logo_transparents
+        }
         else -> {
             R.drawable.icon_best_gr
         }
@@ -973,6 +979,9 @@ fun getBestDetailDescription(menu: String) : String {
         }
         "랭킹 분석" -> {
             "마나바라에서 수집한 랭킹 현황"
+        }
+        "최근 분석" -> {
+            "근 일주일간 모든 분석 유형 현황"
         }
         else -> {
             ""

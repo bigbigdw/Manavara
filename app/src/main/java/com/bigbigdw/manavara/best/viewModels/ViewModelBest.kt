@@ -230,15 +230,15 @@ class ViewModelBest @Inject constructor() : ViewModel() {
             val json = Json { ignoreUnknownKeys = true }
             val itemList = json.decodeFromString<List<ItemBestInfo>>(jsonString)
 
+            val cmpAsc: java.util.Comparator<ItemBestInfo> =
+                Comparator { o1, o2 -> o2.total.compareTo(o1.total) }
+            Collections.sort(itemList, cmpAsc)
+
             val weekJsonList = ArrayList<ItemBestInfo>()
 
             for (item in itemList) {
                 weekJsonList.add(item)
             }
-
-            val cmpAsc: java.util.Comparator<ItemBestInfo> =
-                Comparator { o1, o2 -> o1.total.compareTo(o2.total) }
-            Collections.sort(itemList, cmpAsc)
 
             viewModelScope.launch {
                 events.send(EventBest.SetWeekTrophyList(weekTrophyList = weekJsonList))
@@ -246,34 +246,37 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         }
     }
 
-    fun getBestMapToday() {
+    fun getBookMap() {
 
         val state = state.value
 
-        val storage = Firebase.storage
-        val storageRef = storage.reference
-        val todayFileRef = storageRef.child("${state.platform}/${state.type}/DAY/${DBDate.dateMMDD()}.json")
+        val mRootRef = FirebaseDatabase.getInstance().reference.child("BOOK").child(state.type).child(state.platform)
 
-        val todayFile = todayFileRef.getBytes(1024 * 1024)
+        mRootRef.addListenerForSingleValueEvent(object :
+            ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (dataSnapshot.exists()) {
 
-        viewModelScope.launch {
-            events.send(EventBest.SetItemBookInfoMap(itemBookInfoMap = mutableMapOf()))
-        }
+                    val itemMap = mutableMapOf<String, ItemBookInfo>()
 
-        todayFile.addOnSuccessListener { bytes ->
-            val todayJson = Json { ignoreUnknownKeys = true }
-            val itemList = todayJson.decodeFromString<List<ItemBookInfo>>(String(bytes,Charset.forName("UTF-8")))
+                    for (item in dataSnapshot.children) {
 
-            val itemMap = mutableMapOf<String, ItemBookInfo>()
+                        val book = item.getValue(ItemBookInfo::class.java)
 
-            for (item in itemList) {
-                itemMap[item.bookCode] = item
+                        if (book != null) {
+                            itemMap[book.bookCode] = book
+                        }
+                    }
+
+                    viewModelScope.launch {
+                        events.send(EventBest.SetItemBookInfoMap(itemBookInfoMap = itemMap))
+                    }
+
+                }
             }
 
-            viewModelScope.launch {
-                events.send(EventBest.SetItemBookInfoMap(itemBookInfoMap = itemMap))
-            }
-        }
+            override fun onCancelled(databaseError: DatabaseError) {}
+        })
     }
 
     fun getBestWeekListJson(context: Context, needDataUpdate: Boolean){
@@ -480,13 +483,13 @@ class ViewModelBest @Inject constructor() : ViewModel() {
 
             val monthJsonList = ArrayList<ItemBestInfo>()
 
+            val cmpAsc: java.util.Comparator<ItemBestInfo> =
+                Comparator { o1, o2 -> o2.total.compareTo(o1.total) }
+            Collections.sort(itemList, cmpAsc)
+
             for (item in itemList) {
                 monthJsonList.add(item)
             }
-
-            val cmpAsc: java.util.Comparator<ItemBestInfo> =
-                Comparator { o1, o2 -> o1.total.compareTo(o2.total) }
-            Collections.sort(itemList, cmpAsc)
 
             viewModelScope.launch {
                 events.send(EventBest.SetMonthTrophyList(monthTrophyList = monthJsonList))
@@ -597,8 +600,6 @@ class ViewModelBest @Inject constructor() : ViewModel() {
                         events.send(EventBest.SetGenreDay(genreDay = arrayList))
                     }
 
-                } else {
-                    Log.d("HIHIHI", "FAIL == NOT EXIST")
                 }
             }
 
@@ -664,8 +665,6 @@ class ViewModelBest @Inject constructor() : ViewModel() {
                         events.send(EventBest.SetGenreDay(genreDay = arrayList))
                     }
 
-                } else {
-                    Log.d("HIHIHI", "FAIL == NOT EXIST")
                 }
             }
 

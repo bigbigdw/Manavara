@@ -122,13 +122,10 @@ class ViewModelLogin @Inject constructor() : ViewModel() {
                     val userInfo = dataSnapshot.child("USERINFO").getValue(UserInfo::class.java)
 
                     if(userInfo?.userStatus == "ALLOW"){
-                        viewModelScope.launch {
-                            _sideEffects.send("이미 가입된 계정입니다")
-                        }
 
                         val intent = Intent(activity, ActivityMain::class.java)
                         activity.startActivity(intent)
-                        activity.finish()
+
                     } else {
                         viewModelScope.launch {
                             _sideEffects.send("가입 승인 대기중입니다.")
@@ -158,7 +155,7 @@ class ViewModelLogin @Inject constructor() : ViewModel() {
                         intent.putExtra("UID", user?.uid ?: "")
                         intent.putExtra("EMAIL", user?.email ?: "")
                         activity.startActivity(intent)
-                        activity.finish()
+
                     }
                 }
             }

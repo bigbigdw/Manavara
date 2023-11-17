@@ -1,7 +1,6 @@
 package com.bigbigdw.manavara.main.screen
 
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -92,7 +91,7 @@ import com.bigbigdw.manavara.util.screen.TabletContentWrap
 import kotlinx.coroutines.launch
 import postFCMAlert
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun ScreenMain(
     viewModelMain: ViewModelMain,
@@ -142,6 +141,7 @@ fun ScreenMain(
             }
 
         } else {
+
             ScreenMainTablet(
                 currentRoute = currentRoute,
                 navController = navController,
@@ -255,7 +255,8 @@ fun ScreenMainMobile(
                     item = state.itemBookInfo,
                     trophy = state.itemBestInfoTrophyList,
                     isExpandedScreen = isExpandedScreen,
-                    currentRoute = currentRoute
+                    currentRoute = currentRoute,
+                    modalSheetState = modalSheetState
                 )
             } else {
                 ScreenTest()

@@ -53,8 +53,6 @@ class ViewModelMain @Inject constructor() : ViewModel() {
 
     fun setUserInfo(){
 
-        Log.d("RECOMPOSE", "1 setUserInfo")
-
         val currentUser :  FirebaseUser?
         val auth: FirebaseAuth = Firebase.auth
         currentUser = auth.currentUser

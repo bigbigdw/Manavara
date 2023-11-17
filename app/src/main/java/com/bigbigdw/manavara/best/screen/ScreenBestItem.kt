@@ -95,7 +95,7 @@ fun ScreenTodayBest(
             needDataUpdate = needDataUpdate
         )
 
-        viewModelBest.getBestMapToday()
+        viewModelBest.getBookMap()
     }
 
     Column(modifier = Modifier.background(color = colorF6F6F6)) {
@@ -282,9 +282,24 @@ fun ScreenTodayWeek(
     val (getDate, setDate) = remember { mutableStateOf("전체") }
     val listState = rememberLazyListState()
 
-    LaunchedEffect(viewModelBest) {
+    LaunchedEffect(state.platform) {
         viewModelBest.getBestWeekListJson(context = context, needDataUpdate = needDataUpdate)
         viewModelBest.getBestWeekTrophy()
+        viewModelBest.getBookMap()
+    }
+
+    val filteredList: ArrayList<ItemBookInfo> = ArrayList()
+
+    if(state.weekTrophyList.isNotEmpty() && state.itemBookInfoMap.isNotEmpty()){
+        for (trophyItem in state.weekTrophyList) {
+            val bookCode = trophyItem.bookCode
+            val bookInfo = state.itemBookInfoMap[bookCode]
+
+            if (bookInfo != null) {
+                filteredList.add(bookInfo)
+            }
+        }
+
     }
 
     Column(modifier = Modifier.background(color = colorF6F6F6)) {
@@ -306,33 +321,26 @@ fun ScreenTodayWeek(
             }
         }
 
-        if (getDate == "전체") {
-            LazyColumn(
-                modifier = Modifier
-                    .background(colorF6F6F6)
-                    .padding(0.dp, 0.dp, 16.dp, 0.dp)
-            ) {
+        LazyColumn(
+            modifier = Modifier
+                .background(colorF6F6F6)
+                .padding(0.dp, 0.dp, 16.dp, 0.dp)
+        ) {
+            if (getDate == "전체") {
 
-                itemsIndexed(state.weekTrophyList) { index, item ->
+                itemsIndexed(filteredList) { index, item ->
+
                     ListBest(
                         viewModelBest = viewModelBest,
-                        itemBookInfoMap = state.itemBookInfoMap,
-                        bookCode = item.bookCode,
+                        item = item,
                         type = "WEEK",
                         modalSheetState = modalSheetState,
                         setDialogOpen = setDialogOpen,
                     )
+
                 }
-            }
-        } else {
-
-            if (state.weekList[getWeekDate(getDate)].size > 0) {
-                LazyColumn(
-                    modifier = Modifier
-                        .background(colorF6F6F6)
-                        .padding(0.dp, 0.dp, 16.dp, 0.dp)
-                ) {
-
+            } else {
+                if (state.weekList[getWeekDate(getDate)].size > 0) {
                     itemsIndexed(state.weekList[getWeekDate(getDate)]) { index, item ->
                         ListBestToday(
                             itemBookInfo = item,
@@ -342,9 +350,9 @@ fun ScreenTodayWeek(
                             viewModelBest = viewModelBest,
                         )
                     }
+                } else {
+                    item { ScreenEmpty(str = "데이터가 없습니다") }
                 }
-            } else {
-                ScreenEmpty(str = "데이터가 없습니다")
             }
         }
     }
@@ -354,81 +362,76 @@ fun ScreenTodayWeek(
 @Composable
 fun ListBest(
     viewModelBest: ViewModelBest,
-    itemBookInfoMap: MutableMap<String, ItemBookInfo>,
-    bookCode: String,
+    item: ItemBookInfo,
     type: String,
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?
 ) {
 
-    val itemBookInfo = itemBookInfoMap[bookCode]
     val coroutineScope = rememberCoroutineScope()
 
-    if (itemBookInfo != null) {
+    Button(
+        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+        contentPadding = PaddingValues(
+            start = 0.dp,
+            top = 0.dp,
+            end = 0.dp,
+            bottom = 0.dp,
+        ),
+        shape = RoundedCornerShape(20.dp),
+        onClick = {
+            coroutineScope.launch {
+                viewModelBest.getBookItemInfo(itemBookInfo = item)
 
-        Button(
-            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-            contentPadding = PaddingValues(
-                start = 0.dp,
-                top = 0.dp,
-                end = 0.dp,
-                bottom = 0.dp,
-            ),
-            shape = RoundedCornerShape(20.dp),
-            onClick = {
-                coroutineScope.launch {
-                    viewModelBest.getBookItemInfo(itemBookInfo = itemBookInfo)
+                viewModelBest.getBookItemWeekTrophy(
+                    itemBookInfo = item
+                )
 
-                    viewModelBest.getBookItemWeekTrophy(
-                        itemBookInfo = itemBookInfo
-                    )
+                modalSheetState?.show()
 
-                    modalSheetState?.show()
-
-                    if (setDialogOpen != null) {
-                        setDialogOpen(true)
-                    }
+                if (setDialogOpen != null) {
+                    setDialogOpen(true)
                 }
-            },
-            content = {
-                Column(
-                    modifier = Modifier
-                        .padding(24.dp, 4.dp)
-                ) {
+            }
+        },
+        content = {
+            Column(
+                modifier = Modifier
+                    .padding(24.dp, 4.dp)
+            ) {
 
-                    Spacer(modifier = Modifier.size(4.dp))
+                Spacer(modifier = Modifier.size(4.dp))
 
-                    Spacer(modifier = Modifier.size(4.dp))
+                Spacer(modifier = Modifier.size(4.dp))
 
-                    Column(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.fillMaxWidth()) {
 
-                        ScreenItemBestCard(item = itemBookInfo)
+                    ScreenItemBestCard(item = item)
 
-                        if (type == "MONTH") {
-                            Spacer(modifier = Modifier.size(8.dp))
+                    if (type == "MONTH") {
+                        Spacer(modifier = Modifier.size(8.dp))
 
-                            ScreenItemBestCount(item = itemBookInfo,)
-                        }
-
-                        if(itemBookInfo.intro.isNotEmpty()){
-                            Spacer(modifier = Modifier.size(16.dp))
-
-                            Text(
-                                text = itemBookInfo.intro,
-                                color = color8E8E8E,
-                                fontSize = 16.sp,
-                            )
-                        } else {
-                            Spacer(modifier = Modifier.size(8.dp))
-                        }
+                        ScreenItemBestCount(item = item)
                     }
 
-                    Spacer(modifier = Modifier.size(4.dp))
-                }
-            })
+                    if(item.intro.isNotEmpty()){
+                        Spacer(modifier = Modifier.size(16.dp))
 
-        Spacer(modifier = Modifier.size(16.dp))
-    }
+                        Text(
+                            text = item.intro,
+                            color = color8E8E8E,
+                            fontSize = 16.sp,
+                        )
+                    } else {
+                        Spacer(modifier = Modifier.size(8.dp))
+                    }
+                }
+
+                Spacer(modifier = Modifier.size(4.dp))
+            }
+        })
+
+    Spacer(modifier = Modifier.size(16.dp))
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -456,9 +459,24 @@ fun ScreenTodayMonth(
         arrayList.add("${count}주차")
     }
 
-    LaunchedEffect(viewModelBest) {
+    LaunchedEffect(state.platform) {
         viewModelBest.getBestMonthTrophy()
         viewModelBest.getBestMonthListJson(context = context, needDataUpdate = needDataUpdate)
+        viewModelBest.getBookMap()
+    }
+
+    val filteredList: ArrayList<ItemBookInfo> = ArrayList()
+
+    if(state.monthTrophyList.isNotEmpty() && state.itemBookInfoMap.isNotEmpty()){
+        for (trophyItem in state.monthTrophyList) {
+            val bookCode = trophyItem.bookCode
+            val bookInfo = state.itemBookInfoMap[bookCode]
+
+            if (bookInfo != null) {
+                filteredList.add(bookInfo)
+            }
+        }
+
     }
 
     Column(modifier = Modifier.background(color = colorF6F6F6)) {
@@ -488,11 +506,10 @@ fun ScreenTodayMonth(
                     .padding(0.dp, 0.dp, 16.dp, 0.dp)
             ) {
 
-                itemsIndexed(state.monthTrophyList) { index, item ->
+                itemsIndexed(filteredList) { index, item ->
                     ListBest(
                         viewModelBest = viewModelBest,
-                        itemBookInfoMap = state.itemBookInfoMap,
-                        bookCode = item.bookCode,
+                        item = item,
                         type = "MONTH",
                         modalSheetState = modalSheetState,
                         setDialogOpen = setDialogOpen,
@@ -508,7 +525,7 @@ fun ScreenTodayMonth(
                         .padding(16.dp, 0.dp, 16.dp, 0.dp)
                 ) {
 
-                    itemsIndexed(monthList[geMonthDate(getDate)]) { index, item ->
+                    itemsIndexed(filteredList) { index, item ->
 
                         val itemBookInfo = state.itemBookInfoMap[item.bookCode]
 
@@ -524,8 +541,7 @@ fun ScreenTodayMonth(
 
                         ListBest(
                             viewModelBest = viewModelBest,
-                            itemBookInfoMap = state.itemBookInfoMap,
-                            bookCode = item.bookCode,
+                            item = item,
                             type = "WEEK",
                             modalSheetState = null,
                             setDialogOpen = null,
@@ -693,15 +709,18 @@ fun ScreenBestListItemMonth(item: ItemBookInfo) {
     Spacer(modifier = Modifier.size(4.dp))
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScreenDialogBest(
     item: ItemBookInfo,
     trophy: ArrayList<ItemBestInfo>,
     isExpandedScreen: Boolean,
-    currentRoute: String
+    currentRoute: String,
+    modalSheetState: ModalBottomSheetState?
 ) {
 
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -818,11 +837,14 @@ fun ScreenDialogBest(
             Button(
                 colors = ButtonDefaults.buttonColors(containerColor = color20459E),
                 onClick = {
-                    val intent = Intent(context, ActivityBestDetail::class.java)
-                    intent.putExtra("BOOKCODE", item.bookCode)
-                    intent.putExtra("PLATFORM", item.type)
-                    intent.putExtra("TYPE", currentRoute)
-                    context.startActivity(intent)
+                    coroutineScope.launch {
+                        val intent = Intent(context, ActivityBestDetail::class.java)
+                        intent.putExtra("BOOKCODE", item.bookCode)
+                        intent.putExtra("PLATFORM", item.type)
+                        intent.putExtra("TYPE", currentRoute)
+                        context.startActivity(intent)
+                        modalSheetState?.hide()
+                    }
                 },
                 modifier = Modifier
                     .weight(1f)
@@ -947,6 +969,18 @@ fun ScreenItemBestCard(item: ItemBookInfo){
                         textFront = "댓글 수 : ",
                         color = color000000,
                         textEnd = item.cntTotalComment
+                    ),
+                    color = color8E8E8E,
+                    fontSize = 16.sp,
+                )
+            }
+
+            if (item.bookCode.isNotEmpty()) {
+                Text(
+                    text = spannableString(
+                        textFront = "북코드 : ",
+                        color = color000000,
+                        textEnd = item.bookCode
                     ),
                     color = color8E8E8E,
                     fontSize = 16.sp,

@@ -123,8 +123,6 @@ fun ScreenManavara(
 
         viewModelBest.getBestWeekTrophy()
 
-        viewModelBest.getBestMapToday()
-
         viewModelBest.getBestWeekListStorage(context)
 
         viewModelBest.getBestMonthTrophy()
@@ -154,12 +152,15 @@ fun ScreenManavara(
                             btnRight = "확인",
                             modifier = Modifier.requiredWidth(400.dp),
                             contents = {
-                                ScreenDialogBest(
-                                    item = viewModelBest.state.collectAsState().value.itemBookInfo,
-                                    trophy = viewModelBest.state.collectAsState().value.itemBestInfoTrophyList,
-                                    isExpandedScreen = isExpandedScreen,
-                                    currentRoute = "NOVEL"
-                                )
+                                if (modalSheetState != null) {
+                                    ScreenDialogBest(
+                                        item = viewModelBest.state.collectAsState().value.itemBookInfo,
+                                        trophy = viewModelBest.state.collectAsState().value.itemBestInfoTrophyList,
+                                        isExpandedScreen = isExpandedScreen,
+                                        currentRoute = "NOVEL",
+                                        modalSheetState = modalSheetState
+                                    )
+                                }
                             })
                     }
                 }

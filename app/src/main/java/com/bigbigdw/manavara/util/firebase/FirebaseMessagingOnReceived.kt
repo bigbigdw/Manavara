@@ -17,10 +17,7 @@ class FirebaseMessagingOnReceived : FirebaseMessagingService() {
     var notificationBuilder: NotificationCompat.Builder? = null
     var it = ""
 
-    override fun onNewToken(token: String) {
-        Log.d("TEST", "Refreshed token: $token")
-
-    }
+    override fun onNewToken(token: String) {}
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onMessageReceived(remoteMessage: RemoteMessage) {

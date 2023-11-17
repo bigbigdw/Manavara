@@ -22,6 +22,7 @@
         <activity
             android:name=".login.ActivityLogin"
             android:exported="true"
+            android:noHistory="true"
             android:theme="@style/Theme.Manavara">
         </activity>
 
@@ -34,12 +35,14 @@
         <activity
             android:name=".login.ActivityRegister"
             android:exported="true"
+            android:noHistory="true"
             android:theme="@style/Theme.Manavara">
         </activity>
 
         <activity
             android:name=".main.ActivitySplash"
             android:exported="true"
+            android:noHistory="true"
             android:theme="@style/Theme.Manavara">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

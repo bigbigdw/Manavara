@@ -133,19 +133,11 @@ class ActivitySplash : ComponentActivity() {
         currentUser = auth.currentUser
 
         CoroutineScope(Dispatchers.IO).launch {
+            checkUserExist(uid = currentUser?.uid ?: "")
+            dataStore.setDataStoreString(DataStoreManager.UID, currentUser?.uid ?: "")
 
-            dataStore.getDataStoreString(DataStoreManager.UID).collect { value ->
-
-                if (value.isNullOrEmpty()) {
-                    dataStore.setDataStoreString(DataStoreManager.UID, currentUser?.uid ?: "")
-                    val intent = Intent(this@ActivitySplash, ActivityLogin::class.java)
-                    startActivity(intent)
-                    finish()
-
-                } else {
-                    checkUserExist(uid = currentUser?.uid ?: "")
-                }
-            }
+            val intent = Intent(this@ActivitySplash, ActivityLogin::class.java)
+            startActivity(intent)
         }
     }
 

@@ -70,6 +70,7 @@ import com.bigbigdw.manavara.util.getPlatformLogo
 import com.bigbigdw.manavara.util.novelListKor
 import com.bigbigdw.manavara.util.screen.AlertTwoBtn
 import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
+import com.bigbigdw.manavara.util.screen.ScreenTest
 import com.bigbigdw.manavara.util.screen.TabletBorderLine
 import kotlinx.coroutines.launch
 
@@ -119,9 +120,11 @@ fun ScreenBest(
                                     item = item,
                                     trophy = viewModelBest.state.collectAsState().value.itemBestInfoTrophyList,
                                     isExpandedScreen = isExpandedScreen,
-                                    currentRoute = state.type
+                                    currentRoute = state.type,
+                                    modalSheetState = modalSheetState
                                 )
-                            })
+                            }
+                        )
                     }
                 }
 
@@ -168,7 +171,7 @@ fun ScreenBestPropertyList(
     viewModelBest: ViewModelBest,
     listState: LazyListState,
     isExpandedScreen: Boolean,
-    drawerState: DrawerState,
+    drawerState: DrawerState?,
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -190,7 +193,7 @@ fun ScreenBestPropertyList(
                 Text(
                     modifier = Modifier.padding(16.dp, 0.dp, 0.dp, 0.dp),
                     text = if (state.type == "NOVEL") {
-                        "${state.platform} 베스트"
+                        "${changePlatformNameKor(state.platform)} 베스트"
                     } else {
                         "웹툰 베스트"
                     },
@@ -209,13 +212,13 @@ fun ScreenBestPropertyList(
                     title = "투데이 베스트",
                     body = "베스트 모드를 투데이로 전환",
                     current = state.bestType,
+                    value = "TODAY_BEST",
                     onClick = {
                         coroutineScope.launch {
-                            drawerState.close()
                             viewModelBest.setBest(bestType = "TODAY_BEST")
+                            drawerState?.close()
                         }
                     },
-                    value = "TODAY_BEST",
                 )
             }
 
@@ -229,8 +232,8 @@ fun ScreenBestPropertyList(
                     value = "WEEK_BEST",
                     onClick = {
                         coroutineScope.launch {
-                            drawerState.close()
                             viewModelBest.setBest(bestType = "WEEK_BEST")
+                            drawerState?.close()
                         }
                     },
                 )
@@ -246,8 +249,8 @@ fun ScreenBestPropertyList(
                     value = "MONTH_BEST",
                     onClick = {
                         coroutineScope.launch {
-                            drawerState.close()
                             viewModelBest.setBest(bestType = "MONTH_BEST")
+                            drawerState?.close()
                         }
                     },
                 )
@@ -267,14 +270,12 @@ fun ScreenBestPropertyList(
                     image = getPlatformLogo(item),
                     title = item,
                     body = getPlatformDescription(item),
-                    current = state.menu,
+                    current = changePlatformNameKor(state.platform),
                     onClick = {
                         coroutineScope.launch {
-                            viewModelBest.setBest(
-                                platform = changePlatformNameEng(item)
-                            )
+                            viewModelBest.setBest(platform = changePlatformNameEng(item))
                             listState.scrollToItem(index = 0)
-                            drawerState.close()
+                            drawerState?.close()
                         }
                     })
             }
@@ -302,7 +303,7 @@ fun ScreenBestPropertyList(
                     onClick = {
                         coroutineScope.launch {
                             viewModelBest.setBest(bestType = "USER_OPTION", platform = "USER_OPTION")
-                            drawerState.close()
+                            drawerState?.close()
                         }
                     },
                 )
@@ -333,7 +334,7 @@ fun ScreenBestPropertyList(
                             }
 
                             listState.scrollToItem(index = 0)
-                            drawerState.close()
+                            drawerState?.close()
                         }
                     })
             }

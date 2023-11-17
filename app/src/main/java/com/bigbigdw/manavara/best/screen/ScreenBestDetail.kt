@@ -3,6 +3,7 @@ package com.bigbigdw.manavara.best.screen
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -385,47 +386,27 @@ fun ScreenBestDetailTabsEmpty(
         Spacer(modifier = Modifier.size(16.dp))
 
         item.tabInfo.forEachIndexed { index, title ->
-            Button(
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                onClick = {
-                    setMenu(title)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(44.dp),
-                shape = RoundedCornerShape(50.dp),
-                content = {
-                    Row(
-                        horizontalArrangement = Arrangement.Start,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
 
-                        Image(
-                            painter = painterResource(id = getBestDetailLogo(menu = title)),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .width(20.dp)
-                                .height(20.dp)
-                        )
-
-                        Spacer(modifier = Modifier.size(8.dp))
-
-                        Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = title,
-                            color = color000000,
-                            fontSize = 18.sp,
-                        )
-                    }
+            if(title.contains("분석")){
+                if(bestItem.total != 0){
+                    ScreenBestDetailAnalyzeBtn(
+                        title = title,
+                        onClick = { setMenu(title) },
+                        isLast = index != item.tabInfo.size - 1
+                    )
                 }
-            )
-
-            if (index != item.tabInfo.size - 1) {
-                Spacer(modifier = Modifier.size(16.dp))
+            } else {
+                ScreenBestDetailAnalyzeBtn(
+                    title = title,
+                    onClick = { setMenu(title) },
+                    isLast = index != item.tabInfo.size - 1
+                )
             }
         }
 
-        ScreenItemBestDetailManavara(bestItem = bestItem)
+        if(bestItem.total != 0){
+            ScreenItemBestDetailManavara(bestItem = bestItem)
+        }
 
     }
 }
@@ -519,10 +500,12 @@ fun ScreenBestItemDetailTabItem(
 
         val item = viewModelBestDetail.state.collectAsState().value.listBestInfo
 
-        ScreenBestDetailAnalyze(
-            item = item,
-            getMenu = getMenu
-        )
+        if(item.isNotEmpty()){
+            ScreenBestDetailAnalyze(
+                item = item,
+                getMenu = getMenu
+            )
+        }
     }
 }
 
@@ -675,10 +658,12 @@ fun ScreenItemBestDetailCard(
 
                 val listBestInfo = viewModelBestDetail.state.collectAsState().value.listBestInfo
 
-                ScreenBestDetailAnalyze(
-                    item = listBestInfo,
-                    getMenu = getMenu
-                )
+                if(listBestInfo.isNotEmpty()){
+                    ScreenBestDetailAnalyze(
+                        item = listBestInfo,
+                        getMenu = getMenu
+                    )
+                }
             }
         }
 
@@ -733,10 +718,14 @@ fun ItemBestDetailInfoAnalyze(
     type: String,
 ) {
 
-    val currentDiff = if (type == "랭킹 분석") {
-        (beforeValue.toFloat() - value.toFloat())
-    } else {
-        (value.toFloat() - beforeValue.toFloat())
+    val currentDiff: Float = try {
+        if (type == "랭킹 분석") {
+            (beforeValue.toFloat() - value.toFloat())
+        } else {
+            (value.toFloat() - beforeValue.toFloat())
+        }
+    } catch (e: Exception) {
+        0f
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -1152,47 +1141,183 @@ fun ScreenBestDetailAnalyze(
 
     Spacer(modifier = Modifier.size(16.dp))
 
-    TabletContentWrap {
+    if(getMenu.contains("최근 분석")){
 
+        if(item[0].cntRecom.isNotEmpty()){
+            ItemTabletTitle(str = "평점 분석")
+
+            TabletContentWrap {
+                item.forEachIndexed { index, itemBestInfo ->
+
+                    val year = itemBestInfo.date.substring(0, 4)
+                    val month = itemBestInfo.date.substring(4, 6)
+                    val day = itemBestInfo.date.substring(6, 8)
+
+                    ItemBestDetailInfoAnalyze(
+                        title = "${year}년 ${month}월 ${day}일",
+                        value = itemBestInfo.cntRecom,
+                        beforeValue = if (index == 0) {
+                            "0"
+                        } else {
+                            item[index - 1].cntRecom
+                        },
+                        type = getMenu,
+                        isLast = index == item.size - 1
+                    )
+                }
+
+            }
+        }
+
+        if(item[0].cntFavorite.isNotEmpty()){
+            ItemTabletTitle(str = "선호작 분석")
+
+            TabletContentWrap {
+                item.forEachIndexed { index, itemBestInfo ->
+
+                    val year = itemBestInfo.date.substring(0, 4)
+                    val month = itemBestInfo.date.substring(4, 6)
+                    val day = itemBestInfo.date.substring(6, 8)
+
+                    ItemBestDetailInfoAnalyze(
+                        title = "${year}년 ${month}월 ${day}일",
+                        value = itemBestInfo.cntFavorite,
+                        beforeValue = if (index == 0) {
+                            "0"
+                        } else {
+                            item[index - 1].cntFavorite
+                        },
+                        type = getMenu,
+                        isLast = index == item.size - 1
+                    )
+                }
+            }
+        }
+
+        if(item[0].cntPageRead.isNotEmpty()){
+            ItemTabletTitle(str = "조회 분석")
+
+            TabletContentWrap {
+                item.forEachIndexed { index, itemBestInfo ->
+
+                    val year = itemBestInfo.date.substring(0, 4)
+                    val month = itemBestInfo.date.substring(4, 6)
+                    val day = itemBestInfo.date.substring(6, 8)
+
+                    ItemBestDetailInfoAnalyze(
+                        title = "${year}년 ${month}월 ${day}일",
+                        value = itemBestInfo.cntPageRead,
+                        beforeValue = if (index == 0) {
+                            "0"
+                        } else {
+                            item[index - 1].cntPageRead
+                        },
+                        type = getMenu,
+                        isLast = index == item.size - 1
+                    )
+                }
+            }
+        }
+
+        if(item[0].cntTotalComment.isNotEmpty()){
+            ItemTabletTitle(str = "댓글 분석")
+
+            TabletContentWrap {
+                item.forEachIndexed { index, itemBestInfo ->
+
+                    val year = itemBestInfo.date.substring(0, 4)
+                    val month = itemBestInfo.date.substring(4, 6)
+                    val day = itemBestInfo.date.substring(6, 8)
+
+
+                    ItemBestDetailInfoAnalyze(
+                        title = "${year}년 ${month}월 ${day}일",
+                        value = itemBestInfo.cntTotalComment,
+                        beforeValue = if (index == 0) {
+                            "0"
+                        } else {
+                            item[index - 1].cntTotalComment
+                        },
+                        type = getMenu,
+                        isLast = index == item.size - 1
+                    )
+
+                }
+            }
+
+        }
+
+        if(item[0].number.toString().isNotEmpty()){
+            ItemTabletTitle(str = "랭킹 분석")
+
+            TabletContentWrap {
+                item.forEachIndexed { index, itemBestInfo ->
+
+                    val year = itemBestInfo.date.substring(0, 4)
+                    val month = itemBestInfo.date.substring(4, 6)
+                    val day = itemBestInfo.date.substring(6, 8)
+
+                    ItemBestDetailInfoAnalyze(
+                        title = "${year}년 ${month}월 ${day}일",
+                        value = (itemBestInfo.number + 1).toString(),
+                        beforeValue = if (index == 0) {
+                            "0"
+                        } else {
+                            (item[index - 1].number + 1).toString()
+                        },
+                        type = getMenu,
+                        isLast = index == item.size - 1
+                    )
+                }
+            }
+        }
+
+    } else {
         item.forEachIndexed { index, itemBestInfo ->
 
             val year = itemBestInfo.date.substring(0, 4)
             val month = itemBestInfo.date.substring(4, 6)
             val day = itemBestInfo.date.substring(6, 8)
 
-            ItemBestDetailInfoAnalyze(
-                title = "${year}년 ${month}월 ${day}일",
-                value = if (getMenu.contains("평점 분석")) {
-                    itemBestInfo.cntRecom
-                } else if (getMenu.contains("선호작 분석")) {
-                    itemBestInfo.cntFavorite
-                } else if (getMenu.contains("조회 분석")) {
-                    itemBestInfo.cntPageRead
-                } else if (getMenu.contains("댓글 분석")) {
-                    itemBestInfo.cntTotalComment
-                } else {
-                    (itemBestInfo.number + 1).toString()
-                },
-                beforeValue = if (index == 0) {
-                    "0"
-                } else {
-                    if (getMenu.contains("평점 분석")) {
-                        item[index - 1].cntRecom
+            TabletContentWrap {
+                ItemBestDetailInfoAnalyze(
+                    title = "${year}년 ${month}월 ${day}일",
+                    value = if (getMenu.contains("평점 분석")) {
+                        itemBestInfo.cntRecom
                     } else if (getMenu.contains("선호작 분석")) {
-                        item[index - 1].cntFavorite
+                        itemBestInfo.cntFavorite
                     } else if (getMenu.contains("조회 분석")) {
-                        item[index - 1].cntPageRead
+                        itemBestInfo.cntPageRead
                     } else if (getMenu.contains("댓글 분석")) {
-                        item[index - 1].cntTotalComment
+                        itemBestInfo.cntTotalComment
+                    } else if (getMenu.contains("랭킹 분석")) {
+                        (itemBestInfo.number + 1).toString()
+                    } else{
+                        (itemBestInfo.number + 1).toString()
+                          },
+                    beforeValue = if (index == 0) {
+                        "0"
                     } else {
-                        (item[index - 1].number + 1).toString()
-                    }
-                },
-                type = getMenu,
-                isLast = index == item.size - 1
-            )
+                        if (getMenu.contains("평점 분석")) {
+                            item[index - 1].cntRecom
+                        } else if (getMenu.contains("선호작 분석")) {
+                            item[index - 1].cntFavorite
+                        } else if (getMenu.contains("조회 분석")) {
+                            item[index - 1].cntPageRead
+                        } else if (getMenu.contains("댓글 분석")) {
+                            item[index - 1].cntTotalComment
+                        } else {
+                            (item[index - 1].number + 1).toString()
+                        }
+                    },
+                    type = getMenu,
+                    isLast = index == item.size - 1
+                )
+            }
         }
     }
+
+
 }
 
 @Composable
@@ -1248,5 +1373,47 @@ fun ScreenBestDetailInfo(item : ItemBestDetailInfo){
                 fontSize = 16.sp,
             )
         }
+    }
+}
+
+@Composable
+fun ScreenBestDetailAnalyzeBtn(title : String, onClick : () -> Unit, isLast: Boolean){
+    Button(
+        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+        onClick = {
+            onClick()
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(44.dp),
+        shape = RoundedCornerShape(50.dp),
+        content = {
+            Row(
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Image(
+                    painter = painterResource(id = getBestDetailLogo(menu = title)),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .width(20.dp)
+                        .height(20.dp)
+                )
+
+                Spacer(modifier = Modifier.size(8.dp))
+
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = title,
+                    color = color000000,
+                    fontSize = 18.sp,
+                )
+            }
+        }
+    )
+
+    if (isLast) {
+        Spacer(modifier = Modifier.size(16.dp))
     }
 }

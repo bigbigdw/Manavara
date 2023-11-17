@@ -79,8 +79,6 @@ class ActivityLogin : ComponentActivity() {
                     oneTapClient = oneTapClient,
                     data = result.data
                 )
-            } else {
-                Log.d("ActivityLogin", "로그인 실패")
             }
         }
     }

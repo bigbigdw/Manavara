@@ -184,8 +184,6 @@ fun getBookCount(context: Context, type: String, platform: String) {
                         )
                     }
                 }
-            } else {
-                Log.d("HIHIHI", "FAIL == NOT EXIST")
             }
         }
 
