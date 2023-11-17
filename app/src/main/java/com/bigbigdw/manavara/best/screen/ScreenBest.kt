@@ -30,9 +30,10 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.ActivityBestDetail
+import com.bigbigdw.manavara.best.event.StateBest
 import com.bigbigdw.manavara.main.screen.ScreenBestDBListNovel
 import com.bigbigdw.manavara.best.viewModels.ViewModelBest
 import com.bigbigdw.manavara.main.screen.ScreenUser
@@ -72,27 +74,24 @@ import com.bigbigdw.manavara.util.novelListKor
 import com.bigbigdw.manavara.util.screen.AlertTwoBtn
 import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
 import com.bigbigdw.manavara.util.screen.TabletBorderLine
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenBest(
     isExpandedScreen: Boolean,
-    viewModelBest: ViewModelBest,
-    setMenu: (String) -> Unit,
-    getMenu: String,
-    setPlatform: (String) -> Unit,
-    getPlatform: String,
-    getType: String,
     listState: LazyListState,
-    setBestType: (String) -> Unit,
-    getBestType: String,
     modalSheetState: ModalBottomSheetState? = null,
     needDataUpdate: Boolean,
+    viewModelBest: ViewModelBest,
+    bestState: StateFlow<StateBest>,
+    drawerState: DrawerState,
 ) {
 
     val context = LocalContext.current
-    val item = viewModelBest.state.collectAsState().value.itemBookInfo
+    val state = bestState.collectAsState().value
+    val item = state.itemBookInfo
 
     Box(
         modifier = Modifier
@@ -105,17 +104,16 @@ fun ScreenBest(
 
                 val (getDialogOpen, setDialogOpen) = remember { mutableStateOf(false) }
 
-                if(getDialogOpen){
+                if (getDialogOpen) {
                     Dialog(
                         onDismissRequest = { setDialogOpen(false) },
                     ) {
-                        AlertTwoBtn(
-                            isShow = { setDialogOpen(false) },
+                        AlertTwoBtn(isShow = { setDialogOpen(false) },
                             onFetchClick = {
                                 val intent = Intent(context, ActivityBestDetail::class.java)
                                 intent.putExtra("BOOKCODE", item.bookCode)
                                 intent.putExtra("PLATFORM", item.type)
-                                intent.putExtra("TYPE", getType)
+                                intent.putExtra("TYPE", state.type)
                                 context.startActivity(intent)
                             },
                             btnLeft = "취소",
@@ -126,22 +124,19 @@ fun ScreenBest(
                                     item = item,
                                     trophy = viewModelBest.state.collectAsState().value.itemBestInfoTrophyList,
                                     isExpandedScreen = isExpandedScreen,
-                                    currentRoute = getType
+                                    currentRoute = state.type
                                 )
                             })
                     }
                 }
 
                 ScreenBestPropertyList(
-                    setMenu = setMenu,
-                    getMenu = getMenu,
-                    setPlatform = setPlatform,
+                    viewModelBest = viewModelBest,
+                    bestState = bestState,
                     listState = listState,
                     isExpandedScreen = isExpandedScreen,
-                    setBestType = setBestType,
-                    getBestType = getBestType,
-                    getType = getType
-                ) {}
+                    drawerState = drawerState,
+                )
 
                 Spacer(
                     modifier = Modifier
@@ -151,28 +146,24 @@ fun ScreenBest(
                 )
 
                 ScreenMainBestDetail(
-                    getMenu = getMenu,
-                    getType = getType,
-                    viewModelBest = viewModelBest,
                     listState = listState,
                     setDialogOpen = setDialogOpen,
-                    getBestType = getBestType,
-                    getPlatform = getPlatform,
-                    needDataUpdate = needDataUpdate
-                )
+                    needDataUpdate = needDataUpdate,
+                    viewModelBest = viewModelBest,
+                    bestState = bestState,
+
+                    )
 
             } else {
 
                 ScreenMainBestItemDetail(
-                    viewModelBest = viewModelBest,
-                    getPlatform = getPlatform,
-                    getType = getType,
-                    listState = listState,
-                    getBestType = getBestType,
                     modalSheetState = modalSheetState,
                     setDialogOpen = null,
                     isExpandedScreen = isExpandedScreen,
-                    needDataUpdate = needDataUpdate
+                    needDataUpdate = needDataUpdate,
+                    listState = listState,
+                    viewModelBest = viewModelBest,
+                    bestState = bestState
                 )
 
             }
@@ -180,23 +171,21 @@ fun ScreenBest(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenBestPropertyList(
-    setMenu: (String) -> Unit,
-    getMenu: String,
-    setPlatform: (String) -> Unit,
+    viewModelBest: ViewModelBest,
+    bestState: StateFlow<StateBest>,
     listState: LazyListState,
     isExpandedScreen: Boolean,
-    setBestType: (String) -> Unit,
-    getBestType: String,
-    getType: String,
-    onClick: () -> Unit,
+    drawerState: DrawerState,
 ) {
 
     val coroutineScope = rememberCoroutineScope()
+    val state = bestState.collectAsState().value
 
     if (isExpandedScreen) {
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .width(330.dp)
                 .fillMaxHeight()
@@ -205,17 +194,13 @@ fun ScreenBestPropertyList(
                 .semantics { contentDescription = "Overview Screen" },
         ) {
 
-            Column {
-                Spacer(modifier = Modifier.size(16.dp))
+            item { Spacer(modifier = Modifier.size(16.dp)) }
 
-                LaunchedEffect(getBestType){
-                    setPlatform("JOARA")
-                }
-
+            item {
                 Text(
                     modifier = Modifier.padding(16.dp, 0.dp, 0.dp, 0.dp),
-                    text = if (getType == "NOVEL") {
-                        "웹소설 베스트"
+                    text = if (state.type == "NOVEL") {
+                        "${state.platform} 베스트"
                     } else {
                         "웹툰 베스트"
                     },
@@ -223,137 +208,138 @@ fun ScreenBestPropertyList(
                     color = Color.Black,
                     fontWeight = FontWeight(weight = 700)
                 )
+            }
 
-                Spacer(modifier = Modifier.size(16.dp))
+            item { Spacer(modifier = Modifier.size(16.dp)) }
 
+            item {
                 ItemMainSettingSingleTablet(
                     containerColor = color4AD7CF,
                     image = R.drawable.ic_launcher,
                     title = "투데이 베스트",
                     body = "베스트 모드를 투데이로 전환",
-                    settter = setBestType,
-                    getter = getBestType,
+                    current = state.bestType,
+                    onClick = {
+                        coroutineScope.launch {
+                            drawerState.close()
+                            viewModelBest.setBest(bestType = "TODAY_BEST")
+                        }
+                    },
                     value = "TODAY_BEST",
-                    onClick = {  },
                 )
+            }
 
+            item {
                 ItemMainSettingSingleTablet(
                     containerColor = color5372DE,
                     image = R.drawable.ic_launcher,
                     title = "주간 베스트",
                     body = "베스트 모드를 주간으로 전환",
-                    settter = setBestType,
-                    getter = getBestType,
-                    onClick = { onClick() },
+                    current = state.bestType,
                     value = "WEEK_BEST",
+                    onClick = {
+                        coroutineScope.launch {
+                            drawerState.close()
+                            viewModelBest.setBest(bestType = "WEEK_BEST")
+                        }
+                    },
                 )
+            }
 
+            item {
                 ItemMainSettingSingleTablet(
                     containerColor = color998DF9,
                     image = R.drawable.ic_launcher,
                     title = "월간 베스트",
                     body = "베스트 모드를 월간으로 전환",
-                    settter = setBestType,
-                    getter = getBestType,
-                    onClick = { onClick() },
+                    current = state.bestType,
                     value = "MONTH_BEST",
+                    onClick = {
+                        coroutineScope.launch {
+                            drawerState.close()
+                            viewModelBest.setBest(bestType = "MONTH_BEST")
+                        }
+                    },
                 )
-
-                TabletBorderLine()
             }
 
-            if (getType == "NOVEL") {
-                LazyColumn {
-                    itemsIndexed(novelListKor()) { _, item ->
-                        ItemBestListSingle(
-                            containerColor = getPlatformColor(item),
-                            image = getPlatformLogo(item),
-                            title = item,
-                            body = getPlatformDescription(item),
-                            setMenu = setMenu,
-                            getMenu = getMenu,
-                            setDetailPlatform = { setPlatform(changePlatformNameEng(item)) }
-                        ) {
-                            coroutineScope.launch {
-                                listState.scrollToItem(index = 0)
-                            }
-                            onClick()
-                        }
-                    }
+            item { TabletBorderLine() }
+
+            itemsIndexed(
+                if (state.type == "NOVEL") {
+                    novelListKor()
+                } else {
+                    comicListKor()
                 }
-            } else {
-                LazyColumn {
-                    itemsIndexed(comicListKor()) { _, item ->
-                        ItemBestListSingle(
-                            containerColor = getPlatformColor(item),
-                            image = getPlatformLogo(item),
-                            title = item,
-                            body = getPlatformDescription(item),
-                            setMenu = setMenu,
-                            getMenu = getMenu,
-                            setDetailPlatform = { setPlatform(changePlatformNameEng(item)) }
-                        ) {
-                            coroutineScope.launch {
-                                listState.scrollToItem(index = 0)
-                            }
-                            onClick()
+            ) { _, item ->
+                ItemBestListSingle(containerColor = getPlatformColor(item),
+                    image = getPlatformLogo(item),
+                    title = item,
+                    body = getPlatformDescription(item),
+                    current = state.menu,
+                    onClick = {
+                        coroutineScope.launch {
+                            viewModelBest.setBest(
+                                platform = changePlatformNameEng(item), menu = item
+                            )
+                            listState.scrollToItem(index = 0)
+                            drawerState.close()
                         }
-                    }
-                }
+                    })
             }
-
-
         }
     } else {
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .width(330.dp)
                 .fillMaxHeight()
                 .background(color = colorF6F6F6)
                 .padding(8.dp, 0.dp)
-                .verticalScroll(rememberScrollState())
                 .semantics { contentDescription = "Overview Screen" },
         ) {
 
-            Spacer(modifier = Modifier.size(16.dp))
+            item { Spacer(modifier = Modifier.size(16.dp)) }
 
-            ItemMainSettingSingleTablet(
-                containerColor = color4AD7CF,
-                image = R.drawable.ic_launcher,
-                title = "유저 옵션",
-                body = "마나바라 유저 옵션",
-                settter = setBestType,
-                getter = getBestType,
-                value = "USER_OPTION",
-                onClick = {
-                    setMenu("USER_OPTION")
-                    onClick()
-                },
-            )
+            item {
+                ItemMainSettingSingleTablet(
+                    containerColor = color4AD7CF,
+                    image = R.drawable.ic_launcher,
+                    title = "유저 옵션",
+                    body = "마나바라 유저 옵션",
+                    current = state.bestType,
+                    onClick = {
+                        coroutineScope.launch {
+                            viewModelBest.setBest(menu = "USER_OPTION")
+                            drawerState.close()
+                        }
+                    },
+                    value = "USER_OPTION",
+                )
+            }
 
-            TabletBorderLine()
+            item { TabletBorderLine() }
 
-            novelListKor().forEachIndexed { _, item ->
-                ItemBestListSingle(
-                    containerColor = getPlatformColor(item),
+            itemsIndexed(
+                if (state.type == "NOVEL") {
+                    novelListKor()
+                } else {
+                    comicListKor()
+                }
+            ) { _, item ->
+                ItemBestListSingle(containerColor = getPlatformColor(item),
                     image = getPlatformLogo(item),
                     title = item,
                     body = getPlatformDescription(item),
-                    setMenu = setMenu,
-                    getMenu = getMenu,
-                    setDetailPlatform = {
-                        setPlatform(changePlatformNameEng(item))
-
-                        if (getBestType == "USER_OPTION") {
-                            setBestType("TODAY_BEST")
+                    current = state.menu,
+                    onClick = {
+                        coroutineScope.launch {
+                            viewModelBest.setBest(
+                                platform = changePlatformNameEng(item), menu = item
+                            )
+                            listState.scrollToItem(index = 0)
+                            drawerState.close()
                         }
-                    }
-                ) {
-                    coroutineScope.launch {
-                        listState.scrollToItem(index = 0)
-                    }
-                    onClick()
-                }
+                    })
             }
 
         }
@@ -366,102 +352,89 @@ fun ItemBestListSingle(
     image: Int,
     title: String,
     body: String,
-    setMenu: (String) -> Unit,
-    getMenu: String,
-    setDetailPlatform: () -> Unit,
-    setDetailType: () -> Unit
+    current: String,
+    onClick: () -> Unit,
 ) {
 
-    Button(
-        colors = ButtonDefaults.buttonColors(
-            containerColor = if (getMenu == title) {
-                colorE9E9E9
-            } else {
-                colorF7F7F7
-            }
-        ),
-        shape = RoundedCornerShape(50.dp),
-        onClick = {
-            setMenu(title)
-            setDetailPlatform()
-            setDetailType()
-        },
-        contentPadding = PaddingValues(
-            start = 12.dp,
-            top = 6.dp,
-            end = 12.dp,
-            bottom = 6.dp,
-        ),
-        content = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(0.dp, 8.dp),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
+    Button(colors = ButtonDefaults.buttonColors(
+        containerColor = if (current == title) {
+            colorE9E9E9
+        } else {
+            colorF7F7F7
+        }
+    ), shape = RoundedCornerShape(50.dp), onClick = {
+        onClick()
+    }, contentPadding = PaddingValues(
+        start = 12.dp,
+        top = 6.dp,
+        end = 12.dp,
+        bottom = 6.dp,
+    ), content = {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(0.dp, 8.dp),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Card(
+                modifier = Modifier.wrapContentSize(),
+                backgroundColor = containerColor,
+                shape = RoundedCornerShape(10.dp, 10.dp, 10.dp, 10.dp)
             ) {
-
-                Card(
+                Box(
                     modifier = Modifier
-                        .wrapContentSize(),
-                    backgroundColor = containerColor,
-                    shape = RoundedCornerShape(10.dp, 10.dp, 10.dp, 10.dp)
+                        .height(36.dp)
+                        .width(36.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Box(
+                    Image(
+                        contentScale = ContentScale.FillWidth,
+                        painter = painterResource(id = image),
+                        contentDescription = null,
                         modifier = Modifier
-                            .height(36.dp)
-                            .width(36.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Image(
-                            contentScale = ContentScale.FillWidth,
-                            painter = painterResource(id = image),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .height(28.dp)
-                                .width(28.dp)
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.size(16.dp))
-
-                Column {
-                    Row {
-                        Text(
-                            text = title,
-                            fontSize = 16.sp,
-                            color = color000000,
-
-                            fontWeight = FontWeight(weight = 500)
-                        )
-                    }
-
-                    Row {
-                        Text(
-                            text = body,
-                            fontSize = 14.sp,
-                            color = color8E8E8E,
-                        )
-                    }
+                            .height(28.dp)
+                            .width(28.dp)
+                    )
                 }
             }
-        })
+
+            Spacer(modifier = Modifier.size(16.dp))
+
+            Column {
+                Row {
+                    Text(
+                        text = title, fontSize = 16.sp, color = color000000,
+
+                        fontWeight = FontWeight(weight = 500)
+                    )
+                }
+
+                Row {
+                    Text(
+                        text = body,
+                        fontSize = 14.sp,
+                        color = color8E8E8E,
+                    )
+                }
+            }
+        }
+    })
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("MutableCollectionMutableState")
 @Composable
 fun ScreenMainBestDetail(
-    getMenu: String,
-    getType: String,
-    viewModelBest: ViewModelBest,
     listState: LazyListState,
     setDialogOpen: (Boolean) -> Unit,
-    getBestType: String,
-    getPlatform: String,
-    needDataUpdate : Boolean
+    needDataUpdate: Boolean,
+    viewModelBest: ViewModelBest,
+    bestState: StateFlow<StateBest>,
 ) {
+
+    val state = bestState.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -469,7 +442,7 @@ fun ScreenMainBestDetail(
             .background(color = colorF6F6F6)
     ) {
 
-        if(getMenu.isNotEmpty()){
+        if (state.menu.isNotEmpty()) {
             Spacer(modifier = Modifier.size(16.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -482,9 +455,8 @@ fun ScreenMainBestDetail(
                 )
 
                 Text(
-                    modifier = Modifier
-                        .padding(16.dp, 0.dp, 0.dp, 0.dp),
-                    text = changeDetailNameKor(getMenu),
+                    modifier = Modifier.padding(16.dp, 0.dp, 0.dp, 0.dp),
+                    text = changeDetailNameKor(state.menu),
                     fontSize = 24.sp,
                     color = color000000,
                     fontWeight = FontWeight(weight = 700)
@@ -493,15 +465,13 @@ fun ScreenMainBestDetail(
         }
 
         ScreenMainBestItemDetail(
-            viewModelBest = viewModelBest,
-            getPlatform = getPlatform,
-            getType = getType,
-            listState = listState,
-            getBestType = getBestType,
             modalSheetState = null,
             setDialogOpen = setDialogOpen,
             isExpandedScreen = false,
-            needDataUpdate = needDataUpdate
+            needDataUpdate = needDataUpdate,
+            listState = listState,
+            viewModelBest = viewModelBest,
+            bestState = bestState,
         )
     }
 }
@@ -509,60 +479,57 @@ fun ScreenMainBestDetail(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScreenMainBestItemDetail(
-    viewModelBest: ViewModelBest,
-    getPlatform: String,
-    getType: String,
-    listState: LazyListState,
-    getBestType: String,
     modalSheetState: ModalBottomSheetState? = null,
     setDialogOpen: ((Boolean) -> Unit)?,
     isExpandedScreen: Boolean,
-    needDataUpdate : Boolean
+    needDataUpdate: Boolean,
+    listState: LazyListState,
+    viewModelBest: ViewModelBest,
+    bestState: StateFlow<StateBest>,
 ) {
-    if(getBestType.isEmpty() && isExpandedScreen){
+
+    val state = bestState.collectAsState().value
+
+    if (state.bestType.isEmpty() && isExpandedScreen) {
         ScreenBestDBListNovel(type = "NOVEL")
-    } else if (getBestType.contains("TODAY_BEST")) {
+    } else if (state.bestType.contains("TODAY_BEST")) {
 
         Spacer(modifier = Modifier.size(16.dp))
 
         ScreenTodayBest(
-            viewModelBest = viewModelBest,
             listState = listState,
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen,
-            getType = getType,
-            getPlatform = getPlatform,
-            getBestType = getBestType,
-            needDataUpdate = needDataUpdate
+            needDataUpdate = needDataUpdate,
+            viewModelBest = viewModelBest,
+            bestState = bestState,
         )
 
-    } else if (getBestType.contains("WEEK_BEST")) {
+    } else if (state.bestType.contains("WEEK_BEST")) {
 
         Spacer(modifier = Modifier.size(16.dp))
 
         ScreenTodayWeek(
-            viewModelBest = viewModelBest,
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen,
-            getType = getType,
-            getPlatform = getPlatform,
-            getBestType = getBestType
+            needDataUpdate = needDataUpdate,
+            viewModelBest = viewModelBest,
+            bestState = bestState
         )
 
-    } else if (getBestType.contains("MONTH_BEST")) {
+    } else if (state.bestType.contains("MONTH_BEST")) {
 
         Spacer(modifier = Modifier.size(16.dp))
 
         ScreenTodayMonth(
-            viewModelBest = viewModelBest,
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen,
-            getType = getType,
-            getPlatform = getPlatform,
-            getBestType = getBestType
+            needDataUpdate = needDataUpdate,
+            viewModelBest = viewModelBest,
+            bestState = bestState
         )
 
-    } else if (getBestType.contains("USER_OPTION")) {
+    } else if (state.bestType.contains("USER_OPTION")) {
 
         Spacer(modifier = Modifier.size(16.dp))
 

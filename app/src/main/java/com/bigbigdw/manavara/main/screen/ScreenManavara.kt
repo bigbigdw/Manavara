@@ -118,35 +118,18 @@ fun ScreenManavara(
 
     LaunchedEffect(getPlatform,getType){
         viewModelBest.getBestListTodayStorage(
-            platform = getPlatform,
-            type = getType,
             context = context,
         )
 
-        viewModelBest.getBestWeekTrophy(
-            platform = getPlatform,
-            type = getType,
-        )
+        viewModelBest.getBestWeekTrophy()
 
-        viewModelBest.getBestMapToday(
-            platform = getPlatform,
-            type = getType,
-        )
+        viewModelBest.getBestMapToday()
 
-        viewModelBest.getBestWeekList(
-            platform = getPlatform,
-            type = getType,
-        )
+        viewModelBest.getBestWeekListStorage(context)
 
-        viewModelBest.getBestMonthTrophy(
-            platform = getPlatform,
-            type = getType,
-        )
+        viewModelBest.getBestMonthTrophy()
 
-        viewModelBest.getBestMonthList(
-            platform = getPlatform,
-            type = getType,
-        )
+        viewModelBest.getBestMonthListStorage(context)
     }
 
     Box(
@@ -275,8 +258,7 @@ fun ScreenManavaraPropertyList(
                 image = R.drawable.icon_novel_wht,
                 title = "마나바라 베스트 웹소설 DB",
                 body = "마나바라에 기록된 베스트 웹소설 리스트",
-                settter = setMenu,
-                getter = getMenu,
+                current = getMenu,
                 onClick = {  },
                 value = "베스트 웹소설 DB"
             )
@@ -286,8 +268,7 @@ fun ScreenManavaraPropertyList(
                 image = R.drawable.icon_novel_wht,
                 title = "투데이 장르 베스트",
                 body = "플랫폼별 투데이 베스트 장르 리스트 보기",
-                settter = setMenu,
-                getter = getMenu,
+                current = getMenu,
                 onClick = {  },
                 value = "웹소설 투데이 장르"
             )
@@ -297,8 +278,7 @@ fun ScreenManavaraPropertyList(
                 image = R.drawable.icon_novel_wht,
                 title = "주간 장르 베스트",
                 body = "플랫폼별 주간 베스트 장르 리스트 보기",
-                settter = setMenu,
-                getter = getMenu,
+                current = getMenu,
                 onClick = {  },
                 value = "웹소설 주간 장르"
             )
@@ -308,8 +288,7 @@ fun ScreenManavaraPropertyList(
                 image = R.drawable.icon_novel_wht,
                 title = "월간 장르 베스트",
                 body = "플랫폼별 월간 베스트 장르 리스트 보기",
-                settter = setMenu,
-                getter = getMenu,
+                current = getMenu,
                 onClick = {  },
                 value = "웹소설 월간 장르"
             )
@@ -321,8 +300,7 @@ fun ScreenManavaraPropertyList(
                 image = R.drawable.icon_webtoon_wht,
                 title = "마나바라 베스트 웹툰 DB",
                 body = "마나바라에 기록된 웹툰 웹툰 리스트",
-                settter = setMenu,
-                getter = getMenu,
+                current = getMenu,
                 onClick = {  },
                 value = "베스트 웹툰 DB"
             )
@@ -332,8 +310,7 @@ fun ScreenManavaraPropertyList(
                 image = R.drawable.icon_webtoon_wht,
                 title = "투데이 웹툰 장르 베스트",
                 body = "플랫폼별 웹툰 베스트 장르 리스트 보기",
-                settter = setMenu,
-                getter = getMenu,
+                current = getMenu,
                 onClick = {  },
                 value = "웹툰 투데이 장르"
             )
@@ -343,8 +320,7 @@ fun ScreenManavaraPropertyList(
                 image = R.drawable.icon_webtoon_wht,
                 title = "주간 웹툰 장르 베스트",
                 body = "플랫폼별 웹툰 베스트 장르 리스트 보기",
-                settter = setMenu,
-                getter = getMenu,
+                current = getMenu,
                 onClick = {  },
                 value = "웹툰 주간 장르"
             )
@@ -354,8 +330,7 @@ fun ScreenManavaraPropertyList(
                 image = R.drawable.icon_webtoon_wht,
                 title = "월간 웹툰 장르 베스트",
                 body = "플랫폼별 월간 웹툰 베스트 장르 리스트 보기",
-                settter = setMenu,
-                getter = getMenu,
+                current = getMenu,
                 onClick = {  },
                 value = "웹툰 월간 장르"
             )
@@ -367,8 +342,7 @@ fun ScreenManavaraPropertyList(
                 image = R.drawable.icon_search_wht,
                 title = "작품 검색",
                 body = "플랫폼과 무관하게 작품 검색 진행",
-                settter = setMenu,
-                getter = getMenu,
+                current = getMenu,
                 onClick = {  },
                 value = "작품 검색",
             )
@@ -378,8 +352,7 @@ fun ScreenManavaraPropertyList(
                 image = R.drawable.icon_search_wht,
                 title = "북코드 검색",
                 body = "플랫폼과 무관하게 작품 검색 진행",
-                settter = setMenu,
-                getter = getMenu,
+                current = getMenu,
                 onClick = {  },
                 value = "북코드 검색",
             )
@@ -389,8 +362,7 @@ fun ScreenManavaraPropertyList(
                 image = R.drawable.icon_search_wht,
                 title = "웹소설 DB 검색",
                 body = "웹소설 DB 검색",
-                settter = setMenu,
-                getter = getMenu,
+                current = getMenu,
                 onClick = {  },
                 value = "웹소설 DB 검색",
             )
@@ -400,8 +372,7 @@ fun ScreenManavaraPropertyList(
                 image = R.drawable.icon_search_wht,
                 title = "웹툰 DB 검색",
                 body = "웹툰 DB 검색",
-                settter = setMenu,
-                getter = getMenu,
+                current = getMenu,
                 onClick = {  },
                 value = "웹툰 DB 검색",
             )

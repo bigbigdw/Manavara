@@ -872,10 +872,9 @@ fun DrawerBestDetail(
                 image = R.drawable.icon_novel_wht,
                 title = "작품 정보",
                 body = "작품의 상세 정보 보기",
-                settter = setter,
-                getter = getter,
-                value = "작품 상세",
+                current = getter,
                 onClick = { onClick() },
+                value = "작품 상세",
             )
 
             item.tabInfo.forEachIndexed { index, title ->
@@ -884,10 +883,9 @@ fun DrawerBestDetail(
                     image = getBestDetailLogoMobile(menu = title),
                     title = title,
                     body = getBestDetailDescription(menu = title),
-                    settter = setter,
-                    getter = getter,
-                    value = title,
+                    current = getter,
                     onClick = { onClick() },
+                    value = title,
                 )
             }
         }

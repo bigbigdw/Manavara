@@ -262,7 +262,7 @@ private fun miningAlert(
         )
 }
 
-fun checkMining(context: Context) {
+fun checkMining(context: Context, callback : (Boolean) -> Unit) {
     val mRootRef =
         FirebaseDatabase.getInstance().reference.child("MINING")
 
@@ -277,6 +277,9 @@ fun checkMining(context: Context) {
                 val item = dataSnapshot.getValue(String::class.java)
 
                 if (item != null) {
+
+                    callback.invoke(item.toFloat() >= DBDate.dateMMDDHHMM().toFloat())
+
                     CoroutineScope(Dispatchers.IO).launch {
                         dataStore.setDataStoreString(DataStoreManager.MINING, item)
                     }

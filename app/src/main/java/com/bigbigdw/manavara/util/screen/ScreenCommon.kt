@@ -61,7 +61,6 @@ import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
 import com.bigbigdw.manavara.ui.theme.color8F8F8F
-import com.bigbigdw.manavara.ui.theme.colorDCDCDD
 import com.bigbigdw.manavara.ui.theme.colorE9E9E9
 import com.bigbigdw.manavara.ui.theme.colorEDE6FD
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
@@ -540,15 +539,14 @@ fun ItemMainSettingSingleTablet(
     image: Int,
     title: String,
     body: String,
-    settter: (String) -> Unit,
-    getter: String,
+    current: String,
     onClick: () -> Unit,
     value: String
 ) {
 
     Button(
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (getter == value) {
+            containerColor = if (current == value) {
                 colorE9E9E9
             } else {
                 colorF7F7F7
@@ -556,7 +554,6 @@ fun ItemMainSettingSingleTablet(
         ),
         shape = RoundedCornerShape(50.dp),
         onClick = {
-            settter(value)
             onClick()
         },
         contentPadding = PaddingValues(

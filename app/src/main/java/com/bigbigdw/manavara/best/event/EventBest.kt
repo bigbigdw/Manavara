@@ -4,6 +4,7 @@ import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.models.ItemKeyword
 import com.bigbigdw.manavara.main.models.UserInfo
+import com.bigbigdw.manavara.util.novelListEng
 
 sealed interface EventBest{
     object Loaded: EventBest
@@ -50,7 +51,31 @@ sealed interface EventBest{
     ) : EventBest
 
     class SetItemBestInfoTrophyList(
-        val itemBestInfoTrophyList : ArrayList<ItemBestInfo> = ArrayList()
+        val itemBestInfoTrophyList : ArrayList<ItemBestInfo> = ArrayList(),
+        val itemBookInfo : ItemBookInfo = ItemBookInfo()
+    ) : EventBest
+
+    class SetPlatform(
+        val platform : String = novelListEng()[0],
+    ) : EventBest
+
+    class SetBestType(
+        val bestType : String = "TODAY_BEST",
+    ) : EventBest
+
+    class SetType(
+        val type : String = "NOVEL",
+    ) : EventBest
+
+    class SetMenu(
+        val menu : String = "TODAY"
+    ) : EventBest
+
+    class SetBest(
+        val platform : String = novelListEng()[0],
+        val bestType : String = "TODAY_BEST",
+        val type : String = "NOVEL",
+        val menu : String = "TODAY"
     ) : EventBest
 }
 
@@ -67,5 +92,9 @@ data class StateBest(
     val genreDay : ArrayList<ItemKeyword> = ArrayList(),
     val genreDayList : ArrayList<ArrayList<ItemKeyword>> = ArrayList(),
     val itemBookInfo : ItemBookInfo = ItemBookInfo(),
-    val itemBestInfoTrophyList : ArrayList<ItemBestInfo> = ArrayList()
+    val itemBestInfoTrophyList : ArrayList<ItemBestInfo> = ArrayList(),
+    val platform : String = novelListEng()[0],
+    val bestType : String = "TODAY_BEST",
+    val type : String = "NOVEL",
+    val menu : String = "TODAY"
 )

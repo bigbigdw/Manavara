@@ -1,5 +1,6 @@
 package com.bigbigdw.manavara.main.viewModels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bigbigdw.manavara.main.event.EventMain
@@ -51,6 +52,8 @@ class ViewModelMain @Inject constructor() : ViewModel() {
     }
 
     fun setUserInfo(){
+
+        Log.d("RECOMPOSE", "1 setUserInfo")
 
         val currentUser :  FirebaseUser?
         val auth: FirebaseAuth = Firebase.auth

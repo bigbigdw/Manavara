@@ -1,21 +1,15 @@
 package com.bigbigdw.manavara.best.viewModels
 
 import android.content.Context
-import android.content.Intent
 import android.util.Log
-import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bigbigdw.manavara.best.event.EventBest
-import com.bigbigdw.manavara.best.event.EventBestDetail
 import com.bigbigdw.manavara.best.event.StateBest
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.models.ItemKeyword
-import com.bigbigdw.manavara.login.ActivityLogin
 import com.bigbigdw.manavara.util.DBDate
-import com.bigbigdw.manavara.util.DataStoreManager
-import com.bigbigdw.manavara.util.getPlatformDataKeyNovel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -25,8 +19,6 @@ import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import convertItemBookJson
 import convertItemKeyword
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -108,8 +100,29 @@ class ViewModelBest @Inject constructor() : ViewModel() {
 
             is EventBest.SetItemBestInfoTrophyList ->{
                 current.copy(
-                    itemBestInfoTrophyList = event.itemBestInfoTrophyList
+                    itemBestInfoTrophyList = event.itemBestInfoTrophyList,
+                    itemBookInfo = event.itemBookInfo
                 )
+            }
+
+            is EventBest.SetPlatform -> {
+                current.copy(platform = event.platform)
+            }
+
+            is EventBest.SetBestType -> {
+                current.copy(bestType = event.bestType)
+            }
+
+            is EventBest.SetType -> {
+                current.copy(type = event.type)
+            }
+
+            is EventBest.SetMenu -> {
+                current.copy(menu = event.menu)
+            }
+
+            is EventBest.SetBest -> {
+                current.copy(platform = event.platform, bestType = event.bestType, type = event.type, menu = event.menu)
             }
 
             else -> {
@@ -118,10 +131,12 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         }
     }
 
-    fun getBestListTodayJson(platform: String, type: String, context: Context, needDataUpdate : Boolean){
+    fun getBestListTodayJson(context: Context, needDataUpdate: Boolean){
+
+        val state = state.value
 
         if(needDataUpdate){
-            val filePath = File(context.filesDir, "${platform}_${type}.json").absolutePath
+            val filePath = File(context.filesDir, "${state.platform}_TODAY_${state.type}.json").absolutePath
 
             try {
                 val jsonString = File(filePath).readText(Charset.forName("UTF-8"))
@@ -139,14 +154,16 @@ class ViewModelBest @Inject constructor() : ViewModel() {
                     events.send(EventBest.SetItemBestInfoList(itemBookInfoList = todayJsonList))
                 }
             } catch (e: Exception) {
-                getBestListTodayStorage(context = context, platform = platform, type = type)
+                getBestListTodayStorage(context = context)
             }
         } else {
-            getBestListTodayStorage(context = context, platform = platform, type = type)
+            getBestListTodayStorage(context = context)
         }
     }
 
-    fun getBestListTodayStorage(platform: String, type: String, context: Context){
+    fun getBestListTodayStorage(context: Context){
+
+        val state = state.value
 
         viewModelScope.launch {
             events.send(EventBest.SetItemBestInfoList(itemBookInfoList = ArrayList()))
@@ -154,8 +171,8 @@ class ViewModelBest @Inject constructor() : ViewModel() {
 
         val storage = Firebase.storage
         val storageRef = storage.reference
-        val todayFileRef = storageRef.child("${platform}/${type}/DAY/${DBDate.dateMMDD()}.json")
-        val localFile = File(context.filesDir, "${platform}_${type}.json")
+        val todayFileRef = storageRef.child("${state.platform}/${state.type}/DAY/${DBDate.dateMMDD()}.json")
+        val localFile = File(context.filesDir, "${state.platform}_TODAY_${state.type}.json")
 
         todayFileRef.getFile(localFile).addOnSuccessListener {
             val jsonString = localFile.readText(Charset.forName("UTF-8"))
@@ -172,14 +189,17 @@ class ViewModelBest @Inject constructor() : ViewModel() {
                 events.send(EventBest.SetItemBestInfoList(itemBookInfoList = todayJsonList))
             }
         }.addOnFailureListener {
-            getBestList(platform = platform, type = type)
+            getBestList()
         }
 
     }
 
-    private fun getBestList(platform: String, type: String) {
+    private fun getBestList() {
+
+        val state = state.value
+
         val mRootRef =
-            FirebaseDatabase.getInstance().reference.child("BEST").child(type).child(platform)
+            FirebaseDatabase.getInstance().reference.child("BEST").child(state.type).child(state.platform)
                 .child("DAY")
 
         mRootRef.addListenerForSingleValueEvent(object :
@@ -208,10 +228,13 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         })
     }
 
-    fun getBestWeekTrophy(platform: String, type: String){
+    fun getBestWeekTrophy() {
+
+        val state = state.value
+
         val storage = Firebase.storage
         val storageRef = storage.reference
-        val weekTrophyRef = storageRef.child("${platform}/${type}/WEEK_TROPHY/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
+        val weekTrophyRef = storageRef.child("${state.platform}/${state.type}/WEEK_TROPHY/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
         val weekTrophyFile = weekTrophyRef.getBytes(1024 * 1024)
 
         viewModelScope.launch {
@@ -239,10 +262,13 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         }
     }
 
-    fun getBestMapToday(platform: String, type: String){
+    fun getBestMapToday() {
+
+        val state = state.value
+
         val storage = Firebase.storage
         val storageRef = storage.reference
-        val todayFileRef = storageRef.child("${platform}/${type}/DAY/${DBDate.dateMMDD()}.json")
+        val todayFileRef = storageRef.child("${state.platform}/${state.type}/DAY/${DBDate.dateMMDD()}.json")
 
         val todayFile = todayFileRef.getBytes(1024 * 1024)
 
@@ -266,18 +292,68 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         }
     }
 
-    fun getBestWeekList(platform: String, type: String){
+    fun getBestWeekListJson(context: Context, needDataUpdate: Boolean){
+
+        val state = state.value
+
+        if(needDataUpdate){
+            val filePath = File(context.filesDir, "${state.platform}_WEEK_${state.type}.json").absolutePath
+
+            try {
+                val jsonString = File(filePath).readText(Charset.forName("UTF-8"))
+
+                val jsonArray = JSONArray(jsonString)
+
+                val weekJsonList = ArrayList<ArrayList<ItemBookInfo>>()
+
+                for (i in 0 until jsonArray.length()) {
+
+                    try{
+                        val jsonArrayItem = jsonArray.getJSONArray(i)
+                        val itemList = ArrayList<ItemBookInfo>()
+
+                        for (j in 0 until jsonArrayItem.length()) {
+
+                            try{
+                                val jsonObject = jsonArrayItem.getJSONObject(j)
+                                itemList.add(convertItemBookJson(jsonObject))
+                            }catch (e : Exception){
+                                itemList.add(ItemBookInfo())
+                            }
+                        }
+
+                        weekJsonList.add(itemList)
+                    } catch (e : Exception){
+                        weekJsonList.add(ArrayList())
+                    }
+                }
+
+                viewModelScope.launch {
+                    events.send(EventBest.SetWeekList(weekList = weekJsonList))
+                }
+            } catch (e: Exception) {
+                getBestWeekListStorage(context = context)
+            }
+        } else {
+            getBestWeekListStorage(context = context)
+        }
+    }
+
+    fun getBestWeekListStorage(context: Context) {
+
+        val state = state.value
+
         val storage = Firebase.storage
         val storageRef = storage.reference
-        val weekRef =   storageRef.child("${platform}/${type}/WEEK/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
-        val weekFile = weekRef.getBytes(1024 * 1024)
+        val weekRef =   storageRef.child("${state.platform}/${state.type}/WEEK/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
+        val weekFile = File(context.filesDir, "${state.platform}_WEEK_${state.type}.json")
 
         viewModelScope.launch {
             events.send(EventBest.SetWeekList(weekList = ArrayList()))
         }
 
-        weekFile.addOnSuccessListener { bytes ->
-            val jsonString = String(bytes, Charset.forName("UTF-8"))
+        weekRef.getFile(weekFile).addOnSuccessListener {
+            val jsonString = weekFile.readText(Charset.forName("UTF-8"))
 
             val jsonArray = JSONArray(jsonString)
 
@@ -311,21 +387,67 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         }
     }
 
-    fun getBestMonthList(platform: String, type: String){
+    fun getBestMonthListJson(context: Context, needDataUpdate: Boolean){
+
+        val state = state.value
+
+        if(needDataUpdate){
+            val filePath = File(context.filesDir, "${state.platform}_MONTH_${state.type}.json").absolutePath
+
+            try {
+                val jsonString = File(filePath).readText(Charset.forName("UTF-8"))
+                val jsonArray = JSONArray(jsonString)
+                val monthJsonList = ArrayList<ArrayList<ItemBookInfo>>()
+
+                for (i in 0 until jsonArray.length()) {
+
+                    try{
+                        val jsonArrayItem = jsonArray.getJSONArray(i)
+                        val itemList = ArrayList<ItemBookInfo>()
+
+                        for (j in 0 until jsonArrayItem.length()) {
+
+                            try{
+                                val jsonObject = jsonArrayItem.getJSONObject(j)
+                                itemList.add(convertItemBookJson(jsonObject))
+                            }catch (e : Exception){
+                                itemList.add(ItemBookInfo())
+                            }
+                        }
+
+                        monthJsonList.add(itemList)
+                    } catch (e : Exception){
+                        monthJsonList.add(ArrayList())
+                    }
+                }
+
+                viewModelScope.launch {
+                    events.send(EventBest.SetMonthList(monthList = monthJsonList))
+                }
+
+            } catch (e: Exception) {
+                getBestMonthListStorage(context = context)
+            }
+        } else {
+            getBestMonthListStorage(context = context)
+        }
+    }
+
+    fun getBestMonthListStorage(context: Context) {
+        val state = state.value
+
         val storage = Firebase.storage
         val storageRef = storage.reference
-        val monthRef = storageRef.child("${platform}/${type}/MONTH/${DBDate.year()}_${DBDate.month()}.json")
-        val monthFile = monthRef.getBytes(1024 * 1024)
+        val monthRef = storageRef.child("${state.platform}/${state.type}/MONTH/${DBDate.year()}_${DBDate.month()}.json")
+        val monthFile = File(context.filesDir, "${state.platform}_MONTH_${state.type}.json")
 
         viewModelScope.launch {
             events.send(EventBest.SetMonthList(monthList = ArrayList()))
         }
 
-        monthFile.addOnSuccessListener { bytes ->
-            val jsonString = String(bytes, Charset.forName("UTF-8"))
-
+        monthRef.getFile(monthFile).addOnSuccessListener { bytes ->
+            val jsonString = monthFile.readText(Charset.forName("UTF-8"))
             val jsonArray = JSONArray(jsonString)
-
             val monthJsonList = ArrayList<ArrayList<ItemBookInfo>>()
 
             for (i in 0 until jsonArray.length()) {
@@ -356,10 +478,11 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         }
     }
 
-    fun getBestMonthTrophy(platform: String, type: String){
+    fun getBestMonthTrophy() {
+        val state = state.value
         val storage = Firebase.storage
         val storageRef = storage.reference
-        val monthTrophyRef =  storageRef.child("${platform}/${type}/MONTH_TROPHY/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
+        val monthTrophyRef =  storageRef.child("${state.platform}/${state.type}/MONTH_TROPHY/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
         val monthTrophyFile = monthTrophyRef.getBytes(1024 * 1024)
 
         viewModelScope.launch {
@@ -762,12 +885,14 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         }
     }
 
-    fun getBookItemWeekTrophy(itemBookInfo: ItemBookInfo, type : String, platform: String){
+    fun getBookItemWeekTrophy(itemBookInfo: ItemBookInfo){
+
+        val state = state.value
 
         val weekArray = ArrayList<ItemBestInfo>()
 
         val mRootRef =
-            FirebaseDatabase.getInstance().reference.child("BEST").child(type).child(platform)
+            FirebaseDatabase.getInstance().reference.child("BEST").child(state.type).child(state.platform)
                 .child("TROPHY_WEEK").child(itemBookInfo.bookCode)
 
         mRootRef.addListenerForSingleValueEvent(object :
@@ -794,13 +919,48 @@ class ViewModelBest @Inject constructor() : ViewModel() {
                     }
 
                     viewModelScope.launch {
-                        events.send(EventBest.SetItemBestInfoTrophyList(itemBestInfoTrophyList = weekArray))
+                        events.send(EventBest.SetItemBestInfoTrophyList(itemBestInfoTrophyList = weekArray, itemBookInfo = itemBookInfo))
                     }
                 }
             }
 
             override fun onCancelled(databaseError: DatabaseError) {}
         })
+    }
+
+    fun setPlatform(platform : String){
+        viewModelScope.launch {
+            events.send(EventBest.SetPlatform(platform = platform))
+        }
+    }
+
+    fun setMenu(menu : String){
+        viewModelScope.launch {
+            events.send(EventBest.SetMenu(menu = menu))
+        }
+    }
+
+    fun setBestType(bestType : String){
+        viewModelScope.launch {
+            events.send(EventBest.SetBestType(bestType = bestType))
+        }
+    }
+
+    fun setType(type : String){
+        viewModelScope.launch {
+            events.send(EventBest.SetType(type = type))
+        }
+    }
+
+    fun setBest(
+        platform: String = state.value.platform,
+        menu: String = state.value.menu,
+        bestType: String = state.value.bestType,
+        type: String = state.value.type
+    ) {
+        viewModelScope.launch {
+            events.send(EventBest.SetBest(platform = platform, menu = menu, bestType = bestType, type = type))
+        }
     }
 
 }

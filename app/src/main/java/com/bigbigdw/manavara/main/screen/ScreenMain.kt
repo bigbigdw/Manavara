@@ -1,6 +1,7 @@
 package com.bigbigdw.manavara.main.screen
 
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -46,7 +47,9 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -67,6 +70,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.bigbigdw.manavara.R
+import com.bigbigdw.manavara.best.event.StateBest
 import com.bigbigdw.manavara.best.screen.ScreenBest
 import com.bigbigdw.manavara.best.screen.ScreenBestPropertyList
 import com.bigbigdw.manavara.best.screen.ScreenDialogBest
@@ -80,13 +84,13 @@ import com.bigbigdw.manavara.ui.theme.color555b68
 import com.bigbigdw.manavara.ui.theme.color898989
 import com.bigbigdw.manavara.ui.theme.colorDCDCDD
 import com.bigbigdw.manavara.util.changePlatformNameKor
-import com.bigbigdw.manavara.util.comicListEng
 import com.bigbigdw.manavara.util.novelListEng
 import com.bigbigdw.manavara.util.screen.BackOnPressed
 import com.bigbigdw.manavara.util.screen.BackOnPressedMobile
 import com.bigbigdw.manavara.util.screen.ItemTabletTitle
 import com.bigbigdw.manavara.util.screen.ScreenTest
 import com.bigbigdw.manavara.util.screen.TabletContentWrap
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import postFCMAlert
 
@@ -98,62 +102,49 @@ fun ScreenMain(
     viewModelBest: ViewModelBest,
     needDataUpdate: Boolean
 ) {
+    Log.d("RECOMPOSE", "-----------------")
+    Log.d("RECOMPOSE", "1")
 
-    viewModelMain.setUserInfo()
+    val mainState by remember { derivedStateOf { viewModelMain.state } }
+    val bestState by remember { derivedStateOf { viewModelBest.state } }
+
+    LaunchedEffect(viewModelMain) {
+        viewModelMain.setUserInfo()
+    }
 
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val isExpandedScreen = widthSizeClass == WindowWidthSizeClass.Expanded
-    val mainState = viewModelMain.state.collectAsState().value
+
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
     val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
 
-    if (mainState.userInfo.userEmail.isNotEmpty()) {
+    if (mainState.collectAsState().value.userInfo.userEmail.isNotEmpty()) {
         if (!isExpandedScreen) {
-
-            val (getMenu, setMenu) = remember { mutableStateOf("TODAY") }
-            val (getDetailPlatform, setDetailPlatform) = remember { mutableStateOf(novelListEng()[0]) }
-            val (getType, setType) = remember { mutableStateOf("") }
-            val (getBestType, setBestType) = remember { mutableStateOf("") }
 
             ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
 
                 ScreenBestPropertyList(
-                    setMenu = setMenu,
-                    getMenu = getMenu,
-                    setPlatform = setDetailPlatform,
+                    viewModelBest = viewModelBest,
+                    bestState = bestState,
                     listState = listState,
                     isExpandedScreen = isExpandedScreen,
-                    setBestType = setBestType,
-                    getBestType = getBestType,
-                    getType = getType
-                ) {
-                    coroutineScope.launch {
-                        drawerState.close()
-                    }
-                }
+                    drawerState = drawerState
+                )
 
             }) {
                 ScreenMainMobile(
                     navController = navController,
                     currentRoute = currentRoute,
-                    viewModelMain = viewModelMain,
-                    viewModelBest = viewModelBest,
                     isExpandedScreen = isExpandedScreen,
                     drawerState = drawerState,
-                    setMenu = setMenu,
-                    getMenu = getMenu,
-                    setPlatform = setDetailPlatform,
-                    getPlatform = getDetailPlatform,
-                    setType = setType,
-                    getType = getType,
                     listState = listState,
-                    setBestType = setBestType,
-                    getBestType = getBestType,
                     needDataUpdate = needDataUpdate,
+                    viewModelMain = viewModelMain,
+                    viewModelBest = viewModelBest,
+                    bestState = bestState,
                 )
             }
 
@@ -161,18 +152,20 @@ fun ScreenMain(
             ScreenMainTablet(
                 currentRoute = currentRoute,
                 navController = navController,
-                viewModelMain = viewModelMain,
-                viewModelBest = viewModelBest,
                 isExpandedScreen = isExpandedScreen,
                 listState = listState,
                 needDataUpdate = needDataUpdate,
+                viewModelMain = viewModelMain,
+                viewModelBest = viewModelBest,
+                bestState = bestState,
+                drawerState = drawerState
             )
             BackOnPressed()
         }
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenMainTablet(
     currentRoute: String?,
@@ -182,37 +175,22 @@ fun ScreenMainTablet(
     viewModelBest: ViewModelBest,
     listState: LazyListState,
     needDataUpdate: Boolean,
+    bestState: StateFlow<StateBest>,
+    drawerState: DrawerState,
 ) {
-
-    val (getMenu, setMenu) = remember { mutableStateOf("TODAY") }
-    val (getPlatform, setPlatform) = remember { mutableStateOf(novelListEng()[0]) }
-    val (getType, setType) = remember { mutableStateOf("NOVEL") }
-    val (getBestType, setBestType) = remember { mutableStateOf("") }
-
-    if(getBestType.isEmpty()){
-        setBestType("TODAY_BEST")
-        setPlatform("JOARA")
-        setMenu("조아라")
-    }
 
     Row {
         TableAppNavRail(currentRoute = currentRoute ?: "", navController = navController)
         NavigationGraph(
             navController = navController,
-            viewModelMain = viewModelMain,
             isExpandedScreen = isExpandedScreen,
-            viewModelBest = viewModelBest,
-            setMenu = setMenu,
-            getMenu = getMenu,
-            setPlatform = setPlatform,
-            getPlatform = getPlatform,
-            setType = setType,
-            getType = getType,
-            listState = listState,
             modalSheetState = null,
-            setBestType = setBestType,
-            getBestType = getBestType,
-            needDataUpdate = needDataUpdate
+            needDataUpdate = needDataUpdate,
+            listState = listState,
+            viewModelMain = viewModelMain,
+            viewModelBest = viewModelBest,
+            bestState = bestState,
+            drawerState = drawerState
         )
     }
 }
@@ -222,29 +200,15 @@ fun ScreenMainTablet(
 fun ScreenMainMobile(
     navController: NavHostController,
     currentRoute: String?,
-    viewModelMain: ViewModelMain,
     isExpandedScreen: Boolean,
-    viewModelBest: ViewModelBest,
     drawerState: DrawerState,
-    setMenu: (String) -> Unit,
-    getMenu: String,
-    setPlatform: (String) -> Unit,
-    getPlatform: String,
-    setType: (String) -> Unit,
-    getType: String,
     listState: LazyListState,
-    setBestType: (String) -> Unit,
-    getBestType: String,
     needDataUpdate: Boolean,
+    viewModelMain: ViewModelMain,
+    viewModelBest: ViewModelBest,
+    bestState: StateFlow<StateBest>,
 ) {
-
-    if(currentRoute == "NOVEL" || currentRoute == "COMIC"){
-        if(getBestType.isEmpty()){
-            setBestType("TODAY_BEST")
-            setPlatform("JOARA")
-            setMenu("조아라")
-        }
-    }
+    val state = bestState.collectAsState().value
 
     val modalSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
@@ -257,13 +221,12 @@ fun ScreenMainMobile(
     Scaffold(
         topBar = {
             TopbarMain(
-                setter = setBestType,
-                getter = getBestType,
-                setDrawer = {
-                    coroutineScope.launch {
-                        drawerState.open()
-                    }
-                })
+                viewModelBest = viewModelBest
+            ) {
+                coroutineScope.launch {
+                    drawerState.open()
+                }
+            }
         },
         bottomBar = { BottomNavScreen(navController = navController, currentRoute = currentRoute) }
     ) {
@@ -275,20 +238,14 @@ fun ScreenMainMobile(
         ) {
             NavigationGraph(
                 navController = navController,
-                viewModelMain = viewModelMain,
                 isExpandedScreen = isExpandedScreen,
-                viewModelBest = viewModelBest,
-                setMenu = setMenu,
-                getMenu = getMenu,
-                setPlatform = setPlatform,
-                getPlatform = getPlatform,
-                setType = setType,
-                getType = getType,
-                listState = listState,
-                setBestType = setBestType,
-                getBestType = getBestType,
                 modalSheetState = modalSheetState,
-                needDataUpdate = needDataUpdate
+                needDataUpdate = needDataUpdate,
+                listState = listState,
+                viewModelMain = viewModelMain,
+                viewModelBest = viewModelBest,
+                bestState = bestState,
+                drawerState = drawerState
             )
         }
     }
@@ -307,8 +264,8 @@ fun ScreenMainMobile(
                 Spacer(modifier = Modifier.size(4.dp))
 
                 ScreenDialogBest(
-                    item = viewModelBest.state.collectAsState().value.itemBookInfo,
-                    trophy = viewModelBest.state.collectAsState().value.itemBestInfoTrophyList,
+                    item = state.itemBookInfo,
+                    trophy = state.itemBestInfoTrophyList,
                     isExpandedScreen = isExpandedScreen,
                     currentRoute = currentRoute
                 )
@@ -322,7 +279,13 @@ fun ScreenMainMobile(
 }
 
 @Composable
-fun TopbarMain(setDrawer: (Boolean) -> Unit, setter: (String) -> Unit, getter: String) {
+fun TopbarMain(
+    viewModelBest: ViewModelBest,
+    setDrawer: (Boolean) -> Unit,
+) {
+
+    val state = viewModelBest.state.collectAsState().value
+
     Row(
         Modifier
             .fillMaxWidth()
@@ -352,7 +315,7 @@ fun TopbarMain(setDrawer: (Boolean) -> Unit, setter: (String) -> Unit, getter: S
                 )
 
                 Text(
-                    text = "웹소설 베스트",
+                    text = "${changePlatformNameKor(state.platform)} 베스트",
                     fontSize = 20.sp,
                     textAlign = TextAlign.Left,
                     color = color000000,
@@ -363,13 +326,13 @@ fun TopbarMain(setDrawer: (Boolean) -> Unit, setter: (String) -> Unit, getter: S
 
         }
 
-        if(getter != "USER_OPTION"){
+        if(state.bestType != "USER_OPTION"){
             Text(
-                modifier = Modifier.clickable { setter("TODAY_BEST") },
+                modifier = Modifier.clickable { viewModelBest.setBest(bestType = "TODAY_BEST") },
                 text = "투데이",
                 fontSize = 18.sp,
                 textAlign = TextAlign.Left,
-                color = if (getter.contains("TODAY_BEST")) {
+                color = if (state.bestType.contains("TODAY_BEST")) {
                     color1E4394
                 } else {
                     color555b68
@@ -384,11 +347,11 @@ fun TopbarMain(setDrawer: (Boolean) -> Unit, setter: (String) -> Unit, getter: S
             )
 
             Text(
-                modifier = Modifier.clickable { setter("WEEK_BEST") },
+                modifier = Modifier.clickable { viewModelBest.setBest(bestType = "WEEK_BEST") },
                 text = "주간",
                 fontSize = 18.sp,
                 textAlign = TextAlign.Left,
-                color = if (getter.contains("WEEK_BEST")) {
+                color = if (state.bestType.contains("WEEK_BEST")) {
                     color1E4394
                 } else {
                     color555b68
@@ -403,11 +366,11 @@ fun TopbarMain(setDrawer: (Boolean) -> Unit, setter: (String) -> Unit, getter: S
             )
 
             Text(
-                modifier = Modifier.clickable { setter("MONTH_BEST") },
+                modifier = Modifier.clickable { viewModelBest.setBest(bestType = "MONTH_BEST") },
                 text = "월간",
                 fontSize = 18.sp,
                 textAlign = TextAlign.Left,
-                color = if (getter.contains("MONTH_BEST")) {
+                color = if (state.bestType.contains("MONTH_BEST")) {
                     color1E4394
                 } else {
                     color555b68
@@ -473,24 +436,18 @@ fun BottomNavScreen(navController: NavHostController, currentRoute: String?) {
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun NavigationGraph(
     navController: NavHostController,
-    viewModelMain: ViewModelMain,
     isExpandedScreen: Boolean,
-    viewModelBest: ViewModelBest,
-    setMenu: (String) -> Unit,
-    getMenu: String,
-    setPlatform: (String) -> Unit,
-    getPlatform: String,
-    setType: (String) -> Unit,
-    getType: String,
-    listState: LazyListState,
-    setBestType: (String) -> Unit,
-    getBestType: String,
     modalSheetState: ModalBottomSheetState? = null,
     needDataUpdate: Boolean,
+    listState: LazyListState,
+    viewModelMain: ViewModelMain,
+    viewModelBest: ViewModelBest,
+    bestState: StateFlow<StateBest>,
+    drawerState: DrawerState,
 ) {
 
     NavHost(
@@ -499,72 +456,70 @@ fun NavigationGraph(
     ) {
         composable(ScreemBottomItem.NOVEL.screenRoute) {
 
-            setType("NOVEL")
-
-            if(!novelListEng().contains(getPlatform)){
-                setPlatform("JOARA")
-                setBestType("TODAY_BEST")
-                setMenu(changePlatformNameKor("JOARA"))
+            if (!novelListEng().contains(bestState.collectAsState().value.platform)) {
+                viewModelBest.setBest(
+                    type = "NOVEL",
+                    platform = "JOARA",
+                    bestType = "TODAY_BEST",
+                    menu = changePlatformNameKor("JOARA")
+                )
+            } else {
+                viewModelBest.setBest(type = "NOVEL")
             }
 
             ScreenBest(
                 isExpandedScreen = isExpandedScreen,
-                viewModelBest = viewModelBest,
-                setMenu = setMenu,
-                getMenu = getMenu,
-                setPlatform = setPlatform,
-                getPlatform = getPlatform,
-                getType = getType,
                 listState = listState,
-                setBestType = setBestType,
-                getBestType = getBestType,
                 modalSheetState = modalSheetState,
-                needDataUpdate = needDataUpdate
+                needDataUpdate = needDataUpdate,
+                viewModelBest = viewModelBest,
+                bestState = bestState,
+                drawerState = drawerState
             )
         }
         composable(ScreemBottomItem.COMIC.screenRoute) {
 
-            setType("COMIC")
-
-            if(!comicListEng().contains(getPlatform)){
-                setPlatform("NAVER_SERIES")
-                setBestType("TODAY_BEST")
-                setMenu(changePlatformNameKor("NAVER_SERIES"))
+            if (!novelListEng().contains(bestState.collectAsState().value.platform)) {
+                viewModelBest.setBest(
+                    type = "COMIC",
+                    platform = "NAVER_SERIES",
+                    bestType = "TODAY_BEST",
+                    menu = changePlatformNameKor("NAVER_SERIES")
+                )
+            } else {
+                viewModelBest.setBest(type = "COMIC")
             }
 
             ScreenBest(
                 isExpandedScreen = isExpandedScreen,
-                viewModelBest = viewModelBest,
-                setMenu = setMenu,
-                getMenu = getMenu,
-                setPlatform = setPlatform,
-                getPlatform = getPlatform,
-                getType = getType,
                 listState = listState,
-                setBestType = setBestType,
-                getBestType = getBestType,
                 modalSheetState = modalSheetState,
-                needDataUpdate = needDataUpdate
+                needDataUpdate = needDataUpdate,
+                viewModelBest = viewModelBest,
+                bestState = bestState,
+                drawerState = drawerState
             )
         }
         composable(ScreemBottomItem.MANAVARA.screenRoute) {
 
-            setType("MANAVARA")
+//            setType("MANAVARA")
 
-            ScreenManavara(
-                isExpandedScreen = isExpandedScreen,
-                viewModelBest = viewModelBest,
-                viewModelMain = viewModelMain,
-                setMenu = setMenu,
-                getMenu = getMenu,
-                setPlatform = setPlatform,
-                getPlatform = getPlatform,
-                getType = getType,
-                listState = listState,
-                setBestType = setBestType,
-                getBestType = getBestType,
-                modalSheetState = modalSheetState
-            )
+//            ScreenManavara(
+//                isExpandedScreen = isExpandedScreen,
+//                viewModelBest = viewModelBest,
+//                viewModelMain = viewModelMain,
+//                setMenu = setMenu,
+//                getMenu = getMenu,
+//                setPlatform = setPlatform,
+//                getPlatform = getPlatform,
+//                getType = getType,
+//                listState = listState,
+//                setBestType = setBestType,
+//                getBestType = getBestType,
+//                modalSheetState = modalSheetState
+//            )
+
+            ScreenTest()
         }
         composable(ScreemBottomItem.PICK.screenRoute) {
             ScreenTest()

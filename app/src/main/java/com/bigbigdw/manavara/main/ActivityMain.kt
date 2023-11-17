@@ -30,14 +30,8 @@ class ActivityMain : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val dataStore = DataStoreManager(this@ActivityMain)
-
-        CoroutineScope(Dispatchers.IO).launch {
-            dataStore.getDataStoreString(DataStoreManager.MINING).collect { value ->
-                if (value != null) {
-                    needDataUpdate = value.toFloat() >= DBDate.dateMMDDHHMM().toFloat()
-                }
-            }
+        checkMining(this@ActivityMain){
+            needDataUpdate = it
         }
 
         viewModelMain.sideEffects
@@ -48,7 +42,7 @@ class ActivityMain : ComponentActivity() {
             .onEach { Toast.makeText(this@ActivityMain, it, Toast.LENGTH_SHORT).show() }
             .launchIn(lifecycleScope)
 
-        checkMining(this@ActivityMain)
+
 
         setContent {
             val widthSizeClass = calculateWindowSizeClass(this).widthSizeClass

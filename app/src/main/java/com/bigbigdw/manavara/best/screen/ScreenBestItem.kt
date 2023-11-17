@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.ActivityBestDetail
+import com.bigbigdw.manavara.best.event.StateBest
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.viewModels.ViewModelBest
@@ -73,39 +74,32 @@ import com.bigbigdw.manavara.util.screen.spannableString
 import com.bigbigdw.manavara.util.weekList
 import com.bigbigdw.manavara.util.weekListAll
 import com.bigbigdw.manavara.util.weekListOneWord
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun ScreenTodayBest(
-    viewModelBest: ViewModelBest,
     listState: LazyListState,
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
-    getType: String,
-    getPlatform: String,
-    getBestType : String,
-    needDataUpdate : Boolean
+    needDataUpdate: Boolean,
+    viewModelBest: ViewModelBest,
+    bestState: StateFlow<StateBest>,
 ) {
 
     val context = LocalContext.current
+    val state = bestState.collectAsState().value
 
-    LaunchedEffect(getPlatform, getType, getBestType) {
+    LaunchedEffect(viewModelBest) {
         viewModelBest.getBestListTodayJson(
-            platform = getPlatform,
-            type = getType,
             context = context,
             needDataUpdate = needDataUpdate
         )
 
-        viewModelBest.getBestMapToday(
-            platform = getPlatform,
-            type = getType,
-        )
+        viewModelBest.getBestMapToday()
     }
-
-    val bestState = viewModelBest.state.collectAsState().value
 
     Column(modifier = Modifier.background(color = colorF6F6F6)) {
 
@@ -117,15 +111,13 @@ fun ScreenTodayBest(
                 .fillMaxSize(),
         ) {
 
-            itemsIndexed(bestState.itemBookInfoList) { index, item ->
+            itemsIndexed(state.itemBookInfoList) { index, item ->
                 ListBestToday(
                     itemBookInfo = item,
                     index = index,
                     modalSheetState = modalSheetState,
-                    viewModelBest = viewModelBest,
                     setDialogOpen = setDialogOpen,
-                    getType = getType,
-                    getPlatform = getPlatform
+                    viewModelBest = viewModelBest
                 )
             }
         }
@@ -138,13 +130,12 @@ fun ListBestToday(
     itemBookInfo: ItemBookInfo,
     index: Int,
     modalSheetState: ModalBottomSheetState?,
-    viewModelBest: ViewModelBest,
     setDialogOpen: ((Boolean) -> Unit)?,
-    getType: String,
-    getPlatform: String,
+    viewModelBest: ViewModelBest,
 ) {
 
     val coroutineScope = rememberCoroutineScope()
+
 
     Row(
         Modifier
@@ -173,12 +164,9 @@ fun ListBestToday(
             colors = ButtonDefaults.buttonColors(containerColor = Color.White),
             onClick = {
                 coroutineScope.launch {
-                    viewModelBest.getBookItemInfo(itemBookInfo = itemBookInfo)
 
                     viewModelBest.getBookItemWeekTrophy(
-                        itemBookInfo = itemBookInfo,
-                        type = getType,
-                        platform = getPlatform
+                        itemBookInfo = itemBookInfo
                     )
 
                     modalSheetState?.show()
@@ -286,33 +274,22 @@ fun ListBestToday(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScreenTodayWeek(
-    viewModelBest: ViewModelBest,
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
-    getType: String,
-    getPlatform: String,
-    getBestType: String
+    needDataUpdate: Boolean,
+    viewModelBest: ViewModelBest,
+    bestState: StateFlow<StateBest>,
 ) {
 
-    LaunchedEffect(getPlatform, getType) {
-
-        viewModelBest.getBestWeekTrophy(
-            platform = getPlatform,
-            type = getType,
-        )
-
-        viewModelBest.getBestWeekList(
-            platform = getPlatform,
-            type = getType,
-        )
-
-    }
-
-    val bestState = viewModelBest.state.collectAsState().value
-
+    val context = LocalContext.current
+    val state = bestState.collectAsState().value
     val (getDate, setDate) = remember { mutableStateOf("전체") }
-
     val listState = rememberLazyListState()
+
+    LaunchedEffect(viewModelBest) {
+        viewModelBest.getBestWeekListJson(context = context, needDataUpdate = needDataUpdate)
+        viewModelBest.getBestWeekTrophy()
+    }
 
     Column(modifier = Modifier.background(color = colorF6F6F6)) {
 
@@ -340,37 +317,33 @@ fun ScreenTodayWeek(
                     .padding(0.dp, 0.dp, 16.dp, 0.dp)
             ) {
 
-                itemsIndexed(bestState.weekTrophyList) { index, item ->
+                itemsIndexed(state.weekTrophyList) { index, item ->
                     ListBest(
                         viewModelBest = viewModelBest,
-                        itemBookInfoMap = bestState.itemBookInfoMap,
+                        itemBookInfoMap = state.itemBookInfoMap,
                         bookCode = item.bookCode,
                         type = "WEEK",
-                        getType = getType,
-                        getPlatform = getPlatform,
-                        setDialogOpen = setDialogOpen,
                         modalSheetState = modalSheetState,
+                        setDialogOpen = setDialogOpen,
                     )
                 }
             }
         } else {
 
-            if (bestState.weekList[getWeekDate(getDate)].size > 0) {
+            if (state.weekList[getWeekDate(getDate)].size > 0) {
                 LazyColumn(
                     modifier = Modifier
                         .background(colorF6F6F6)
                         .padding(0.dp, 0.dp, 16.dp, 0.dp)
                 ) {
 
-                    itemsIndexed(bestState.weekList[getWeekDate(getDate)]) { index, item ->
+                    itemsIndexed(state.weekList[getWeekDate(getDate)]) { index, item ->
                         ListBestToday(
-                            viewModelBest = viewModelBest,
                             itemBookInfo = item,
                             index = index,
-                            getType = getType,
-                            getPlatform = getPlatform,
-                            setDialogOpen = setDialogOpen,
                             modalSheetState = modalSheetState,
+                            setDialogOpen = setDialogOpen,
+                            viewModelBest = viewModelBest,
                         )
                     }
                 }
@@ -389,9 +362,7 @@ fun ListBest(
     bookCode: String,
     type: String,
     modalSheetState: ModalBottomSheetState?,
-    setDialogOpen: ((Boolean) -> Unit)?,
-    getType: String,
-    getPlatform: String
+    setDialogOpen: ((Boolean) -> Unit)?
 ) {
 
     val itemBookInfo = itemBookInfoMap[bookCode]
@@ -413,9 +384,7 @@ fun ListBest(
                     viewModelBest.getBookItemInfo(itemBookInfo = itemBookInfo)
 
                     viewModelBest.getBookItemWeekTrophy(
-                        itemBookInfo = itemBookInfo,
-                        type = getType,
-                        platform = getPlatform
+                        itemBookInfo = itemBookInfo
                     )
 
                     modalSheetState?.show()
@@ -469,35 +438,19 @@ fun ListBest(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScreenTodayMonth(
-    viewModelBest: ViewModelBest,
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
-    getType: String,
-    getPlatform: String,
-    getBestType: String
+    needDataUpdate: Boolean,
+    viewModelBest: ViewModelBest,
+    bestState: StateFlow<StateBest>,
 ) {
 
-    LaunchedEffect(getPlatform, getType) {
-        viewModelBest.getBestMonthTrophy(
-            platform = getPlatform,
-            type = getType,
-        )
-
-        viewModelBest.getBestMonthList(
-            platform = getPlatform,
-            type = getType,
-        )
-    }
-
-    val bestState = viewModelBest.state.collectAsState().value
-
+    val state = bestState.collectAsState().value
     val (getDate, setDate) = remember { mutableStateOf("전체") }
-
     val listState = rememberLazyListState()
-
-    val monthList = bestState.monthList
-
+    val monthList = state.monthList
     val arrayList = ArrayList<String>()
+    val context = LocalContext.current
 
     arrayList.add("전체")
 
@@ -506,6 +459,11 @@ fun ScreenTodayMonth(
     for (item in monthList) {
         count += 1
         arrayList.add("${count}주차")
+    }
+
+    LaunchedEffect(viewModelBest) {
+        viewModelBest.getBestMonthTrophy()
+        viewModelBest.getBestMonthListJson(context = context, needDataUpdate = needDataUpdate)
     }
 
     Column(modifier = Modifier.background(color = colorF6F6F6)) {
@@ -535,16 +493,14 @@ fun ScreenTodayMonth(
                     .padding(0.dp, 0.dp, 16.dp, 0.dp)
             ) {
 
-                itemsIndexed(bestState.monthTrophyList) { index, item ->
+                itemsIndexed(state.monthTrophyList) { index, item ->
                     ListBest(
                         viewModelBest = viewModelBest,
-                        itemBookInfoMap = bestState.itemBookInfoMap,
+                        itemBookInfoMap = state.itemBookInfoMap,
                         bookCode = item.bookCode,
                         type = "MONTH",
-                        getType = getType,
-                        getPlatform = getPlatform,
-                        setDialogOpen = setDialogOpen,
                         modalSheetState = modalSheetState,
+                        setDialogOpen = setDialogOpen,
                     )
                 }
             }
@@ -559,7 +515,7 @@ fun ScreenTodayMonth(
 
                     itemsIndexed(monthList[geMonthDate(getDate)]) { index, item ->
 
-                        val itemBookInfo = bestState.itemBookInfoMap[item.bookCode]
+                        val itemBookInfo = state.itemBookInfoMap[item.bookCode]
 
                         if (itemBookInfo != null) {
                             Text(
@@ -573,13 +529,11 @@ fun ScreenTodayMonth(
 
                         ListBest(
                             viewModelBest = viewModelBest,
-                            itemBookInfoMap = bestState.itemBookInfoMap,
+                            itemBookInfoMap = state.itemBookInfoMap,
                             bookCode = item.bookCode,
                             type = "WEEK",
-                            getType = getType,
-                            getPlatform = getPlatform,
-                            setDialogOpen = null,
                             modalSheetState = null,
+                            setDialogOpen = null,
                         )
                     }
                 }
