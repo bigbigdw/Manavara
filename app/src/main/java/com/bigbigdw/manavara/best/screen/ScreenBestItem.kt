@@ -2,6 +2,7 @@ package com.bigbigdw.manavara.best.screen
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -336,6 +337,7 @@ fun ScreenTodayWeek(
                         type = "WEEK",
                         modalSheetState = modalSheetState,
                         setDialogOpen = setDialogOpen,
+                        index = index
                     )
 
                 }
@@ -365,7 +367,8 @@ fun ListBest(
     item: ItemBookInfo,
     type: String,
     modalSheetState: ModalBottomSheetState?,
-    setDialogOpen: ((Boolean) -> Unit)?
+    setDialogOpen: ((Boolean) -> Unit)?,
+    index: Int
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -406,7 +409,7 @@ fun ListBest(
 
                 Column(modifier = Modifier.fillMaxWidth()) {
 
-                    ScreenItemBestCard(item = item)
+                    ScreenItemBestCard(item = item, index = index)
 
                     if (type == "MONTH") {
                         Spacer(modifier = Modifier.size(8.dp))
@@ -513,6 +516,7 @@ fun ScreenTodayMonth(
                         type = "MONTH",
                         modalSheetState = modalSheetState,
                         setDialogOpen = setDialogOpen,
+                        index = index,
                     )
                 }
             }
@@ -545,6 +549,7 @@ fun ScreenTodayMonth(
                             type = "WEEK",
                             modalSheetState = null,
                             setDialogOpen = null,
+                            index = index,
                         )
                     }
                 }
@@ -555,159 +560,6 @@ fun ScreenTodayMonth(
     }
 }
 
-@Composable
-fun ScreenBestListItemWeek(
-    item: ItemBookInfo
-) {
-    Spacer(modifier = Modifier.size(4.dp))
-
-    Column(modifier = Modifier.fillMaxWidth()) {
-
-        ScreenItemBestCard(item = item)
-
-        Spacer(modifier = Modifier.size(16.dp))
-
-        Text(
-            text = item.intro,
-            color = color8E8E8E,
-            fontSize = 16.sp,
-        )
-    }
-
-    Spacer(modifier = Modifier.size(4.dp))
-}
-
-
-
-@Composable
-fun ScreenBestListItemMonth(item: ItemBookInfo) {
-    Spacer(modifier = Modifier.size(4.dp))
-
-    Column(modifier = Modifier.fillMaxWidth()) {
-
-        Row(
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.Top,
-        ) {
-
-            Box(
-                modifier = Modifier
-                    .height(200.dp)
-                    .width(140.dp)
-            ) {
-                AsyncImage(
-                    model = item.bookImg,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .height(200.dp)
-                        .width(140.dp)
-                )
-
-            }
-
-            Spacer(modifier = Modifier.size(16.dp))
-
-            Column(modifier = Modifier.wrapContentHeight()) {
-                Text(
-                    text = item.title,
-                    color = color20459E,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight(weight = 500),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Text(
-                    text = "${item.writer}/${item.cntChapter}",
-                    color = color000000,
-                    fontSize = 16.sp,
-                )
-
-                Spacer(modifier = Modifier.size(4.dp))
-
-                Text(
-                    text = spannableString(
-                        textFront = "헌재 스코어 : ",
-                        color = color000000,
-                        textEnd = "${item.number}"
-                    ),
-                    color = color8E8E8E,
-                    fontSize = 16.sp,
-                )
-
-                Text(
-                    text = spannableString(
-                        textFront = "플랫폼 평점 : ",
-                        color = color000000,
-                        textEnd = item.cntRecom
-                    ),
-                    color = color8E8E8E,
-                    fontSize = 16.sp,
-                )
-
-                Text(
-                    text = spannableString(
-                        textFront = "베스트 총합 : ",
-                        color = color000000,
-                        textEnd = "${item.total}"
-                    ),
-                    color = color8E8E8E,
-                    fontSize = 16.sp,
-                )
-
-                Text(
-                    text = spannableString(
-                        textFront = "주간 총점 : ",
-                        color = color000000,
-                        textEnd = "${item.totalWeek}"
-                    ),
-                    color = color8E8E8E,
-                    fontSize = 16.sp,
-                )
-
-                Text(
-                    text = spannableString(
-                        textFront = "주간 베스트 횟수 : ",
-                        color = color000000,
-                        textEnd = item.totalWeekCount.toString()
-                    ),
-                    color = color8E8E8E,
-                    fontSize = 16.sp,
-                )
-
-                Text(
-                    text = spannableString(
-                        textFront = "월간 총점 : ",
-                        color = color000000,
-                        textEnd = "${item.totalMonth}"
-                    ),
-                    color = color8E8E8E,
-                    fontSize = 16.sp,
-                )
-
-                Text(
-                    text = spannableString(
-                        textFront = "월간 베스트 횟수 : ",
-                        color = color000000,
-                        textEnd = item.totalMonthCount.toString()
-                    ),
-                    color = color8E8E8E,
-                    fontSize = 16.sp,
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.size(16.dp))
-
-        Text(
-            text = item.intro,
-            color = color8E8E8E,
-            fontSize = 16.sp,
-        )
-    }
-
-    Spacer(modifier = Modifier.size(4.dp))
-}
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -728,7 +580,7 @@ fun ScreenDialogBest(
             .padding(12.dp)
     ) {
 
-        ScreenItemBestCard(item = item)
+        ScreenItemBestCard(item = item, index = -1)
 
         Spacer(modifier = Modifier.size(8.dp))
 
@@ -865,24 +717,47 @@ fun ScreenDialogBest(
 }
 
 @Composable
-fun ScreenItemBestCard(item: ItemBookInfo){
+fun ScreenItemBestCard(item: ItemBookInfo, index: Int){
     Row(
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.Top,
     ) {
 
-        Card(
-            modifier = Modifier
-                .requiredHeight(200.dp),
-            shape = RoundedCornerShape(10.dp),
-            elevation = CardDefaults.cardElevation(2.dp)
-        ) {
-            AsyncImage(
-                model = item.bookImg,
-                contentDescription = null,
+        Box{
+
+            Card(
                 modifier = Modifier
-                    .requiredHeight(200.dp)
-            )
+                    .requiredHeight(200.dp),
+                shape = RoundedCornerShape(10.dp),
+                elevation = CardDefaults.cardElevation(2.dp)
+            ) {
+
+                AsyncImage(
+                    model = item.bookImg,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .requiredHeight(200.dp)
+                )
+            }
+
+            if(index > -1){
+                Card(
+                    modifier = Modifier.padding(6.dp),
+                    colors = CardDefaults.cardColors(containerColor = color20459E),
+                    shape = RoundedCornerShape(50.dp, 50.dp, 50.dp, 50.dp),
+                    border = BorderStroke(width = 1.dp, color = Color.White)
+                ) {
+                    Box(modifier = Modifier.size(35.dp), contentAlignment = Alignment.Center) {
+                        Text(
+                            modifier = Modifier.padding(4.dp),
+                            text = "${index + 1}",
+                            color = Color.White,
+                            fontSize = 14.sp,
+                            textAlign = TextAlign.Center,
+                        )
+                    }
+                }
+            }
         }
 
         Spacer(modifier = Modifier.size(12.dp))

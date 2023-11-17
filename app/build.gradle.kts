@@ -101,4 +101,6 @@ dependencies {
     annotationProcessor("androidx.room:room-compiler:2.5.2")
 
     implementation("io.coil-kt:coil-compose:2.4.0")
+
+    implementation("org.jsoup:jsoup:1.14.3")
 }

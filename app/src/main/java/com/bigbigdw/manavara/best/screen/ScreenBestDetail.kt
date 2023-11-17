@@ -3,7 +3,6 @@ package com.bigbigdw.manavara.best.screen
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -77,6 +76,7 @@ import com.bigbigdw.manavara.ui.theme.color8F8F8F
 import com.bigbigdw.manavara.ui.theme.colorE9E9E9
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorFF2366
+import com.bigbigdw.manavara.util.changePlatformNameKor
 import com.bigbigdw.manavara.util.colorList
 import com.bigbigdw.manavara.util.getBestDetailDescription
 import com.bigbigdw.manavara.util.getBestDetailLogo
@@ -112,12 +112,19 @@ fun ScreenBestDetail(
 
     val (getMenu, setMenu) = remember { mutableStateOf("") }
     val item = viewModelBestDetail.state.collectAsState().value.itemBestDetailInfo
+    val itemBestInfo = viewModelBestDetail.state.collectAsState().value.itemBestInfo
 
     if (!isExpandedScreen) {
 
         if (getMenu.isEmpty()) {
             setMenu("작품 상세")
         }
+
+        viewModelBestDetail.setManavaraBestInfo(
+            platform = platform,
+            bookCode = bookCode,
+            type = type
+        )
 
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         val coroutineScope = rememberCoroutineScope()
@@ -128,6 +135,7 @@ fun ScreenBestDetail(
                 setter = setMenu,
                 getter = getMenu,
                 drawerState = drawerState,
+                itemBestInfo = itemBestInfo,
                 item = item
             )
 
@@ -157,7 +165,6 @@ fun ScreenBestDetail(
                             modifier = Modifier
                                 .weight(1f)
                                 .height(48.dp),
-                            shape = RoundedCornerShape(0.dp, 0.dp, 0.dp, 10.dp)
 
                         ) {
                             Text(
@@ -181,8 +188,6 @@ fun ScreenBestDetail(
                             modifier = Modifier
                                 .weight(1f)
                                 .height(48.dp),
-                            shape = RoundedCornerShape(0.dp, 0.dp, 10.dp, 0.dp)
-
                         ) {
                             Text(
                                 text = "작품 보러가기",
@@ -625,15 +630,11 @@ fun ScreenItemBestDetailCard(
 
                 if (!isExpandedScreen) {
 
-                    viewModelBestDetail.setManavaraBestInfo(
-                        platform = platform,
-                        bookCode = bookCode,
-                        type = type
-                    )
-
                     val bestItem = viewModelBestDetail.state.collectAsState().value.itemBestInfo
 
-                    ScreenItemBestDetailManavara(bestItem = bestItem)
+                    if(bestItem.total != 0){
+                        ScreenItemBestDetailManavara(bestItem = bestItem)
+                    }
                 }
             } else if (getMenu == "작품 댓글" && !isExpandedScreen) {
                 ScreenBestDetailComment(
@@ -830,6 +831,7 @@ fun DrawerBestDetail(
     getter: String,
     item: ItemBestDetailInfo,
     drawerState: DrawerState,
+    itemBestInfo: ItemBookInfo,
 ) {
     val coroutineScope = rememberCoroutineScope()
 
@@ -871,20 +873,40 @@ fun DrawerBestDetail(
             )
 
             item.tabInfo.forEachIndexed { index, title ->
-                ItemMainSettingSingleTablet(
-                    containerColor = colorList[index + 1],
-                    image = getBestDetailLogoMobile(menu = title),
-                    title = title,
-                    body = getBestDetailDescription(menu = title),
-                    current = getter,
-                    onClick = {
-                        coroutineScope.launch {
-                            setter(title)
-                            drawerState.close()
-                        }
-                    },
-                    value = title,
-                )
+
+                if(title.contains("분석")){
+                    if(itemBestInfo.total != 0){
+                        ItemMainSettingSingleTablet(
+                            containerColor = colorList[index + 1],
+                            image = getBestDetailLogoMobile(menu = title),
+                            title = title,
+                            body = getBestDetailDescription(menu = title),
+                            current = getter,
+                            onClick = {
+                                coroutineScope.launch {
+                                    setter(title)
+                                    drawerState.close()
+                                }
+                            },
+                            value = title,
+                        )
+                    }
+                } else {
+                    ItemMainSettingSingleTablet(
+                        containerColor = colorList[index + 1],
+                        image = getBestDetailLogoMobile(menu = title),
+                        title = title,
+                        body = getBestDetailDescription(menu = title),
+                        current = getter,
+                        onClick = {
+                            coroutineScope.launch {
+                                setter(title)
+                                drawerState.close()
+                            }
+                        },
+                        value = title,
+                    )
+                }
             }
         }
 
@@ -921,7 +943,7 @@ fun TopbarBestDetail(setDrawer: (Boolean) -> Unit, setter: (String) -> Unit, get
                     modifier = Modifier.size(8.dp)
                 )
 
-                androidx.compose.material.Text(
+                Text(
                     text = getter,
                     fontSize = 20.sp,
                     textAlign = TextAlign.Left,
@@ -1101,7 +1123,7 @@ fun ScreenBestDetailOther(
 
                         Column(modifier = Modifier.fillMaxWidth()) {
 
-                            ScreenItemBestCard(item = itemBookInfo)
+                            ScreenItemBestCard(item = itemBookInfo, index = -1)
 
                             if (itemBookInfo.intro.isNotEmpty()) {
                                 Spacer(modifier = Modifier.size(16.dp))
@@ -1272,14 +1294,17 @@ fun ScreenBestDetailAnalyze(
             }
         }
 
+        Spacer(modifier = Modifier.width(32.dp))
+
     } else {
-        item.forEachIndexed { index, itemBestInfo ->
 
-            val year = itemBestInfo.date.substring(0, 4)
-            val month = itemBestInfo.date.substring(4, 6)
-            val day = itemBestInfo.date.substring(6, 8)
+        TabletContentWrap {
+            item.forEachIndexed { index, itemBestInfo ->
 
-            TabletContentWrap {
+                val year = itemBestInfo.date.substring(0, 4)
+                val month = itemBestInfo.date.substring(4, 6)
+                val day = itemBestInfo.date.substring(6, 8)
+
                 ItemBestDetailInfoAnalyze(
                     title = "${year}년 ${month}월 ${day}일",
                     value = if (getMenu.contains("평점 분석")) {
@@ -1292,9 +1317,9 @@ fun ScreenBestDetailAnalyze(
                         itemBestInfo.cntTotalComment
                     } else if (getMenu.contains("랭킹 분석")) {
                         (itemBestInfo.number + 1).toString()
-                    } else{
+                    } else {
                         (itemBestInfo.number + 1).toString()
-                          },
+                    },
                     beforeValue = if (index == 0) {
                         "0"
                     } else {
@@ -1315,6 +1340,8 @@ fun ScreenBestDetailAnalyze(
                 )
             }
         }
+
+        Spacer(modifier = Modifier.width(32.dp))
     }
 
 
@@ -1355,6 +1382,13 @@ fun ScreenBestDetailInfo(item : ItemBestDetailInfo){
             ItemBestDetailInfoLine(
                 title = "키워드 : ",
                 value = item.keyword.joinToString(", "),
+            )
+        }
+
+        if (item.platform.isNotEmpty()) {
+            ItemBestDetailInfoLine(
+                title = "플랫폼 : ",
+                value = changePlatformNameKor(item.platform),
                 isLast = true
             )
         }

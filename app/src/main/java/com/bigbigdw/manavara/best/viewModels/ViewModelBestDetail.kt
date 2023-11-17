@@ -3,6 +3,7 @@ package com.bigbigdw.manavara.best.viewModels
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bigbigdw.manavara.best.event.EventBestDetail
@@ -28,6 +29,8 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import javax.inject.Inject
 
 class ViewModelBestDetail @Inject constructor() : ViewModel() {
@@ -80,13 +83,18 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
 
     fun setBestDetailInfo(platform: String, bookCode: String, context: Context) {
 
+        Log.d("!!!!BESTDETAIL", "platform == $platform")
+
         when (platform) {
             "JOARA", "JOARA_NOBLESS", "JOARA_PREMIUM" -> {
                 setLayoutJoara(bookCode = bookCode, context = context, platform = platform)
             }
-//            "Naver_Today", "Naver_Challenge", "Naver" -> {
-//                setLayoutNaverToday()
-//            }
+            "NAVER_BEST", "NAVER_CHALLENGE", "NAVER_WEBNOVEL_FREE", "NAVER_WEBNOVEL_PAY" -> {
+                setLayoutNaver(bookCode = bookCode, platform = platform)
+            }
+            "NAVER_SERIES" -> {
+                setLayoutNaverSeries(bookCode = bookCode, platform = platform)
+            }
 //            "Kakao" -> {
 //                setLayoutKaKao()
 //            }
@@ -178,6 +186,75 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
             })
     }
 
+    private fun setLayoutNaverSeries(bookCode: String, platform: String) {
+        Thread {
+
+            val doc: Document =
+                Jsoup.connect("https://series.naver.com/novel/detail.series?productNo=${bookCode}").get()
+
+            val itemBestDetailInfo = ItemBestDetailInfo(
+                writer = doc.select(".info_lst li")[2].text(),
+                title = doc.select(".aside").select(".pic_area").select("img").attr("alt"),
+                bookImg = doc.select(".aside").select(".pic_area").select("img").attr("src"),
+                bookCode = bookCode,
+                platform = platform,
+                genre = doc.select(".info_lst li")[1].text(),
+                intro = doc.select("div._synopsis")[1].text().replace("접기", ""),
+                cntRecom = doc.select("div.score_area em").text(),
+                tabInfo = arrayListOf(
+                    "작가의 다른 작품",
+                    "랭킹 분석",
+                    "최근 분석",
+                ),
+            )
+
+            viewModelScope.launch {
+                events.send(
+                    EventBestDetail.SetItemBestDetailInfo(itemBestDetailInfo = itemBestDetailInfo),
+                )
+            }
+
+        }.start()
+    }
+
+    private fun setLayoutNaver(bookCode: String, platform: String) {
+        Thread {
+
+            Log.d("!!!!BESTDETAIL", "https://novel.naver.com/webnovel/list?novelId=${bookCode}")
+
+            val doc: Document =
+                Jsoup.connect("https://novel.naver.com/webnovel/list?novelId=${bookCode}").post()
+
+            val itemBestDetailInfo = ItemBestDetailInfo(
+                writer = doc.select(".writer").text(),
+                title = doc.select(".book_title").text(),
+                bookImg = doc.select(".section_area_info .pic img").attr("src"),
+                bookCode = bookCode,
+                intro = doc.select(".section_area_info .dsc").text(),
+                cntFavorite = doc.select(".info_book .like").text(),
+                cntRecom = doc.select(".grade_area em").text(),
+                genre = doc.select(".info_book .genre").text(),
+                tabInfo = arrayListOf(
+                    "작품 댓글",
+                    "작가의 다른 작품",
+                    "평점 분석",
+                    "선호작 분석",
+                    "조회 분석",
+                    "랭킹 분석",
+                    "최근 분석",
+                ),
+                platform = platform
+            )
+
+            viewModelScope.launch {
+                events.send(
+                    EventBestDetail.SetItemBestDetailInfo(itemBestDetailInfo = itemBestDetailInfo)
+                )
+            }
+
+        }.start()
+    }
+
     fun setManavaraBestInfo(bookCode: String, type: String, platform: String) {
         val mRootRef =
             FirebaseDatabase.getInstance().reference.child("BOOK").child(type).child(platform)
@@ -258,6 +335,10 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
 
             "Naver_Today", "Naver_Challenge", "Naver" -> {
                 "https://novel.naver.com/webnovel/list?novelId=${bookCode}"
+            }
+
+            "NAVER_SERIES" -> {
+                "https://series.naver.com/novel/detail.series?productNo=${bookCode}"
             }
 
             "Ridi" -> {
@@ -357,6 +438,9 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
             "JOARA", "JOARA_NOBLESS", "JOARA_PREMIUM" -> {
                 getOthersJoa(context = context, bookCode = bookCode, platform = platform)
             }
+            "NAVER_SERIES" -> {
+                getOtherNaverSeries(bookCode = bookCode, platform = platform)
+            }
 //            "Kakao" -> {
 //                getCommentsKakao()
 //            }
@@ -423,5 +507,41 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
                     }
                 }
             })
+    }
+
+    private fun getOtherNaverSeries(bookCode: String, platform: String) {
+        Thread {
+
+            val doc: Document =
+                Jsoup.connect("https://series.naver.com/novel/detail.series?productNo=${bookCode}").get()
+
+            val items = ArrayList<ItemBookInfo>()
+            val books = doc.select("div.flick_view_area  ul.lst_thum li.book")
+
+            for (i in books.indices) {
+
+                Log.d("!!!!BESTDETAIL", "BOOK = ${books[i]}")
+                Log.d("!!!!BESTDETAIL", "title = ${books[i].select("a").attr("title")}")
+                Log.d("!!!!BESTDETAIL", "bookImg = ${books[i].select("img").attr("data-original")}")
+                Log.d("!!!!BESTDETAIL", "bookCode = ${books[i].select("a").attr("href").replace("/novel/detail.series?productNo=", "")}")
+
+                items.add(
+                    ItemBookInfo(
+                        writer = doc.select(".end_tit strong").first()?.nextElementSibling()?.text() ?: "",
+                        title = books[i].select("a").attr("title"),
+                        bookImg = books[i].select("img").attr("data-original"),
+                        bookCode = books[i].select("a").attr("href").replace("/novel/detail.series?productNo=", ""),
+                        type = platform
+                    )
+                )
+            }
+
+            viewModelScope.launch {
+                events.send(
+                    EventBestDetail.SetListBestOther(listBestOther = items)
+                )
+            }
+
+        }.start()
     }
 }
