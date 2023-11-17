@@ -31,6 +31,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalNavigationDrawer
@@ -125,12 +126,9 @@ fun ScreenBestDetail(
             DrawerBestDetail(
                 setter = setMenu,
                 getter = getMenu,
+                drawerState = drawerState,
                 item = item
-            ) {
-                coroutineScope.launch {
-                    drawerState.close()
-                }
-            }
+            )
 
         }) {
             Scaffold(
@@ -398,7 +396,6 @@ fun ScreenBestDetailTabsEmpty(
                 shape = RoundedCornerShape(50.dp),
                 content = {
                     Row(
-
                         horizontalArrangement = Arrangement.Start,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -837,13 +834,15 @@ fun BestDetailBackOnPressed(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DrawerBestDetail(
     setter: (String) -> Unit,
     getter: String,
     item: ItemBestDetailInfo,
-    onClick: () -> Unit,
+    drawerState: DrawerState,
 ) {
+    val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -873,7 +872,12 @@ fun DrawerBestDetail(
                 title = "작품 정보",
                 body = "작품의 상세 정보 보기",
                 current = getter,
-                onClick = { onClick() },
+                onClick = {
+                    coroutineScope.launch {
+                        setter("작품 정보")
+                        drawerState.close()
+                    }
+                },
                 value = "작품 상세",
             )
 
@@ -884,7 +888,12 @@ fun DrawerBestDetail(
                     title = title,
                     body = getBestDetailDescription(menu = title),
                     current = getter,
-                    onClick = { onClick() },
+                    onClick = {
+                        coroutineScope.launch {
+                            setter(title)
+                            drawerState.close()
+                        }
+                    },
                     value = title,
                 )
             }

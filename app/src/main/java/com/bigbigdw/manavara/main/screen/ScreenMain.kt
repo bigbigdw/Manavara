@@ -70,7 +70,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.bigbigdw.manavara.R
-import com.bigbigdw.manavara.best.event.StateBest
 import com.bigbigdw.manavara.best.screen.ScreenBest
 import com.bigbigdw.manavara.best.screen.ScreenBestPropertyList
 import com.bigbigdw.manavara.best.screen.ScreenDialogBest
@@ -90,7 +89,6 @@ import com.bigbigdw.manavara.util.screen.BackOnPressedMobile
 import com.bigbigdw.manavara.util.screen.ItemTabletTitle
 import com.bigbigdw.manavara.util.screen.ScreenTest
 import com.bigbigdw.manavara.util.screen.TabletContentWrap
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import postFCMAlert
 
@@ -102,11 +100,8 @@ fun ScreenMain(
     viewModelBest: ViewModelBest,
     needDataUpdate: Boolean
 ) {
-    Log.d("RECOMPOSE", "-----------------")
-    Log.d("RECOMPOSE", "1")
 
     val mainState by remember { derivedStateOf { viewModelMain.state } }
-    val bestState by remember { derivedStateOf { viewModelBest.state } }
 
     LaunchedEffect(viewModelMain) {
         viewModelMain.setUserInfo()
@@ -128,7 +123,6 @@ fun ScreenMain(
 
                 ScreenBestPropertyList(
                     viewModelBest = viewModelBest,
-                    bestState = bestState,
                     listState = listState,
                     isExpandedScreen = isExpandedScreen,
                     drawerState = drawerState
@@ -144,7 +138,6 @@ fun ScreenMain(
                     needDataUpdate = needDataUpdate,
                     viewModelMain = viewModelMain,
                     viewModelBest = viewModelBest,
-                    bestState = bestState,
                 )
             }
 
@@ -152,12 +145,11 @@ fun ScreenMain(
             ScreenMainTablet(
                 currentRoute = currentRoute,
                 navController = navController,
+                viewModelMain = viewModelMain,
                 isExpandedScreen = isExpandedScreen,
+                viewModelBest = viewModelBest,
                 listState = listState,
                 needDataUpdate = needDataUpdate,
-                viewModelMain = viewModelMain,
-                viewModelBest = viewModelBest,
-                bestState = bestState,
                 drawerState = drawerState
             )
             BackOnPressed()
@@ -175,7 +167,6 @@ fun ScreenMainTablet(
     viewModelBest: ViewModelBest,
     listState: LazyListState,
     needDataUpdate: Boolean,
-    bestState: StateFlow<StateBest>,
     drawerState: DrawerState,
 ) {
 
@@ -189,7 +180,6 @@ fun ScreenMainTablet(
             listState = listState,
             viewModelMain = viewModelMain,
             viewModelBest = viewModelBest,
-            bestState = bestState,
             drawerState = drawerState
         )
     }
@@ -206,9 +196,8 @@ fun ScreenMainMobile(
     needDataUpdate: Boolean,
     viewModelMain: ViewModelMain,
     viewModelBest: ViewModelBest,
-    bestState: StateFlow<StateBest>,
 ) {
-    val state = bestState.collectAsState().value
+    val state = viewModelBest.state.collectAsState().value
 
     val modalSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
@@ -244,7 +233,6 @@ fun ScreenMainMobile(
                 listState = listState,
                 viewModelMain = viewModelMain,
                 viewModelBest = viewModelBest,
-                bestState = bestState,
                 drawerState = drawerState
             )
         }
@@ -315,7 +303,11 @@ fun TopbarMain(
                 )
 
                 Text(
-                    text = "${changePlatformNameKor(state.platform)} 베스트",
+                    text = if (state.bestType == "USER_OPTION") {
+                        "유저 옵션"
+                    } else {
+                        "${changePlatformNameKor(state.platform)} 베스트"
+                    },
                     fontSize = 20.sp,
                     textAlign = TextAlign.Left,
                     color = color000000,
@@ -328,7 +320,9 @@ fun TopbarMain(
 
         if(state.bestType != "USER_OPTION"){
             Text(
-                modifier = Modifier.clickable { viewModelBest.setBest(bestType = "TODAY_BEST") },
+                modifier = Modifier.clickable {
+                    viewModelBest.setBest(bestType = "TODAY_BEST")
+                },
                 text = "투데이",
                 fontSize = 18.sp,
                 textAlign = TextAlign.Left,
@@ -347,7 +341,9 @@ fun TopbarMain(
             )
 
             Text(
-                modifier = Modifier.clickable { viewModelBest.setBest(bestType = "WEEK_BEST") },
+                modifier = Modifier.clickable {
+                    viewModelBest.setBest(bestType = "WEEK_BEST")
+                },
                 text = "주간",
                 fontSize = 18.sp,
                 textAlign = TextAlign.Left,
@@ -366,7 +362,9 @@ fun TopbarMain(
             )
 
             Text(
-                modifier = Modifier.clickable { viewModelBest.setBest(bestType = "MONTH_BEST") },
+                modifier = Modifier.clickable {
+                    viewModelBest.setBest(bestType = "MONTH_BEST")
+                },
                 text = "월간",
                 fontSize = 18.sp,
                 textAlign = TextAlign.Left,
@@ -446,9 +444,10 @@ fun NavigationGraph(
     listState: LazyListState,
     viewModelMain: ViewModelMain,
     viewModelBest: ViewModelBest,
-    bestState: StateFlow<StateBest>,
     drawerState: DrawerState,
 ) {
+
+    val state = viewModelBest.state.collectAsState().value
 
     NavHost(
         navController = navController,
@@ -456,15 +455,13 @@ fun NavigationGraph(
     ) {
         composable(ScreemBottomItem.NOVEL.screenRoute) {
 
-            if (!novelListEng().contains(bestState.collectAsState().value.platform)) {
+            if (!novelListEng().contains(state.platform) && state.bestType != "USER_OPTION") {
                 viewModelBest.setBest(
                     type = "NOVEL",
                     platform = "JOARA",
                     bestType = "TODAY_BEST",
                     menu = changePlatformNameKor("JOARA")
                 )
-            } else {
-                viewModelBest.setBest(type = "NOVEL")
             }
 
             ScreenBest(
@@ -473,13 +470,12 @@ fun NavigationGraph(
                 modalSheetState = modalSheetState,
                 needDataUpdate = needDataUpdate,
                 viewModelBest = viewModelBest,
-                bestState = bestState,
                 drawerState = drawerState
             )
         }
         composable(ScreemBottomItem.COMIC.screenRoute) {
 
-            if (!novelListEng().contains(bestState.collectAsState().value.platform)) {
+            if (!novelListEng().contains(state.platform)) {
                 viewModelBest.setBest(
                     type = "COMIC",
                     platform = "NAVER_SERIES",
@@ -496,7 +492,6 @@ fun NavigationGraph(
                 modalSheetState = modalSheetState,
                 needDataUpdate = needDataUpdate,
                 viewModelBest = viewModelBest,
-                bestState = bestState,
                 drawerState = drawerState
             )
         }

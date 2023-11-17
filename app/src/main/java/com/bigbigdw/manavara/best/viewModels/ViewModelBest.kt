@@ -105,22 +105,6 @@ class ViewModelBest @Inject constructor() : ViewModel() {
                 )
             }
 
-            is EventBest.SetPlatform -> {
-                current.copy(platform = event.platform)
-            }
-
-            is EventBest.SetBestType -> {
-                current.copy(bestType = event.bestType)
-            }
-
-            is EventBest.SetType -> {
-                current.copy(type = event.type)
-            }
-
-            is EventBest.SetMenu -> {
-                current.copy(menu = event.menu)
-            }
-
             is EventBest.SetBest -> {
                 current.copy(platform = event.platform, bestType = event.bestType, type = event.type, menu = event.menu)
             }
@@ -928,30 +912,6 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         })
     }
 
-    fun setPlatform(platform : String){
-        viewModelScope.launch {
-            events.send(EventBest.SetPlatform(platform = platform))
-        }
-    }
-
-    fun setMenu(menu : String){
-        viewModelScope.launch {
-            events.send(EventBest.SetMenu(menu = menu))
-        }
-    }
-
-    fun setBestType(bestType : String){
-        viewModelScope.launch {
-            events.send(EventBest.SetBestType(bestType = bestType))
-        }
-    }
-
-    fun setType(type : String){
-        viewModelScope.launch {
-            events.send(EventBest.SetType(type = type))
-        }
-    }
-
     fun setBest(
         platform: String = state.value.platform,
         menu: String = state.value.menu,
@@ -959,6 +919,9 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         type: String = state.value.type
     ) {
         viewModelScope.launch {
+
+            Log.d("SETBEST", "platform = $platform | menu = $menu | bestType = $bestType | type = $type")
+
             events.send(EventBest.SetBest(platform = platform, menu = menu, bestType = bestType, type = type))
         }
     }

@@ -54,7 +54,6 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.ActivityBestDetail
-import com.bigbigdw.manavara.best.event.StateBest
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.viewModels.ViewModelBest
@@ -74,7 +73,6 @@ import com.bigbigdw.manavara.util.screen.spannableString
 import com.bigbigdw.manavara.util.weekList
 import com.bigbigdw.manavara.util.weekListAll
 import com.bigbigdw.manavara.util.weekListOneWord
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -86,13 +84,12 @@ fun ScreenTodayBest(
     setDialogOpen: ((Boolean) -> Unit)?,
     needDataUpdate: Boolean,
     viewModelBest: ViewModelBest,
-    bestState: StateFlow<StateBest>,
 ) {
 
     val context = LocalContext.current
-    val state = bestState.collectAsState().value
+    val state = viewModelBest.state.collectAsState().value
 
-    LaunchedEffect(viewModelBest) {
+    LaunchedEffect(state.platform) {
         viewModelBest.getBestListTodayJson(
             context = context,
             needDataUpdate = needDataUpdate
@@ -278,11 +275,10 @@ fun ScreenTodayWeek(
     setDialogOpen: ((Boolean) -> Unit)?,
     needDataUpdate: Boolean,
     viewModelBest: ViewModelBest,
-    bestState: StateFlow<StateBest>,
 ) {
 
     val context = LocalContext.current
-    val state = bestState.collectAsState().value
+    val state = viewModelBest.state.collectAsState().value
     val (getDate, setDate) = remember { mutableStateOf("전체") }
     val listState = rememberLazyListState()
 
@@ -442,10 +438,9 @@ fun ScreenTodayMonth(
     setDialogOpen: ((Boolean) -> Unit)?,
     needDataUpdate: Boolean,
     viewModelBest: ViewModelBest,
-    bestState: StateFlow<StateBest>,
 ) {
 
-    val state = bestState.collectAsState().value
+    val state = viewModelBest.state.collectAsState().value
     val (getDate, setDate) = remember { mutableStateOf("전체") }
     val listState = rememberLazyListState()
     val monthList = state.monthList

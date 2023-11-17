@@ -55,27 +55,11 @@ sealed interface EventBest{
         val itemBookInfo : ItemBookInfo = ItemBookInfo()
     ) : EventBest
 
-    class SetPlatform(
-        val platform : String = novelListEng()[0],
-    ) : EventBest
-
-    class SetBestType(
-        val bestType : String = "TODAY_BEST",
-    ) : EventBest
-
-    class SetType(
-        val type : String = "NOVEL",
-    ) : EventBest
-
-    class SetMenu(
-        val menu : String = "TODAY"
-    ) : EventBest
-
     class SetBest(
-        val platform : String = novelListEng()[0],
-        val bestType : String = "TODAY_BEST",
-        val type : String = "NOVEL",
-        val menu : String = "TODAY"
+        val platform : String = "",
+        val bestType : String = "",
+        val type : String = "",
+        val menu : String = "",
     ) : EventBest
 }
 

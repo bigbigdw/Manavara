@@ -22,9 +22,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
@@ -52,8 +50,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.ActivityBestDetail
-import com.bigbigdw.manavara.best.event.StateBest
-import com.bigbigdw.manavara.main.screen.ScreenBestDBListNovel
 import com.bigbigdw.manavara.best.viewModels.ViewModelBest
 import com.bigbigdw.manavara.main.screen.ScreenUser
 import com.bigbigdw.manavara.ui.theme.color000000
@@ -66,6 +62,7 @@ import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorF7F7F7
 import com.bigbigdw.manavara.util.changeDetailNameKor
 import com.bigbigdw.manavara.util.changePlatformNameEng
+import com.bigbigdw.manavara.util.changePlatformNameKor
 import com.bigbigdw.manavara.util.comicListKor
 import com.bigbigdw.manavara.util.getPlatformColor
 import com.bigbigdw.manavara.util.getPlatformDescription
@@ -74,7 +71,6 @@ import com.bigbigdw.manavara.util.novelListKor
 import com.bigbigdw.manavara.util.screen.AlertTwoBtn
 import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
 import com.bigbigdw.manavara.util.screen.TabletBorderLine
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
@@ -85,12 +81,11 @@ fun ScreenBest(
     modalSheetState: ModalBottomSheetState? = null,
     needDataUpdate: Boolean,
     viewModelBest: ViewModelBest,
-    bestState: StateFlow<StateBest>,
     drawerState: DrawerState,
 ) {
 
     val context = LocalContext.current
-    val state = bestState.collectAsState().value
+    val state = viewModelBest.state.collectAsState().value
     val item = state.itemBookInfo
 
     Box(
@@ -132,7 +127,6 @@ fun ScreenBest(
 
                 ScreenBestPropertyList(
                     viewModelBest = viewModelBest,
-                    bestState = bestState,
                     listState = listState,
                     isExpandedScreen = isExpandedScreen,
                     drawerState = drawerState,
@@ -150,7 +144,6 @@ fun ScreenBest(
                     setDialogOpen = setDialogOpen,
                     needDataUpdate = needDataUpdate,
                     viewModelBest = viewModelBest,
-                    bestState = bestState,
 
                     )
 
@@ -159,11 +152,9 @@ fun ScreenBest(
                 ScreenMainBestItemDetail(
                     modalSheetState = modalSheetState,
                     setDialogOpen = null,
-                    isExpandedScreen = isExpandedScreen,
                     needDataUpdate = needDataUpdate,
                     listState = listState,
-                    viewModelBest = viewModelBest,
-                    bestState = bestState
+                    viewModelBest = viewModelBest
                 )
 
             }
@@ -175,14 +166,13 @@ fun ScreenBest(
 @Composable
 fun ScreenBestPropertyList(
     viewModelBest: ViewModelBest,
-    bestState: StateFlow<StateBest>,
     listState: LazyListState,
     isExpandedScreen: Boolean,
     drawerState: DrawerState,
 ) {
 
     val coroutineScope = rememberCoroutineScope()
-    val state = bestState.collectAsState().value
+    val state = viewModelBest.state.collectAsState().value
 
     if (isExpandedScreen) {
         LazyColumn(
@@ -272,7 +262,8 @@ fun ScreenBestPropertyList(
                     comicListKor()
                 }
             ) { _, item ->
-                ItemBestListSingle(containerColor = getPlatformColor(item),
+                ItemBestListSingle(
+                    containerColor = getPlatformColor(item),
                     image = getPlatformLogo(item),
                     title = item,
                     body = getPlatformDescription(item),
@@ -280,7 +271,7 @@ fun ScreenBestPropertyList(
                     onClick = {
                         coroutineScope.launch {
                             viewModelBest.setBest(
-                                platform = changePlatformNameEng(item), menu = item
+                                platform = changePlatformNameEng(item)
                             )
                             listState.scrollToItem(index = 0)
                             drawerState.close()
@@ -307,13 +298,13 @@ fun ScreenBestPropertyList(
                     title = "유저 옵션",
                     body = "마나바라 유저 옵션",
                     current = state.bestType,
+                    value = "USER_OPTION",
                     onClick = {
                         coroutineScope.launch {
-                            viewModelBest.setBest(menu = "USER_OPTION")
+                            viewModelBest.setBest(bestType = "USER_OPTION", platform = "USER_OPTION")
                             drawerState.close()
                         }
                     },
-                    value = "USER_OPTION",
                 )
             }
 
@@ -326,16 +317,21 @@ fun ScreenBestPropertyList(
                     comicListKor()
                 }
             ) { _, item ->
-                ItemBestListSingle(containerColor = getPlatformColor(item),
+                ItemBestListSingle(
+                    containerColor = getPlatformColor(item),
                     image = getPlatformLogo(item),
                     title = item,
                     body = getPlatformDescription(item),
-                    current = state.menu,
+                    current = changePlatformNameKor(state.platform),
                     onClick = {
                         coroutineScope.launch {
-                            viewModelBest.setBest(
-                                platform = changePlatformNameEng(item), menu = item
-                            )
+
+                            if(state.bestType == "USER_OPTION"){
+                                viewModelBest.setBest(platform = changePlatformNameEng(item), bestType = "TODAY_BEST")
+                            } else {
+                                viewModelBest.setBest(platform = changePlatformNameEng(item))
+                            }
+
                             listState.scrollToItem(index = 0)
                             drawerState.close()
                         }
@@ -431,10 +427,9 @@ fun ScreenMainBestDetail(
     setDialogOpen: (Boolean) -> Unit,
     needDataUpdate: Boolean,
     viewModelBest: ViewModelBest,
-    bestState: StateFlow<StateBest>,
 ) {
 
-    val state = bestState.collectAsState().value
+    val state = viewModelBest.state.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -467,11 +462,9 @@ fun ScreenMainBestDetail(
         ScreenMainBestItemDetail(
             modalSheetState = null,
             setDialogOpen = setDialogOpen,
-            isExpandedScreen = false,
             needDataUpdate = needDataUpdate,
             listState = listState,
             viewModelBest = viewModelBest,
-            bestState = bestState,
         )
     }
 }
@@ -481,18 +474,14 @@ fun ScreenMainBestDetail(
 fun ScreenMainBestItemDetail(
     modalSheetState: ModalBottomSheetState? = null,
     setDialogOpen: ((Boolean) -> Unit)?,
-    isExpandedScreen: Boolean,
     needDataUpdate: Boolean,
     listState: LazyListState,
     viewModelBest: ViewModelBest,
-    bestState: StateFlow<StateBest>,
 ) {
 
-    val state = bestState.collectAsState().value
+    val state = viewModelBest.state.collectAsState().value
 
-    if (state.bestType.isEmpty() && isExpandedScreen) {
-        ScreenBestDBListNovel(type = "NOVEL")
-    } else if (state.bestType.contains("TODAY_BEST")) {
+    if (state.bestType.contains("TODAY_BEST")) {
 
         Spacer(modifier = Modifier.size(16.dp))
 
@@ -502,7 +491,6 @@ fun ScreenMainBestItemDetail(
             setDialogOpen = setDialogOpen,
             needDataUpdate = needDataUpdate,
             viewModelBest = viewModelBest,
-            bestState = bestState,
         )
 
     } else if (state.bestType.contains("WEEK_BEST")) {
@@ -513,8 +501,7 @@ fun ScreenMainBestItemDetail(
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen,
             needDataUpdate = needDataUpdate,
-            viewModelBest = viewModelBest,
-            bestState = bestState
+            viewModelBest = viewModelBest
         )
 
     } else if (state.bestType.contains("MONTH_BEST")) {
@@ -525,8 +512,7 @@ fun ScreenMainBestItemDetail(
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen,
             needDataUpdate = needDataUpdate,
-            viewModelBest = viewModelBest,
-            bestState = bestState
+            viewModelBest = viewModelBest
         )
 
     } else if (state.bestType.contains("USER_OPTION")) {

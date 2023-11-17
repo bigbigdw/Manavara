@@ -135,10 +135,10 @@ fun changePlatformNameEng(platform : String) : String {
         "시리즈" -> {
             "NAVER_SERIES"
         }
-        "네이버 웹소설 유료" -> {
+        "네이버 유료" -> {
             "NAVER_WEBNOVEL_PAY"
         }
-        "네이버 웹소설 무료" -> {
+        "네이버 무료" -> {
             "NAVER_WEBNOVEL_FREE"
         }
         "리디 판타지" -> {
@@ -147,7 +147,7 @@ fun changePlatformNameEng(platform : String) : String {
         "리디 로맨스" -> {
             "RIDI_ROMANCE"
         }
-        "리디 로맨스 판타지" -> {
+        "리디 로판" -> {
             "RIDI_ROFAN"
         }
         "스테이지" -> {
@@ -159,10 +159,10 @@ fun changePlatformNameEng(platform : String) : String {
         "원스토리 로맨스" -> {
             "ONESTORY_ROMANCE"
         }
-        "원스토리 PASS 판타지" -> {
+        "PASS 판타지" -> {
             "ONESTORY_PASS_FANTAGY"
         }
-        "원스토리 PASS 로맨스" -> {
+        "PASS 로맨스" -> {
             "ONESTORY_PASS_ROMANCE"
         }
         "문피아 유료" -> {
@@ -246,7 +246,7 @@ fun changePlatformNameKor(platform : String) : String {
             "톡소다 자유연재"
         }
         else -> {
-            "조아라"
+            platform
         }
     }
 }
