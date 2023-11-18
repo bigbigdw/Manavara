@@ -1,5 +1,6 @@
 package com.bigbigdw.moavara.Retrofit
 
+import com.bigbigdw.manavara.retrofit.api.ApiRidi
 import com.bigbigdw.moavara.Retrofit.Api.*
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

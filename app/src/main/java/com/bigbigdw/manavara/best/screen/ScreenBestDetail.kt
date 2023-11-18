@@ -161,7 +161,7 @@ fun ScreenBestDetail(
                     ) {
                         Button(
                             colors = ButtonDefaults.buttonColors(containerColor = color8F8F8F),
-
+                            shape = RoundedCornerShape(0.dp),
                             onClick = {  },
                             modifier = Modifier
                                 .weight(1f)
@@ -179,6 +179,7 @@ fun ScreenBestDetail(
 
                         Button(
                             colors = ButtonDefaults.buttonColors(containerColor = color20459E),
+                            shape = RoundedCornerShape(0.dp),
                             onClick = {
                                 viewModelBestDetail.gotoUrl(
                                     platform = platform,
@@ -484,6 +485,8 @@ fun ScreenBestItemDetailTabItem(
     type: String
 ) {
 
+    val state = viewModelBestDetail.state.collectAsState().value
+
     if (getMenu == "작품 상세" && !isExpandedScreen) {
 
         ScreenBestDetailInfo(item = item)
@@ -516,6 +519,7 @@ fun ScreenBestItemDetailTabItem(
                 viewModelBestDetail.setOtherBooks(
                     platform = platform,
                     bookCode = bookCode,
+                    writerLink = state.itemBestDetailInfo.writerLink,
                     context = context
                 )
             }

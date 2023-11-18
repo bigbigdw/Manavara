@@ -1,4 +1,4 @@
-package com.bigbigdw.manavara.main.screen
+package com.bigbigdw.manavara.manavara.screen
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
@@ -21,8 +21,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
@@ -60,15 +60,17 @@ import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.screen.ScreenDialogBest
 import com.bigbigdw.manavara.best.models.ItemKeyword
 import com.bigbigdw.manavara.best.viewModels.ViewModelBest
-import com.bigbigdw.manavara.main.viewModels.ViewModelMain
+import com.bigbigdw.manavara.manavara.viewModels.ViewModelManavara
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color1CE3EE
+import com.bigbigdw.manavara.ui.theme.color1E4394
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color21C2EC
 import com.bigbigdw.manavara.ui.theme.color31C3AE
 import com.bigbigdw.manavara.ui.theme.color4AD7CF
 import com.bigbigdw.manavara.ui.theme.color536FD2
 import com.bigbigdw.manavara.ui.theme.color5372DE
+import com.bigbigdw.manavara.ui.theme.color555b68
 import com.bigbigdw.manavara.ui.theme.color64C157
 import com.bigbigdw.manavara.ui.theme.color7C81FF
 import com.bigbigdw.manavara.ui.theme.color998DF9
@@ -101,33 +103,26 @@ import getBookCount
 @Composable
 fun ScreenManavara(
     isExpandedScreen: Boolean,
-    viewModelBest: ViewModelBest,
-    viewModelMain: ViewModelMain,
-    setMenu: (String) -> Unit,
-    getMenu: String,
-    setPlatform: (String) -> Unit,
-    getPlatform: String,
-    getType: String,
-    listState: LazyListState,
-    setBestType: (String) -> Unit,
-    getBestType: String,
     modalSheetState: ModalBottomSheetState? = null,
+    viewModelManavara: ViewModelManavara,
 ) {
 
     val context = LocalContext.current
 
-    LaunchedEffect(getPlatform,getType){
-        viewModelBest.getBestListTodayStorage(
+    val state = viewModelManavara.state.collectAsState().value
+
+    LaunchedEffect(state.platform, state.type) {
+        viewModelManavara.getBestListTodayStorage(
             context = context,
         )
 
-        viewModelBest.getBestWeekTrophy()
+        viewModelManavara.getBestWeekTrophy()
 
-        viewModelBest.getBestWeekListStorage(context)
+        viewModelManavara.getBestWeekListStorage(context)
 
-        viewModelBest.getBestMonthTrophy()
+        viewModelManavara.getBestMonthTrophy()
 
-        viewModelBest.getBestMonthListStorage(context)
+        viewModelManavara.getBestMonthListStorage(context)
     }
 
     Box(
@@ -154,8 +149,8 @@ fun ScreenManavara(
                             contents = {
                                 if (modalSheetState != null) {
                                     ScreenDialogBest(
-                                        item = viewModelBest.state.collectAsState().value.itemBookInfo,
-                                        trophy = viewModelBest.state.collectAsState().value.itemBestInfoTrophyList,
+                                        item = viewModelManavara.state.collectAsState().value.itemBookInfo,
+                                        trophy = viewModelManavara.state.collectAsState().value.itemBestInfoTrophyList,
                                         isExpandedScreen = isExpandedScreen,
                                         currentRoute = "NOVEL",
                                         modalSheetState = modalSheetState
@@ -166,15 +161,8 @@ fun ScreenManavara(
                 }
 
                 ScreenManavaraPropertyList(
-                    setMenu = setMenu,
-                    getMenu = getMenu,
-                    setPlatform = setPlatform,
-                    listState = listState,
-                    isExpandedScreen = isExpandedScreen,
-                    setBestType = setBestType,
-                    getBestType = getBestType,
-                    getType = getType
-                ) {}
+                    viewModelManavara = viewModelManavara,
+                )
 
                 Spacer(
                     modifier = Modifier
@@ -184,30 +172,13 @@ fun ScreenManavara(
                 )
 
                 ScreenManavaDetail(
-                    getMenu = getMenu,
-                    viewModelMain = viewModelMain,
-                    getType = getType,
-                    viewModelBest = viewModelBest,
-                    isExpandedScreen = isExpandedScreen,
-                    listState = listState,
-                    setDialogOpen = setDialogOpen,
-                    getBestType = getBestType,
-                    getPlatform = getPlatform
+                    viewModelManavara = viewModelManavara
                 )
 
             } else {
 
                 ScreenManavaraItemDetail(
-                    isExpandedScreen = isExpandedScreen,
-                    viewModelBest = viewModelBest,
-                    viewModelMain = viewModelMain,
-                    getPlatform = getPlatform,
-                    getType = getType,
-                    getMenu = getMenu,
-                    listState = listState,
-                    getBestType = getBestType,
-                    setDialogOpen = null,
-                    modalSheetState = modalSheetState
+                    viewModelManavara = viewModelManavara
                 )
             }
         }
@@ -216,16 +187,10 @@ fun ScreenManavara(
 
 @Composable
 fun ScreenManavaraPropertyList(
-    setMenu: (String) -> Unit,
-    getMenu: String,
-    setPlatform: (String) -> Unit,
-    listState: LazyListState,
-    isExpandedScreen: Boolean,
-    setBestType: (String) -> Unit,
-    getBestType: String,
-    getType: String,
-    onClick: () -> Unit,
+    viewModelManavara: ViewModelManavara,
 ) {
+
+    val state = viewModelManavara.state.collectAsState().value
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -242,10 +207,6 @@ fun ScreenManavaraPropertyList(
         Column {
             Spacer(modifier = Modifier.size(16.dp))
 
-            LaunchedEffect(getBestType){
-                setPlatform("JOARA")
-            }
-
             Text(
                 modifier = Modifier.padding(16.dp, 0.dp, 0.dp, 0.dp),
                 text = "마나바라 스페셜",
@@ -259,7 +220,7 @@ fun ScreenManavaraPropertyList(
                 image = R.drawable.icon_novel_wht,
                 title = "마나바라 베스트 웹소설 DB",
                 body = "마나바라에 기록된 베스트 웹소설 리스트",
-                current = getMenu,
+                current = state.menu,
                 onClick = {  },
                 value = "베스트 웹소설 DB"
             )
@@ -269,7 +230,7 @@ fun ScreenManavaraPropertyList(
                 image = R.drawable.icon_novel_wht,
                 title = "투데이 장르 베스트",
                 body = "플랫폼별 투데이 베스트 장르 리스트 보기",
-                current = getMenu,
+                current = state.menu,
                 onClick = {  },
                 value = "웹소설 투데이 장르"
             )
@@ -279,7 +240,7 @@ fun ScreenManavaraPropertyList(
                 image = R.drawable.icon_novel_wht,
                 title = "주간 장르 베스트",
                 body = "플랫폼별 주간 베스트 장르 리스트 보기",
-                current = getMenu,
+                current = state.menu,
                 onClick = {  },
                 value = "웹소설 주간 장르"
             )
@@ -289,7 +250,7 @@ fun ScreenManavaraPropertyList(
                 image = R.drawable.icon_novel_wht,
                 title = "월간 장르 베스트",
                 body = "플랫폼별 월간 베스트 장르 리스트 보기",
-                current = getMenu,
+                current = state.menu,
                 onClick = {  },
                 value = "웹소설 월간 장르"
             )
@@ -301,7 +262,7 @@ fun ScreenManavaraPropertyList(
                 image = R.drawable.icon_webtoon_wht,
                 title = "마나바라 베스트 웹툰 DB",
                 body = "마나바라에 기록된 웹툰 웹툰 리스트",
-                current = getMenu,
+                current = state.menu,
                 onClick = {  },
                 value = "베스트 웹툰 DB"
             )
@@ -311,7 +272,7 @@ fun ScreenManavaraPropertyList(
                 image = R.drawable.icon_webtoon_wht,
                 title = "투데이 웹툰 장르 베스트",
                 body = "플랫폼별 웹툰 베스트 장르 리스트 보기",
-                current = getMenu,
+                current = state.menu,
                 onClick = {  },
                 value = "웹툰 투데이 장르"
             )
@@ -321,7 +282,7 @@ fun ScreenManavaraPropertyList(
                 image = R.drawable.icon_webtoon_wht,
                 title = "주간 웹툰 장르 베스트",
                 body = "플랫폼별 웹툰 베스트 장르 리스트 보기",
-                current = getMenu,
+                current = state.menu,
                 onClick = {  },
                 value = "웹툰 주간 장르"
             )
@@ -331,7 +292,7 @@ fun ScreenManavaraPropertyList(
                 image = R.drawable.icon_webtoon_wht,
                 title = "월간 웹툰 장르 베스트",
                 body = "플랫폼별 월간 웹툰 베스트 장르 리스트 보기",
-                current = getMenu,
+                current = state.menu,
                 onClick = {  },
                 value = "웹툰 월간 장르"
             )
@@ -343,7 +304,7 @@ fun ScreenManavaraPropertyList(
                 image = R.drawable.icon_search_wht,
                 title = "작품 검색",
                 body = "플랫폼과 무관하게 작품 검색 진행",
-                current = getMenu,
+                current = state.menu,
                 onClick = {  },
                 value = "작품 검색",
             )
@@ -353,7 +314,7 @@ fun ScreenManavaraPropertyList(
                 image = R.drawable.icon_search_wht,
                 title = "북코드 검색",
                 body = "플랫폼과 무관하게 작품 검색 진행",
-                current = getMenu,
+                current = state.menu,
                 onClick = {  },
                 value = "북코드 검색",
             )
@@ -363,7 +324,7 @@ fun ScreenManavaraPropertyList(
                 image = R.drawable.icon_search_wht,
                 title = "웹소설 DB 검색",
                 body = "웹소설 DB 검색",
-                current = getMenu,
+                current = state.menu,
                 onClick = {  },
                 value = "웹소설 DB 검색",
             )
@@ -373,7 +334,7 @@ fun ScreenManavaraPropertyList(
                 image = R.drawable.icon_search_wht,
                 title = "웹툰 DB 검색",
                 body = "웹툰 DB 검색",
-                current = getMenu,
+                current = state.menu,
                 onClick = {  },
                 value = "웹툰 DB 검색",
             )
@@ -528,9 +489,9 @@ fun ScreenBestDBListNovel(isInit: Boolean = true, type: String) {
 
 @Composable
 fun GenreDetailJson(
-    viewModelBest: ViewModelBest,
     getDetailType: String,
-    menuType: String
+    menuType: String,
+    viewModelManavara: ViewModelManavara
 ) {
 
     val (getPlatform, setPlatform) = remember { mutableStateOf("JOARA") }
@@ -538,16 +499,16 @@ fun GenreDetailJson(
     LaunchedEffect(menuType, getPlatform) {
         when (menuType) {
             "투데이" -> {
-                viewModelBest.getJsonGenreList(platform = getPlatform, type = getDetailType)
+                viewModelManavara.getJsonGenreList(platform = getPlatform, type = getDetailType)
             }
             "주간" -> {
-                viewModelBest.getJsonGenreWeekList(
+                viewModelManavara.getJsonGenreWeekList(
                     platform = getPlatform,
                     type = getDetailType
                 )
             }
             else -> {
-                viewModelBest.getJsonGenreMonthList(
+                viewModelManavara.getJsonGenreMonthList(
                     platform = getPlatform,
                     type = getDetailType
                 )
@@ -555,7 +516,7 @@ fun GenreDetailJson(
         }
     }
 
-    val state = viewModelBest.state.collectAsState().value
+    val state = viewModelManavara.state.collectAsState().value
 
     Column(modifier = Modifier.padding(16.dp)) {
         LazyRow {
@@ -721,84 +682,69 @@ fun ListGenreToday(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScreenManavaraItemDetail(
-    isExpandedScreen: Boolean,
-    viewModelBest: ViewModelBest,
-    viewModelMain: ViewModelMain,
-    getPlatform: String,
-    getType: String,
-    listState: LazyListState,
-    getBestType: String,
-    getMenu: String,
-    modalSheetState: ModalBottomSheetState? = null,
-    setDialogOpen: ((Boolean) -> Unit)?,
+    viewModelManavara: ViewModelManavara,
 ) {
 
-    if (getMenu.contains("베스트 웹소설 DB")) {
+    val state = viewModelManavara.state.collectAsState().value
+
+    if (state.menu.contains("베스트 웹소설 DB")) {
         ScreenBestDBListNovel(isInit = false, type = "NOVEL")
-    } else if (getMenu.contains("베스트 웹툰 DB")) {
+    } else if (state.menu.contains("베스트 웹툰 DB")) {
         ScreenBestDBListNovel(isInit = false, type = "COMIC")
-    } else if (getMenu.contains("웹소설 투데이 장르")) {
+    } else if (state.menu.contains("웹소설 투데이 장르")) {
         GenreDetailJson(
-            viewModelBest = viewModelBest,
+            viewModelManavara = viewModelManavara,
             getDetailType = "NOVEL",
             menuType = "투데이"
         )
 
-    } else if (getMenu.contains("웹소설 주간 장르")) {
+    } else if (state.menu.contains("웹소설 주간 장르")) {
         GenreDetailJson(
-            viewModelBest = viewModelBest,
             getDetailType = "NOVEL",
-            menuType = "주간"
+            menuType = "주간",
+            viewModelManavara = viewModelManavara
         )
 
-    } else if (getMenu.contains("웹소설 월간 장르")) {
+    } else if (state.menu.contains("웹소설 월간 장르")) {
         GenreDetailJson(
-            viewModelBest = viewModelBest,
             getDetailType = "NOVEL",
-            menuType = "월간"
+            menuType = "월간",
+            viewModelManavara = viewModelManavara
         )
-    } else if (getMenu.contains("웹툰 투데이 장르")) {
+    } else if (state.menu.contains("웹툰 투데이 장르")) {
         GenreDetailJson(
-            viewModelBest = viewModelBest,
             getDetailType = "COMIC",
-            menuType = "투데이"
-        )
-
-    } else if (getMenu.contains("웹툰 주간 장르")) {
-        GenreDetailJson(
-            viewModelBest = viewModelBest,
-            getDetailType = "COMIC",
-            menuType = "주간"
+            menuType = "투데이",
+            viewModelManavara = viewModelManavara
         )
 
-    } else if (getMenu.contains("웹툰 월간 장르")) {
+    } else if (state.menu.contains("웹툰 주간 장르")) {
         GenreDetailJson(
-            viewModelBest = viewModelBest,
             getDetailType = "COMIC",
-            menuType = "월간"
+            menuType = "주간",
+            viewModelManavara = viewModelManavara
+        )
+
+    } else if (state.menu.contains("웹툰 월간 장르")) {
+        GenreDetailJson(
+            getDetailType = "COMIC",
+            menuType = "월간",
+            viewModelManavara = viewModelManavara
         )
     } else {
         ScreenBestDBListNovel(type = "NOVEL")
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("MutableCollectionMutableState")
 @Composable
 fun ScreenManavaDetail(
-    getMenu: String,
-    viewModelMain: ViewModelMain,
-    getType: String,
-    viewModelBest: ViewModelBest,
-    isExpandedScreen: Boolean,
-    listState: LazyListState,
-    setDialogOpen: (Boolean) -> Unit,
-    getBestType: String,
-    getPlatform: String
+    viewModelManavara: ViewModelManavara
 ) {
+
+    val state = viewModelManavara.state.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -806,7 +752,7 @@ fun ScreenManavaDetail(
             .background(color = colorF6F6F6)
     ) {
 
-        if(manavaraListKor().contains(getMenu)){
+        if(manavaraListKor().contains(state.menu)){
             Spacer(modifier = Modifier.size(16.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -821,7 +767,7 @@ fun ScreenManavaDetail(
                 Text(
                     modifier = Modifier
                         .padding(16.dp, 0.dp, 0.dp, 0.dp),
-                    text = changeDetailNameKor(getMenu),
+                    text = changeDetailNameKor(state.menu),
                     fontSize = 24.sp,
                     color = color000000,
                     fontWeight = FontWeight(weight = 700)
@@ -830,16 +776,112 @@ fun ScreenManavaDetail(
         }
 
         ScreenManavaraItemDetail(
-            isExpandedScreen = isExpandedScreen,
-            viewModelBest = viewModelBest,
-            viewModelMain = viewModelMain,
-            getPlatform = getPlatform,
-            getType = getType,
-            getMenu = getMenu,
-            listState = listState,
-            getBestType = getBestType,
-            setDialogOpen = setDialogOpen,
-            modalSheetState = null
+            viewModelManavara = viewModelManavara
         )
+    }
+}
+
+@Composable
+fun ScreenManavaraTopbar(viewModelBest : ViewModelBest, onClick: () -> Unit){
+    val state = viewModelBest.state.collectAsState().value
+
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .background(color = Color.White)
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+
+        Box(
+            modifier = Modifier.weight(1f)
+        ) {
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable { onClick() }) {
+                Image(
+                    painter = painterResource(id = R.drawable.icon_drawer),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .width(22.dp)
+                        .height(22.dp)
+                )
+
+                Spacer(
+                    modifier = Modifier.size(8.dp)
+                )
+
+                Text(
+                    text = "마나바라",
+                    fontSize = 20.sp,
+                    textAlign = TextAlign.Left,
+                    color = color000000,
+                    fontWeight = FontWeight.Bold
+                )
+
+            }
+
+        }
+
+        if (state.bestType != "USER_OPTION") {
+            androidx.compose.material.Text(
+                modifier = Modifier.clickable {
+                    viewModelBest.setBest(bestType = "TODAY_BEST")
+                },
+                text = "투데이",
+                fontSize = 18.sp,
+                textAlign = TextAlign.Left,
+                color = if (state.bestType.contains("TODAY_BEST")) {
+                    color1E4394
+                } else {
+                    color555b68
+                },
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .width(16.dp)
+            )
+
+            androidx.compose.material.Text(
+                modifier = Modifier.clickable {
+                    viewModelBest.setBest(bestType = "WEEK_BEST")
+                },
+                text = "주간",
+                fontSize = 18.sp,
+                textAlign = TextAlign.Left,
+                color = if (state.bestType.contains("WEEK_BEST")) {
+                    color1E4394
+                } else {
+                    color555b68
+                },
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .width(16.dp)
+            )
+
+            androidx.compose.material.Text(
+                modifier = Modifier.clickable {
+                    viewModelBest.setBest(bestType = "MONTH_BEST")
+                },
+                text = "월간",
+                fontSize = 18.sp,
+                textAlign = TextAlign.Left,
+                color = if (state.bestType.contains("MONTH_BEST")) {
+                    color1E4394
+                } else {
+                    color555b68
+                },
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
 }

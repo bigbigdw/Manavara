@@ -12,6 +12,7 @@ data class ItemBestComment(
 @Serializable
 data class ItemBestDetailInfo(
     var writer: String = "",
+    var writerLink: String = "",
     var title: String = "",
     var bookImg: String = "",
     var bookCode: String = "",

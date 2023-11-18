@@ -2,8 +2,10 @@ package com.bigbigdw.manavara.best.screen
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +21,7 @@ import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -33,6 +36,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -45,6 +49,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -53,8 +58,10 @@ import com.bigbigdw.manavara.best.ActivityBestDetail
 import com.bigbigdw.manavara.best.viewModels.ViewModelBest
 import com.bigbigdw.manavara.main.screen.ScreenUser
 import com.bigbigdw.manavara.ui.theme.color000000
+import com.bigbigdw.manavara.ui.theme.color1E4394
 import com.bigbigdw.manavara.ui.theme.color4AD7CF
 import com.bigbigdw.manavara.ui.theme.color5372DE
+import com.bigbigdw.manavara.ui.theme.color555b68
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
 import com.bigbigdw.manavara.ui.theme.color998DF9
 import com.bigbigdw.manavara.ui.theme.colorE9E9E9
@@ -149,6 +156,8 @@ fun ScreenBest(
                     viewModelBest = viewModelBest,
 
                     )
+
+                Log.d("RECOMPOSE???", "ScreenBest")
 
             } else {
 
@@ -480,9 +489,14 @@ fun ScreenMainBestItemDetail(
     viewModelBest: ViewModelBest,
 ) {
 
+    Log.d("RECOMPOSE???", "ScreenMainBestItemDetail")
+
     val state = viewModelBest.state.collectAsState().value
 
-    if (state.bestType.contains("TODAY_BEST")) {
+    val bestType = remember { derivedStateOf { state.bestType } }
+
+
+    if (bestType.value.contains("TODAY_BEST")) {
 
         Spacer(modifier = Modifier.size(16.dp))
 
@@ -494,7 +508,7 @@ fun ScreenMainBestItemDetail(
             viewModelBest = viewModelBest,
         )
 
-    } else if (state.bestType.contains("WEEK_BEST")) {
+    } else if (bestType.value.contains("WEEK_BEST")) {
 
         Spacer(modifier = Modifier.size(16.dp))
 
@@ -505,7 +519,7 @@ fun ScreenMainBestItemDetail(
             viewModelBest = viewModelBest
         )
 
-    } else if (state.bestType.contains("MONTH_BEST")) {
+    } else if (bestType.value.contains("MONTH_BEST")) {
 
         Spacer(modifier = Modifier.size(16.dp))
 
@@ -516,11 +530,120 @@ fun ScreenMainBestItemDetail(
             viewModelBest = viewModelBest
         )
 
-    } else if (state.bestType.contains("USER_OPTION")) {
+    } else if (bestType.value.contains("USER_OPTION")) {
 
         Spacer(modifier = Modifier.size(16.dp))
 
         ScreenUser()
 
+    }
+}
+
+@Composable
+fun ScreenBestTopbar(viewModelBest : ViewModelBest, onClick: () -> Unit){
+    val state = viewModelBest.state.collectAsState().value
+
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .background(color = Color.White)
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+
+        Box(
+            modifier = Modifier.weight(1f)
+        ) {
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable { onClick() }) {
+                Image(
+                    painter = painterResource(id = R.drawable.icon_drawer),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .width(22.dp)
+                        .height(22.dp)
+                )
+
+                Spacer(
+                    modifier = Modifier.size(8.dp)
+                )
+
+                androidx.compose.material.Text(
+                    text = if (state.bestType == "USER_OPTION") {
+                        "유저 옵션"
+                    } else {
+                        "${changePlatformNameKor(state.platform)} 베스트"
+                    },
+                    fontSize = 20.sp,
+                    textAlign = TextAlign.Left,
+                    color = color000000,
+                    fontWeight = FontWeight.Bold
+                )
+
+            }
+
+        }
+
+        if (state.bestType != "USER_OPTION") {
+            androidx.compose.material.Text(
+                modifier = Modifier.clickable {
+                    viewModelBest.setBest(bestType = "TODAY_BEST")
+                },
+                text = "투데이",
+                fontSize = 18.sp,
+                textAlign = TextAlign.Left,
+                color = if (state.bestType.contains("TODAY_BEST")) {
+                    color1E4394
+                } else {
+                    color555b68
+                },
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .width(16.dp)
+            )
+
+            androidx.compose.material.Text(
+                modifier = Modifier.clickable {
+                    viewModelBest.setBest(bestType = "WEEK_BEST")
+                },
+                text = "주간",
+                fontSize = 18.sp,
+                textAlign = TextAlign.Left,
+                color = if (state.bestType.contains("WEEK_BEST")) {
+                    color1E4394
+                } else {
+                    color555b68
+                },
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .width(16.dp)
+            )
+
+            androidx.compose.material.Text(
+                modifier = Modifier.clickable {
+                    viewModelBest.setBest(bestType = "MONTH_BEST")
+                },
+                text = "월간",
+                fontSize = 18.sp,
+                textAlign = TextAlign.Left,
+                color = if (state.bestType.contains("MONTH_BEST")) {
+                    color1E4394
+                } else {
+                    color555b68
+                },
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
 }

@@ -1,11 +1,11 @@
 package com.bigbigdw.manavara.main.screen
 
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import com.bigbigdw.manavara.util.screen.BtnMobile
@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -44,11 +43,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDrawerState
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,7 +56,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -71,10 +66,15 @@ import androidx.navigation.compose.rememberNavController
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.screen.ScreenBest
 import com.bigbigdw.manavara.best.screen.ScreenBestPropertyList
+import com.bigbigdw.manavara.best.screen.ScreenBestTopbar
 import com.bigbigdw.manavara.best.screen.ScreenDialogBest
 import com.bigbigdw.manavara.best.viewModels.ViewModelBest
 import com.bigbigdw.manavara.firebase.DataFCMBodyNotification
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
+import com.bigbigdw.manavara.manavara.screen.ScreenManavara
+import com.bigbigdw.manavara.manavara.screen.ScreenManavaraPropertyList
+import com.bigbigdw.manavara.manavara.screen.ScreenManavaraTopbar
+import com.bigbigdw.manavara.manavara.viewModels.ViewModelManavara
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color1E1E20
 import com.bigbigdw.manavara.ui.theme.color1E4394
@@ -82,7 +82,6 @@ import com.bigbigdw.manavara.ui.theme.color555b68
 import com.bigbigdw.manavara.ui.theme.color898989
 import com.bigbigdw.manavara.ui.theme.colorDCDCDD
 import com.bigbigdw.manavara.util.changePlatformNameKor
-import com.bigbigdw.manavara.util.novelListEng
 import com.bigbigdw.manavara.util.screen.BackOnPressed
 import com.bigbigdw.manavara.util.screen.BackOnPressedMobile
 import com.bigbigdw.manavara.util.screen.ItemTabletTitle
@@ -91,68 +90,71 @@ import com.bigbigdw.manavara.util.screen.TabletContentWrap
 import kotlinx.coroutines.launch
 import postFCMAlert
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenMain(
     viewModelMain: ViewModelMain,
-    widthSizeClass: WindowWidthSizeClass,
     viewModelBest: ViewModelBest,
-    needDataUpdate: Boolean
+    needDataUpdate: Boolean,
+    viewModelManavara: ViewModelManavara,
+    isExpandedScreen: Boolean
 ) {
-
-    val mainState by remember { derivedStateOf { viewModelMain.state } }
-
-    LaunchedEffect(viewModelMain) {
-        viewModelMain.setUserInfo()
-    }
 
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val isExpandedScreen = widthSizeClass == WindowWidthSizeClass.Expanded
-
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-
     val listState = rememberLazyListState()
 
-    if (mainState.collectAsState().value.userInfo.userEmail.isNotEmpty()) {
-        if (!isExpandedScreen) {
+    Log.d("RECOMPOSE???", "----------")
+    Log.d("RECOMPOSE???", "ScreenMain")
 
-            ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
+    if (isExpandedScreen) {
 
+        Log.d("RECOMPOSE???", "ScreenMainTablet")
+
+        ScreenMainTablet(
+            currentRoute = currentRoute,
+            navController = navController,
+            viewModelMain = viewModelMain,
+            isExpandedScreen = isExpandedScreen,
+            viewModelBest = viewModelBest,
+            listState = listState,
+            needDataUpdate = needDataUpdate,
+            drawerState = drawerState,
+            viewModelManavara = viewModelManavara
+        )
+        BackOnPressed()
+
+    } else {
+
+        ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
+
+            if(currentRoute == "NOVEL" || currentRoute == "COMIC"){
                 ScreenBestPropertyList(
                     viewModelBest = viewModelBest,
                     listState = listState,
                     isExpandedScreen = isExpandedScreen,
                     drawerState = drawerState
                 )
-
-            }) {
-                ScreenMainMobile(
-                    navController = navController,
-                    currentRoute = currentRoute,
-                    isExpandedScreen = isExpandedScreen,
-                    drawerState = drawerState,
-                    listState = listState,
-                    needDataUpdate = needDataUpdate,
-                    viewModelMain = viewModelMain,
-                    viewModelBest = viewModelBest,
+            } else if(currentRoute == "MANAVARA"){
+                ScreenManavaraPropertyList(
+                    viewModelManavara = viewModelManavara,
                 )
             }
 
-        } else {
-
-            ScreenMainTablet(
-                currentRoute = currentRoute,
+        }) {
+            ScreenMainMobile(
                 navController = navController,
-                viewModelMain = viewModelMain,
+                currentRoute = currentRoute,
                 isExpandedScreen = isExpandedScreen,
-                viewModelBest = viewModelBest,
+                drawerState = drawerState,
                 listState = listState,
                 needDataUpdate = needDataUpdate,
-                drawerState = drawerState
+                viewModelMain = viewModelMain,
+                viewModelBest = viewModelBest,
+                viewModelManavara = viewModelManavara
             )
-            BackOnPressed()
         }
     }
 }
@@ -168,10 +170,14 @@ fun ScreenMainTablet(
     listState: LazyListState,
     needDataUpdate: Boolean,
     drawerState: DrawerState,
+    viewModelManavara: ViewModelManavara,
 ) {
+
+    Log.d("RECOMPOSE???", "ScreenMainTablet")
 
     Row {
         TableAppNavRail(currentRoute = currentRoute ?: "", navController = navController)
+
         NavigationGraph(
             navController = navController,
             isExpandedScreen = isExpandedScreen,
@@ -180,7 +186,8 @@ fun ScreenMainTablet(
             listState = listState,
             viewModelMain = viewModelMain,
             viewModelBest = viewModelBest,
-            drawerState = drawerState
+            drawerState = drawerState,
+            viewModelManavara = viewModelManavara
         )
     }
 }
@@ -196,6 +203,7 @@ fun ScreenMainMobile(
     needDataUpdate: Boolean,
     viewModelMain: ViewModelMain,
     viewModelBest: ViewModelBest,
+    viewModelManavara: ViewModelManavara,
 ) {
     val state = viewModelBest.state.collectAsState().value
 
@@ -207,10 +215,31 @@ fun ScreenMainMobile(
 
     val coroutineScope = rememberCoroutineScope()
 
+    if(currentRoute == "NOVEL"){
+        if (state.type != "NOVEL") {
+            viewModelBest.setBest(
+                type = "NOVEL",
+                platform = "JOARA",
+                bestType = "TODAY_BEST",
+                menu = changePlatformNameKor("JOARA")
+            )
+        }
+    } else if(currentRoute == "COMIC"){
+        if (state.type != "COMIC") {
+            viewModelBest.setBest(
+                type = "COMIC",
+                platform = "NAVER_SERIES",
+                bestType = "TODAY_BEST",
+                menu = changePlatformNameKor("NAVER_SERIES")
+            )
+        }
+    }
+
     Scaffold(
         topBar = {
             TopbarMain(
-                viewModelBest = viewModelBest
+                viewModelBest = viewModelBest,
+                currentRoute = currentRoute
             ) {
                 coroutineScope.launch {
                     drawerState.open()
@@ -231,9 +260,10 @@ fun ScreenMainMobile(
                 modalSheetState = modalSheetState,
                 needDataUpdate = needDataUpdate,
                 listState = listState,
+                drawerState = drawerState,
                 viewModelMain = viewModelMain,
                 viewModelBest = viewModelBest,
-                drawerState = drawerState
+                viewModelManavara = viewModelManavara,
             )
         }
     }
@@ -270,114 +300,17 @@ fun ScreenMainMobile(
 @Composable
 fun TopbarMain(
     viewModelBest: ViewModelBest,
+    currentRoute: String?,
     setDrawer: (Boolean) -> Unit,
 ) {
 
-    val state = viewModelBest.state.collectAsState().value
-
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .background(color = Color.White)
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-
-        Box(
-            modifier = Modifier.weight(1f)
-        ) {
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable { setDrawer(true) }) {
-                Image(
-                    painter = painterResource(id = R.drawable.icon_drawer),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(22.dp)
-                        .height(22.dp)
-                )
-
-                Spacer(
-                    modifier = Modifier.size(8.dp)
-                )
-
-                Text(
-                    text = if (state.bestType == "USER_OPTION") {
-                        "유저 옵션"
-                    } else {
-                        "${changePlatformNameKor(state.platform)} 베스트"
-                    },
-                    fontSize = 20.sp,
-                    textAlign = TextAlign.Left,
-                    color = color000000,
-                    fontWeight = FontWeight.Bold
-                )
-
-            }
-
-        }
-
-        if(state.bestType != "USER_OPTION"){
-            Text(
-                modifier = Modifier.clickable {
-                    viewModelBest.setBest(bestType = "TODAY_BEST")
-                },
-                text = "투데이",
-                fontSize = 18.sp,
-                textAlign = TextAlign.Left,
-                color = if (state.bestType.contains("TODAY_BEST")) {
-                    color1E4394
-                } else {
-                    color555b68
-                },
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(
-                modifier = Modifier
-                    .wrapContentWidth()
-                    .width(16.dp)
-            )
-
-            Text(
-                modifier = Modifier.clickable {
-                    viewModelBest.setBest(bestType = "WEEK_BEST")
-                },
-                text = "주간",
-                fontSize = 18.sp,
-                textAlign = TextAlign.Left,
-                color = if (state.bestType.contains("WEEK_BEST")) {
-                    color1E4394
-                } else {
-                    color555b68
-                },
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(
-                modifier = Modifier
-                    .wrapContentWidth()
-                    .width(16.dp)
-            )
-
-            Text(
-                modifier = Modifier.clickable {
-                    viewModelBest.setBest(bestType = "MONTH_BEST")
-                },
-                text = "월간",
-                fontSize = 18.sp,
-                textAlign = TextAlign.Left,
-                color = if (state.bestType.contains("MONTH_BEST")) {
-                    color1E4394
-                } else {
-                    color555b68
-                },
-                fontWeight = FontWeight.Bold
-            )
-        }
+    if(currentRoute == "NOVEL" || currentRoute == "COMIC"){
+        ScreenBestTopbar(viewModelBest = viewModelBest, onClick = { setDrawer(true) })
+    } else if(currentRoute == "MANAVARA"){
+        ScreenManavaraTopbar(viewModelBest = viewModelBest, onClick = { setDrawer(true) })
     }
+
+
 }
 
 @Composable
@@ -446,9 +379,10 @@ fun NavigationGraph(
     viewModelMain: ViewModelMain,
     viewModelBest: ViewModelBest,
     drawerState: DrawerState,
+    viewModelManavara: ViewModelManavara,
 ) {
 
-    val state = viewModelBest.state.collectAsState().value
+    Log.d("RECOMPOSE???", "NavigationGraph")
 
     NavHost(
         navController = navController,
@@ -456,15 +390,6 @@ fun NavigationGraph(
     ) {
         composable(ScreemBottomItem.NOVEL.screenRoute) {
 
-            if (!novelListEng().contains(state.platform) && state.bestType != "USER_OPTION") {
-                viewModelBest.setBest(
-                    type = "NOVEL",
-                    platform = "JOARA",
-                    bestType = "TODAY_BEST",
-                    menu = changePlatformNameKor("JOARA")
-                )
-            }
-
             ScreenBest(
                 isExpandedScreen = isExpandedScreen,
                 listState = listState,
@@ -473,20 +398,11 @@ fun NavigationGraph(
                 viewModelBest = viewModelBest,
                 drawerState = drawerState
             )
+
+
         }
         composable(ScreemBottomItem.COMIC.screenRoute) {
 
-            if (!novelListEng().contains(state.platform)) {
-                viewModelBest.setBest(
-                    type = "COMIC",
-                    platform = "NAVER_SERIES",
-                    bestType = "TODAY_BEST",
-                    menu = changePlatformNameKor("NAVER_SERIES")
-                )
-            } else {
-                viewModelBest.setBest(type = "COMIC")
-            }
-
             ScreenBest(
                 isExpandedScreen = isExpandedScreen,
                 listState = listState,
@@ -495,27 +411,17 @@ fun NavigationGraph(
                 viewModelBest = viewModelBest,
                 drawerState = drawerState
             )
+
+            ScreenTest()
         }
         composable(ScreemBottomItem.MANAVARA.screenRoute) {
 
-//            setType("MANAVARA")
+            ScreenManavara(
+                isExpandedScreen = isExpandedScreen,
+                modalSheetState = modalSheetState,
+                viewModelManavara = viewModelManavara
+            )
 
-//            ScreenManavara(
-//                isExpandedScreen = isExpandedScreen,
-//                viewModelBest = viewModelBest,
-//                viewModelMain = viewModelMain,
-//                setMenu = setMenu,
-//                getMenu = getMenu,
-//                setPlatform = setPlatform,
-//                getPlatform = getPlatform,
-//                getType = getType,
-//                listState = listState,
-//                setBestType = setBestType,
-//                getBestType = getBestType,
-//                modalSheetState = modalSheetState
-//            )
-
-            ScreenTest()
         }
         composable(ScreemBottomItem.PICK.screenRoute) {
             ScreenTest()
@@ -566,7 +472,7 @@ fun TableAppNavRail(
                 ) {
                     Image(
                         contentScale = ContentScale.FillWidth,
-                        painter = painterResource(id = R.drawable.ic_launcher),
+                        painter = painterResource(id = R.drawable.logo_transparents),
                         contentDescription = null,
                         modifier = Modifier
                             .height(32.dp)

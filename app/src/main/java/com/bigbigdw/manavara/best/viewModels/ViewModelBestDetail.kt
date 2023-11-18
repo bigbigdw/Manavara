@@ -101,9 +101,9 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
 //            "Kakao_Stage" -> {
 //                setLayoutKaKaoStage()
 //            }
-//            "Ridi" -> {
-//                setLayoutRidi()
-//            }
+            "RIDI_FANTAGY", "RIDI_ROMANCE", "RIDI_ROFAN", -> {
+                setLayoutRidi(bookCode = bookCode, platform = platform)
+            }
 //            "OneStore" -> {
 //                setLayoutOneStory()
 //            }
@@ -264,6 +264,56 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
         }.start()
     }
 
+    private fun setLayoutRidi(bookCode: String, platform: String) {
+        Thread {
+
+            val doc: Document =
+                Jsoup.connect("https://ridibooks.com/books/${bookCode}").get()
+
+            val keywordList = arrayListOf<String>()
+
+            for(i in doc.select(".keyword_list li").indices){
+                keywordList.add(doc.select(".keyword_list li")[i].select(".keyword").text())
+            }
+
+            val bookImg = if(doc.select(".header_thumbnail_wrap").select(".thumbnail").attr("src").contains("cover_adult.png")){
+                doc.select(".header_thumbnail_wrap").select(".thumbnail").attr("src")
+            } else {
+                doc.select(".header_thumbnail_wrap").select(".thumbnail").attr("src").replace("//","https://")
+            }
+
+            val itemBestDetailInfo = ItemBestDetailInfo(
+                writer = doc.select(".header_info_wrap").select(".js_author_detail_link").text(),
+                writerLink = doc.select(".metadata_writer").select("a").attr("href").replace("/author","https://ridibooks.com/author"),
+                title = doc.select(".header_info_wrap").select("h1.info_title_wrap").text(),
+                bookImg = bookImg,
+                bookCode = bookCode,
+                intro = doc.select(".detail_introduce_book").select(".introduce_paragraph").text(),
+                cntFavorite = doc.select(".header_thumbnail_wrap").select(".js_preference_count").text(),
+                cntRecom = doc.select(".header_info_wrap").select(".StarRate_Score").text(),
+                cntPageRead = doc.select(".header_info_wrap").select(".StarRate_ParticipantCount").text(),
+                genre = doc.select(".header_info_wrap").select("a").first()?.text() ?: "",
+                cntChapter = doc.select(".header_info_wrap").select(".book_count").text(),
+                keyword = keywordList,
+                tabInfo = arrayListOf(
+                    "작가의 다른 작품",
+                    "평점 분석",
+                    "조회 분석",
+                    "랭킹 분석",
+                    "최근 분석",
+                ),
+                platform = platform
+            )
+
+            viewModelScope.launch {
+                events.send(
+                    EventBestDetail.SetItemBestDetailInfo(itemBestDetailInfo = itemBestDetailInfo)
+                )
+            }
+
+        }.start()
+    }
+
     fun setManavaraBestInfo(bookCode: String, type: String, platform: String) {
         val mRootRef =
             FirebaseDatabase.getInstance().reference.child("BOOK").child(type).child(platform)
@@ -350,7 +400,7 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
                 "https://series.naver.com/novel/detail.series?productNo=${bookCode}"
             }
 
-            "Ridi" -> {
+            "RIDI_FANTAGY", "RIDI_ROMANCE", "RIDI_ROFAN" -> {
                 "https://ridibooks.com/books/${bookCode}"
             }
 
@@ -442,13 +492,16 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
             })
     }
 
-    fun setOtherBooks(context: Context, bookCode: String, platform: String) {
+    fun setOtherBooks(context: Context, bookCode: String, platform: String, writerLink : String = "") {
         when (platform) {
             "JOARA", "JOARA_NOBLESS", "JOARA_PREMIUM" -> {
                 getOthersJoa(context = context, bookCode = bookCode, platform = platform)
             }
             "NAVER_WEBNOVEL_FREE", "NAVER_WEBNOVEL_PAY", "NAVER_BEST", "NAVER_CHALLENGE" -> {
                 getOtherNaverWebnovel(bookCode = bookCode, platform = platform, type = "OTHER")
+            }
+            "RIDI_FANTAGY", "RIDI_ROMANCE", "RIDI_ROFAN", -> {
+                getOtherRidi(bookCode = writerLink, platform = platform)
             }
 //            "Kakao" -> {
 //                getCommentsKakao()
@@ -562,6 +615,49 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
         }.start()
     }
 
+    private fun getOtherRidi(bookCode: String, platform: String) {
+        Thread {
+
+            val doc: Document = Jsoup.connect(bookCode).post()
+
+            val items = ArrayList<ItemBookInfo>()
+            val books = doc.select(".author_books_wrapper").select(".book_macro_landscape ")
+
+            for (i in books.indices) {
+
+                val bookImg = if(books[i].select(".thumbnail").attr("data-src").contains("cover_adult.png")){
+                    books[i].select(".thumbnail").attr("data-src")
+                } else {
+                    books[i].select(".thumbnail").attr("data-src").replace("//","https://")
+                }
+
+                if(!books[i].select("a").attr("href").contains("#")){
+                    items.add(
+                        ItemBookInfo(
+                            writer = books[i].select(".book_metadata_wrapper").select(".author").text(),
+                            title =  books[i].select(".book_metadata_wrapper").select(".title_text").text(),
+                            bookImg = bookImg,
+                            bookCode = books[i].select(".book_metadata_wrapper").attr("data-book-id"),
+                            cntPageRead = books[i].select(".book_metadata_wrapper").select(".StarRate_ParticipantCount").text(),
+                            cntRecom = books[i].select(".book_metadata_wrapper").select(".StarRate_Score").text(),
+                            cntFavorite = "",
+                            genre = books[i].select(".book_metadata_wrapper").select(".genre").text(),
+                            cntChapter = books[i].select(".book_metadata_wrapper").select(".count_num").text(),
+                            type = platform
+                        )
+                    )
+                }
+            }
+
+            viewModelScope.launch {
+                events.send(
+                    EventBestDetail.SetListBestOther(listBestOther = items)
+                )
+            }
+
+        }.start()
+    }
+
     fun setBestDetailRecom(platform: String, bookCode: String, context: Context) {
 
         when (platform) {
@@ -647,6 +743,7 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
             }
 
             viewModelScope.launch {
+
                 events.send(
                     EventBestDetail.SetListBestOther(listBestOther = items)
                 )
@@ -655,3 +752,29 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
         }.start()
     }
 }
+
+//val itemBestDetailInfo = ItemBestDetailInfo(
+//    writer = "",
+//    title = "",
+//    bookImg = "",
+//    bookCode = bookCode,
+//    intro = "",
+//    cntFavorite = "",
+//    cntRecom = "",
+//    cntPageRead = "",
+//    genre = "",
+//    cntChapter = "",
+//    keyword = keywordList,
+//    tabInfo = arrayListOf(),
+//    platform = platform
+//)
+
+//ItemBookInfo(
+//writer = "",
+//title = "",
+//bookImg = "",
+//bookCode = "",
+//cntRecom = "",
+//cntFavorite = "",
+//type = platform
+//)

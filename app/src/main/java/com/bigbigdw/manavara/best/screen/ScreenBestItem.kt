@@ -2,6 +2,7 @@ package com.bigbigdw.manavara.best.screen
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -38,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -91,7 +93,12 @@ fun ScreenTodayBest(
     val context = LocalContext.current
     val state = viewModelBest.state.collectAsState().value
 
-    LaunchedEffect(state.platform) {
+    Log.d("RECOMPOSE???", "ScreenTodayBest")
+
+    val platform = remember { derivedStateOf { state.platform } }
+    val type = remember { derivedStateOf { state.type } }
+
+    LaunchedEffect(state.platform, state.type) {
         viewModelBest.getBestListTodayJson(
             context = context,
             needDataUpdate = needDataUpdate
@@ -284,7 +291,7 @@ fun ScreenTodayWeek(
     val (getDate, setDate) = remember { mutableStateOf("전체") }
     val listState = rememberLazyListState()
 
-    LaunchedEffect(state.platform) {
+    LaunchedEffect(state.platform, state.type) {
         viewModelBest.getBestWeekListJson(context = context, needDataUpdate = needDataUpdate)
         viewModelBest.getBestWeekTrophy()
         viewModelBest.getBookMap()
@@ -463,7 +470,7 @@ fun ScreenTodayMonth(
         arrayList.add("${count}주차")
     }
 
-    LaunchedEffect(state.platform) {
+    LaunchedEffect(state.platform, state.type) {
         viewModelBest.getBestMonthTrophy()
         viewModelBest.getBestMonthListJson(context = context, needDataUpdate = needDataUpdate)
         viewModelBest.getBookMap()

@@ -1,14 +1,14 @@
-package com.bigbigdw.manavara.best.viewModels
+package com.bigbigdw.manavara.manavara.viewModels
 
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bigbigdw.manavara.best.event.EventBest
-import com.bigbigdw.manavara.best.event.StateBest
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.models.ItemKeyword
+import com.bigbigdw.manavara.manavara.event.EventManavara
+import com.bigbigdw.manavara.manavara.event.StateManavara
 import com.bigbigdw.manavara.util.DBDate
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -33,79 +33,79 @@ import java.nio.charset.Charset
 import java.util.Collections
 import javax.inject.Inject
 
-class ViewModelBest @Inject constructor() : ViewModel() {
+class ViewModelManavara @Inject constructor() : ViewModel() {
 
-    private val events = Channel<EventBest>()
+    private val events = Channel<EventManavara>()
 
-    val state: StateFlow<StateBest> = events.receiveAsFlow()
-        .runningFold(StateBest(), ::reduceState)
-        .stateIn(viewModelScope, SharingStarted.Eagerly, StateBest())
+    val state: StateFlow<StateManavara> = events.receiveAsFlow()
+        .runningFold(StateManavara(), ::reduceState)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, StateManavara())
 
     private val _sideEffects = Channel<String>()
 
     val sideEffects = _sideEffects.receiveAsFlow()
 
-    private fun reduceState(current: StateBest, event: EventBest): StateBest {
+    private fun reduceState(current: StateManavara, event: EventManavara): StateManavara {
         return when(event){
-            EventBest.Loaded -> {
+            EventManavara.Loaded -> {
                 current.copy(Loaded = true)
             }
 
-            is EventBest.SetItemBestInfoList -> {
+            is EventManavara.SetItemBestInfoList -> {
                 current.copy(itemBookInfoList = event.itemBookInfoList)
             }
 
-            is EventBest.SetItemBookInfoList -> {
+            is EventManavara.SetItemBookInfoList -> {
                 current.copy(itemBestInfoList = event.itemBestInfoList)
             }
 
-            is EventBest.SetWeekTrophyList -> {
+            is EventManavara.SetWeekTrophyList -> {
                 current.copy(weekTrophyList = event.weekTrophyList)
             }
 
-            is EventBest.SetItemBookInfoMap -> {
+            is EventManavara.SetItemBookInfoMap -> {
                 current.copy(itemBookInfoMap = event.itemBookInfoMap)
             }
 
-            is EventBest.SetWeekList -> {
+            is EventManavara.SetWeekList -> {
                 current.copy(weekList = event.weekList)
             }
 
-            is EventBest.SetMonthList -> {
+            is EventManavara.SetMonthList -> {
                 current.copy(monthList = event.monthList)
             }
 
-            is EventBest.SetMonthTrophyList -> {
+            is EventManavara.SetMonthTrophyList -> {
                 current.copy(monthTrophyList = event.monthTrophyList)
             }
 
-            is EventBest.SetGenreDay -> {
+            is EventManavara.SetGenreDay -> {
                 current.copy(
                     genreDay = event.genreDay
                 )
             }
 
-            is EventBest.SetGenreWeek -> {
+            is EventManavara.SetGenreWeek -> {
                 current.copy(
                     genreDay = event.genreDay,
                     genreDayList = event.genreDayList
                 )
             }
 
-            is EventBest.SetItemBookInfo -> {
+            is EventManavara.SetItemBookInfo -> {
                 current.copy(
                     itemBookInfo = event.itemBookInfo
                 )
             }
 
-            is EventBest.SetItemBestInfoTrophyList ->{
+            is EventManavara.SetItemBestInfoTrophyList ->{
                 current.copy(
                     itemBestInfoTrophyList = event.itemBestInfoTrophyList,
                     itemBookInfo = event.itemBookInfo
                 )
             }
 
-            is EventBest.SetBest -> {
+            is EventManavara.SetBest -> {
                 current.copy(platform = event.platform, bestType = event.bestType, type = event.type, menu = event.menu)
             }
 
@@ -135,7 +135,7 @@ class ViewModelBest @Inject constructor() : ViewModel() {
                 }
 
                 viewModelScope.launch {
-                    events.send(EventBest.SetItemBestInfoList(itemBookInfoList = todayJsonList))
+                    events.send(EventManavara.SetItemBestInfoList(itemBookInfoList = todayJsonList))
                 }
             } catch (e: Exception) {
                 getBestListTodayStorage(context = context)
@@ -145,12 +145,12 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         }
     }
 
-    private fun getBestListTodayStorage(context: Context){
+    fun getBestListTodayStorage(context: Context){
 
         val state = state.value
 
         viewModelScope.launch {
-            events.send(EventBest.SetItemBestInfoList(itemBookInfoList = ArrayList()))
+            events.send(EventManavara.SetItemBestInfoList(itemBookInfoList = ArrayList()))
         }
 
         val storage = Firebase.storage
@@ -170,7 +170,7 @@ class ViewModelBest @Inject constructor() : ViewModel() {
             }
 
             viewModelScope.launch {
-                events.send(EventBest.SetItemBestInfoList(itemBookInfoList = todayJsonList))
+                events.send(EventManavara.SetItemBestInfoList(itemBookInfoList = todayJsonList))
             }
         }.addOnFailureListener {
             getBestList()
@@ -202,7 +202,7 @@ class ViewModelBest @Inject constructor() : ViewModel() {
                     }
 
                     viewModelScope.launch {
-                        events.send(EventBest.SetItemBestInfoList(itemBookInfoList = bestList))
+                        events.send(EventManavara.SetItemBestInfoList(itemBookInfoList = bestList))
                     }
 
                 }
@@ -222,7 +222,7 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         val weekTrophyFile = weekTrophyRef.getBytes(1024 * 1024)
 
         viewModelScope.launch {
-            events.send(EventBest.SetWeekTrophyList(weekTrophyList = ArrayList()))
+            events.send(EventManavara.SetWeekTrophyList(weekTrophyList = ArrayList()))
         }
 
         weekTrophyFile.addOnSuccessListener { bytes ->
@@ -241,7 +241,7 @@ class ViewModelBest @Inject constructor() : ViewModel() {
             }
 
             viewModelScope.launch {
-                events.send(EventBest.SetWeekTrophyList(weekTrophyList = weekJsonList))
+                events.send(EventManavara.SetWeekTrophyList(weekTrophyList = weekJsonList))
             }
         }
     }
@@ -269,7 +269,7 @@ class ViewModelBest @Inject constructor() : ViewModel() {
                     }
 
                     viewModelScope.launch {
-                        events.send(EventBest.SetItemBookInfoMap(itemBookInfoMap = itemMap))
+                        events.send(EventManavara.SetItemBookInfoMap(itemBookInfoMap = itemMap))
                     }
 
                 }
@@ -316,7 +316,7 @@ class ViewModelBest @Inject constructor() : ViewModel() {
                 }
 
                 viewModelScope.launch {
-                    events.send(EventBest.SetWeekList(weekList = weekJsonList))
+                    events.send(EventManavara.SetWeekList(weekList = weekJsonList))
                 }
             } catch (e: Exception) {
                 getBestWeekListStorage(context = context)
@@ -326,7 +326,7 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         }
     }
 
-    private fun getBestWeekListStorage(context: Context) {
+    fun getBestWeekListStorage(context: Context) {
 
         val state = state.value
 
@@ -336,7 +336,7 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         val weekFile = File(context.filesDir, "${state.platform}_WEEK_${state.type}.json")
 
         viewModelScope.launch {
-            events.send(EventBest.SetWeekList(weekList = ArrayList()))
+            events.send(EventManavara.SetWeekList(weekList = ArrayList()))
         }
 
         weekRef.getFile(weekFile).addOnSuccessListener {
@@ -369,7 +369,7 @@ class ViewModelBest @Inject constructor() : ViewModel() {
             }
 
             viewModelScope.launch {
-                events.send(EventBest.SetWeekList(weekList = weekJsonList))
+                events.send(EventManavara.SetWeekList(weekList = weekJsonList))
             }
         }
     }
@@ -409,7 +409,7 @@ class ViewModelBest @Inject constructor() : ViewModel() {
                 }
 
                 viewModelScope.launch {
-                    events.send(EventBest.SetMonthList(monthList = monthJsonList))
+                    events.send(EventManavara.SetMonthList(monthList = monthJsonList))
                 }
 
             } catch (e: Exception) {
@@ -420,7 +420,7 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         }
     }
 
-    private fun getBestMonthListStorage(context: Context) {
+    fun getBestMonthListStorage(context: Context) {
         val state = state.value
 
         val storage = Firebase.storage
@@ -429,7 +429,7 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         val monthFile = File(context.filesDir, "${state.platform}_MONTH_${state.type}.json")
 
         viewModelScope.launch {
-            events.send(EventBest.SetMonthList(monthList = ArrayList()))
+            events.send(EventManavara.SetMonthList(monthList = ArrayList()))
         }
 
         monthRef.getFile(monthFile).addOnSuccessListener { bytes ->
@@ -460,7 +460,7 @@ class ViewModelBest @Inject constructor() : ViewModel() {
             }
 
             viewModelScope.launch {
-                events.send(EventBest.SetMonthList(monthList = monthJsonList))
+                events.send(EventManavara.SetMonthList(monthList = monthJsonList))
             }
         }
     }
@@ -473,7 +473,7 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         val monthTrophyFile = monthTrophyRef.getBytes(1024 * 1024)
 
         viewModelScope.launch {
-            events.send(EventBest.SetMonthTrophyList(monthTrophyList = ArrayList()))
+            events.send(EventManavara.SetMonthTrophyList(monthTrophyList = ArrayList()))
         }
 
         monthTrophyFile.addOnSuccessListener { bytes ->
@@ -492,14 +492,379 @@ class ViewModelBest @Inject constructor() : ViewModel() {
             }
 
             viewModelScope.launch {
-                events.send(EventBest.SetMonthTrophyList(monthTrophyList = monthJsonList))
+                events.send(EventManavara.SetMonthTrophyList(monthTrophyList = monthJsonList))
+            }
+        }
+    }
+
+    fun getGenreDay(
+        platform: String,
+        type: String
+    ) {
+
+        val mRootRef =
+            FirebaseDatabase.getInstance().reference.child("BEST").child(type).child(platform)
+                .child("GENRE_DAY")
+
+        mRootRef.addListenerForSingleValueEvent(object :
+            ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (dataSnapshot.exists()) {
+
+                    val arrayList = ArrayList<ItemKeyword>()
+
+                    for (snapshot in dataSnapshot.children) {
+                        val key = snapshot.key
+                        val value = snapshot.value
+
+                        if (key != null && value != null) {
+
+                            arrayList.add(
+                                ItemKeyword(
+                                    title = key,
+                                    value = value.toString()
+                                )
+                            )
+                        }
+                    }
+
+                    val cmpAsc: java.util.Comparator<ItemKeyword> =
+                        Comparator { o1, o2 -> o2.value.toInt().compareTo(o1.value.toInt()) }
+                    Collections.sort(arrayList, cmpAsc)
+
+                    viewModelScope.launch {
+                        events.send(EventManavara.SetGenreDay(genreDay = arrayList))
+                    }
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {}
+        })
+    }
+
+    fun getGenreDayWeek(
+        platform: String,
+        type: String
+    ) {
+
+        val mRootRef =  FirebaseDatabase.getInstance().reference.child("BEST").child(type).child(platform).child("GENRE_WEEK")
+
+        mRootRef.addListenerForSingleValueEvent(object :
+            ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if(dataSnapshot.exists()){
+
+                    val dataMap = HashMap<String, Any>()
+                    val arrayList = ArrayList<ItemKeyword>()
+
+                    for (i in 0..7) {
+
+                        val item = dataSnapshot.child(i.toString())
+
+                        if (item.exists()) {
+
+                            for (snapshot in item.children) {
+                                val key = snapshot.key
+                                val value = snapshot.value
+
+                                if (key != null && value != null) {
+
+                                    if(dataMap[key] != null){
+
+                                        val preValue = dataMap[key] as Long
+                                        val currentValue = value as Long
+
+                                        dataMap[key] = preValue + currentValue
+                                    } else {
+                                        dataMap[key] = value
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    for ((key, value) in dataMap) {
+                        arrayList.add(
+                            ItemKeyword(
+                                title = key,
+                                value = value.toString()
+                            )
+                        )
+                    }
+
+                    val cmpAsc: java.util.Comparator<ItemKeyword> =
+                        Comparator { o1, o2 -> o2.value.toInt().compareTo(o1.value.toInt()) }
+                    Collections.sort(arrayList, cmpAsc)
+
+                    viewModelScope.launch {
+                        events.send(EventManavara.SetGenreDay(genreDay = arrayList))
+                    }
+
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {}
+        })
+    }
+
+    fun getGenreDayMonth(
+        platform: String,
+        type: String
+    ) {
+
+        val mRootRef =  FirebaseDatabase.getInstance().reference.child("BEST").child(type).child(platform).child("GENRE_MONTH")
+
+        mRootRef.addListenerForSingleValueEvent(object :
+            ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if(dataSnapshot.exists()){
+
+                    val dataMap = HashMap<String, Any>()
+                    val arrayList = ArrayList<ItemKeyword>()
+
+                    for (i in 1..31) {
+
+                        val item = dataSnapshot.child(i.toString())
+
+                        if (item.exists()) {
+
+                            for (snapshot in item.children) {
+                                val key = snapshot.key
+                                val value = snapshot.value
+
+                                if (key != null && value != null) {
+
+                                    if(dataMap[key] != null){
+
+                                        val preValue = dataMap[key] as Long
+                                        val currentValue = value as Long
+
+                                        dataMap[key] = preValue + currentValue
+                                    } else {
+                                        dataMap[key] = value
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    for ((key, value) in dataMap) {
+                        arrayList.add(
+                            ItemKeyword(
+                                title = key,
+                                value = value.toString()
+                            )
+                        )
+                    }
+
+                    val cmpAsc: java.util.Comparator<ItemKeyword> =
+                        Comparator { o1, o2 -> o2.value.toInt().compareTo(o1.value.toInt()) }
+                    Collections.sort(arrayList, cmpAsc)
+
+                    viewModelScope.launch {
+                        events.send(EventManavara.SetGenreDay(genreDay = arrayList))
+                    }
+
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {}
+        })
+    }
+
+    fun getJsonGenreList(platform: String, type: String){
+        val storage = Firebase.storage
+        val storageRef = storage.reference
+        val todayFileRef = storageRef.child("${platform}/${type}/GENRE_DAY/${DBDate.dateMMDD()}.json")
+
+        val todayFile = todayFileRef.getBytes(1024 * 1024)
+
+        todayFile.addOnSuccessListener { bytes ->
+            val jsonString = String(bytes, Charset.forName("UTF-8"))
+            val json = Json { ignoreUnknownKeys = true }
+            val itemList = json.decodeFromString<List<ItemKeyword>>(jsonString)
+
+            val jsonList = ArrayList<ItemKeyword>()
+
+            for (item in itemList) {
+                jsonList.add(item)
+            }
+
+            val cmpAsc: java.util.Comparator<ItemKeyword> =
+                Comparator { o1, o2 -> o2.value.toInt().compareTo(o1.value.toInt()) }
+            Collections.sort(jsonList, cmpAsc)
+
+            viewModelScope.launch {
+                events.send(EventManavara.SetGenreDay(genreDay = jsonList))
+            }
+        }
+    }
+
+    fun getJsonGenreWeekList(platform: String, type: String) {
+        val storage = Firebase.storage
+        val storageRef = storage.reference
+
+        val fileRef: StorageReference =  storageRef.child("${platform}/${type}/GENRE_WEEK/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
+
+        val file = fileRef.getBytes(1024 * 1024)
+
+        file.addOnSuccessListener { bytes ->
+            val jsonString = String(bytes, Charset.forName("UTF-8"))
+
+            val jsonArray = JSONArray(jsonString)
+            val weekJsonList = ArrayList<ArrayList<ItemKeyword>>()
+            val sumList = ArrayList<ItemKeyword>()
+
+            val dataMap = HashMap<String, Long>()
+
+            for (i in 0 until jsonArray.length()) {
+
+                try {
+                    val jsonArrayItem = jsonArray.getJSONArray(i)
+                    val itemList = ArrayList<ItemKeyword>()
+
+                    for (j in 0 until jsonArrayItem.length()) {
+
+                        try {
+                            val jsonObject = jsonArrayItem.getJSONObject(j)
+                            itemList.add(convertItemKeyword(jsonObject))
+                            sumList.add(convertItemKeyword(jsonObject))
+                        } catch (e: Exception) {
+                            itemList.add(ItemKeyword())
+                        }
+                    }
+
+                    val cmpAsc: java.util.Comparator<ItemKeyword> =
+                        Comparator { o1, o2 -> o2.value.toInt().compareTo(o1.value.toInt()) }
+                    Collections.sort(itemList, cmpAsc)
+
+                    weekJsonList.add(itemList)
+                } catch (e: Exception) {
+                    weekJsonList.add(ArrayList())
+                }
+            }
+
+            for(item in sumList){
+
+                val key = item.title
+                val value = item.value
+
+                if(dataMap[key] != null){
+
+                    val preValue = dataMap[key] as Long
+                    val currentValue = value.toLong()
+
+                    dataMap[key] = preValue + currentValue
+                } else {
+                    dataMap[key] = value.toLong()
+                }
+            }
+
+            val arrayList = ArrayList<ItemKeyword>()
+
+            for ((key, value) in dataMap) {
+                arrayList.add(
+                    ItemKeyword(
+                        title = key,
+                        value = value.toString()
+                    )
+                )
+            }
+
+            val cmpAsc: java.util.Comparator<ItemKeyword> =
+                Comparator { o1, o2 -> o2.value.toInt().compareTo(o1.value.toInt()) }
+            Collections.sort(arrayList, cmpAsc)
+
+            viewModelScope.launch {
+                events.send(EventManavara.SetGenreWeek(genreDayList = weekJsonList, genreDay = arrayList))
+            }
+        }
+    }
+
+    fun getJsonGenreMonthList(platform: String, type: String) {
+        val storage = Firebase.storage
+        val storageRef = storage.reference
+
+        val fileRef: StorageReference = storageRef.child("${platform}/${type}/GENRE_MONTH/${DBDate.year()}_${DBDate.month()}.json")
+
+        val file = fileRef.getBytes(1024 * 1024)
+
+        file.addOnSuccessListener { bytes ->
+            val jsonString = String(bytes, Charset.forName("UTF-8"))
+
+            val jsonArray = JSONArray(jsonString)
+            val weekJsonList = ArrayList<ArrayList<ItemKeyword>>()
+            val sumList = ArrayList<ItemKeyword>()
+
+            val dataMap = HashMap<String, Long>()
+
+            for (i in 0 until jsonArray.length()) {
+
+                try {
+                    val jsonArrayItem = jsonArray.getJSONArray(i)
+                    val itemList = ArrayList<ItemKeyword>()
+
+                    for (j in 0 until jsonArrayItem.length()) {
+
+                        try {
+                            val jsonObject = jsonArrayItem.getJSONObject(j)
+                            itemList.add(convertItemKeyword(jsonObject))
+                            sumList.add(convertItemKeyword(jsonObject))
+                        } catch (e: Exception) {
+                            itemList.add(ItemKeyword())
+                        }
+                    }
+
+                    val cmpAsc: java.util.Comparator<ItemKeyword> =
+                        Comparator { o1, o2 -> o2.value.toInt().compareTo(o1.value.toInt()) }
+                    Collections.sort(itemList, cmpAsc)
+
+                    weekJsonList.add(itemList)
+                } catch (e: Exception) {
+                    weekJsonList.add(ArrayList())
+                }
+            }
+
+            for(item in sumList){
+
+                val key = item.title
+                val value = item.value
+
+                if(dataMap[key] != null){
+
+                    val preValue = dataMap[key] as Long
+                    val currentValue = value.toLong()
+
+                    dataMap[key] = preValue + currentValue
+                } else {
+                    dataMap[key] = value.toLong()
+                }
+            }
+
+            val arrayList = ArrayList<ItemKeyword>()
+
+            for ((key, value) in dataMap) {
+                arrayList.add(
+                    ItemKeyword(
+                        title = key,
+                        value = value.toString()
+                    )
+                )
+            }
+
+            val cmpAsc: java.util.Comparator<ItemKeyword> =
+                Comparator { o1, o2 -> o2.value.toInt().compareTo(o1.value.toInt()) }
+            Collections.sort(arrayList, cmpAsc)
+
+            viewModelScope.launch {
+                events.send(EventManavara.SetGenreWeek(genreDayList = weekJsonList, genreDay = arrayList))
             }
         }
     }
 
     fun getBookItemInfo(itemBookInfo: ItemBookInfo){
         viewModelScope.launch {
-            events.send(EventBest.SetItemBookInfo(itemBookInfo = itemBookInfo))
+            events.send(EventManavara.SetItemBookInfo(itemBookInfo = itemBookInfo))
         }
     }
 
@@ -537,7 +902,7 @@ class ViewModelBest @Inject constructor() : ViewModel() {
                     }
 
                     viewModelScope.launch {
-                        events.send(EventBest.SetItemBestInfoTrophyList(itemBestInfoTrophyList = weekArray, itemBookInfo = itemBookInfo))
+                        events.send(EventManavara.SetItemBestInfoTrophyList(itemBestInfoTrophyList = weekArray, itemBookInfo = itemBookInfo))
                     }
                 }
             }
@@ -553,7 +918,10 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         type: String = state.value.type
     ) {
         viewModelScope.launch {
-            events.send(EventBest.SetBest(platform = platform, menu = menu, bestType = bestType, type = type))
+
+            Log.d("SETBEST", "platform = $platform | menu = $menu | bestType = $bestType | type = $type")
+
+            events.send(EventManavara.SetBest(platform = platform, menu = menu, bestType = bestType, type = type))
         }
     }
 
