@@ -25,6 +25,9 @@ interface ApiJoara {
     @GET("v1/book/detail.joa")
     fun getBookDetail(@QueryMap queryMap: MutableMap<String?, Any>): Call<JoaraBestDetailResult>
 
+    @GET("v1/book/recommend_list_api.joa")
+    fun getBookDetailRecom(@QueryMap queryMap: MutableMap<String?, Any>): Call<JoaraBestListResult>
+
     @GET("v1/board/book_comment.joa")
     fun getBookComment(@QueryMap queryMap: MutableMap<String?, Any>): Call<JoaraBestDetailCommentsResult>
 

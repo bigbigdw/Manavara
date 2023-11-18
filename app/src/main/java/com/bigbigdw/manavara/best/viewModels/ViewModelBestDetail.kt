@@ -89,8 +89,11 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
             "JOARA", "JOARA_NOBLESS", "JOARA_PREMIUM" -> {
                 setLayoutJoara(bookCode = bookCode, context = context, platform = platform)
             }
-            "NAVER_BEST", "NAVER_CHALLENGE", "NAVER_WEBNOVEL_FREE", "NAVER_WEBNOVEL_PAY" -> {
-                setLayoutNaver(bookCode = bookCode, platform = platform)
+            "NAVER_WEBNOVEL_FREE", "NAVER_WEBNOVEL_PAY" -> {
+                setLayoutNaverWebnovel(bookCode = bookCode, platform = platform)
+            }
+            "NAVER_BEST", "NAVER_CHALLENGE" -> {
+                setLayoutNaverWebnovel(bookCode = bookCode, platform = platform)
             }
             "NAVER_SERIES" -> {
                 setLayoutNaverSeries(bookCode = bookCode, platform = platform)
@@ -166,6 +169,7 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
                             tabInfo = arrayListOf(
                                 "작품 댓글",
                                 "작가의 다른 작품",
+                                "비슷한 작품",
                                 "평점 분석",
                                 "선호작 분석",
                                 "조회 분석",
@@ -203,6 +207,7 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
                 cntRecom = doc.select("div.score_area em").text(),
                 tabInfo = arrayListOf(
                     "작가의 다른 작품",
+                    "평점 분석",
                     "랭킹 분석",
                     "최근 분석",
                 ),
@@ -217,26 +222,37 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
         }.start()
     }
 
-    private fun setLayoutNaver(bookCode: String, platform: String) {
+    private fun setLayoutNaverWebnovel(bookCode: String, platform: String) {
         Thread {
-
-            Log.d("!!!!BESTDETAIL", "https://novel.naver.com/webnovel/list?novelId=${bookCode}")
 
             val doc: Document =
                 Jsoup.connect("https://novel.naver.com/webnovel/list?novelId=${bookCode}").post()
 
+            Log.d("!!!!BESTDETAIL", "https://novel.naver.com/webnovel/list?novelId=${bookCode}")
+
+            Log.d("!!!!BESTDETAIL", "${doc.select(".aside_section")[0].select("li")}")
+
+            val keywordList = arrayListOf<String>()
+
+            for(i in doc.select(".tag_collection").indices){
+                keywordList.add(doc.select(".tag_collection")[i].text())
+            }
+
             val itemBestDetailInfo = ItemBestDetailInfo(
-                writer = doc.select(".writer").text(),
-                title = doc.select(".book_title").text(),
-                bookImg = doc.select(".section_area_info .pic img").attr("src"),
+                writer = doc.select(".info_area").select(".info_group span")[1].text(),
+                title = doc.select(".section_area_info").select(".info_top").select(".title").text(),
+                bookImg = doc.select(".section_area_info").select("img").attr("src"),
                 bookCode = bookCode,
-                intro = doc.select(".section_area_info .dsc").text(),
+                intro = doc.select(".info_area").select(".info_bottom").select("span").text(),
                 cntFavorite = doc.select(".info_book .like").text(),
-                cntRecom = doc.select(".grade_area em").text(),
-                genre = doc.select(".info_book .genre").text(),
+                cntRecom = doc.select(".info_area").select(".info_group").select(".score_area").first()?.text()?.replace("별점", "") ?: "",
+                cntPageRead = doc.select(".info_area").select(".info_group").select(".score_area").first()?.nextElementSibling()?.text()?.replace("다운로드 ", "") ?: "",
+                genre = doc.select(".info_area").select(".info_group span")[0].text(),
+                cntChapter = doc.select(".cont_sub").select(".component_head").select(".past_number").text().replace("(","").replace(")",""),
+                keyword = keywordList,
                 tabInfo = arrayListOf(
-                    "작품 댓글",
                     "작가의 다른 작품",
+                    "비슷한 작품",
                     "평점 분석",
                     "선호작 분석",
                     "조회 분석",
@@ -333,7 +349,7 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
                 "https://www.mrblue.com/novel/${bookCode}"
             }
 
-            "Naver_Today", "Naver_Challenge", "Naver" -> {
+            "NAVER_WEBNOVEL_FREE", "NAVER_WEBNOVEL_PAY" -> {
                 "https://novel.naver.com/webnovel/list?novelId=${bookCode}"
             }
 
@@ -438,8 +454,8 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
             "JOARA", "JOARA_NOBLESS", "JOARA_PREMIUM" -> {
                 getOthersJoa(context = context, bookCode = bookCode, platform = platform)
             }
-            "NAVER_SERIES" -> {
-                getOtherNaverSeries(bookCode = bookCode, platform = platform)
+            "NAVER_WEBNOVEL_FREE", "NAVER_WEBNOVEL_PAY" -> {
+                getOtherNaverWebnovel(bookCode = bookCode, platform = platform, type = "OTHER")
             }
 //            "Kakao" -> {
 //                getCommentsKakao()
@@ -509,28 +525,123 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
             })
     }
 
-    private fun getOtherNaverSeries(bookCode: String, platform: String) {
+    private fun getOtherNaverWebnovel(bookCode: String, platform: String, type: String) {
+        Thread {
+
+            val doc: Document =
+                Jsoup.connect("https://novel.naver.com/webnovel/list?novelId=${bookCode}").post()
+
+            val items = ArrayList<ItemBookInfo>()
+            val books = if(type == "OTHER"){
+                doc.select(".aside_section")[0].select("li")
+            } else {
+                doc.select(".aside_section")[1].select("li")
+            }
+
+            for (i in books.indices) {
+
+                items.add(
+                    ItemBookInfo(
+                        writer = doc.select(".info_area").select(".info_group span")[1].text(),
+                        title = books[i].select("img").attr("alt"),
+                        bookImg = books[i].select("img").attr("src"),
+                        bookCode = books[i].select("a").attr("href")
+                            .replace("/best/list?novelId=", "")
+                            .replace("/challenge/list?novelId=", "")
+                            .replace("/webnovel/list?novelId=", ""),
+                        type = platform
+                    )
+                )
+            }
+
+            viewModelScope.launch {
+                events.send(
+                    EventBestDetail.SetListBestOther(listBestOther = items)
+                )
+            }
+
+        }.start()
+    }
+
+    fun setBestDetailRecom(platform: String, bookCode: String, context: Context) {
+
+        when (platform) {
+            "JOARA", "JOARA_NOBLESS", "JOARA_PREMIUM" -> {
+                setJoaraRecom(bookCode = bookCode, context = context, platform = platform)
+            }
+            "NAVER_SERIES" -> {
+                setNaverSeriesRecom(bookCode = bookCode, platform = platform)
+            }
+            "NAVER_WEBNOVEL_FREE", "NAVER_WEBNOVEL_PAY" -> {
+                getOtherNaverWebnovel(bookCode = bookCode, platform = platform, type = "RECOM")
+            }
+        }
+    }
+
+    private fun setJoaraRecom(bookCode: String, context: Context, platform: String) {
+        val apiJoara = RetrofitJoara()
+        val JoaraRef = Param.getItemAPI(context)
+        JoaraRef["book_code"] = bookCode
+        JoaraRef["recommend_type"] = "book_code"
+        JoaraRef["model_type"] = "all"
+
+        apiJoara.getBookDetailRecom(
+            JoaraRef,
+            object : RetrofitDataListener<JoaraBestListResult> {
+                override fun onSuccess(data: JoaraBestListResult) {
+
+                    val itemList = ArrayList<ItemBookInfo>()
+
+                    if(data.bookLists != null){
+                        for(i in data.bookLists.indices){
+                            itemList.add(
+                                ItemBookInfo(
+                                    writer = data.bookLists[i].writerName,
+                                    title = data.bookLists[i].subject,
+                                    bookImg = data.bookLists[i].bookImg.replace(
+                                        "http://",
+                                        "https://"
+                                    ),
+                                    bookCode = data.bookLists[i].bookCode,
+                                    intro = data.bookLists[i].intro,
+                                    cntChapter = "총 ${data.bookLists[i].cntChapter}화",
+                                    cntPageRead = data.bookLists[i].cntPageRead,
+                                    cntFavorite = data.bookLists[i].cntFavorite,
+                                    cntRecom = data.bookLists[i].cntRecom,
+                                    cntTotalComment = data.bookLists[i].cntTotalComment,
+                                    genre = data.bookLists[i].category_ko_name,
+                                    type = platform
+                                )
+                            )
+                        }
+                    }
+
+                    viewModelScope.launch {
+                        events.send(
+                            EventBestDetail.SetListBestOther(listBestOther = itemList)
+                        )
+                    }
+                }
+            })
+    }
+
+    private fun setNaverSeriesRecom(bookCode: String, platform: String) {
         Thread {
 
             val doc: Document =
                 Jsoup.connect("https://series.naver.com/novel/detail.series?productNo=${bookCode}").get()
 
             val items = ArrayList<ItemBookInfo>()
-            val books = doc.select("div.flick_view_area  ul.lst_thum li.book")
+            val books = doc.select("div.aside_air ul.aside_air_lst li")
 
             for (i in books.indices) {
 
-                Log.d("!!!!BESTDETAIL", "BOOK = ${books[i]}")
-                Log.d("!!!!BESTDETAIL", "title = ${books[i].select("a").attr("title")}")
-                Log.d("!!!!BESTDETAIL", "bookImg = ${books[i].select("img").attr("data-original")}")
-                Log.d("!!!!BESTDETAIL", "bookCode = ${books[i].select("a").attr("href").replace("/novel/detail.series?productNo=", "")}")
-
                 items.add(
                     ItemBookInfo(
-                        writer = doc.select(".end_tit strong").first()?.nextElementSibling()?.text() ?: "",
-                        title = books[i].select("a").attr("title"),
-                        bookImg = books[i].select("img").attr("data-original"),
-                        bookCode = books[i].select("a").attr("href").replace("/novel/detail.series?productNo=", ""),
+                        writer = doc.select(".info_area").select(".info_group span")[1].text(),
+                        title = books[i].select("img").attr("alt"),
+                        bookImg = books[i].select("img").attr("src"),
+                        bookCode = books[i].select("a").attr("href").replace("/best/list?novelId=", ""),
                         type = platform
                     )
                 )

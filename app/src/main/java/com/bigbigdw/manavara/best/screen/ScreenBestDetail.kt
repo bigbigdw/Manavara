@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -461,6 +462,8 @@ fun ScreenBestDetailTabs(
         item {
             ScreenBestItemDetailTabItem(
                 viewModelBestDetail = viewModelBestDetail,
+                item = ItemBestDetailInfo(),
+                isExpandedScreen = true,
                 getMenu = getMenu,
                 platform = platform,
                 bookCode = bookCode,
@@ -473,11 +476,27 @@ fun ScreenBestDetailTabs(
 @Composable
 fun ScreenBestItemDetailTabItem(
     viewModelBestDetail: ViewModelBestDetail,
+    item: ItemBestDetailInfo,
+    isExpandedScreen: Boolean,
     getMenu: String,
     platform: String,
     bookCode: String,
     type: String
 ) {
+
+    if (getMenu == "작품 상세" && !isExpandedScreen) {
+
+        ScreenBestDetailInfo(item = item)
+
+        if (!isExpandedScreen) {
+
+            val bestItem = viewModelBestDetail.state.collectAsState().value.itemBestInfo
+
+            if(bestItem.total != 0){
+                ScreenItemBestDetailManavara(bestItem = bestItem)
+            }
+        }
+    }
 
     if (getMenu.contains("작품 댓글")) {
 
@@ -487,12 +506,33 @@ fun ScreenBestItemDetailTabItem(
             bookCode = bookCode
         )
 
-    } else if (getMenu.contains("작가의 다른 작품")) {
+    } else if (getMenu.contains("작가의 다른 작품") || getMenu.contains("비슷한 작품")) {
+
+        val context = LocalContext.current
+
+        if(getMenu.contains("작가의 다른 작품")){
+
+            LaunchedEffect(bookCode){
+                viewModelBestDetail.setOtherBooks(
+                    platform = platform,
+                    bookCode = bookCode,
+                    context = context
+                )
+            }
+
+        } else {
+
+            LaunchedEffect(bookCode){
+                viewModelBestDetail.setBestDetailRecom(
+                    platform = platform,
+                    bookCode = bookCode,
+                    context = context
+                )
+            }
+        }
 
         ScreenBestDetailOther(
             viewModelBestDetail = viewModelBestDetail,
-            platform = platform,
-            bookCode = bookCode,
             type = type
         )
 
@@ -539,15 +579,15 @@ fun ScreenItemBestDetailCard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Card(
-                modifier = Modifier
-                    .requiredHeight(200.dp),
                 shape = RoundedCornerShape(10.dp),
                 elevation = CardDefaults.cardElevation(2.dp)
             ) {
                 AsyncImage(
                     model = item.bookImg,
                     contentDescription = null,
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
+                        .requiredWidth(140.dp)
                         .requiredHeight(200.dp)
                 )
             }
@@ -624,48 +664,15 @@ fun ScreenItemBestDetailCard(
             ScreenBestDetailInfo(item = item)
 
         } else {
-            if (getMenu == "작품 상세" || getMenu.isEmpty()) {
-
-                ScreenBestDetailInfo(item = item)
-
-                if (!isExpandedScreen) {
-
-                    val bestItem = viewModelBestDetail.state.collectAsState().value.itemBestInfo
-
-                    if(bestItem.total != 0){
-                        ScreenItemBestDetailManavara(bestItem = bestItem)
-                    }
-                }
-            } else if (getMenu == "작품 댓글" && !isExpandedScreen) {
-                ScreenBestDetailComment(
-                    viewModelBestDetail = viewModelBestDetail,
-                    platform = platform,
-                    bookCode = bookCode
-                )
-            } else if (getMenu == "작가의 다른 작품" && !isExpandedScreen) {
-                ScreenBestDetailOther(
-                    viewModelBestDetail = viewModelBestDetail,
-                    platform = platform,
-                    bookCode = bookCode,
-                    type = type
-                )
-            } else if (getMenu.contains("분석") && !isExpandedScreen) {
-
-                viewModelBestDetail.setBestDetailAnalyze(
-                    platform = platform,
-                    bookCode = bookCode,
-                    type = type
-                )
-
-                val listBestInfo = viewModelBestDetail.state.collectAsState().value.listBestInfo
-
-                if(listBestInfo.isNotEmpty()){
-                    ScreenBestDetailAnalyze(
-                        item = listBestInfo,
-                        getMenu = getMenu
-                    )
-                }
-            }
+            ScreenBestItemDetailTabItem(
+                viewModelBestDetail = viewModelBestDetail,
+                item = item,
+                isExpandedScreen = isExpandedScreen,
+                getMenu = getMenu,
+                platform = platform,
+                bookCode = bookCode,
+                type = type
+            )
         }
 
         Spacer(modifier = Modifier.size(32.dp))
@@ -1077,18 +1084,9 @@ fun ScreenBestDetailComment(
 @Composable
 fun ScreenBestDetailOther(
     viewModelBestDetail: ViewModelBestDetail,
-    platform: String,
-    bookCode: String,
-    type : String
+    type: String
 ) {
     val context = LocalContext.current
-
-    viewModelBestDetail.setOtherBooks(
-        platform = platform,
-        bookCode = bookCode,
-        context = context
-    )
-
     val item = viewModelBestDetail.state.collectAsState().value.listBestOther
 
     Spacer(modifier = Modifier.size(16.dp))

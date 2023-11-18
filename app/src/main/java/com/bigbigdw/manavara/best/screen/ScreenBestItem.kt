@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -726,8 +727,7 @@ fun ScreenItemBestCard(item: ItemBookInfo, index: Int){
         Box{
 
             Card(
-                modifier = Modifier
-                    .requiredHeight(200.dp),
+                modifier = Modifier.background(Color.White),
                 shape = RoundedCornerShape(10.dp),
                 elevation = CardDefaults.cardElevation(2.dp)
             ) {
@@ -735,7 +735,9 @@ fun ScreenItemBestCard(item: ItemBookInfo, index: Int){
                 AsyncImage(
                     model = item.bookImg,
                     contentDescription = null,
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
+                        .requiredWidth(140.dp)
                         .requiredHeight(200.dp)
                 )
             }
