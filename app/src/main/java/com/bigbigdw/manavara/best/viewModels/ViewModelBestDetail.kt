@@ -89,11 +89,8 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
             "JOARA", "JOARA_NOBLESS", "JOARA_PREMIUM" -> {
                 setLayoutJoara(bookCode = bookCode, context = context, platform = platform)
             }
-            "NAVER_WEBNOVEL_FREE", "NAVER_WEBNOVEL_PAY" -> {
-                setLayoutNaverWebnovel(bookCode = bookCode, platform = platform)
-            }
-            "NAVER_BEST", "NAVER_CHALLENGE" -> {
-                setLayoutNaverWebnovel(bookCode = bookCode, platform = platform)
+            "NAVER_WEBNOVEL_FREE", "NAVER_WEBNOVEL_PAY", "NAVER_BEST", "NAVER_CHALLENGE" -> {
+                setLayoutNaver(bookCode = bookCode, platform = platform)
             }
             "NAVER_SERIES" -> {
                 setLayoutNaverSeries(bookCode = bookCode, platform = platform)
@@ -222,15 +219,11 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
         }.start()
     }
 
-    private fun setLayoutNaverWebnovel(bookCode: String, platform: String) {
+    private fun setLayoutNaver(bookCode: String, platform: String) {
         Thread {
 
             val doc: Document =
                 Jsoup.connect("https://novel.naver.com/webnovel/list?novelId=${bookCode}").post()
-
-            Log.d("!!!!BESTDETAIL", "https://novel.naver.com/webnovel/list?novelId=${bookCode}")
-
-            Log.d("!!!!BESTDETAIL", "${doc.select(".aside_section")[0].select("li")}")
 
             val keywordList = arrayListOf<String>()
 
@@ -349,7 +342,7 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
                 "https://www.mrblue.com/novel/${bookCode}"
             }
 
-            "NAVER_WEBNOVEL_FREE", "NAVER_WEBNOVEL_PAY" -> {
+            "NAVER_WEBNOVEL_FREE", "NAVER_WEBNOVEL_PAY", "NAVER_BEST", "NAVER_CHALLENGE" -> {
                 "https://novel.naver.com/webnovel/list?novelId=${bookCode}"
             }
 
@@ -454,7 +447,7 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
             "JOARA", "JOARA_NOBLESS", "JOARA_PREMIUM" -> {
                 getOthersJoa(context = context, bookCode = bookCode, platform = platform)
             }
-            "NAVER_WEBNOVEL_FREE", "NAVER_WEBNOVEL_PAY" -> {
+            "NAVER_WEBNOVEL_FREE", "NAVER_WEBNOVEL_PAY", "NAVER_BEST", "NAVER_CHALLENGE" -> {
                 getOtherNaverWebnovel(bookCode = bookCode, platform = platform, type = "OTHER")
             }
 //            "Kakao" -> {
@@ -533,25 +526,31 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
 
             val items = ArrayList<ItemBookInfo>()
             val books = if(type == "OTHER"){
-                doc.select(".aside_section")[0].select("li")
+                doc.select(".aside_section").first()?.select("li")
             } else {
-                doc.select(".aside_section")[1].select("li")
+                doc.select(".aside_section").first()?.nextElementSibling()?.select("li")
             }
 
-            for (i in books.indices) {
+            if(books != null){
+                for (i in books.indices) {
 
-                items.add(
-                    ItemBookInfo(
-                        writer = doc.select(".info_area").select(".info_group span")[1].text(),
-                        title = books[i].select("img").attr("alt"),
-                        bookImg = books[i].select("img").attr("src"),
-                        bookCode = books[i].select("a").attr("href")
-                            .replace("/best/list?novelId=", "")
-                            .replace("/challenge/list?novelId=", "")
-                            .replace("/webnovel/list?novelId=", ""),
-                        type = platform
-                    )
-                )
+                    if(!books[i].select("a").attr("href").contains("#")){
+                        items.add(
+                            ItemBookInfo(
+                                writer = books[i].select(".author").text(),
+                                title = books[i].select("img").attr("alt"),
+                                bookImg = books[i].select("img").attr("src"),
+                                bookCode = books[i].select("a").attr("href")
+                                    .replace("/best/list?novelId=", "")
+                                    .replace("/challenge/list?novelId=", "")
+                                    .replace("/webnovel/list?novelId=", ""),
+                                cntRecom = books[i].select(".list_info").select(".score_area").text(),
+                                cntFavorite = books[i].select(".list_info").select(".count").text(),
+                                type = platform
+                            )
+                        )
+                    }
+                }
             }
 
             viewModelScope.launch {
@@ -572,7 +571,7 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
             "NAVER_SERIES" -> {
                 setNaverSeriesRecom(bookCode = bookCode, platform = platform)
             }
-            "NAVER_WEBNOVEL_FREE", "NAVER_WEBNOVEL_PAY" -> {
+            "NAVER_WEBNOVEL_FREE", "NAVER_WEBNOVEL_PAY", "NAVER_BEST", "NAVER_CHALLENGE" -> {
                 getOtherNaverWebnovel(bookCode = bookCode, platform = platform, type = "RECOM")
             }
         }

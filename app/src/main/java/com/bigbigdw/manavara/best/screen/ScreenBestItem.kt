@@ -772,11 +772,13 @@ fun ScreenItemBestCard(item: ItemBookInfo, index: Int){
                 fontWeight = FontWeight.Bold
             )
 
-            Text(
-                text = item.writer,
-                color = color000000,
-                fontSize = 16.sp,
-            )
+            if (item.writer.isNotEmpty()) {
+                Text(
+                    text = item.writer,
+                    color = color000000,
+                    fontSize = 16.sp,
+                )
+            }
 
             Spacer(modifier = Modifier.size(4.dp))
 

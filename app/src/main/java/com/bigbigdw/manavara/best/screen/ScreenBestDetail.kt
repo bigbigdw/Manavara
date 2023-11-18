@@ -1091,7 +1091,7 @@ fun ScreenBestDetailOther(
 
     Spacer(modifier = Modifier.size(16.dp))
 
-    if (item.size > 1) {
+    if (item.size > 0) {
         item.forEachIndexed { index, itemBookInfo ->
             Button(
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White),
