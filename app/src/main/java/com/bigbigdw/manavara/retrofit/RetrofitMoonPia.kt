@@ -1,6 +1,6 @@
 package com.bigbigdw.manavara.retrofit
 
-import com.bigbigdw.moavara.Retrofit.BestMoonpiaResult
+import com.bigbigdw.manavara.retrofit.result.BestMoonpiaResult
 
 class RetrofitMoonPia {
     private val apiMoonPia = Retrofit.apiMoonPia

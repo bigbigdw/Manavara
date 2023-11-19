@@ -1,6 +1,7 @@
 package com.bigbigdw.manavara.retrofit
 
 
+import android.util.Log
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -16,6 +17,6 @@ fun <T> baseCallback(retrofitDataListener: RetrofitDataListener<T>): Callback<T>
     }
 
     override fun onFailure(call: Call<T>, t: Throwable) {
-
+        Log.d("HIHI", "FAIL $t")
     }
 }

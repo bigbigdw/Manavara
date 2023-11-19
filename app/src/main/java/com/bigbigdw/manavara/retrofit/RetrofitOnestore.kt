@@ -1,8 +1,8 @@
 package com.bigbigdw.manavara.retrofit
 
-import com.bigbigdw.moavara.Retrofit.OneStoreBookResult
-import com.bigbigdw.moavara.Retrofit.OnestoreBookDetail
-import com.bigbigdw.moavara.Retrofit.OnestoreBookDetailComment
+import com.bigbigdw.manavara.retrofit.result.OneStoreBookResult
+import com.bigbigdw.manavara.retrofit.result.OnestoreBookDetail
+import com.bigbigdw.manavara.retrofit.result.OnestoreBookDetailComment
 
 class RetrofitOnestore {
     private val apiOneStory = Retrofit.apiOneStory

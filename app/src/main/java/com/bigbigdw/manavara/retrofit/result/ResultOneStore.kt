@@ -1,4 +1,4 @@
-package com.bigbigdw.moavara.Retrofit
+package com.bigbigdw.manavara.retrofit.result
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
@@ -48,8 +48,6 @@ class OnestoreBookItem {
 }
 
 class OnestoreBookDetail {
-    @SerializedName("params")
-    @Expose
     var params: OnestoreBookDetailContents = OnestoreBookDetailContents()
 }
 
@@ -78,25 +76,17 @@ class OnestoreBookDetailContents {
     @Expose
     var ratingAvgScore: String = ""
 
-    @SerializedName("serialCount")
-    @Expose
-    var serialCount: String = ""
-
     @SerializedName("prodNm")
     @Expose
     var prodNm: String = ""
 
     @SerializedName("tagList")
     @Expose
-    var tagList: List<OnestoreBookDetailKeywords>? = null
+    var tagList: ArrayList<OnestoreBookDetailKeywords> = ArrayList()
 
     @SerializedName("commentCount")
     @Expose
     var commentCount: String = ""
-
-    @SerializedName("ratingPaticpersCount")
-    @Expose
-    var ratingPaticpersCount: String = ""
 }
 
 class OnestoreBookDetailKeywords {
@@ -272,7 +262,7 @@ class BestToksodaDetailResultContents {
 
     @SerializedName("lnIntro")
     @Expose
-    var lnIntro: String? = ""
+    var lnIntro: String = ""
 
     @SerializedName("wrknm")
     @Expose

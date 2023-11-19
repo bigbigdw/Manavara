@@ -3,6 +3,7 @@ package com.bigbigdw.manavara.best.viewModels
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bigbigdw.manavara.best.event.EventBestDetail
@@ -12,15 +13,15 @@ import com.bigbigdw.manavara.best.models.ItemBestDetailInfo
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.retrofit.Param
-import com.bigbigdw.moavara.Retrofit.BestToksodaDetailResult
-import com.bigbigdw.moavara.Retrofit.BestToksodaSearchResult
+import com.bigbigdw.manavara.retrofit.result.BestToksodaDetailResult
+import com.bigbigdw.manavara.retrofit.result.BestToksodaSearchResult
 import com.bigbigdw.manavara.retrofit.result.JoaraBestDetailCommentsResult
 import com.bigbigdw.manavara.retrofit.result.JoaraBestDetailResult
 import com.bigbigdw.manavara.retrofit.result.JoaraBestListResult
 import com.bigbigdw.manavara.retrofit.result.KakaoStageBestBookCommentResult
 import com.bigbigdw.manavara.retrofit.result.KakaoStageBestBookResult
-import com.bigbigdw.moavara.Retrofit.OnestoreBookDetail
-import com.bigbigdw.moavara.Retrofit.OnestoreBookDetailComment
+import com.bigbigdw.manavara.retrofit.result.OnestoreBookDetail
+import com.bigbigdw.manavara.retrofit.result.OnestoreBookDetailComment
 import com.bigbigdw.manavara.retrofit.RetrofitDataListener
 import com.bigbigdw.manavara.retrofit.RetrofitJoara
 import com.bigbigdw.manavara.retrofit.RetrofitKaKao
@@ -90,6 +91,8 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
     }
 
     fun setBestDetailInfo(platform: String, bookCode: String, context: Context) {
+
+        Log.d("HIHI", "platform == $platform")
 
         when (platform) {
             "JOARA", "JOARA_NOBLESS", "JOARA_PREMIUM" -> {
@@ -402,6 +405,12 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
             object : RetrofitDataListener<OnestoreBookDetail> {
                 override fun onSuccess(data: OnestoreBookDetail) {
 
+                    val keywordList = arrayListOf<String>()
+
+                    for (i in data.params.tagList.indices) {
+                        keywordList.add(data.params.tagList[i].tagNm)
+                    }
+
                     val itemBestDetailInfo = ItemBestDetailInfo(
                         writer = data.params.artistNm,
                         title = data.params.prodNm,
@@ -412,6 +421,7 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
                         cntFavorite = data.params.favoriteCount,
                         cntRecom = data.params.ratingAvgScore,
                         cntTotalComment = data.params.commentCount,
+                        keyword = keywordList,
                         tabInfo = arrayListOf(
                             "작품 댓글",
                             "평점 분석",

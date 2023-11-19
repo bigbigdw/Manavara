@@ -1,10 +1,10 @@
 package com.bigbigdw.manavara.retrofit
 
-import com.bigbigdw.moavara.Retrofit.BestBannerListResult
-import com.bigbigdw.moavara.Retrofit.BestToksodaDetailCommentResult
-import com.bigbigdw.moavara.Retrofit.BestToksodaDetailResult
-import com.bigbigdw.moavara.Retrofit.BestToksodaResult
-import com.bigbigdw.moavara.Retrofit.BestToksodaSearchResult
+import com.bigbigdw.manavara.retrofit.result.BestBannerListResult
+import com.bigbigdw.manavara.retrofit.result.BestToksodaDetailCommentResult
+import com.bigbigdw.manavara.retrofit.result.BestToksodaDetailResult
+import com.bigbigdw.manavara.retrofit.result.BestToksodaResult
+import com.bigbigdw.manavara.retrofit.result.BestToksodaSearchResult
 
 class RetrofitToksoda {
     private val apiToksoda = Retrofit.apiToksoda

@@ -1,6 +1,6 @@
 package com.bigbigdw.manavara.retrofit.api
 
-import com.bigbigdw.moavara.Retrofit.BestMoonpiaResult
+import com.bigbigdw.manavara.retrofit.result.BestMoonpiaResult
 import retrofit2.Call
 import retrofit2.http.*
 

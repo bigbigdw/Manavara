@@ -1,8 +1,8 @@
 package com.bigbigdw.manavara.retrofit.api
 
-import com.bigbigdw.moavara.Retrofit.OneStoreBookResult
-import com.bigbigdw.moavara.Retrofit.OnestoreBookDetail
-import com.bigbigdw.moavara.Retrofit.OnestoreBookDetailComment
+import com.bigbigdw.manavara.retrofit.result.OneStoreBookResult
+import com.bigbigdw.manavara.retrofit.result.OnestoreBookDetail
+import com.bigbigdw.manavara.retrofit.result.OnestoreBookDetailComment
 import retrofit2.Call
 import retrofit2.http.*
 
