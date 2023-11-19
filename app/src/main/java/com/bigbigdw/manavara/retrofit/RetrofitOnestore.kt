@@ -1,7 +1,11 @@
-package com.bigbigdw.moavara.Retrofit
+package com.bigbigdw.manavara.retrofit
+
+import com.bigbigdw.moavara.Retrofit.OneStoreBookResult
+import com.bigbigdw.moavara.Retrofit.OnestoreBookDetail
+import com.bigbigdw.moavara.Retrofit.OnestoreBookDetailComment
 
 class RetrofitOnestore {
-    private val apiOneStory = com.bigbigdw.moavara.Retrofit.Retrofit.apiOneStory
+    private val apiOneStory = Retrofit.apiOneStory
 
     fun getBestOneStore(map: MutableMap<String?, Any>, dataListener: RetrofitDataListener<OneStoreBookResult>) {
         apiOneStory.getBestOneStore(map).enqueue(baseCallback(dataListener))

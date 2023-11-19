@@ -3,6 +3,7 @@ package com.bigbigdw.manavara.util
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -39,6 +40,7 @@ class DataStoreManager(private val context: Context) {
         val TOKSODA = stringPreferencesKey("TOKSODA")
         val TOKSODA_FREE = stringPreferencesKey("TOKSODA_FREE")
         val MINING = stringPreferencesKey("MINING")
+        val NEED_UPDATE = booleanPreferencesKey("NEED_UPDATE")
     }
 
     fun getDataStoreString(key : Preferences.Key<String>): Flow<String?> {
@@ -48,9 +50,22 @@ class DataStoreManager(private val context: Context) {
             }
     }
 
+    fun getDataStoreBoolean(key : Preferences.Key<Boolean>): Flow<Boolean?> {
+        return context.dataStore.data
+            .map { preferences ->
+                preferences[key] ?: false
+            }
+    }
+
     suspend fun setDataStoreString(key : Preferences.Key<String>, str: String) {
         context.dataStore.edit { preferences ->
             preferences[key] = str
+        }
+    }
+
+    suspend fun setDataStoreBoolean(key : Preferences.Key<Boolean>, boolean: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[key] = boolean
         }
     }
 

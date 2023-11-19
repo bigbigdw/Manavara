@@ -1,4 +1,4 @@
-package com.bigbigdw.moavara.Retrofit.Api
+package com.bigbigdw.manavara.retrofit.api
 
 import com.bigbigdw.moavara.Retrofit.OneStoreBookResult
 import com.bigbigdw.moavara.Retrofit.OnestoreBookDetail

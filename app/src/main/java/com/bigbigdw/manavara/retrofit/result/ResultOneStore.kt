@@ -272,7 +272,7 @@ class BestToksodaDetailResultContents {
 
     @SerializedName("lnIntro")
     @Expose
-    var lnIntro: String = ""
+    var lnIntro: String? = ""
 
     @SerializedName("wrknm")
     @Expose

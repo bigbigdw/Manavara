@@ -1,10 +1,7 @@
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.ui.graphics.Color
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
@@ -18,30 +15,6 @@ import com.bigbigdw.manavara.firebase.DataFCMBodyNotification
 import com.bigbigdw.manavara.firebase.FCMAlert
 import com.bigbigdw.manavara.firebase.FWorkManagerResult
 import com.bigbigdw.manavara.firebase.FirebaseService
-import com.bigbigdw.manavara.main.ActivityMain
-import com.bigbigdw.manavara.main.models.UserInfo
-import com.bigbigdw.manavara.ui.theme.color21C2EC
-import com.bigbigdw.manavara.ui.theme.color2EA259
-import com.bigbigdw.manavara.ui.theme.color31C3AE
-import com.bigbigdw.manavara.ui.theme.color4996E8
-import com.bigbigdw.manavara.ui.theme.color4AD7CF
-import com.bigbigdw.manavara.ui.theme.color536FD2
-import com.bigbigdw.manavara.ui.theme.color5372DE
-import com.bigbigdw.manavara.ui.theme.color64C157
-import com.bigbigdw.manavara.ui.theme.color79B4F8
-import com.bigbigdw.manavara.ui.theme.color7C81FF
-import com.bigbigdw.manavara.ui.theme.color808CF8
-import com.bigbigdw.manavara.ui.theme.color80BF78
-import com.bigbigdw.manavara.ui.theme.color8AA6BD
-import com.bigbigdw.manavara.ui.theme.color8F8F8F
-import com.bigbigdw.manavara.ui.theme.color91CEC7
-import com.bigbigdw.manavara.ui.theme.color998DF9
-import com.bigbigdw.manavara.ui.theme.colorABD436
-import com.bigbigdw.manavara.ui.theme.colorEA927C
-import com.bigbigdw.manavara.ui.theme.colorF17666
-import com.bigbigdw.manavara.ui.theme.colorF17FA0
-import com.bigbigdw.manavara.ui.theme.colorFDC24E
-import com.bigbigdw.manavara.ui.theme.colorFFAC59
 import com.bigbigdw.manavara.util.DBDate
 import com.bigbigdw.manavara.util.colorList
 import com.google.firebase.database.DataSnapshot
@@ -58,6 +31,10 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.File
+import java.lang.Math.abs
+import java.text.SimpleDateFormat
+import java.util.Date
 
 @SuppressLint("SuspiciousIndentation")
 fun convertItemBook(bestItemData: ItemBookInfo): JsonObject {
@@ -260,7 +237,7 @@ private fun miningAlert(
         )
 }
 
-fun checkMining(context: Context, callback : (Boolean) -> Unit) {
+fun checkMining(callback: (String) -> Unit) {
     val mRootRef =
         FirebaseDatabase.getInstance().reference.child("MINING")
 
@@ -270,17 +247,10 @@ fun checkMining(context: Context, callback : (Boolean) -> Unit) {
 
             if (dataSnapshot.exists()) {
 
-                val dataStore = DataStoreManager(context)
-
                 val item = dataSnapshot.getValue(String::class.java)
 
                 if (item != null) {
-
-                    callback.invoke(item.toFloat() >= DBDate.dateMMDDHHMM().toFloat())
-
-                    CoroutineScope(Dispatchers.IO).launch {
-                        dataStore.setDataStoreString(DataStoreManager.MINING, item)
-                    }
+                    callback.invoke(item)
                 }
             }
         }
@@ -293,4 +263,39 @@ fun getRandomColor(): Color {
 
     val randomIndex = (0 until colorList.size).random()
     return colorList[randomIndex]
+}
+
+fun checkUpdateTime(updateTime :String, storeTime : String) : Boolean{
+    val pattern = "yyyyMMddHHmm"
+
+    val update = parseDate(updateTime, pattern)
+    val store = parseDate(storeTime, pattern)
+
+    return if (update != null && store != null) {
+        calculateTimeDifference(update, store) > 0
+    } else {
+        true
+    }
+}
+
+@SuppressLint("SimpleDateFormat")
+fun parseDate(dateString: String, pattern: String): Date? {
+    return try {
+        SimpleDateFormat(pattern).parse(dateString)
+    } catch (e: Exception) {
+        null
+    }
+}
+
+fun calculateTimeDifference(updateTime: Date, storeTime: Date): Long {
+    val update = updateTime.time
+    val store = storeTime.time
+    val differenceInMillis = abs(update - store)
+
+    return differenceInMillis
+}
+
+fun deleteJson(context: Context, platform : String, type : String){
+    val filePath = File(context.filesDir, "${platform}_TODAY_${type}.json")
+    filePath.delete()
 }

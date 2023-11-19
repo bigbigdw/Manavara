@@ -128,7 +128,7 @@ class ViewModelLogin @Inject constructor() : ViewModel() {
 
                     } else {
                         viewModelScope.launch {
-                            _sideEffects.send("가입 승인 대기중입니다.")
+                            _sideEffects.send("대기중입니다.")
                         }
                     }
 

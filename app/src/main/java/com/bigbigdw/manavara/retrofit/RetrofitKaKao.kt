@@ -1,9 +1,20 @@
-package com.bigbigdw.moavara.Retrofit
+package com.bigbigdw.manavara.retrofit
+
+import com.bigbigdw.manavara.retrofit.result.BestKakao2Result
+import com.bigbigdw.manavara.retrofit.result.BestKakaoBookDetail
+import com.bigbigdw.manavara.retrofit.result.BestKakaoBookDetailComment
+import com.bigbigdw.manavara.retrofit.result.BestResultKakao
+import com.bigbigdw.manavara.retrofit.result.BestResultKakaoStageNovel
+import com.bigbigdw.manavara.retrofit.result.KakaoStageBestBookCommentResult
+import com.bigbigdw.manavara.retrofit.result.KakaoStageBestBookResult
+import com.bigbigdw.manavara.retrofit.result.KakaoStageEventList
+import com.bigbigdw.manavara.retrofit.result.KakaoStageSearchResult
+import com.bigbigdw.manavara.retrofit.result.SearchResultKakao
 
 class RetrofitKaKao {
-    private val apiKakaoStage = com.bigbigdw.moavara.Retrofit.Retrofit.apiKakaoStage
-    private val apiKakao = com.bigbigdw.moavara.Retrofit.Retrofit.apiKakao
-    private val apiKakao2 = com.bigbigdw.moavara.Retrofit.Retrofit.apiKakao2
+    private val apiKakaoStage = Retrofit.apiKakaoStage
+    private val apiKakao = Retrofit.apiKakao
+    private val apiKakao2 = Retrofit.apiKakao2
 
     //카카오 스테이지 베스트
     fun getKakaoBest(map: MutableMap<String?, Any>, dataListener: RetrofitDataListener<BestResultKakao>) {

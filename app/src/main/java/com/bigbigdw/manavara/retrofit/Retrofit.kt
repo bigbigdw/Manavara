@@ -1,7 +1,12 @@
-package com.bigbigdw.moavara.Retrofit
+package com.bigbigdw.manavara.retrofit
 
+import com.bigbigdw.manavara.retrofit.api.ApiJoara
+import com.bigbigdw.manavara.retrofit.api.ApiKakao
+import com.bigbigdw.manavara.retrofit.api.ApiKakaoStage
+import com.bigbigdw.manavara.retrofit.api.ApiMoonPia
+import com.bigbigdw.manavara.retrofit.api.ApiOneStory
 import com.bigbigdw.manavara.retrofit.api.ApiRidi
-import com.bigbigdw.moavara.Retrofit.Api.*
+import com.bigbigdw.manavara.retrofit.api.ApiToksoda
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 

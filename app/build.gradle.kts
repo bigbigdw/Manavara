@@ -13,8 +13,8 @@ android {
         applicationId = "com.bigbigdw.manavara"
         minSdk = 26
         targetSdk = 34
-        versionCode = 200001
-        versionName = "2.0.1"
+        versionCode = 200002
+        versionName = "2.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -23,6 +23,14 @@ android {
     }
 
     buildTypes {
+        debug {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(

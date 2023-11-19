@@ -1,7 +1,6 @@
 package com.bigbigdw.manavara.main.screen
 
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -31,7 +30,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.NavigationRailItemDefaults
@@ -59,21 +57,19 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.screen.ScreenBest
-import com.bigbigdw.manavara.best.screen.ScreenBestPropertyList
 import com.bigbigdw.manavara.best.screen.ScreenBestTopbar
 import com.bigbigdw.manavara.best.viewModels.ViewModelBest
 import com.bigbigdw.manavara.firebase.DataFCMBodyNotification
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.manavara.screen.ScreenManavara
-import com.bigbigdw.manavara.manavara.screen.ScreenManavaraPropertyList
 import com.bigbigdw.manavara.manavara.screen.ScreenManavaraTopbar
 import com.bigbigdw.manavara.manavara.viewModels.ViewModelManavara
 import com.bigbigdw.manavara.ui.theme.color000000
-import com.bigbigdw.manavara.ui.theme.color1E1E20
 import com.bigbigdw.manavara.ui.theme.color1E4394
 import com.bigbigdw.manavara.ui.theme.color555b68
 import com.bigbigdw.manavara.ui.theme.color898989
 import com.bigbigdw.manavara.ui.theme.colorDCDCDD
+import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.util.screen.BackOnPressed
 import com.bigbigdw.manavara.util.screen.ItemTabletTitle
 import com.bigbigdw.manavara.util.screen.ScreenTest
@@ -84,7 +80,6 @@ import postFCMAlert
 @Composable
 fun ScreenMain(
     viewModelMain: ViewModelMain,
-    needDataUpdate: Boolean,
     viewModelManavara: ViewModelManavara,
     isExpandedScreen: Boolean
 ) {
@@ -95,12 +90,7 @@ fun ScreenMain(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val listState = rememberLazyListState()
 
-    Log.d("RECOMPOSE???", "----------")
-    Log.d("RECOMPOSE???", "ScreenMain")
-
     if (isExpandedScreen) {
-
-        Log.d("RECOMPOSE???", "ScreenMainTablet")
 
         ScreenMainTablet(
             currentRoute = currentRoute,
@@ -108,7 +98,6 @@ fun ScreenMain(
             viewModelMain = viewModelMain,
             isExpandedScreen = isExpandedScreen,
             listState = listState,
-            needDataUpdate = needDataUpdate,
             drawerState = drawerState,
             viewModelManavara = viewModelManavara
         )
@@ -122,7 +111,6 @@ fun ScreenMain(
             isExpandedScreen = isExpandedScreen,
             drawerState = drawerState,
             listState = listState,
-            needDataUpdate = needDataUpdate,
             viewModelMain = viewModelMain,
             viewModelManavara = viewModelManavara
         )
@@ -137,12 +125,9 @@ fun ScreenMainTablet(
     viewModelMain: ViewModelMain,
     isExpandedScreen: Boolean,
     listState: LazyListState,
-    needDataUpdate: Boolean,
     drawerState: DrawerState,
     viewModelManavara: ViewModelManavara,
 ) {
-
-    Log.d("RECOMPOSE???", "ScreenMainTablet")
 
     Row {
         TableAppNavRail(currentRoute = currentRoute ?: "", navController = navController)
@@ -150,7 +135,6 @@ fun ScreenMainTablet(
         NavigationGraph(
             navController = navController,
             isExpandedScreen = isExpandedScreen,
-            needDataUpdate = needDataUpdate,
             listState = listState,
             viewModelMain = viewModelMain,
             drawerState = drawerState,
@@ -168,7 +152,6 @@ fun ScreenMainMobile(
     isExpandedScreen: Boolean,
     drawerState: DrawerState,
     listState: LazyListState,
-    needDataUpdate: Boolean,
     viewModelMain: ViewModelMain,
     viewModelManavara: ViewModelManavara,
 ) {
@@ -179,13 +162,12 @@ fun ScreenMainMobile(
         Box(
             Modifier
                 .padding(it)
-                .background(color = color1E1E20)
+                .background(color = colorF6F6F6)
                 .fillMaxSize()
         ) {
             NavigationGraph(
                 navController = navController,
                 isExpandedScreen = isExpandedScreen,
-                needDataUpdate = needDataUpdate,
                 listState = listState,
                 viewModelMain = viewModelMain,
                 drawerState = drawerState,
@@ -270,15 +252,12 @@ fun BottomNavScreen(navController: NavHostController, currentRoute: String?) {
 fun NavigationGraph(
     navController: NavHostController,
     isExpandedScreen: Boolean,
-    needDataUpdate: Boolean,
     listState: LazyListState,
     viewModelMain: ViewModelMain,
     drawerState: DrawerState,
     viewModelManavara: ViewModelManavara,
     currentRoute: String?,
 ) {
-
-    Log.d("RECOMPOSE???", "NavigationGraph")
 
     NavHost(
         navController = navController,
@@ -289,7 +268,6 @@ fun NavigationGraph(
             ScreenBest(
                 isExpandedScreen = isExpandedScreen,
                 listState = listState,
-                needDataUpdate = needDataUpdate,
                 drawerState = drawerState,
                 currentRoute = currentRoute
             )
@@ -300,7 +278,6 @@ fun NavigationGraph(
             ScreenBest(
                 isExpandedScreen = isExpandedScreen,
                 listState = listState,
-                needDataUpdate = needDataUpdate,
                 drawerState = drawerState,
                 currentRoute = currentRoute
             )

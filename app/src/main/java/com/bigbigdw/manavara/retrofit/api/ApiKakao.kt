@@ -1,5 +1,15 @@
-package com.bigbigdw.moavara.Retrofit.Api
+package com.bigbigdw.manavara.retrofit.api
 
+import com.bigbigdw.manavara.retrofit.result.BestKakao2Result
+import com.bigbigdw.manavara.retrofit.result.BestKakaoBookDetail
+import com.bigbigdw.manavara.retrofit.result.BestKakaoBookDetailComment
+import com.bigbigdw.manavara.retrofit.result.BestResultKakao
+import com.bigbigdw.manavara.retrofit.result.BestResultKakaoStageNovel
+import com.bigbigdw.manavara.retrofit.result.KakaoStageBestBookCommentResult
+import com.bigbigdw.manavara.retrofit.result.KakaoStageBestBookResult
+import com.bigbigdw.manavara.retrofit.result.KakaoStageEventList
+import com.bigbigdw.manavara.retrofit.result.KakaoStageSearchResult
+import com.bigbigdw.manavara.retrofit.result.SearchResultKakao
 import com.bigbigdw.moavara.Retrofit.*
 import retrofit2.Call
 import retrofit2.http.*

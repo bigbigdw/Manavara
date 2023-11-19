@@ -16,8 +16,3 @@ data class StateMain(
     val userInfo: UserInfo = UserInfo(),
 )
 
-data class MainSettingLine (
-    var title: String = "",
-    var value: String = "",
-    var onClick : () -> Unit = {}
-)

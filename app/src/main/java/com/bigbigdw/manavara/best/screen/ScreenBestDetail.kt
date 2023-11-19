@@ -206,7 +206,7 @@ fun ScreenBestDetail(
                 Box(
                     Modifier
                         .padding(it)
-                        .background(color = color1E1E20)
+                        .background(color = colorF6F6F6)
                         .fillMaxSize()
                 ) {
 

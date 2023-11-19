@@ -5,6 +5,7 @@ import android.util.Log
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.util.DBDate
+import com.bigbigdw.manavara.util.DataStoreManager
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -12,37 +13,54 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import convertItemBookJson
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.json.JSONArray
 import java.io.File
 import java.nio.charset.Charset
 import java.util.Collections
 
-fun getBestListTodayJson(context : Context, needDataUpdate : Boolean, platform : String, type : String, callbacks: (ArrayList<ItemBookInfo>) -> Unit){
+fun getBestListTodayJson(
+    context: Context,
+    platform: String,
+    type: String,
+    callbacks: (ArrayList<ItemBookInfo>) -> Unit
+){
 
-    if(needDataUpdate){
-        getBestListTodayStorage(context = context, platform = platform, type = type){
-            callbacks.invoke(it)
-        }
-    } else {
-        val filePath = File(context.filesDir, "${platform}_TODAY_${type}.json").absolutePath
+    val dataStore = DataStoreManager(context)
 
-        try {
-            val jsonString = File(filePath).readText(Charset.forName("UTF-8"))
+    CoroutineScope(Dispatchers.IO).launch {
+        dataStore.getDataStoreBoolean(DataStoreManager.NEED_UPDATE).collect { value ->
 
-            val json = Json { ignoreUnknownKeys = true }
-            val itemList = json.decodeFromString<List<ItemBookInfo>>(jsonString)
+            if (value == true) {
+                getBestListTodayStorage(context = context, platform = platform, type = type){
+                    callbacks.invoke(it)
+                }
+            } else {
 
-            val todayJsonList = ArrayList<ItemBookInfo>()
+                val filePath = File(context.filesDir, "${platform}_TODAY_${type}.json").absolutePath
 
-            for (item in itemList) {
-                todayJsonList.add(item)
-            }
+                try {
+                    val jsonString = File(filePath).readText(Charset.forName("UTF-8"))
 
-            callbacks.invoke(todayJsonList)
-        } catch (e: Exception) {
-            getBestListTodayStorage(context = context, platform = platform, type = type){
-                callbacks.invoke(it)
+                    val json = Json { ignoreUnknownKeys = true }
+                    val itemList = json.decodeFromString<List<ItemBookInfo>>(jsonString)
+
+                    val todayJsonList = ArrayList<ItemBookInfo>()
+
+                    for (item in itemList) {
+                        todayJsonList.add(item)
+                    }
+
+                    callbacks.invoke(todayJsonList)
+                } catch (e: Exception) {
+
+                    getBestListTodayStorage(context = context, platform = platform, type = type){
+                        callbacks.invoke(it)
+                    }
+                }
             }
         }
     }
@@ -173,56 +191,60 @@ fun getBookItemWeekTrophy(bookCode: String, platform : String, type : String, ca
 
 fun getBestWeekListJson(
     context: Context,
-    needDataUpdate: Boolean,
     platform: String,
     type: String,
     callbacks: (ArrayList<ArrayList<ItemBookInfo>>) -> Unit
 ) {
 
-    if (needDataUpdate) {
-        getBestWeekListStorage(context = context, platform = platform, type = type) {
-            callbacks.invoke(it)
-        }
-    } else {
-        val filePath = File(context.filesDir, "${platform}_WEEK_${type}.json").absolutePath
+    val dataStore = DataStoreManager(context)
 
-        try {
-            val jsonString = File(filePath).readText(Charset.forName("UTF-8"))
-
-            val jsonArray = JSONArray(jsonString)
-
-            val weekJsonList = ArrayList<ArrayList<ItemBookInfo>>()
-
-            for (i in 0 until jsonArray.length()) {
+    CoroutineScope(Dispatchers.IO).launch {
+        dataStore.getDataStoreBoolean(DataStoreManager.NEED_UPDATE).collect { value ->
+            if (value == true) {
+                getBestWeekListStorage(context = context, platform = platform, type = type) {
+                    callbacks.invoke(it)
+                }
+            } else {
+                val filePath = File(context.filesDir, "${platform}_WEEK_${type}.json").absolutePath
 
                 try {
-                    val jsonArrayItem = jsonArray.getJSONArray(i)
-                    val itemList = ArrayList<ItemBookInfo>()
+                    val jsonString = File(filePath).readText(Charset.forName("UTF-8"))
 
-                    for (j in 0 until jsonArrayItem.length()) {
+                    val jsonArray = JSONArray(jsonString)
+
+                    val weekJsonList = ArrayList<ArrayList<ItemBookInfo>>()
+
+                    for (i in 0 until jsonArray.length()) {
 
                         try {
-                            val jsonObject = jsonArrayItem.getJSONObject(j)
-                            itemList.add(convertItemBookJson(jsonObject))
+                            val jsonArrayItem = jsonArray.getJSONArray(i)
+                            val itemList = ArrayList<ItemBookInfo>()
+
+                            for (j in 0 until jsonArrayItem.length()) {
+
+                                try {
+                                    val jsonObject = jsonArrayItem.getJSONObject(j)
+                                    itemList.add(convertItemBookJson(jsonObject))
+                                } catch (e: Exception) {
+                                    itemList.add(ItemBookInfo())
+                                }
+                            }
+
+                            weekJsonList.add(itemList)
                         } catch (e: Exception) {
-                            itemList.add(ItemBookInfo())
+                            weekJsonList.add(ArrayList())
                         }
                     }
 
-                    weekJsonList.add(itemList)
+                    callbacks.invoke(weekJsonList)
+
                 } catch (e: Exception) {
-                    weekJsonList.add(ArrayList())
+                    getBestWeekListStorage(context = context, platform = platform, type = type) {
+                        callbacks.invoke(it)
+                    }
                 }
             }
-
-            callbacks.invoke(weekJsonList)
-
-        } catch (e: Exception) {
-            getBestWeekListStorage(context = context, platform = platform, type = type) {
-                callbacks.invoke(it)
-            }
         }
-
     }
 }
 
@@ -305,52 +327,56 @@ fun getBestWeekTrophy(
 
 fun getBestMonthTrophyJson(
     context: Context,
-    needDataUpdate: Boolean,
     platform: String,
     type: String,
     callbacks: (ArrayList<ArrayList<ItemBookInfo>>) -> Unit
 ) {
 
-    if(needDataUpdate){
-        getBestMonthListStorage(context = context, platform = platform, type = type){
-            callbacks.invoke(it)
-        }
-    } else {
+    val dataStore = DataStoreManager(context)
 
-        val filePath = File(context.filesDir, "${platform}_MONTH_${type}.json").absolutePath
+    CoroutineScope(Dispatchers.IO).launch {
+        dataStore.getDataStoreBoolean(DataStoreManager.NEED_UPDATE).collect { value ->
+            if (value == true) {
+                getBestMonthListStorage(context = context, platform = platform, type = type){
+                    callbacks.invoke(it)
+                }
+            } else {
+                val filePath = File(context.filesDir, "${platform}_MONTH_${type}.json").absolutePath
 
-        try {
-            val jsonString = File(filePath).readText(Charset.forName("UTF-8"))
-            val jsonArray = JSONArray(jsonString)
-            val monthJsonList = ArrayList<ArrayList<ItemBookInfo>>()
+                try {
+                    val jsonString = File(filePath).readText(Charset.forName("UTF-8"))
+                    val jsonArray = JSONArray(jsonString)
+                    val monthJsonList = ArrayList<ArrayList<ItemBookInfo>>()
 
-            for (i in 0 until jsonArray.length()) {
-
-                try{
-                    val jsonArrayItem = jsonArray.getJSONArray(i)
-                    val itemList = ArrayList<ItemBookInfo>()
-
-                    for (j in 0 until jsonArrayItem.length()) {
+                    for (i in 0 until jsonArray.length()) {
 
                         try{
-                            val jsonObject = jsonArrayItem.getJSONObject(j)
-                            itemList.add(convertItemBookJson(jsonObject))
-                        }catch (e : Exception){
-                            itemList.add(ItemBookInfo())
+                            val jsonArrayItem = jsonArray.getJSONArray(i)
+                            val itemList = ArrayList<ItemBookInfo>()
+
+                            for (j in 0 until jsonArrayItem.length()) {
+
+                                try{
+                                    val jsonObject = jsonArrayItem.getJSONObject(j)
+                                    itemList.add(convertItemBookJson(jsonObject))
+                                }catch (e : Exception){
+                                    itemList.add(ItemBookInfo())
+                                }
+                            }
+
+                            monthJsonList.add(itemList)
+                        } catch (e : Exception){
+                            monthJsonList.add(ArrayList())
                         }
                     }
 
-                    monthJsonList.add(itemList)
-                } catch (e : Exception){
-                    monthJsonList.add(ArrayList())
+                    callbacks.invoke(monthJsonList)
+
+                } catch (e: Exception) {
+                    getBestMonthListStorage(context = context, platform = platform, type = type){
+                        callbacks.invoke(it)
+                    }
                 }
-            }
-
-            callbacks.invoke(monthJsonList)
-
-        } catch (e: Exception) {
-            getBestMonthListStorage(context = context, platform = platform, type = type){
-                callbacks.invoke(it)
             }
         }
     }

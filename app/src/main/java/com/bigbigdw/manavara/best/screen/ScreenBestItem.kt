@@ -36,7 +36,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -90,14 +89,11 @@ fun ScreenTodayBest(
     listState: LazyListState,
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
-    needDataUpdate: Boolean,
     viewModelBest: ViewModelBest,
 ) {
 
     val context = LocalContext.current
     val state = viewModelBest.state.collectAsState().value
-
-    Log.d("RECOMPOSE???", "ScreenTodayBest")
 
     getBookMap(
         platform = state.platform,
@@ -108,7 +104,6 @@ fun ScreenTodayBest(
 
     getBestListTodayJson(
         context = context,
-        needDataUpdate = needDataUpdate,
         platform = state.platform,
         type = state.type
     ) {
@@ -121,7 +116,7 @@ fun ScreenTodayBest(
             state = listState,
             modifier = Modifier
                 .background(colorF6F6F6)
-                .padding(0.dp, 0.dp, 16.dp, 0.dp)
+                .padding(16.dp, 0.dp, 16.dp, 0.dp)
                 .fillMaxSize(),
         ) {
 
@@ -177,20 +172,22 @@ fun ListBestToday(
             shape = RoundedCornerShape(25.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color.White),
             onClick = {
-                coroutineScope.launch {
 
-                    getBookItemWeekTrophy(
-                        bookCode = itemBookInfo.bookCode,
-                        platform = state.platform,
-                        type = state.type
-                    ){
-                        viewModelBest.setItemBestInfoTrophyList(itemBestInfoTrophyList = it, itemBookInfo = itemBookInfo)
-                    }
+                Log.d("!!!DIALOG", "itemBookInfo == ${itemBookInfo} state.platform == ${state.platform} state.type == ${state.type}")
 
-                    modalSheetState?.show()
+                getBookItemWeekTrophy(
+                    bookCode = itemBookInfo.bookCode,
+                    platform = state.platform,
+                    type = state.type
+                ){
+                    viewModelBest.setItemBestInfoTrophyList(itemBestInfoTrophyList = it, itemBookInfo = itemBookInfo)
 
-                    if (setDialogOpen != null) {
-                        setDialogOpen(true)
+                    coroutineScope.launch {
+                        modalSheetState?.show()
+
+                        if (setDialogOpen != null) {
+                            setDialogOpen(true)
+                        }
                     }
                 }
             },
@@ -294,7 +291,6 @@ fun ListBestToday(
 fun ScreenTodayWeek(
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
-    needDataUpdate: Boolean,
     viewModelBest: ViewModelBest,
 ) {
 
@@ -313,7 +309,6 @@ fun ScreenTodayWeek(
 
     getBestWeekListJson(
         context = context,
-        needDataUpdate = needDataUpdate,
         platform = state.platform,
         type = state.type
     ){
@@ -340,15 +335,12 @@ fun ScreenTodayWeek(
                 filteredList.add(bookInfo)
             }
         }
-
     }
-
-    Log.d("WEEK!!!!!", "state.weekTrophyList == ${state.weekTrophyList.size} state.itemBookInfoMap == ${state.itemBookInfoMap.size} filteredList == ${filteredList.size}")
 
     Column(modifier = Modifier.background(color = colorF6F6F6)) {
 
         LazyRow(
-            modifier = Modifier.padding(0.dp, 8.dp, 0.dp, 8.dp),
+            modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 8.dp),
         ) {
             itemsIndexed(weekListAll()) { index, item ->
                 Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
@@ -370,7 +362,7 @@ fun ScreenTodayWeek(
         LazyColumn(
             modifier = Modifier
                 .background(colorF6F6F6)
-                .padding(0.dp, 0.dp, 16.dp, 0.dp)
+                .padding(16.dp, 0.dp, 16.dp, 0.dp)
         ) {
             if (getDate == "전체") {
 
@@ -487,7 +479,6 @@ fun ListBest(
 fun ScreenTodayMonth(
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
-    needDataUpdate: Boolean,
     viewModelBest: ViewModelBest,
 ) {
 
@@ -519,7 +510,6 @@ fun ScreenTodayMonth(
         context = context,
         platform = state.platform,
         type = state.type,
-        needDataUpdate = needDataUpdate
     ){
         viewModelBest.setMonthList(it)
     }
@@ -548,7 +538,7 @@ fun ScreenTodayMonth(
     Column(modifier = Modifier.background(color = colorF6F6F6)) {
 
         LazyRow(
-            modifier = Modifier.padding(0.dp, 8.dp, 0.dp, 8.dp),
+            modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 8.dp),
         ) {
             itemsIndexed(arrayList) { index, item ->
 
@@ -572,7 +562,7 @@ fun ScreenTodayMonth(
             LazyColumn(
                 modifier = Modifier
                     .background(colorF6F6F6)
-                    .padding(0.dp, 0.dp, 16.dp, 0.dp)
+                    .padding(16.dp, 0.dp, 16.dp, 0.dp)
             ) {
 
                 itemsIndexed(filteredList) { index, item ->
@@ -692,7 +682,7 @@ fun ScreenDialogBest(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(4.dp),
+                            .padding(4.dp, 0.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
@@ -740,7 +730,7 @@ fun ScreenDialogBest(
                 modifier = Modifier
                     .weight(1f)
                     .height(48.dp),
-                shape = RoundedCornerShape(0.dp, 0.dp, 0.dp, 10.dp)
+                shape = RoundedCornerShape(0.dp, 0.dp, 0.dp, 0.dp)
 
             ) {
                 Text(
@@ -767,7 +757,7 @@ fun ScreenDialogBest(
                 modifier = Modifier
                     .weight(1f)
                     .height(48.dp),
-                shape = RoundedCornerShape(0.dp, 0.dp, 10.dp, 0.dp)
+                shape = RoundedCornerShape(0.dp, 0.dp, 0.dp, 0.dp)
 
             ) {
                 Text(

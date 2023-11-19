@@ -1,5 +1,16 @@
-package com.bigbigdw.moavara.Retrofit.Api
+package com.bigbigdw.manavara.retrofit.api
 
+import com.bigbigdw.manavara.retrofit.result.JoaraBestDetailCommentsResult
+import com.bigbigdw.manavara.retrofit.result.JoaraBestDetailResult
+import com.bigbigdw.manavara.retrofit.result.JoaraBestListResult
+import com.bigbigdw.manavara.retrofit.result.JoaraBoardResult
+import com.bigbigdw.manavara.retrofit.result.JoaraEventDetailResult
+import com.bigbigdw.manavara.retrofit.result.JoaraEventResult
+import com.bigbigdw.manavara.retrofit.result.JoaraEventsResult
+import com.bigbigdw.manavara.retrofit.result.JoaraLoginResult
+import com.bigbigdw.manavara.retrofit.result.JoaraNoticeDetailResult
+import com.bigbigdw.manavara.retrofit.result.JoaraNoticeResult
+import com.bigbigdw.manavara.retrofit.result.JoaraSearchResult
 import com.bigbigdw.moavara.Retrofit.*
 import retrofit2.Call
 import retrofit2.http.*

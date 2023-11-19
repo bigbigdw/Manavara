@@ -1,7 +1,13 @@
-package com.bigbigdw.moavara.Retrofit
+package com.bigbigdw.manavara.retrofit
+
+import com.bigbigdw.moavara.Retrofit.BestBannerListResult
+import com.bigbigdw.moavara.Retrofit.BestToksodaDetailCommentResult
+import com.bigbigdw.moavara.Retrofit.BestToksodaDetailResult
+import com.bigbigdw.moavara.Retrofit.BestToksodaResult
+import com.bigbigdw.moavara.Retrofit.BestToksodaSearchResult
 
 class RetrofitToksoda {
-    private val apiToksoda = com.bigbigdw.moavara.Retrofit.Retrofit.apiToksoda
+    private val apiToksoda = Retrofit.apiToksoda
 
     fun getBestList(map: MutableMap<String?, Any>, dataListener: RetrofitDataListener<BestToksodaResult>) {
         apiToksoda.getBestList(map).enqueue(baseCallback(dataListener))

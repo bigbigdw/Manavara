@@ -3,7 +3,6 @@ package com.bigbigdw.manavara.best.viewModels
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.view.View
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bigbigdw.manavara.best.event.EventBestDetail
@@ -15,18 +14,18 @@ import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.retrofit.Param
 import com.bigbigdw.moavara.Retrofit.BestToksodaDetailResult
 import com.bigbigdw.moavara.Retrofit.BestToksodaSearchResult
-import com.bigbigdw.moavara.Retrofit.JoaraBestDetailCommentsResult
-import com.bigbigdw.moavara.Retrofit.JoaraBestDetailResult
-import com.bigbigdw.moavara.Retrofit.JoaraBestListResult
-import com.bigbigdw.moavara.Retrofit.KakaoStageBestBookCommentResult
-import com.bigbigdw.moavara.Retrofit.KakaoStageBestBookResult
+import com.bigbigdw.manavara.retrofit.result.JoaraBestDetailCommentsResult
+import com.bigbigdw.manavara.retrofit.result.JoaraBestDetailResult
+import com.bigbigdw.manavara.retrofit.result.JoaraBestListResult
+import com.bigbigdw.manavara.retrofit.result.KakaoStageBestBookCommentResult
+import com.bigbigdw.manavara.retrofit.result.KakaoStageBestBookResult
 import com.bigbigdw.moavara.Retrofit.OnestoreBookDetail
 import com.bigbigdw.moavara.Retrofit.OnestoreBookDetailComment
-import com.bigbigdw.moavara.Retrofit.RetrofitDataListener
-import com.bigbigdw.moavara.Retrofit.RetrofitJoara
-import com.bigbigdw.moavara.Retrofit.RetrofitKaKao
-import com.bigbigdw.moavara.Retrofit.RetrofitOnestore
-import com.bigbigdw.moavara.Retrofit.RetrofitToksoda
+import com.bigbigdw.manavara.retrofit.RetrofitDataListener
+import com.bigbigdw.manavara.retrofit.RetrofitJoara
+import com.bigbigdw.manavara.retrofit.RetrofitKaKao
+import com.bigbigdw.manavara.retrofit.RetrofitOnestore
+import com.bigbigdw.manavara.retrofit.RetrofitToksoda
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -460,7 +459,7 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
                         title = data.result.wrknm,
                         bookImg = "https:${data.result.imgPath}",
                         bookCode = bookCode,
-                        intro = data.result.lnIntro,
+                        intro = data.result.lnIntro ?: "",
                         cntPageRead = data.result.inqrCnt,
                         cntFavorite = data.result.intrstCnt,
                         cntRecom = data.result.goodCnt,

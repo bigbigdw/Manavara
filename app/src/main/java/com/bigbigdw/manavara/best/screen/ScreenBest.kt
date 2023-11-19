@@ -100,12 +100,9 @@ import kotlinx.coroutines.launch
 fun ScreenBest(
     isExpandedScreen: Boolean,
     listState: LazyListState,
-    needDataUpdate: Boolean,
     drawerState: DrawerState,
     currentRoute: String?,
 ) {
-
-    Log.d("RECOMPOSE???", "ScreenBest")
 
     val context = LocalContext.current
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
@@ -196,7 +193,6 @@ fun ScreenBest(
                 ScreenMainBestDetail(
                     listState = listState,
                     setDialogOpen = setDialogOpen,
-                    needDataUpdate = needDataUpdate,
                     viewModelBest = viewModelBest,
                     )
 
@@ -234,13 +230,12 @@ fun ScreenBest(
                         Box(
                             Modifier
                                 .padding(it)
-                                .background(color = color1E1E20)
+                                .background(color = colorF6F6F6)
                                 .fillMaxSize()
                         ) {
                             ScreenMainBestItemDetail(
                                 modalSheetState = modalSheetState,
                                 setDialogOpen = null,
-                                needDataUpdate = needDataUpdate,
                                 listState = listState,
                                 viewModelBest = viewModelBest
                             )
@@ -542,7 +537,6 @@ fun ItemBestListSingle(
 fun ScreenMainBestDetail(
     listState: LazyListState,
     setDialogOpen: (Boolean) -> Unit,
-    needDataUpdate: Boolean,
     viewModelBest: ViewModelBest,
 ) {
 
@@ -579,7 +573,6 @@ fun ScreenMainBestDetail(
         ScreenMainBestItemDetail(
             modalSheetState = null,
             setDialogOpen = setDialogOpen,
-            needDataUpdate = needDataUpdate,
             listState = listState,
             viewModelBest = viewModelBest,
         )
@@ -591,12 +584,9 @@ fun ScreenMainBestDetail(
 fun ScreenMainBestItemDetail(
     modalSheetState: ModalBottomSheetState? = null,
     setDialogOpen: ((Boolean) -> Unit)?,
-    needDataUpdate: Boolean,
     listState: LazyListState,
     viewModelBest: ViewModelBest,
 ) {
-
-    Log.d("RECOMPOSE???", "ScreenMainBestItemDetail")
 
     val state = viewModelBest.state.collectAsState().value
 
@@ -608,7 +598,6 @@ fun ScreenMainBestItemDetail(
             listState = listState,
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen,
-            needDataUpdate = needDataUpdate,
             viewModelBest = viewModelBest,
         )
 
@@ -619,7 +608,6 @@ fun ScreenMainBestItemDetail(
         ScreenTodayWeek(
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen,
-            needDataUpdate = needDataUpdate,
             viewModelBest = viewModelBest
         )
 
@@ -630,7 +618,6 @@ fun ScreenMainBestItemDetail(
         ScreenTodayMonth(
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen,
-            needDataUpdate = needDataUpdate,
             viewModelBest = viewModelBest
         )
 
