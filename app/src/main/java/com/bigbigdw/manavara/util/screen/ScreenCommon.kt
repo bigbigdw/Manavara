@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -56,7 +55,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bigbigdw.manavara.R
-import com.bigbigdw.manavara.best.viewModels.ViewModelBest
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
@@ -622,14 +620,10 @@ fun ItemMainSettingSingleTablet(
 @Composable
 fun ScreenItemKeyword(
     getter: String,
-    setter: (String) -> Unit,
+    onClick: () -> Unit,
     title: String,
     getValue: String,
-    viewModelBest: ViewModelBest,
-    listState: LazyListState,
 ) {
-
-    val coroutineScope = rememberCoroutineScope()
 
     Card(
         modifier = if (getter == getValue) {
@@ -651,11 +645,7 @@ fun ScreenItemKeyword(
                 .fillMaxWidth()
                 .padding(14.dp, 8.dp)
                 .clickable {
-                    setter(getValue)
-//                    viewModelBest.fetchBestListToday(item.type, context)
-                    coroutineScope.launch {
-                        listState.scrollToItem(index = 0)
-                    }
+                    onClick()
                 },
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,

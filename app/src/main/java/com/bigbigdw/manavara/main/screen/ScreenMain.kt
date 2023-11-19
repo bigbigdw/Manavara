@@ -25,11 +25,7 @@ import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetState
-import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
-import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerState
@@ -44,12 +40,9 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -59,8 +52,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -70,7 +61,6 @@ import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.screen.ScreenBest
 import com.bigbigdw.manavara.best.screen.ScreenBestPropertyList
 import com.bigbigdw.manavara.best.screen.ScreenBestTopbar
-import com.bigbigdw.manavara.best.screen.ScreenDialogBest
 import com.bigbigdw.manavara.best.viewModels.ViewModelBest
 import com.bigbigdw.manavara.firebase.DataFCMBodyNotification
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
@@ -84,15 +74,10 @@ import com.bigbigdw.manavara.ui.theme.color1E4394
 import com.bigbigdw.manavara.ui.theme.color555b68
 import com.bigbigdw.manavara.ui.theme.color898989
 import com.bigbigdw.manavara.ui.theme.colorDCDCDD
-import com.bigbigdw.manavara.util.changePlatformNameKor
 import com.bigbigdw.manavara.util.screen.BackOnPressed
-import com.bigbigdw.manavara.util.screen.BackOnPressedMobile
 import com.bigbigdw.manavara.util.screen.ItemTabletTitle
 import com.bigbigdw.manavara.util.screen.ScreenTest
 import com.bigbigdw.manavara.util.screen.TabletContentWrap
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import postFCMAlert
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -131,36 +116,20 @@ fun ScreenMain(
 
     } else {
 
-        ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
-
-            if(currentRoute == "NOVEL" || currentRoute == "COMIC"){
-                ScreenBestPropertyList(
-                    listState = listState,
-                    isExpandedScreen = isExpandedScreen,
-                    drawerState = drawerState
-                )
-            } else if(currentRoute == "MANAVARA"){
-                ScreenManavaraPropertyList(
-                    viewModelManavara = viewModelManavara,
-                )
-            }
-
-        }) {
-            ScreenMainMobile(
-                navController = navController,
-                currentRoute = currentRoute,
-                isExpandedScreen = isExpandedScreen,
-                drawerState = drawerState,
-                listState = listState,
-                needDataUpdate = needDataUpdate,
-                viewModelMain = viewModelMain,
-                viewModelManavara = viewModelManavara
-            )
-        }
+        ScreenMainMobile(
+            navController = navController,
+            currentRoute = currentRoute,
+            isExpandedScreen = isExpandedScreen,
+            drawerState = drawerState,
+            listState = listState,
+            needDataUpdate = needDataUpdate,
+            viewModelMain = viewModelMain,
+            viewModelManavara = viewModelManavara
+        )
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenMainTablet(
     currentRoute: String?,
@@ -181,12 +150,12 @@ fun ScreenMainTablet(
         NavigationGraph(
             navController = navController,
             isExpandedScreen = isExpandedScreen,
-            modalSheetState = null,
             needDataUpdate = needDataUpdate,
             listState = listState,
             viewModelMain = viewModelMain,
             drawerState = drawerState,
-            viewModelManavara = viewModelManavara
+            viewModelManavara = viewModelManavara,
+            currentRoute = currentRoute
         )
     }
 }
@@ -204,55 +173,7 @@ fun ScreenMainMobile(
     viewModelManavara: ViewModelManavara,
 ) {
 
-    val context = LocalContext.current
-    val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
-    val viewModelBest: ViewModelBest = viewModel(viewModelStoreOwner = viewModelStoreOwner)
-    val coroutineScope = rememberCoroutineScope()
-    val state = viewModelBest.state.collectAsState().value
-
-    LaunchedEffect(viewModelBest){
-        viewModelBest.sideEffects
-            .onEach { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
-            .launchIn(coroutineScope)
-    }
-
-    val modalSheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        confirmValueChange = { it != ModalBottomSheetValue.HalfExpanded },
-        skipHalfExpanded = false
-    )
-
-    if(currentRoute == "NOVEL"){
-        if (state.type != "NOVEL") {
-            viewModelBest.setBest(
-                type = "NOVEL",
-                platform = "JOARA",
-                bestType = "TODAY_BEST",
-                menu = changePlatformNameKor("JOARA")
-            )
-        }
-    } else if(currentRoute == "COMIC"){
-        if (state.type != "COMIC") {
-            viewModelBest.setBest(
-                type = "COMIC",
-                platform = "NAVER_SERIES",
-                bestType = "TODAY_BEST",
-                menu = changePlatformNameKor("NAVER_SERIES")
-            )
-        }
-    }
-
     Scaffold(
-        topBar = {
-            TopbarMain(
-                viewModelBest = viewModelBest,
-                currentRoute = currentRoute
-            ) {
-                coroutineScope.launch {
-                    drawerState.open()
-                }
-            }
-        },
         bottomBar = { BottomNavScreen(navController = navController, currentRoute = currentRoute) }
     ) {
         Box(
@@ -264,43 +185,15 @@ fun ScreenMainMobile(
             NavigationGraph(
                 navController = navController,
                 isExpandedScreen = isExpandedScreen,
-                modalSheetState = modalSheetState,
                 needDataUpdate = needDataUpdate,
                 listState = listState,
                 viewModelMain = viewModelMain,
                 drawerState = drawerState,
                 viewModelManavara = viewModelManavara,
+                currentRoute = currentRoute,
             )
         }
     }
-
-    ModalBottomSheetLayout(
-        sheetState = modalSheetState,
-        sheetElevation = 50.dp,
-        sheetShape = RoundedCornerShape(
-            topStart = 25.dp,
-            topEnd = 25.dp
-        ),
-        sheetContent = {
-
-            if(currentRoute == "NOVEL" || currentRoute == "COMIC"){
-
-                Spacer(modifier = Modifier.size(4.dp))
-
-                ScreenDialogBest(
-                    item = state.itemBookInfo,
-                    trophy = state.itemBestInfoTrophyList,
-                    isExpandedScreen = isExpandedScreen,
-                    currentRoute = currentRoute,
-                    modalSheetState = modalSheetState
-                )
-            } else {
-                ScreenTest()
-            }
-        },
-    ) {}
-
-    BackOnPressedMobile(modalSheetState = modalSheetState)
 }
 
 @Composable
@@ -315,8 +208,6 @@ fun TopbarMain(
     } else if(currentRoute == "MANAVARA"){
         ScreenManavaraTopbar(viewModelBest = viewModelBest, onClick = { setDrawer(true) })
     }
-
-
 }
 
 @Composable
@@ -379,12 +270,12 @@ fun BottomNavScreen(navController: NavHostController, currentRoute: String?) {
 fun NavigationGraph(
     navController: NavHostController,
     isExpandedScreen: Boolean,
-    modalSheetState: ModalBottomSheetState? = null,
     needDataUpdate: Boolean,
     listState: LazyListState,
     viewModelMain: ViewModelMain,
     drawerState: DrawerState,
     viewModelManavara: ViewModelManavara,
+    currentRoute: String?,
 ) {
 
     Log.d("RECOMPOSE???", "NavigationGraph")
@@ -398,9 +289,9 @@ fun NavigationGraph(
             ScreenBest(
                 isExpandedScreen = isExpandedScreen,
                 listState = listState,
-                modalSheetState = modalSheetState,
                 needDataUpdate = needDataUpdate,
-                drawerState = drawerState
+                drawerState = drawerState,
+                currentRoute = currentRoute
             )
 
         }
@@ -409,9 +300,9 @@ fun NavigationGraph(
             ScreenBest(
                 isExpandedScreen = isExpandedScreen,
                 listState = listState,
-                modalSheetState = modalSheetState,
                 needDataUpdate = needDataUpdate,
-                drawerState = drawerState
+                drawerState = drawerState,
+                currentRoute = currentRoute
             )
 
             ScreenTest()
@@ -420,7 +311,7 @@ fun NavigationGraph(
 
             ScreenManavara(
                 isExpandedScreen = isExpandedScreen,
-                modalSheetState = modalSheetState,
+                modalSheetState = null,
                 viewModelManavara = viewModelManavara
             )
 
