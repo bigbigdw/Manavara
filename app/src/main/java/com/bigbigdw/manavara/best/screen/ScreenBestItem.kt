@@ -173,21 +173,19 @@ fun ListBestToday(
             colors = ButtonDefaults.buttonColors(containerColor = Color.White),
             onClick = {
 
-                Log.d("!!!DIALOG", "itemBookInfo == ${itemBookInfo} state.platform == ${state.platform} state.type == ${state.type}")
-
                 getBookItemWeekTrophy(
                     bookCode = itemBookInfo.bookCode,
                     platform = state.platform,
                     type = state.type
                 ){
                     viewModelBest.setItemBestInfoTrophyList(itemBestInfoTrophyList = it, itemBookInfo = itemBookInfo)
+                }
 
-                    coroutineScope.launch {
-                        modalSheetState?.show()
+                coroutineScope.launch {
+                    modalSheetState?.show()
 
-                        if (setDialogOpen != null) {
-                            setDialogOpen(true)
-                        }
+                    if (setDialogOpen != null) {
+                        setDialogOpen(true)
                     }
                 }
             },
