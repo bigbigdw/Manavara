@@ -44,6 +44,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -58,6 +59,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -87,6 +90,8 @@ import com.bigbigdw.manavara.util.screen.BackOnPressedMobile
 import com.bigbigdw.manavara.util.screen.ItemTabletTitle
 import com.bigbigdw.manavara.util.screen.ScreenTest
 import com.bigbigdw.manavara.util.screen.TabletContentWrap
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import postFCMAlert
 
@@ -94,7 +99,6 @@ import postFCMAlert
 @Composable
 fun ScreenMain(
     viewModelMain: ViewModelMain,
-    viewModelBest: ViewModelBest,
     needDataUpdate: Boolean,
     viewModelManavara: ViewModelManavara,
     isExpandedScreen: Boolean
@@ -118,7 +122,6 @@ fun ScreenMain(
             navController = navController,
             viewModelMain = viewModelMain,
             isExpandedScreen = isExpandedScreen,
-            viewModelBest = viewModelBest,
             listState = listState,
             needDataUpdate = needDataUpdate,
             drawerState = drawerState,
@@ -132,7 +135,6 @@ fun ScreenMain(
 
             if(currentRoute == "NOVEL" || currentRoute == "COMIC"){
                 ScreenBestPropertyList(
-                    viewModelBest = viewModelBest,
                     listState = listState,
                     isExpandedScreen = isExpandedScreen,
                     drawerState = drawerState
@@ -152,7 +154,6 @@ fun ScreenMain(
                 listState = listState,
                 needDataUpdate = needDataUpdate,
                 viewModelMain = viewModelMain,
-                viewModelBest = viewModelBest,
                 viewModelManavara = viewModelManavara
             )
         }
@@ -166,7 +167,6 @@ fun ScreenMainTablet(
     navController: NavHostController,
     viewModelMain: ViewModelMain,
     isExpandedScreen: Boolean,
-    viewModelBest: ViewModelBest,
     listState: LazyListState,
     needDataUpdate: Boolean,
     drawerState: DrawerState,
@@ -185,7 +185,6 @@ fun ScreenMainTablet(
             needDataUpdate = needDataUpdate,
             listState = listState,
             viewModelMain = viewModelMain,
-            viewModelBest = viewModelBest,
             drawerState = drawerState,
             viewModelManavara = viewModelManavara
         )
@@ -202,18 +201,26 @@ fun ScreenMainMobile(
     listState: LazyListState,
     needDataUpdate: Boolean,
     viewModelMain: ViewModelMain,
-    viewModelBest: ViewModelBest,
     viewModelManavara: ViewModelManavara,
 ) {
+
+    val context = LocalContext.current
+    val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelBest: ViewModelBest = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+    val coroutineScope = rememberCoroutineScope()
     val state = viewModelBest.state.collectAsState().value
+
+    LaunchedEffect(viewModelBest){
+        viewModelBest.sideEffects
+            .onEach { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
+            .launchIn(coroutineScope)
+    }
 
     val modalSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
         confirmValueChange = { it != ModalBottomSheetValue.HalfExpanded },
         skipHalfExpanded = false
     )
-
-    val coroutineScope = rememberCoroutineScope()
 
     if(currentRoute == "NOVEL"){
         if (state.type != "NOVEL") {
@@ -260,9 +267,8 @@ fun ScreenMainMobile(
                 modalSheetState = modalSheetState,
                 needDataUpdate = needDataUpdate,
                 listState = listState,
-                drawerState = drawerState,
                 viewModelMain = viewModelMain,
-                viewModelBest = viewModelBest,
+                drawerState = drawerState,
                 viewModelManavara = viewModelManavara,
             )
         }
@@ -377,7 +383,6 @@ fun NavigationGraph(
     needDataUpdate: Boolean,
     listState: LazyListState,
     viewModelMain: ViewModelMain,
-    viewModelBest: ViewModelBest,
     drawerState: DrawerState,
     viewModelManavara: ViewModelManavara,
 ) {
@@ -395,10 +400,8 @@ fun NavigationGraph(
                 listState = listState,
                 modalSheetState = modalSheetState,
                 needDataUpdate = needDataUpdate,
-                viewModelBest = viewModelBest,
                 drawerState = drawerState
             )
-
 
         }
         composable(ScreemBottomItem.COMIC.screenRoute) {
@@ -408,7 +411,6 @@ fun NavigationGraph(
                 listState = listState,
                 modalSheetState = modalSheetState,
                 needDataUpdate = needDataUpdate,
-                viewModelBest = viewModelBest,
                 drawerState = drawerState
             )
 

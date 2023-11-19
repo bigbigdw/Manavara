@@ -21,7 +21,6 @@ import kotlinx.coroutines.flow.onEach
 class ActivityMain : ComponentActivity() {
 
     private val viewModelMain: ViewModelMain by viewModels()
-    private val viewModelBest: ViewModelBest by viewModels()
     private val viewModelManavara: ViewModelManavara by viewModels()
     private var needDataUpdate: Boolean = false
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalMaterial3Api::class)
@@ -36,10 +35,6 @@ class ActivityMain : ComponentActivity() {
             .onEach { Toast.makeText(this@ActivityMain, it, Toast.LENGTH_SHORT).show() }
             .launchIn(lifecycleScope)
 
-        viewModelBest.sideEffects
-            .onEach { Toast.makeText(this@ActivityMain, it, Toast.LENGTH_SHORT).show() }
-            .launchIn(lifecycleScope)
-
         viewModelManavara.sideEffects
             .onEach { Toast.makeText(this@ActivityMain, it, Toast.LENGTH_SHORT).show() }
             .launchIn(lifecycleScope)
@@ -51,7 +46,6 @@ class ActivityMain : ComponentActivity() {
 
             ScreenMain(
                 viewModelMain = viewModelMain,
-                viewModelBest = viewModelBest,
                 needDataUpdate = needDataUpdate,
                 viewModelManavara = viewModelManavara,
                 isExpandedScreen = isExpandedScreen

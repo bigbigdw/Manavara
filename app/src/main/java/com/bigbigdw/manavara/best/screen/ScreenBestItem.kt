@@ -1,9 +1,7 @@
 package com.bigbigdw.manavara.best.screen
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -40,7 +38,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -56,16 +53,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.ActivityBestDetail
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.viewModels.ViewModelBest
-import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color02BC77
 import com.bigbigdw.manavara.ui.theme.color1CE3EE
@@ -75,6 +68,9 @@ import com.bigbigdw.manavara.ui.theme.color8F8F8F
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorFF2366
 import com.bigbigdw.manavara.util.geMonthDate
+import com.bigbigdw.manavara.best.getBestListTodayJson
+import com.bigbigdw.manavara.best.getBookItemWeekTrophy
+import com.bigbigdw.manavara.best.getBookMap
 import com.bigbigdw.manavara.util.getWeekDate
 import com.bigbigdw.manavara.util.screen.ScreenEmpty
 import com.bigbigdw.manavara.util.screen.ScreenItemKeyword
@@ -82,8 +78,6 @@ import com.bigbigdw.manavara.util.screen.spannableString
 import com.bigbigdw.manavara.util.weekList
 import com.bigbigdw.manavara.util.weekListAll
 import com.bigbigdw.manavara.util.weekListOneWord
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -101,31 +95,14 @@ fun ScreenTodayBest(
 
     Log.d("RECOMPOSE???", "ScreenTodayBest")
 
-    LaunchedEffect(state.platform, state.type) {
-        viewModelBest.getBestListTodayJson(
-            context = context,
-            needDataUpdate = needDataUpdate
-        )
-
-        viewModelBest.getBookMap()
+    getBestListTodayJson(
+        context = context,
+        needDataUpdate = needDataUpdate,
+        platform = state.platform,
+        type = state.type
+    ) {
+        viewModelBest.setItemBestInfoList(it)
     }
-
-    val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
-    val viewModelA: ViewModelMain = viewModel(viewModelStoreOwner = viewModelStoreOwner)
-    val stateA = viewModelA.state.collectAsState().value
-    val coroutineScope = rememberCoroutineScope()
-
-    LaunchedEffect(viewModelA){
-        viewModelA.sideEffects
-            .onEach { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
-            .launchIn(coroutineScope)
-    }
-
-    if (stateA.userInfo.userEmail.isEmpty()) {
-        viewModelA.setUserInfo()
-    }
-
-    Log.d("TEST???", "stateA.userInfo.userEmail == ${stateA.userInfo.userEmail}")
 
     Column(modifier = Modifier.background(color = colorF6F6F6)) {
 
@@ -161,7 +138,7 @@ fun ListBestToday(
 ) {
 
     val coroutineScope = rememberCoroutineScope()
-
+    val state = viewModelBest.state.collectAsState().value
 
     Row(
         Modifier
@@ -191,9 +168,13 @@ fun ListBestToday(
             onClick = {
                 coroutineScope.launch {
 
-                    viewModelBest.getBookItemWeekTrophy(
-                        itemBookInfo = itemBookInfo
-                    )
+                    getBookItemWeekTrophy(
+                        bookCode = itemBookInfo.bookCode,
+                        platform = state.platform,
+                        type = state.type
+                    ){
+                        viewModelBest.setItemBestInfoTrophyList(itemBestInfoTrophyList = it, itemBookInfo = itemBookInfo)
+                    }
 
                     modalSheetState?.show()
 
@@ -314,7 +295,6 @@ fun ScreenTodayWeek(
     LaunchedEffect(state.platform, state.type) {
         viewModelBest.getBestWeekListJson(context = context, needDataUpdate = needDataUpdate)
         viewModelBest.getBestWeekTrophy()
-        viewModelBest.getBookMap()
     }
 
     val filteredList: ArrayList<ItemBookInfo> = ArrayList()

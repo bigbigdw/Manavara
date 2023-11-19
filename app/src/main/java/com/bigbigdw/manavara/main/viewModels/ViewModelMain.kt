@@ -68,6 +68,7 @@ class ViewModelMain @Inject constructor() : ViewModel() {
 
                     if (userInfoResult != null) {
                         viewModelScope.launch {
+                            _sideEffects.send("허허")
                             events.send(
                                 EventMain.SetUserInfo(userInfo = userInfoResult)
                             )

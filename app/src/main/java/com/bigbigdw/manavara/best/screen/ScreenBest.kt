@@ -3,6 +3,7 @@ package com.bigbigdw.manavara.best.screen
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -35,8 +36,8 @@ import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -53,8 +54,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.ActivityBestDetail
+import com.bigbigdw.manavara.best.getBookMap
 import com.bigbigdw.manavara.best.viewModels.ViewModelBest
 import com.bigbigdw.manavara.main.screen.ScreenUser
 import com.bigbigdw.manavara.ui.theme.color000000
@@ -77,8 +81,9 @@ import com.bigbigdw.manavara.util.getPlatformLogo
 import com.bigbigdw.manavara.util.novelListKor
 import com.bigbigdw.manavara.util.screen.AlertTwoBtn
 import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
-import com.bigbigdw.manavara.util.screen.ScreenTest
 import com.bigbigdw.manavara.util.screen.TabletBorderLine
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
@@ -88,13 +93,23 @@ fun ScreenBest(
     listState: LazyListState,
     modalSheetState: ModalBottomSheetState? = null,
     needDataUpdate: Boolean,
-    viewModelBest: ViewModelBest,
     drawerState: DrawerState,
 ) {
 
+    Log.d("RECOMPOSE???", "ScreenBest")
+
     val context = LocalContext.current
+    val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelBest: ViewModelBest = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+    val coroutineScope = rememberCoroutineScope()
     val state = viewModelBest.state.collectAsState().value
     val item = state.itemBookInfo
+
+    LaunchedEffect(viewModelBest){
+        viewModelBest.sideEffects
+            .onEach { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
+            .launchIn(coroutineScope)
+    }
 
     Box(
         modifier = Modifier
@@ -136,7 +151,6 @@ fun ScreenBest(
                 }
 
                 ScreenBestPropertyList(
-                    viewModelBest = viewModelBest,
                     listState = listState,
                     isExpandedScreen = isExpandedScreen,
                     drawerState = drawerState,
@@ -177,14 +191,23 @@ fun ScreenBest(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenBestPropertyList(
-    viewModelBest: ViewModelBest,
     listState: LazyListState,
     isExpandedScreen: Boolean,
     drawerState: DrawerState?,
 ) {
 
+    val context = LocalContext.current
+    val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelBest: ViewModelBest = viewModel(viewModelStoreOwner = viewModelStoreOwner)
     val coroutineScope = rememberCoroutineScope()
     val state = viewModelBest.state.collectAsState().value
+    val item = state.itemBookInfo
+
+    LaunchedEffect(viewModelBest){
+        viewModelBest.sideEffects
+            .onEach { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
+            .launchIn(coroutineScope)
+    }
 
     if (isExpandedScreen) {
         LazyColumn(
@@ -493,10 +516,14 @@ fun ScreenMainBestItemDetail(
 
     val state = viewModelBest.state.collectAsState().value
 
-    val bestType = remember { derivedStateOf { state.bestType } }
+    getBookMap(
+        platform = state.platform,
+        type = state.type
+    ) {
+        viewModelBest.setItemBookInfoMap(it)
+    }
 
-
-    if (bestType.value.contains("TODAY_BEST")) {
+    if (state.bestType.contains("TODAY_BEST")) {
 
         Spacer(modifier = Modifier.size(16.dp))
 
@@ -508,7 +535,7 @@ fun ScreenMainBestItemDetail(
             viewModelBest = viewModelBest,
         )
 
-    } else if (bestType.value.contains("WEEK_BEST")) {
+    } else if (state.bestType.contains("WEEK_BEST")) {
 
         Spacer(modifier = Modifier.size(16.dp))
 
@@ -519,7 +546,7 @@ fun ScreenMainBestItemDetail(
             viewModelBest = viewModelBest
         )
 
-    } else if (bestType.value.contains("MONTH_BEST")) {
+    } else if (state.bestType.contains("MONTH_BEST")) {
 
         Spacer(modifier = Modifier.size(16.dp))
 
@@ -530,7 +557,7 @@ fun ScreenMainBestItemDetail(
             viewModelBest = viewModelBest
         )
 
-    } else if (bestType.value.contains("USER_OPTION")) {
+    } else if (state.bestType.contains("USER_OPTION")) {
 
         Spacer(modifier = Modifier.size(16.dp))
 

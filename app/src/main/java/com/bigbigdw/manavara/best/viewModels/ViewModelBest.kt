@@ -1,24 +1,20 @@
 package com.bigbigdw.manavara.best.viewModels
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bigbigdw.manavara.best.event.EventBest
 import com.bigbigdw.manavara.best.event.StateBest
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
-import com.bigbigdw.manavara.best.models.ItemKeyword
 import com.bigbigdw.manavara.util.DBDate
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import convertItemBookJson
-import convertItemKeyword
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -554,6 +550,24 @@ class ViewModelBest @Inject constructor() : ViewModel() {
     ) {
         viewModelScope.launch {
             events.send(EventBest.SetBest(platform = platform, menu = menu, bestType = bestType, type = type))
+        }
+    }
+
+    fun setItemBestInfoList(todayJsonList: ArrayList<ItemBookInfo>){
+        viewModelScope.launch {
+            events.send(EventBest.SetItemBestInfoList(itemBookInfoList = todayJsonList))
+        }
+    }
+
+    fun setItemBookInfoMap(itemBookInfoMap: MutableMap<String, ItemBookInfo>){
+        viewModelScope.launch {
+            events.send(EventBest.SetItemBookInfoMap(itemBookInfoMap = itemBookInfoMap))
+        }
+    }
+
+    fun setItemBestInfoTrophyList(itemBestInfoTrophyList: ArrayList<ItemBestInfo>,  itemBookInfo: ItemBookInfo){
+        viewModelScope.launch {
+            events.send(EventBest.SetItemBestInfoTrophyList(itemBestInfoTrophyList = itemBestInfoTrophyList, itemBookInfo = itemBookInfo))
         }
     }
 
