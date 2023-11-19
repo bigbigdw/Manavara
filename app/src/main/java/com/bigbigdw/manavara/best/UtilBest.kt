@@ -56,8 +56,7 @@ fun getBestListTodayJson(
 
                     callbacks.invoke(todayJsonList)
                 } catch (e: Exception) {
-
-                    getBestListTodayStorage(context = context, platform = platform, type = type){
+                    getBestList(platform = platform, type = type) {
                         callbacks.invoke(it)
                     }
                 }
@@ -68,25 +67,31 @@ fun getBestListTodayJson(
 
 private fun getBestListTodayStorage(context: Context, platform : String, type : String, callbacks: (ArrayList<ItemBookInfo>) -> Unit){
 
-    val storage = Firebase.storage
-    val storageRef = storage.reference
-    val todayFileRef = storageRef.child("${platform}/${type}/DAY/${DBDate.dateMMDD()}.json")
-    val localFile = File(context.filesDir, "${platform}_TODAY_${type}.json")
+    try {
+        val storage = Firebase.storage
+        val storageRef = storage.reference
+        val todayFileRef = storageRef.child("${platform}/${type}/DAY/${DBDate.dateMMDD()}.json")
+        val localFile = File(context.filesDir, "${platform}_TODAY_${type}.json")
 
-    todayFileRef.getFile(localFile).addOnSuccessListener {
-        val jsonString = localFile.readText(Charset.forName("UTF-8"))
-        val json = Json { ignoreUnknownKeys = true }
-        val itemList = json.decodeFromString<List<ItemBookInfo>>(jsonString)
+        todayFileRef.getFile(localFile).addOnSuccessListener {
+            val jsonString = localFile.readText(Charset.forName("UTF-8"))
+            val json = Json { ignoreUnknownKeys = true }
+            val itemList = json.decodeFromString<List<ItemBookInfo>>(jsonString)
 
-        val todayJsonList = ArrayList<ItemBookInfo>()
+            val todayJsonList = ArrayList<ItemBookInfo>()
 
-        for (item in itemList) {
-            todayJsonList.add(item)
+            for (item in itemList) {
+                todayJsonList.add(item)
+            }
+
+            callbacks(todayJsonList)
+        }.addOnFailureListener {
+            getBestList(platform = platform, type = type) {
+                callbacks.invoke(it)
+            }
         }
-
-        callbacks(todayJsonList)
-    }.addOnFailureListener {
-        getBestList(platform = platform, type = type){
+    } catch (e: Exception) {
+        getBestList(platform = platform, type = type) {
             callbacks.invoke(it)
         }
     }
@@ -94,9 +99,7 @@ private fun getBestListTodayStorage(context: Context, platform : String, type : 
 
 private fun getBestList(platform : String, type : String, callbacks: (ArrayList<ItemBookInfo>) -> Unit) {
 
-    val mRootRef =
-        FirebaseDatabase.getInstance().reference.child("BEST").child(type).child(platform)
-            .child("DAY")
+    val mRootRef = FirebaseDatabase.getInstance().reference.child("BEST").child(type).child(platform).child("DAY")
 
     mRootRef.addListenerForSingleValueEvent(object :
         ValueEventListener {

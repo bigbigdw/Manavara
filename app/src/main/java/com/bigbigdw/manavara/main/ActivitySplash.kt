@@ -173,11 +173,6 @@ class ActivitySplash : ComponentActivity() {
                         val intent = Intent(this@ActivitySplash, ActivityMain::class.java)
                         startActivity(intent)
                         finish()
-                    } else {
-                        val handler = Handler(Looper.getMainLooper())
-                        handler.postDelayed({
-                            Toast.makeText(this@ActivitySplash, "가입 승인 대기중입니다.", Toast.LENGTH_SHORT).show()
-                        }, 0)
                     }
 
                 } else {
