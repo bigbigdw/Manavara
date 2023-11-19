@@ -50,7 +50,7 @@ class OnestoreBookItem {
 class OnestoreBookDetail {
     @SerializedName("params")
     @Expose
-    var params: OnestoreBookDetailContents? = null
+    var params: OnestoreBookDetailContents = OnestoreBookDetailContents()
 }
 
 class OnestoreBookDetailContents {
@@ -108,13 +108,13 @@ class OnestoreBookDetailKeywords {
 class OnestoreBookDetailComment {
     @SerializedName("params")
     @Expose
-    var params: OnestoreBookDetailCommentContents? = null
+    var params: OnestoreBookDetailCommentContents = OnestoreBookDetailCommentContents()
 }
 
 class OnestoreBookDetailCommentContents {
     @SerializedName("commentList")
     @Expose
-    var commentList: List<OnestoreBookDetailCommentContentsList>? = null
+    var commentList: ArrayList<OnestoreBookDetailCommentContentsList> = ArrayList()
 }
 
 class OnestoreBookDetailCommentContentsList {
@@ -238,7 +238,7 @@ class BestToksodaToksodaResultList {
 class BestToksodaDetailResult {
     @SerializedName("result")
     @Expose
-    val result: BestToksodaDetailResultContents? = null
+    val result: BestToksodaDetailResultContents = BestToksodaDetailResultContents()
 }
 
 class BestToksodaDetailResultContents {

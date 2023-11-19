@@ -106,7 +106,6 @@ class ActivitySplash : ComponentActivity() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun registerNotification(){
 
         FirebaseMessaging.getInstance().subscribeToTopic("all")
@@ -166,29 +165,29 @@ class ActivitySplash : ComponentActivity() {
 
                     CoroutineScope(Dispatchers.IO).launch {
                         dataStore.setDataStoreString(DataStoreManager.UID, uid)
+                    }
 
-                        val userInfo = dataSnapshot.child("USERINFO").getValue(UserInfo::class.java)
+                    val userInfo = dataSnapshot.child("USERINFO").getValue(UserInfo::class.java)
 
-                        if(userInfo?.userStatus == "ALLOW"){
-                            val intent = Intent(this@ActivitySplash, ActivityMain::class.java)
-                            startActivity(intent)
-                            finish()
-                        } else {
-                            val handler = Handler(Looper.getMainLooper())
-                            handler.postDelayed({
-                                Toast.makeText(this@ActivitySplash, "가입 승인 대기중입니다.", Toast.LENGTH_SHORT).show()
-                            }, 0)
-                        }
+                    if(userInfo?.userStatus == "ALLOW"){
+                        val intent = Intent(this@ActivitySplash, ActivityMain::class.java)
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        val handler = Handler(Looper.getMainLooper())
+                        handler.postDelayed({
+                            Toast.makeText(this@ActivitySplash, "가입 승인 대기중입니다.", Toast.LENGTH_SHORT).show()
+                        }, 0)
                     }
 
                 } else {
                     CoroutineScope(Dispatchers.IO).launch {
                         dataStore.setDataStoreString(DataStoreManager.UID, uid)
-                        val intent = Intent(this@ActivitySplash, ActivityLogin::class.java)
-                        startActivity(intent)
-                        finish()
                     }
 
+                    val intent = Intent(this@ActivitySplash, ActivityLogin::class.java)
+                    startActivity(intent)
+                    finish()
                 }
             }
 

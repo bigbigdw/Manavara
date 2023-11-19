@@ -1011,7 +1011,7 @@ fun ScreenBestDetailComment(
 
     Spacer(modifier = Modifier.size(16.dp))
 
-    if (item.size > 1) {
+    if (item.size > 0) {
         item.forEachIndexed { index, itemBestComment ->
             Row(
                 Modifier
@@ -1361,7 +1361,7 @@ fun ScreenBestDetailInfo(item : ItemBestDetailInfo){
         }
 
         if (item.cntRecom.isNotEmpty()) {
-            ItemBestDetailInfoLine(title = "플랫폼 평점 : ", value = item.cntRecom)
+            ItemBestDetailInfoLine(title = "작품 추천 수 : ", value = item.cntRecom)
         }
 
         if (item.cntChapter.isNotEmpty()) {

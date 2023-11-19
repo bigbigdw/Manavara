@@ -3,7 +3,7 @@ package com.bigbigdw.manavara.best.viewModels
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
+import android.view.View
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bigbigdw.manavara.best.event.EventBestDetail
@@ -13,11 +13,20 @@ import com.bigbigdw.manavara.best.models.ItemBestDetailInfo
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.retrofit.Param
+import com.bigbigdw.moavara.Retrofit.BestToksodaDetailResult
+import com.bigbigdw.moavara.Retrofit.BestToksodaSearchResult
 import com.bigbigdw.moavara.Retrofit.JoaraBestDetailCommentsResult
 import com.bigbigdw.moavara.Retrofit.JoaraBestDetailResult
 import com.bigbigdw.moavara.Retrofit.JoaraBestListResult
+import com.bigbigdw.moavara.Retrofit.KakaoStageBestBookCommentResult
+import com.bigbigdw.moavara.Retrofit.KakaoStageBestBookResult
+import com.bigbigdw.moavara.Retrofit.OnestoreBookDetail
+import com.bigbigdw.moavara.Retrofit.OnestoreBookDetailComment
 import com.bigbigdw.moavara.Retrofit.RetrofitDataListener
 import com.bigbigdw.moavara.Retrofit.RetrofitJoara
+import com.bigbigdw.moavara.Retrofit.RetrofitKaKao
+import com.bigbigdw.moavara.Retrofit.RetrofitOnestore
+import com.bigbigdw.moavara.Retrofit.RetrofitToksoda
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -83,57 +92,39 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
 
     fun setBestDetailInfo(platform: String, bookCode: String, context: Context) {
 
-        Log.d("!!!!BESTDETAIL", "platform == $platform")
-
         when (platform) {
             "JOARA", "JOARA_NOBLESS", "JOARA_PREMIUM" -> {
                 setLayoutJoara(bookCode = bookCode, context = context, platform = platform)
             }
+
             "NAVER_WEBNOVEL_FREE", "NAVER_WEBNOVEL_PAY", "NAVER_BEST", "NAVER_CHALLENGE" -> {
                 setLayoutNaver(bookCode = bookCode, platform = platform)
             }
+
             "NAVER_SERIES" -> {
                 setLayoutNaverSeries(bookCode = bookCode, platform = platform)
             }
-//            "Kakao" -> {
-//                setLayoutKaKao()
-//            }
-//            "Kakao_Stage" -> {
-//                setLayoutKaKaoStage()
-//            }
-            "RIDI_FANTAGY", "RIDI_ROMANCE", "RIDI_ROFAN", -> {
+
+            "RIDI_FANTAGY", "RIDI_ROMANCE", "RIDI_ROFAN" -> {
                 setLayoutRidi(bookCode = bookCode, platform = platform)
             }
-//            "OneStore" -> {
-//                setLayoutOneStory()
-//            }
-//            "Munpia" -> {
-//                setLayoutMunpia()
-//            }
-//            "Toksoda" -> {
-//                setLayoutToksoda()
-//            }
-        }
 
-//        when (platform) {
-//            "Naver_Today", "Naver_Challenge", "Naver" -> {
-//                binding.tabs.addTab(binding.tabs.newTab().setText("작품 분석"))
-//                binding.tabs.addTab(binding.tabs.newTab().setText("다른 작품"))
-//            }
-//            "Kakao", "Kakao_Stage", "OneStore", "Munpia" -> {
-//                binding.tabs.addTab(binding.tabs.newTab().setText("작품 분석"))
-//                binding.tabs.addTab(binding.tabs.newTab().setText("댓글"))
-//            }
-//            "Ridi" -> {
-//                binding.tabs.addTab(binding.tabs.newTab().setText("작품 분석"))
-//                binding.tabs.addTab(binding.tabs.newTab().setText("다른 작품"))
-//            }
-//            else -> {
-//                binding.tabs.addTab(binding.tabs.newTab().setText("작품 분석"))
-//                binding.tabs.addTab(binding.tabs.newTab().setText("댓글"))
-//                binding.tabs.addTab(binding.tabs.newTab().setText("다른 작품"))
-//            }
-//        }
+            "KAKAO_STAGE" -> {
+                setLayoutKakaoStage(bookCode = bookCode, platform = platform)
+            }
+
+            "ONESTORY_FANTAGY", "ONESTORY_ROMANCE", "ONESTORY_PASS_FANTAGY", "ONESTORY_PASS_ROMANCE" -> {
+                setLayoutOneStory(bookCode = bookCode, platform = platform)
+            }
+
+            "MUNPIA_PAY", "MUNPIA_FREE" -> {
+                setLayoutMunpia(bookCode = bookCode, platform = platform)
+            }
+
+            "TOKSODA", "TOKSODA_FREE", -> {
+                setLayoutToksoda(bookCode = bookCode, platform = platform)
+            }
+        }
     }
 
     private fun setLayoutJoara(bookCode: String, context: Context, platform: String) {
@@ -149,7 +140,7 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
 
                     val itemBestDetailInfo: ItemBestDetailInfo
 
-                    if (data.status == "1" && data.book != null) {
+                    if (data.book != null) {
 
                         itemBestDetailInfo = ItemBestDetailInfo(
                             writer = data.book.writerName,
@@ -191,7 +182,8 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
         Thread {
 
             val doc: Document =
-                Jsoup.connect("https://series.naver.com/novel/detail.series?productNo=${bookCode}").get()
+                Jsoup.connect("https://series.naver.com/novel/detail.series?productNo=${bookCode}")
+                    .get()
 
             val itemBestDetailInfo = ItemBestDetailInfo(
                 writer = doc.select(".info_lst li")[2].text(),
@@ -227,21 +219,25 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
 
             val keywordList = arrayListOf<String>()
 
-            for(i in doc.select(".tag_collection").indices){
+            for (i in doc.select(".tag_collection").indices) {
                 keywordList.add(doc.select(".tag_collection")[i].text())
             }
 
             val itemBestDetailInfo = ItemBestDetailInfo(
                 writer = doc.select(".info_area").select(".info_group span")[1].text(),
-                title = doc.select(".section_area_info").select(".info_top").select(".title").text(),
+                title = doc.select(".section_area_info").select(".info_top").select(".title")
+                    .text(),
                 bookImg = doc.select(".section_area_info").select("img").attr("src"),
                 bookCode = bookCode,
                 intro = doc.select(".info_area").select(".info_bottom").select("span").text(),
                 cntFavorite = doc.select(".info_book .like").text(),
-                cntRecom = doc.select(".info_area").select(".info_group").select(".score_area").first()?.text()?.replace("별점", "") ?: "",
-                cntPageRead = doc.select(".info_area").select(".info_group").select(".score_area").first()?.nextElementSibling()?.text()?.replace("다운로드 ", "") ?: "",
+                cntRecom = doc.select(".info_area").select(".info_group").select(".score_area")
+                    .first()?.text()?.replace("별점", "") ?: "",
+                cntPageRead = doc.select(".info_area").select(".info_group").select(".score_area")
+                    .first()?.nextElementSibling()?.text()?.replace("다운로드 ", "") ?: "",
                 genre = doc.select(".info_area").select(".info_group span")[0].text(),
-                cntChapter = doc.select(".cont_sub").select(".component_head").select(".past_number").text().replace("(","").replace(")",""),
+                cntChapter = doc.select(".cont_sub").select(".component_head")
+                    .select(".past_number").text().replace("(", "").replace(")", ""),
                 keyword = keywordList,
                 tabInfo = arrayListOf(
                     "작가의 다른 작품",
@@ -272,26 +268,32 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
 
             val keywordList = arrayListOf<String>()
 
-            for(i in doc.select(".keyword_list li").indices){
+            for (i in doc.select(".keyword_list li").indices) {
                 keywordList.add(doc.select(".keyword_list li")[i].select(".keyword").text())
             }
 
-            val bookImg = if(doc.select(".header_thumbnail_wrap").select(".thumbnail").attr("src").contains("cover_adult.png")){
+            val bookImg = if (doc.select(".header_thumbnail_wrap").select(".thumbnail").attr("src")
+                    .contains("cover_adult.png")
+            ) {
                 doc.select(".header_thumbnail_wrap").select(".thumbnail").attr("src")
             } else {
-                doc.select(".header_thumbnail_wrap").select(".thumbnail").attr("src").replace("//","https://")
+                doc.select(".header_thumbnail_wrap").select(".thumbnail").attr("src")
+                    .replace("//", "https://")
             }
 
             val itemBestDetailInfo = ItemBestDetailInfo(
                 writer = doc.select(".header_info_wrap").select(".js_author_detail_link").text(),
-                writerLink = doc.select(".metadata_writer").select("a").attr("href").replace("/author","https://ridibooks.com/author"),
+                writerLink = doc.select(".metadata_writer").select("a").attr("href")
+                    .replace("/author", "https://ridibooks.com/author"),
                 title = doc.select(".header_info_wrap").select("h1.info_title_wrap").text(),
                 bookImg = bookImg,
                 bookCode = bookCode,
                 intro = doc.select(".detail_introduce_book").select(".introduce_paragraph").text(),
-                cntFavorite = doc.select(".header_thumbnail_wrap").select(".js_preference_count").text(),
+                cntFavorite = doc.select(".header_thumbnail_wrap").select(".js_preference_count")
+                    .text(),
                 cntRecom = doc.select(".header_info_wrap").select(".StarRate_Score").text(),
-                cntPageRead = doc.select(".header_info_wrap").select(".StarRate_ParticipantCount").text(),
+                cntPageRead = doc.select(".header_info_wrap").select(".StarRate_ParticipantCount")
+                    .text(),
                 genre = doc.select(".header_info_wrap").select("a").first()?.text() ?: "",
                 cntChapter = doc.select(".header_info_wrap").select(".book_count").text(),
                 keyword = keywordList,
@@ -312,6 +314,176 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
             }
 
         }.start()
+    }
+
+    private fun setLayoutKakaoStage(bookCode: String, platform: String) {
+
+        val apiKakaoStage = RetrofitKaKao()
+
+        apiKakaoStage.getBestKakaoStageDetail(
+            bookCode,
+            object : RetrofitDataListener<KakaoStageBestBookResult> {
+                override fun onSuccess(data: KakaoStageBestBookResult) {
+
+                    val itemBestDetailInfo = ItemBestDetailInfo(
+                        writer = data.nickname.name,
+                        title = data.title,
+                        bookImg = data.thumbnail.url,
+                        bookCode = bookCode,
+                        intro = data.synopsis,
+                        cntChapter = "총 ${data.publishedEpisodeCount}화",
+                        cntPageRead = data.visitorCount,
+                        cntFavorite = data.favoriteCount,
+                        cntRecom = data.episodeLikeCount,
+                        genre = data.subGenre.name,
+                        tabInfo = arrayListOf(
+                            "작품 댓글",
+                            "평점 분석",
+                            "선호작 분석",
+                            "조회 분석",
+                            "랭킹 분석",
+                            "최근 분석",
+                        ),
+                        platform = platform
+                    )
+
+                    viewModelScope.launch {
+                        events.send(
+                            EventBestDetail.SetItemBestDetailInfo(itemBestDetailInfo = itemBestDetailInfo)
+                        )
+                    }
+                }
+            })
+    }
+
+    private fun setLayoutMunpia(bookCode: String, platform: String) {
+
+        Thread {
+            val doc: Document = Jsoup.connect("https://novel.munpia.com/${bookCode}").get()
+
+            val itemBestDetailInfo = ItemBestDetailInfo(
+                writer = doc.select(".member-trigger strong").text(),
+                title = doc.select(".detail-box h2 a").text().replace(doc.select(".detail-box h2 a span").text() + " ", ""),
+                bookImg = "https:${doc.select(".cover-box img").attr("src")}",
+                bookCode = bookCode,
+                intro = doc.select(".story").text(),
+                cntFavorite = doc.select(".meta-etc dd").next().next()[2]?.text() ?: "",
+                cntRecom = doc.select(".meta-etc dd").next().next()[1]?.text() ?: "",
+                genre = doc.select(".meta-path strong").text(),
+                tabInfo = arrayListOf(
+                    "작품 댓글",
+                    "평점 분석",
+                    "선호작 분석",
+                    "랭킹 분석",
+                    "최근 분석",
+                ),
+                platform = platform
+            )
+
+            viewModelScope.launch {
+                events.send(
+                    EventBestDetail.SetItemBestDetailInfo(itemBestDetailInfo = itemBestDetailInfo)
+                )
+            }
+        }.start()
+
+    }
+
+    private fun setLayoutOneStory(bookCode: String, platform: String) {
+
+        val apiOnestory = RetrofitOnestore()
+        val param: MutableMap<String?, Any> = HashMap()
+
+        param["channelId"] = bookCode
+        param["bookpassYn"] = "N"
+
+        apiOnestory.getOneStoreDetail(
+            bookCode,
+            param,
+            object : RetrofitDataListener<OnestoreBookDetail> {
+                override fun onSuccess(data: OnestoreBookDetail) {
+
+                    val itemBestDetailInfo = ItemBestDetailInfo(
+                        writer = data.params.artistNm,
+                        title = data.params.prodNm,
+                        bookImg = data.params.orgFilePos,
+                        bookCode = bookCode,
+                        intro = data.params.menuNm,
+                        cntPageRead = data.params.pageViewTotal,
+                        cntFavorite = data.params.favoriteCount,
+                        cntRecom = data.params.ratingAvgScore,
+                        cntTotalComment = data.params.commentCount,
+                        tabInfo = arrayListOf(
+                            "작품 댓글",
+                            "평점 분석",
+                            "조회 분석",
+                            "랭킹 분석",
+                            "최근 분석",
+                        ),
+                        platform = platform
+                    )
+
+                    viewModelScope.launch {
+                        events.send(
+                            EventBestDetail.SetItemBestDetailInfo(itemBestDetailInfo = itemBestDetailInfo)
+                        )
+                    }
+
+                }
+            })
+    }
+
+    private fun setLayoutToksoda(bookCode: String, platform: String) {
+
+        val apiToksoda = RetrofitToksoda()
+        val param: MutableMap<String?, Any> = HashMap()
+
+        param["brcd"] = bookCode
+        param["_"] = "1657265744728"
+
+        apiToksoda.getBestDetail(
+            param,
+            object : RetrofitDataListener<BestToksodaDetailResult> {
+                override fun onSuccess(data: BestToksodaDetailResult) {
+
+                    val keywordList = arrayListOf<String>()
+
+                    if(data.result.hashTagList != null){
+                        for (item in data.result.hashTagList) {
+                            keywordList.add(item.hashtagNm)
+                        }
+                    }
+
+                    val itemBestDetailInfo = ItemBestDetailInfo(
+                        writer = data.result.athrnm,
+                        writerLink = data.result.athrnm,
+                        title = data.result.wrknm,
+                        bookImg = "https:${data.result.imgPath}",
+                        bookCode = bookCode,
+                        intro = data.result.lnIntro,
+                        cntPageRead = data.result.inqrCnt,
+                        cntFavorite = data.result.intrstCnt,
+                        cntRecom = data.result.goodCnt,
+                        genre = data.result.lgctgrNm,
+                        keyword = keywordList,
+                        tabInfo = arrayListOf(
+                            "작가의 다른 작품",
+                            "평점 분석",
+                            "선호작 분석",
+                            "조회 분석",
+                            "랭킹 분석",
+                            "최근 분석",
+                        ),
+                        platform = platform
+                    )
+
+                    viewModelScope.launch {
+                        events.send(
+                            EventBestDetail.SetItemBestDetailInfo(itemBestDetailInfo = itemBestDetailInfo)
+                        )
+                    }
+                }
+            })
     }
 
     fun setManavaraBestInfo(bookCode: String, type: String, platform: String) {
@@ -354,12 +526,12 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
 
                     val items = ArrayList<ItemBestInfo>()
 
-                    for(item in dataSnapshot.children) {
+                    for (item in dataSnapshot.children) {
                         val bestInfo = item.getValue(ItemBestInfo::class.java)
 
                         if (bestInfo != null) {
 
-                            if(bestInfo.date.isEmpty()){
+                            if (bestInfo.date.isEmpty()) {
                                 bestInfo.date = item.key.toString()
                             }
 
@@ -404,15 +576,11 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
                 "https://ridibooks.com/books/${bookCode}"
             }
 
-            "Kakao_Stage" -> {
+            "KAKAO_STAGE" -> {
                 "https://pagestage.kakao.com/novels/${bookCode}"
             }
 
-            "Kakao" -> {
-                "https://page.kakao.com/home?seriesId=${bookCode}"
-            }
-
-            "OneStore" -> {
+            "ONESTORY_FANTAGY", "ONESTORY_ROMANCE", "ONESTORY_PASS_FANTAGY", "ONESTORY_PASS_ROMANCE" -> {
                 "https://onestory.co.kr/detail/${bookCode}"
             }
 
@@ -420,11 +588,11 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
                 "https://www.joara.com/book/${bookCode}"
             }
 
-            "Munpia" -> {
+            "MUNPIA_PAY", "MUNPIA_FREE" -> {
                 "https://novel.munpia.com/${bookCode}"
             }
 
-            "Toksoda" -> {
+            "TOKSODA", "TOKSODA_FREE" -> {
                 "https://www.tocsoda.co.kr/product/productView?brcd=${bookCode}"
             }
 
@@ -437,21 +605,18 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
             "JOARA", "JOARA_NOBLESS", "JOARA_PREMIUM" -> {
                 getCommentsJoara(context = context, bookCode = bookCode)
             }
-//            "Kakao" -> {
-//                getCommentsKakao()
-//            }
-//            "Kakao_Stage" -> {
-//                getCommentsKakaoStage()
-//            }
-//            "OneStore" -> {
-//                getCommentsOneStory()
-//            }
-//            "Munpia" -> {
-//                getCommentsMunpia()
-//            }
-//            "Toksoda" -> {
-//                getCommentsToksoda()
-//            }
+
+            "KAKAO_STAGE" -> {
+                getCommentsKakaoStage(bookCode = bookCode)
+            }
+
+            "ONESTORY_FANTAGY", "ONESTORY_ROMANCE", "ONESTORY_PASS_FANTAGY", "ONESTORY_PASS_ROMANCE" -> {
+                getCommentsOneStory(bookCode = bookCode)
+            }
+
+            "MUNPIA_PAY", "MUNPIA_FREE" -> {
+                getCommentsMunpia(bookCode = bookCode)
+            }
         }
 
     }
@@ -469,7 +634,7 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
             param,
             object : RetrofitDataListener<JoaraBestDetailCommentsResult> {
                 override fun onSuccess(data: JoaraBestDetailCommentsResult) {
-                    if (data.status == "1" && data.comments != null) {
+                    if (data.comments != null) {
 
                         val items = ArrayList<ItemBestComment>()
 
@@ -492,7 +657,109 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
             })
     }
 
-    fun setOtherBooks(context: Context, bookCode: String, platform: String, writerLink : String = "") {
+    private fun getCommentsKakaoStage(bookCode: String) {
+        val apiKakaoStage = RetrofitKaKao()
+        val param: MutableMap<String?, Any> = HashMap()
+
+        param["size"] = 100
+        param["sort"] = "cacheField.likeCount,desc"
+        param["sort"] = "id,desc"
+        param["page"] = 0
+
+        apiKakaoStage.getBestKakaoStageDetailComment(
+            bookCode,
+            "20",
+            "cacheField.likeCount,desc",
+            "id,desc",
+            "0",
+            object : RetrofitDataListener<KakaoStageBestBookCommentResult> {
+                override fun onSuccess(data: KakaoStageBestBookCommentResult) {
+
+                    val items = ArrayList<ItemBestComment>()
+
+                    for (i in data.content.indices) {
+                        items.add(
+                            ItemBestComment(
+                                comment = data.content[i].message,
+                                date = data.content[i].createdAt,
+                            )
+                        )
+                    }
+
+                    viewModelScope.launch {
+                        events.send(
+                            EventBestDetail.SetListComment(listComment = items)
+                        )
+                    }
+                }
+            })
+    }
+
+    private fun getCommentsOneStory(bookCode: String) {
+
+        val apiOnestory = RetrofitOnestore()
+        val param: MutableMap<String?, Any> = HashMap()
+
+        param["channelId"] = bookCode
+        param["offset"] = "1"
+        param["orderBy"] = "recommend"
+
+        apiOnestory.getOneStoryBookDetailComment(
+            bookCode,
+            param,
+            object : RetrofitDataListener<OnestoreBookDetailComment> {
+                override fun onSuccess(data: OnestoreBookDetailComment) {
+
+                    val items = ArrayList<ItemBestComment>()
+
+                    for (i in data.params.commentList.indices) {
+                        items.add(
+                            ItemBestComment(
+                                comment = data.params.commentList[i].commentDscr,
+                                date = data.params.commentList[i].regDate,
+                            )
+                        )
+                    }
+
+                    viewModelScope.launch {
+                        events.send(
+                            EventBestDetail.SetListComment(listComment = items)
+                        )
+                    }
+                }
+            })
+    }
+
+    private fun getCommentsMunpia(bookCode: String) {
+        Thread {
+            val doc: Document = Jsoup.connect("https://novel.munpia.com/${bookCode}").get()
+
+            val it = doc.select(".review .article-inner")
+            val items = ArrayList<ItemBestComment>()
+
+            for (i in it.indices) {
+                items.add(
+                    ItemBestComment(
+                        comment =  doc.select(".review .article-inner").get(i).text(),
+                        date = doc.select(".review .writer-area .date-de").get(i).text().replace("· ", ""),
+                    )
+                )
+            }
+
+            viewModelScope.launch {
+                events.send(
+                    EventBestDetail.SetListComment(listComment = items)
+                )
+            }
+        }.start()
+    }
+
+    fun setOtherBooks(
+        context: Context,
+        bookCode: String,
+        platform: String,
+        writerLink: String = ""
+    ) {
         when (platform) {
             "JOARA", "JOARA_NOBLESS", "JOARA_PREMIUM" -> {
                 getOthersJoa(context = context, bookCode = bookCode, platform = platform)
@@ -500,24 +767,12 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
             "NAVER_WEBNOVEL_FREE", "NAVER_WEBNOVEL_PAY", "NAVER_BEST", "NAVER_CHALLENGE" -> {
                 getOtherNaverWebnovel(bookCode = bookCode, platform = platform, type = "OTHER")
             }
-            "RIDI_FANTAGY", "RIDI_ROMANCE", "RIDI_ROFAN", -> {
+            "RIDI_FANTAGY", "RIDI_ROMANCE", "RIDI_ROFAN" -> {
                 getOtherRidi(bookCode = writerLink, platform = platform)
             }
-//            "Kakao" -> {
-//                getCommentsKakao()
-//            }
-//            "Kakao_Stage" -> {
-//                getCommentsKakaoStage()
-//            }
-//            "OneStore" -> {
-//                getCommentsOneStory()
-//            }
-//            "Munpia" -> {
-//                getCommentsMunpia()
-//            }
-//            "Toksoda" -> {
-//                getCommentsToksoda()
-//            }
+            "TOKSODA", "TOKSODA_FREE" -> {
+                getOthersToksoda(writerLink = writerLink, platform = platform)
+            }
         }
 
     }
@@ -578,16 +833,16 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
                 Jsoup.connect("https://novel.naver.com/webnovel/list?novelId=${bookCode}").post()
 
             val items = ArrayList<ItemBookInfo>()
-            val books = if(type == "OTHER"){
+            val books = if (type == "OTHER") {
                 doc.select(".aside_section").first()?.select("li")
             } else {
                 doc.select(".aside_section").first()?.nextElementSibling()?.select("li")
             }
 
-            if(books != null){
+            if (books != null) {
                 for (i in books.indices) {
 
-                    if(!books[i].select("a").attr("href").contains("#")){
+                    if (!books[i].select("a").attr("href").contains("#")) {
                         items.add(
                             ItemBookInfo(
                                 writer = books[i].select(".author").text(),
@@ -597,7 +852,8 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
                                     .replace("/best/list?novelId=", "")
                                     .replace("/challenge/list?novelId=", "")
                                     .replace("/webnovel/list?novelId=", ""),
-                                cntRecom = books[i].select(".list_info").select(".score_area").text(),
+                                cntRecom = books[i].select(".list_info").select(".score_area")
+                                    .text(),
                                 cntFavorite = books[i].select(".list_info").select(".count").text(),
                                 type = platform
                             )
@@ -625,24 +881,33 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
 
             for (i in books.indices) {
 
-                val bookImg = if(books[i].select(".thumbnail").attr("data-src").contains("cover_adult.png")){
+                val bookImg = if (books[i].select(".thumbnail").attr("data-src")
+                        .contains("cover_adult.png")
+                ) {
                     books[i].select(".thumbnail").attr("data-src")
                 } else {
-                    books[i].select(".thumbnail").attr("data-src").replace("//","https://")
+                    books[i].select(".thumbnail").attr("data-src").replace("//", "https://")
                 }
 
-                if(!books[i].select("a").attr("href").contains("#")){
+                if (!books[i].select("a").attr("href").contains("#")) {
                     items.add(
                         ItemBookInfo(
-                            writer = books[i].select(".book_metadata_wrapper").select(".author").text(),
-                            title =  books[i].select(".book_metadata_wrapper").select(".title_text").text(),
+                            writer = books[i].select(".book_metadata_wrapper").select(".author")
+                                .text(),
+                            title = books[i].select(".book_metadata_wrapper").select(".title_text")
+                                .text(),
                             bookImg = bookImg,
-                            bookCode = books[i].select(".book_metadata_wrapper").attr("data-book-id"),
-                            cntPageRead = books[i].select(".book_metadata_wrapper").select(".StarRate_ParticipantCount").text(),
-                            cntRecom = books[i].select(".book_metadata_wrapper").select(".StarRate_Score").text(),
+                            bookCode = books[i].select(".book_metadata_wrapper")
+                                .attr("data-book-id"),
+                            cntPageRead = books[i].select(".book_metadata_wrapper")
+                                .select(".StarRate_ParticipantCount").text(),
+                            cntRecom = books[i].select(".book_metadata_wrapper")
+                                .select(".StarRate_Score").text(),
                             cntFavorite = "",
-                            genre = books[i].select(".book_metadata_wrapper").select(".genre").text(),
-                            cntChapter = books[i].select(".book_metadata_wrapper").select(".count_num").text(),
+                            genre = books[i].select(".book_metadata_wrapper").select(".genre")
+                                .text(),
+                            cntChapter = books[i].select(".book_metadata_wrapper")
+                                .select(".count_num").text(),
                             type = platform
                         )
                     )
@@ -658,15 +923,68 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
         }.start()
     }
 
+    private fun getOthersToksoda(writerLink: String, platform: String) {
+
+        val apiToksoda = RetrofitToksoda()
+        val param : MutableMap<String?, Any> = HashMap()
+
+        param["srchwrd"] = writerLink
+        param["keyword"] = writerLink
+        param["pageSize"] = "20"
+        param["pageIndex"] = "0"
+        param["ageGrade"] = "0"
+        param["lgctgrCd"] = ""
+        param["mdctgrCd"] = ""
+        param["searchType"] = "T"
+        param["sortType"] = "W"
+        param["prdtType"] = ""
+        param["eventYn"] = "N"
+        param["realSearchType"] = "N"
+        param["_"] = "1657267049443"
+
+        apiToksoda.getSearch(
+            param,
+            object : RetrofitDataListener<BestToksodaSearchResult> {
+                override fun onSuccess(data: BestToksodaSearchResult) {
+
+                    val items = ArrayList<ItemBookInfo>()
+
+                    if(data.resultList != null){
+                        for (i in data.resultList.indices) {
+                            items.add(
+                                ItemBookInfo(
+                                    writer = data.resultList[i].AUTHOR,
+                                    title = data.resultList[i].BOOK_NM,
+                                    bookImg = "https:${data.resultList[i].IMG_PATH}",
+                                    bookCode = data.resultList[i].BARCODE,
+                                    intro = data.resultList[i].INTRO,
+                                    genre = data.resultList[i].LGCTGR_NM,
+                                    type = platform
+                                )
+                            )
+                        }
+
+                        viewModelScope.launch {
+                            events.send(
+                                EventBestDetail.SetListBestOther(listBestOther = items)
+                            )
+                        }
+                    }
+                }
+            })
+    }
+
     fun setBestDetailRecom(platform: String, bookCode: String, context: Context) {
 
         when (platform) {
             "JOARA", "JOARA_NOBLESS", "JOARA_PREMIUM" -> {
                 setJoaraRecom(bookCode = bookCode, context = context, platform = platform)
             }
+
             "NAVER_SERIES" -> {
                 setNaverSeriesRecom(bookCode = bookCode, platform = platform)
             }
+
             "NAVER_WEBNOVEL_FREE", "NAVER_WEBNOVEL_PAY", "NAVER_BEST", "NAVER_CHALLENGE" -> {
                 getOtherNaverWebnovel(bookCode = bookCode, platform = platform, type = "RECOM")
             }
@@ -687,8 +1005,8 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
 
                     val itemList = ArrayList<ItemBookInfo>()
 
-                    if(data.bookLists != null){
-                        for(i in data.bookLists.indices){
+                    if (data.bookLists != null) {
+                        for (i in data.bookLists.indices) {
                             itemList.add(
                                 ItemBookInfo(
                                     writer = data.bookLists[i].writerName,
@@ -724,7 +1042,8 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
         Thread {
 
             val doc: Document =
-                Jsoup.connect("https://series.naver.com/novel/detail.series?productNo=${bookCode}").get()
+                Jsoup.connect("https://series.naver.com/novel/detail.series?productNo=${bookCode}")
+                    .get()
 
             val items = ArrayList<ItemBookInfo>()
             val books = doc.select("div.aside_air ul.aside_air_lst li")
@@ -736,7 +1055,8 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
                         writer = doc.select(".info_area").select(".info_group span")[1].text(),
                         title = books[i].select("img").attr("alt"),
                         bookImg = books[i].select("img").attr("src"),
-                        bookCode = books[i].select("a").attr("href").replace("/best/list?novelId=", ""),
+                        bookCode = books[i].select("a").attr("href")
+                            .replace("/best/list?novelId=", ""),
                         type = platform
                     )
                 )
@@ -752,29 +1072,3 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
         }.start()
     }
 }
-
-//val itemBestDetailInfo = ItemBestDetailInfo(
-//    writer = "",
-//    title = "",
-//    bookImg = "",
-//    bookCode = bookCode,
-//    intro = "",
-//    cntFavorite = "",
-//    cntRecom = "",
-//    cntPageRead = "",
-//    genre = "",
-//    cntChapter = "",
-//    keyword = keywordList,
-//    tabInfo = arrayListOf(),
-//    platform = platform
-//)
-
-//ItemBookInfo(
-//writer = "",
-//title = "",
-//bookImg = "",
-//bookCode = "",
-//cntRecom = "",
-//cntFavorite = "",
-//type = platform
-//)

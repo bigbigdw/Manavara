@@ -862,7 +862,7 @@ fun ScreenItemBestCard(item: ItemBookInfo, index: Int){
             if (item.cntRecom.isNotEmpty()) {
                 Text(
                     text = spannableString(
-                        textFront = "플랫폼 평점 : ",
+                        textFront = "작품 추천 수 : ",
                         color = color000000,
                         textEnd = item.cntRecom
                     ),
