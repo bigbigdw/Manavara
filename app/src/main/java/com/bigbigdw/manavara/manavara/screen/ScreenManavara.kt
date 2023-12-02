@@ -64,6 +64,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.bigbigdw.manavara.R
+import com.bigbigdw.manavara.analyze.screen.ScreenManavaraItemDetail
+import com.bigbigdw.manavara.analyze.screen.ScreenManavaraTopbar
 import com.bigbigdw.manavara.analyze.viewModels.ViewModelAnalyze
 import com.bigbigdw.manavara.best.screen.ScreenDialogBest
 import com.bigbigdw.manavara.best.models.ItemKeyword
@@ -171,7 +173,7 @@ fun ScreenManavara(
                     }
                 }
 
-                com.bigbigdw.manavara.analyze.screen.ScreenManavaraPropertyList(
+                ScreenManavaraPropertyList(
                     viewModelAnalyze = viewModelAnalyze,
                 )
 
@@ -196,14 +198,14 @@ fun ScreenManavara(
 
                 ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
 
-                    com.bigbigdw.manavara.analyze.screen.ScreenManavaraPropertyList(
+                    ScreenManavaraPropertyList(
                         viewModelAnalyze = viewModelAnalyze,
                     )
 
                 }) {
                     Scaffold(
                         topBar = {
-                            com.bigbigdw.manavara.analyze.screen.ScreenManavaraTopbar(
+                            ScreenManavaraTopbar(
                                 viewModelAnalyze = viewModelAnalyze,
                                 onClick = {
                                     coroutineScope.launch {
@@ -219,7 +221,7 @@ fun ScreenManavara(
                                 .background(color = colorF6F6F6)
                                 .fillMaxSize()
                         ) {
-                            com.bigbigdw.manavara.analyze.screen.ScreenManavaraItemDetail(
+                            ScreenManavaraItemDetail(
                                 viewModelAnalyze = viewModelAnalyze
                             )
                         }
@@ -261,12 +263,10 @@ fun ScreenManavara(
 
 @Composable
 fun ScreenManavaraPropertyList(
-    viewModelManavara: ViewModelManavara,
+    viewModelAnalyze: ViewModelAnalyze,
 ) {
 
-    val state = viewModelManavara.state.collectAsState().value
-
-    val coroutineScope = rememberCoroutineScope()
+    val state = viewModelAnalyze.state.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -289,673 +289,70 @@ fun ScreenManavaraPropertyList(
                 fontWeight = FontWeight(weight = 700)
             )
 
-            ItemMainSettingSingleTablet(
-                containerColor = color4AD7CF,
-                image = R.drawable.icon_novel_wht,
-                title = "마나바라 베스트 웹소설 DB",
-                body = "마나바라에 기록된 베스트 웹소설 리스트",
-                current = state.menu,
-                onClick = {  },
-                value = "베스트 웹소설 DB"
-            )
-
-            ItemMainSettingSingleTablet(
-                containerColor = color5372DE,
-                image = R.drawable.icon_novel_wht,
-                title = "투데이 장르 베스트",
-                body = "플랫폼별 투데이 베스트 장르 리스트 보기",
-                current = state.menu,
-                onClick = {  },
-                value = "웹소설 투데이 장르"
-            )
-
-            ItemMainSettingSingleTablet(
-                containerColor = color998DF9,
-                image = R.drawable.icon_novel_wht,
-                title = "주간 장르 베스트",
-                body = "플랫폼별 주간 베스트 장르 리스트 보기",
-                current = state.menu,
-                onClick = {  },
-                value = "웹소설 주간 장르"
-            )
-
-            ItemMainSettingSingleTablet(
-                containerColor = colorEA927C,
-                image = R.drawable.icon_novel_wht,
-                title = "월간 장르 베스트",
-                body = "플랫폼별 월간 베스트 장르 리스트 보기",
-                current = state.menu,
-                onClick = {  },
-                value = "웹소설 월간 장르"
-            )
-
-            TabletBorderLine()
-
-            ItemMainSettingSingleTablet(
-                containerColor = colorABD436,
-                image = R.drawable.icon_webtoon_wht,
-                title = "마나바라 베스트 웹툰 DB",
-                body = "마나바라에 기록된 웹툰 웹툰 리스트",
-                current = state.menu,
-                onClick = {  },
-                value = "베스트 웹툰 DB"
-            )
-
-            ItemMainSettingSingleTablet(
-                containerColor = colorF17FA0,
-                image = R.drawable.icon_webtoon_wht,
-                title = "투데이 웹툰 장르 베스트",
-                body = "플랫폼별 웹툰 베스트 장르 리스트 보기",
-                current = state.menu,
-                onClick = {  },
-                value = "웹툰 투데이 장르"
-            )
-
-            ItemMainSettingSingleTablet(
-                containerColor = color21C2EC,
-                image = R.drawable.icon_webtoon_wht,
-                title = "주간 웹툰 장르 베스트",
-                body = "플랫폼별 웹툰 베스트 장르 리스트 보기",
-                current = state.menu,
-                onClick = {  },
-                value = "웹툰 주간 장르"
-            )
-
-            ItemMainSettingSingleTablet(
-                containerColor = color31C3AE,
-                image = R.drawable.icon_webtoon_wht,
-                title = "월간 웹툰 장르 베스트",
-                body = "플랫폼별 월간 웹툰 베스트 장르 리스트 보기",
-                current = state.menu,
-                onClick = {  },
-                value = "웹툰 월간 장르"
-            )
-
-            TabletBorderLine()
 
             ItemMainSettingSingleTablet(
                 containerColor = color7C81FF,
-                image = R.drawable.icon_search_wht,
-                title = "작품 검색",
-                body = "플랫폼과 무관하게 작품 검색 진행",
+                image = R.drawable.ic_launcher,
+                title = "나의 기록",
+                body = "https://m.comic.naver.com/event/yearend/2023",
                 current = state.menu,
                 onClick = {  },
                 value = "작품 검색",
             )
 
             ItemMainSettingSingleTablet(
-                containerColor = color64C157,
-                image = R.drawable.icon_search_wht,
-                title = "북코드 검색",
-                body = "플랫폼과 무관하게 작품 검색 진행",
+                containerColor = color7C81FF,
+                image = R.drawable.ic_launcher,
+                title = "내가 분석한 작품",
+                body = "--------",
                 current = state.menu,
                 onClick = {  },
-                value = "북코드 검색",
+                value = "작품 검색",
             )
 
             ItemMainSettingSingleTablet(
-                containerColor = colorF17666,
-                image = R.drawable.icon_search_wht,
-                title = "웹소설 DB 검색",
-                body = "웹소설 DB 검색",
+                containerColor = color7C81FF,
+                image = R.drawable.ic_launcher,
+                title = "옵션",
+                body = "--------",
                 current = state.menu,
                 onClick = {  },
-                value = "웹소설 DB 검색",
+                value = "작품 검색",
             )
 
             ItemMainSettingSingleTablet(
-                containerColor = color536FD2,
-                image = R.drawable.icon_search_wht,
-                title = "웹툰 DB 검색",
-                body = "웹툰 DB 검색",
+                containerColor = color7C81FF,
+                image = R.drawable.ic_launcher,
+                title = "메세지함",
+                body = "--------",
                 current = state.menu,
                 onClick = {  },
-                value = "웹툰 DB 검색",
-            )
-        }
-    }
-}
-
-@Composable
-fun ScreenBestDBListNovel(isInit: Boolean = true, type: String) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colorF6F6F6),
-        contentAlignment = if(isInit){
-            Alignment.Center
-        } else {
-            Alignment.TopStart
-        }
-    ) {
-        val context = LocalContext.current
-        val dataStore = DataStoreManager(context)
-
-        LazyColumn(
-            modifier = Modifier.wrapContentSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-
-            if(isInit){
-                item {
-                    Card(
-                        modifier = Modifier
-                            .wrapContentSize(),
-                        colors = CardDefaults.cardColors(containerColor = colorDCDCDD),
-                        shape = RoundedCornerShape(50.dp, 50.dp, 50.dp, 50.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .height(90.dp)
-                                .width(90.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Image(
-                                contentScale = ContentScale.FillWidth,
-                                painter = painterResource(id = R.drawable.ic_launcher),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .height(72.dp)
-                                    .width(72.dp)
-                            )
-                        }
-                    }
-                }
-
-                item { Spacer(modifier = Modifier.size(8.dp)) }
-
-                item {
-                    Text(
-                        text = "마나바라에 기록된 작품들",
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Center,
-                        color = color000000
-                    )
-                }
-            }
-
-            item { Spacer(modifier = Modifier.size(8.dp)) }
-
-            if(type == "NOVEL"){
-                itemsIndexed(novelListEng()) { index, item ->
-                    Box(modifier = Modifier.padding(16.dp, 8.dp)) {
-                        TabletContentWrapBtn(
-                            onClick = {},
-                            content = {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.Start,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-
-                                    Image(
-                                        painter = painterResource(id = getPlatformLogoEng(item)),
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .width(20.dp)
-                                            .height(20.dp)
-                                    )
-
-                                    Spacer(modifier = Modifier.size(8.dp))
-
-                                    getBookCount(context = context, type = type, platform = item)
-
-                                    Text(
-                                        text = spannableString(
-                                            textFront = "${changePlatformNameKor(item)} : ",
-                                            color = color000000,
-                                            textEnd = "${dataStore.getDataStoreString(
-                                                getPlatformDataKeyNovel(item)
-                                            ).collectAsState(initial = "").value ?: "0"} 작품"
-                                        ),
-                                        color = color20459E,
-                                        fontSize = 18.sp,
-                                    )
-                                }
-                            }
-                        )
-                    }
-                }
-            } else {
-                itemsIndexed(comicListEng()) { index, item ->
-                    Box(modifier = Modifier.padding(16.dp, 8.dp)) {
-                        TabletContentWrapBtn(
-                            onClick = {},
-                            content = {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.Start,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-
-                                    Image(
-                                        painter = painterResource(id = getPlatformLogoEng(item)),
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .width(20.dp)
-                                            .height(20.dp)
-                                    )
-
-                                    Spacer(modifier = Modifier.size(8.dp))
-
-                                    getBookCount(context = context, type = type, platform = item)
-
-                                    Text(
-                                        text = spannableString(
-                                            textFront = "${changePlatformNameKor(item)} : ",
-                                            color = color000000,
-                                            textEnd = "${dataStore.getDataStoreString(
-                                                getPlatformDataKeyComic(item)
-                                            ).collectAsState(initial = "").value ?: "0"} 작품"
-                                        ),
-                                        color = color20459E,
-                                        fontSize = 18.sp,
-                                    )
-                                }
-                            }
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun GenreDetailJson(
-    getDetailType: String,
-    menuType: String,
-    viewModelManavara: ViewModelManavara
-) {
-
-    val (getPlatform, setPlatform) = remember { mutableStateOf("JOARA") }
-
-    LaunchedEffect(menuType, getPlatform) {
-        when (menuType) {
-            "투데이" -> {
-                viewModelManavara.getJsonGenreList(platform = getPlatform, type = getDetailType)
-            }
-            "주간" -> {
-                viewModelManavara.getJsonGenreWeekList(
-                    platform = getPlatform,
-                    type = getDetailType
-                )
-            }
-            else -> {
-                viewModelManavara.getJsonGenreMonthList(
-                    platform = getPlatform,
-                    type = getDetailType
-                )
-            }
-        }
-    }
-
-    val state = viewModelManavara.state.collectAsState().value
-
-    Column(modifier = Modifier.padding(16.dp)) {
-        LazyRow {
-            itemsIndexed(genreListEng()) { index, item ->
-                Box {
-                    ScreenItemKeyword(
-                        getter = getPlatform,
-                        setter = setPlatform,
-                        title =  changePlatformNameKor(item),
-                        getValue = item
-                    )
-                }
-            }
-        }
-
-        LazyColumn(modifier = Modifier.padding(0.dp, 16.dp)) {
-            itemsIndexed(state.genreDay) { index, item ->
-                ListGenreToday(
-                    itemBestKeyword = item,
-                    index = index
-                )
-            }
-        }
-    }
-
-    Spacer(modifier = Modifier.size(60.dp))
-}
-
-@Composable
-fun ScreenItemKeyword(
-    getter: String,
-    setter: (String) -> Unit,
-    title: String,
-    getValue: String
-) {
-
-    Card(
-        modifier = if (getter == getValue) {
-            Modifier.border(2.dp, color20459E, CircleShape)
-        } else {
-            Modifier.border(2.dp, colorF7F7F7, CircleShape)
-        },
-        colors = CardDefaults.cardColors(
-            containerColor = if (getter == getValue) {
-                color20459E
-            } else {
-                Color.White
-            }
-        ),
-        shape = RoundedCornerShape(20.dp, 20.dp, 20.dp, 20.dp)
-    ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(14.dp, 8.dp)
-                .clickable {
-                    setter(getValue)
-                },
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-
-            Image(
-                contentScale = ContentScale.FillWidth,
-                painter = painterResource(id = getPlatformLogo(title)),
-                contentDescription = null,
-                modifier = Modifier
-                    .width(20.dp)
-                    .height(20.dp)
+                value = "작품 검색",
             )
 
-            Spacer(modifier = Modifier.width(4.dp))
+            TabletBorderLine()
 
-            Text(
-                text = title,
-                fontSize = 17.sp,
-                textAlign = TextAlign.Left,
-                color = if (getter == getValue) {
-                    Color.White
-                } else {
-                    Color.Black
-                },
-                fontWeight = FontWeight.Bold
+            ItemMainSettingSingleTablet(
+                containerColor = color7C81FF,
+                image = R.drawable.ic_launcher,
+                title = "이벤트",
+                body = "------",
+                current = state.menu,
+                onClick = {  },
+                value = "작품 검색",
+            )
+
+            ItemMainSettingSingleTablet(
+                containerColor = color7C81FF,
+                image = R.drawable.ic_launcher,
+                title = "커뮤니티",
+                body = "------",
+                current = state.menu,
+                onClick = {  },
+                value = "작품 검색",
             )
         }
     }
 }
 
 
-@Composable
-fun ListGenreToday(
-    itemBestKeyword: ItemKeyword,
-    index: Int,
-) {
-
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .padding(0.dp, 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-
-        Button(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(4.dp, 0.dp, 0.dp, 0.dp)
-                .fillMaxWidth(),
-            shape = RoundedCornerShape(25.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-            onClick = {},
-            contentPadding = PaddingValues(
-                start = 0.dp,
-                top = 0.dp,
-                end = 0.dp,
-                bottom = 0.dp,
-            ),
-            content = {
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    Text(
-                        text = "${index + 1} ",
-                        modifier = Modifier
-                            .wrapContentHeight()
-                            .padding(16.dp, 0.dp, 0.dp, 0.dp),
-                        fontSize = 24.sp,
-                        textAlign = TextAlign.Left,
-                        color = color20459E,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Text(
-                        maxLines = 1,
-                        text = itemBestKeyword.title,
-                        modifier = Modifier
-                            .wrapContentHeight()
-                            .weight(1f),
-                        fontSize = 18.sp,
-                        textAlign = TextAlign.Left,
-                        color = Color.Black,
-                        fontWeight = FontWeight.Bold,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-
-                    Spacer(modifier = Modifier.width(16.dp))
-
-                    Text(
-                        text = itemBestKeyword.value,
-                        modifier = Modifier
-                            .wrapContentHeight()
-                            .padding(0.dp, 0.dp, 16.dp, 0.dp)
-                            .wrapContentSize(),
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Left,
-                        color = color1CE3EE,
-                        fontWeight = FontWeight.Bold,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            })
-    }
-}
-
-@Composable
-fun ScreenManavaraItemDetail(
-    viewModelManavara: ViewModelManavara,
-) {
-
-    val state = viewModelManavara.state.collectAsState().value
-
-    if (state.menu.contains("베스트 웹소설 DB")) {
-        ScreenBestDBListNovel(isInit = false, type = "NOVEL")
-    } else if (state.menu.contains("베스트 웹툰 DB")) {
-        ScreenBestDBListNovel(isInit = false, type = "COMIC")
-    } else if (state.menu.contains("웹소설 투데이 장르")) {
-        GenreDetailJson(
-            viewModelManavara = viewModelManavara,
-            getDetailType = "NOVEL",
-            menuType = "투데이"
-        )
-
-    } else if (state.menu.contains("웹소설 주간 장르")) {
-        GenreDetailJson(
-            getDetailType = "NOVEL",
-            menuType = "주간",
-            viewModelManavara = viewModelManavara
-        )
-
-    } else if (state.menu.contains("웹소설 월간 장르")) {
-        GenreDetailJson(
-            getDetailType = "NOVEL",
-            menuType = "월간",
-            viewModelManavara = viewModelManavara
-        )
-    } else if (state.menu.contains("웹툰 투데이 장르")) {
-        GenreDetailJson(
-            getDetailType = "COMIC",
-            menuType = "투데이",
-            viewModelManavara = viewModelManavara
-        )
-
-    } else if (state.menu.contains("웹툰 주간 장르")) {
-        GenreDetailJson(
-            getDetailType = "COMIC",
-            menuType = "주간",
-            viewModelManavara = viewModelManavara
-        )
-
-    } else if (state.menu.contains("웹툰 월간 장르")) {
-        GenreDetailJson(
-            getDetailType = "COMIC",
-            menuType = "월간",
-            viewModelManavara = viewModelManavara
-        )
-    } else {
-        ScreenBestDBListNovel(type = "NOVEL")
-    }
-}
-
-@SuppressLint("MutableCollectionMutableState")
-@Composable
-fun ScreenManavaDetail(
-    viewModelManavara: ViewModelManavara
-) {
-
-    val state = viewModelManavara.state.collectAsState().value
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(color = colorF6F6F6)
-    ) {
-
-        if(manavaraListKor().contains(state.menu)){
-            Spacer(modifier = Modifier.size(16.dp))
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    painter = painterResource(id = R.drawable.icon_arrow_left),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(30.dp)
-                        .height(30.dp)
-                )
-
-                Text(
-                    modifier = Modifier
-                        .padding(16.dp, 0.dp, 0.dp, 0.dp),
-                    text = changeDetailNameKor(state.menu),
-                    fontSize = 24.sp,
-                    color = color000000,
-                    fontWeight = FontWeight(weight = 700)
-                )
-            }
-        }
-
-        ScreenManavaraItemDetail(
-            viewModelManavara = viewModelManavara
-        )
-    }
-}
-
-@Composable
-fun ScreenManavaraTopbar(viewModelBest : ViewModelBest, onClick: () -> Unit){
-    val state = viewModelBest.state.collectAsState().value
-
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .background(color = Color.White)
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-
-        Box(
-            modifier = Modifier.weight(1f)
-        ) {
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable { onClick() }) {
-                Image(
-                    painter = painterResource(id = R.drawable.icon_drawer),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(22.dp)
-                        .height(22.dp)
-                )
-
-                Spacer(
-                    modifier = Modifier.size(8.dp)
-                )
-
-                Text(
-                    text = "마나바라",
-                    fontSize = 20.sp,
-                    textAlign = TextAlign.Left,
-                    color = color000000,
-                    fontWeight = FontWeight.Bold
-                )
-
-            }
-
-        }
-
-        if (state.bestType != "USER_OPTION") {
-            androidx.compose.material.Text(
-                modifier = Modifier.clickable {
-                    viewModelBest.setBest(bestType = "TODAY_BEST")
-                },
-                text = "투데이",
-                fontSize = 18.sp,
-                textAlign = TextAlign.Left,
-                color = if (state.bestType.contains("TODAY_BEST")) {
-                    color1E4394
-                } else {
-                    color555b68
-                },
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(
-                modifier = Modifier
-                    .wrapContentWidth()
-                    .width(16.dp)
-            )
-
-            androidx.compose.material.Text(
-                modifier = Modifier.clickable {
-                    viewModelBest.setBest(bestType = "WEEK_BEST")
-                },
-                text = "주간",
-                fontSize = 18.sp,
-                textAlign = TextAlign.Left,
-                color = if (state.bestType.contains("WEEK_BEST")) {
-                    color1E4394
-                } else {
-                    color555b68
-                },
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(
-                modifier = Modifier
-                    .wrapContentWidth()
-                    .width(16.dp)
-            )
-
-            androidx.compose.material.Text(
-                modifier = Modifier.clickable {
-                    viewModelBest.setBest(bestType = "MONTH_BEST")
-                },
-                text = "월간",
-                fontSize = 18.sp,
-                textAlign = TextAlign.Left,
-                color = if (state.bestType.contains("MONTH_BEST")) {
-                    color1E4394
-                } else {
-                    color555b68
-                },
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
-}

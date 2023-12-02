@@ -6,61 +6,61 @@ import com.bigbigdw.manavara.best.models.ItemKeyword
 import com.bigbigdw.manavara.main.models.UserInfo
 import com.bigbigdw.manavara.util.novelListEng
 
-sealed interface EventManavara{
-    object Loaded: EventManavara
+sealed interface EventAnalyze{
+    object Loaded: EventAnalyze
 
     class SetItemBestInfoList(
         var itemBookInfoList: ArrayList<ItemBookInfo> = ArrayList(),
-    ) : EventManavara
+    ) : EventAnalyze
 
     class SetItemBookInfoList(
         var itemBestInfoList: MutableMap<String, ItemBookInfo> = mutableMapOf()
-    ) : EventManavara
+    ) : EventAnalyze
 
     class SetWeekTrophyList(
         var weekTrophyList: ArrayList<ItemBestInfo> = ArrayList(),
-    ) : EventManavara
+    ) : EventAnalyze
 
     class SetItemBookInfoMap(
         var itemBookInfoMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
-    ) : EventManavara
+    ) : EventAnalyze
 
     class SetWeekList(
         val weekList : ArrayList<ArrayList<ItemBookInfo>> = ArrayList(),
-    ) : EventManavara
+    ) : EventAnalyze
 
     class SetMonthList(
         val monthList : ArrayList<ArrayList<ItemBookInfo>> = ArrayList(),
-    ) : EventManavara
+    ) : EventAnalyze
 
     class SetMonthTrophyList(
         var monthTrophyList: ArrayList<ItemBestInfo> = ArrayList(),
-    ) : EventManavara
+    ) : EventAnalyze
 
     class SetGenreDay(
         val genreDay : ArrayList<ItemKeyword> = ArrayList()
-    ) : EventManavara
+    ) : EventAnalyze
 
     class SetGenreWeek(
         val genreDay : ArrayList<ItemKeyword> = ArrayList(),
         val genreDayList : ArrayList<ArrayList<ItemKeyword>> = ArrayList()
-    ) : EventManavara
+    ) : EventAnalyze
 
     class SetItemBookInfo(
         val itemBookInfo : ItemBookInfo = ItemBookInfo()
-    ) : EventManavara
+    ) : EventAnalyze
 
     class SetItemBestInfoTrophyList(
         val itemBestInfoTrophyList : ArrayList<ItemBestInfo> = ArrayList(),
         val itemBookInfo : ItemBookInfo = ItemBookInfo()
-    ) : EventManavara
+    ) : EventAnalyze
 
     class SetBest(
         val platform : String = "",
         val bestType : String = "",
         val type : String = "",
         val menu : String = "",
-    ) : EventManavara
+    ) : EventAnalyze
 }
 
 data class StateAnalyze(

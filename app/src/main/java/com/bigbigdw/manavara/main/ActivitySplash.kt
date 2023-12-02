@@ -49,12 +49,10 @@ import kotlinx.coroutines.launch
 class ActivitySplash : ComponentActivity() {
 
     private lateinit var auth: FirebaseAuth
-    private var currentUser :  FirebaseUser? = null
 
     private lateinit var oneTapClient: SignInClient
     private lateinit var signInRequest: BeginSignInRequest
     var storagePermissionLauncher: ActivityResultLauncher<IntentSenderRequest>? = null
-    private val viewModelLogin: ViewModelLogin by viewModels()
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission(),
@@ -67,10 +65,6 @@ class ActivitySplash : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        viewModelLogin.sideEffects
-            .onEach { Toast.makeText(this@ActivitySplash, it, Toast.LENGTH_SHORT).show() }
-            .launchIn(lifecycleScope)
 
         registerNotification()
         askNotificationPermission()

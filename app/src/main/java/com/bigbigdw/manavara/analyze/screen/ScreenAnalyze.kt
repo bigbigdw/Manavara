@@ -71,11 +71,14 @@ import com.bigbigdw.manavara.ui.theme.color1CE3EE
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color21C2EC
 import com.bigbigdw.manavara.ui.theme.color31C3AE
+import com.bigbigdw.manavara.ui.theme.color4996E8
 import com.bigbigdw.manavara.ui.theme.color4AD7CF
 import com.bigbigdw.manavara.ui.theme.color536FD2
 import com.bigbigdw.manavara.ui.theme.color5372DE
 import com.bigbigdw.manavara.ui.theme.color64C157
 import com.bigbigdw.manavara.ui.theme.color7C81FF
+import com.bigbigdw.manavara.ui.theme.color80BF78
+import com.bigbigdw.manavara.ui.theme.color91CEC7
 import com.bigbigdw.manavara.ui.theme.color998DF9
 import com.bigbigdw.manavara.ui.theme.colorABD436
 import com.bigbigdw.manavara.ui.theme.colorDCDCDD
@@ -84,6 +87,7 @@ import com.bigbigdw.manavara.ui.theme.colorF17666
 import com.bigbigdw.manavara.ui.theme.colorF17FA0
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorF7F7F7
+import com.bigbigdw.manavara.ui.theme.colorFDC24E
 import com.bigbigdw.manavara.util.DataStoreManager
 import com.bigbigdw.manavara.util.changeDetailNameKor
 import com.bigbigdw.manavara.util.changePlatformNameKor
@@ -261,8 +265,6 @@ fun ScreenManavaraPropertyList(
 
     val state = viewModelAnalyze.state.collectAsState().value
 
-    val coroutineScope = rememberCoroutineScope()
-
     Column(
         modifier = Modifier
             .width(330.dp)
@@ -278,7 +280,7 @@ fun ScreenManavaraPropertyList(
 
             Text(
                 modifier = Modifier.padding(16.dp, 0.dp, 0.dp, 0.dp),
-                text = "마나바라 스페셜",
+                text = "마나바라 분석",
                 fontSize = 24.sp,
                 color = Color.Black,
                 fontWeight = FontWeight(weight = 700)
@@ -296,7 +298,7 @@ fun ScreenManavaraPropertyList(
 
             ItemMainSettingSingleTablet(
                 containerColor = color5372DE,
-                image = R.drawable.icon_novel_wht,
+                image = R.drawable.icon_genre_wht,
                 title = "투데이 장르 베스트",
                 body = "플랫폼별 투데이 베스트 장르 리스트 보기",
                 current = state.menu,
@@ -306,7 +308,7 @@ fun ScreenManavaraPropertyList(
 
             ItemMainSettingSingleTablet(
                 containerColor = color998DF9,
-                image = R.drawable.icon_novel_wht,
+                image = R.drawable.icon_genre_wht,
                 title = "주간 장르 베스트",
                 body = "플랫폼별 주간 베스트 장르 리스트 보기",
                 current = state.menu,
@@ -316,9 +318,39 @@ fun ScreenManavaraPropertyList(
 
             ItemMainSettingSingleTablet(
                 containerColor = colorEA927C,
-                image = R.drawable.icon_novel_wht,
+                image = R.drawable.icon_genre_wht,
                 title = "월간 장르 베스트",
                 body = "플랫폼별 월간 베스트 장르 리스트 보기",
+                current = state.menu,
+                onClick = {  },
+                value = "웹소설 월간 장르"
+            )
+
+            ItemMainSettingSingleTablet(
+                containerColor = colorABD436,
+                image = R.drawable.icon_keyword_wht,
+                title = "웹소설 투데이 키워드 베스트",
+                body = "웹소설 월간 키워드 보기",
+                current = state.menu,
+                onClick = {  },
+                value = "웹소설 월간 장르"
+            )
+
+            ItemMainSettingSingleTablet(
+                containerColor = colorF17FA0,
+                image = R.drawable.icon_keyword_wht,
+                title = "웹소설 주간 키워드 베스트",
+                body = "웹소설 월간 키워드 보기",
+                current = state.menu,
+                onClick = {  },
+                value = "웹소설 월간 장르"
+            )
+
+            ItemMainSettingSingleTablet(
+                containerColor = color21C2EC,
+                image = R.drawable.icon_keyword_wht,
+                title = "웹소설 월간 키워드 베스트",
+                body = "웹소설 월간 키워드 보기",
                 current = state.menu,
                 onClick = {  },
                 value = "웹소설 월간 장르"
@@ -327,7 +359,7 @@ fun ScreenManavaraPropertyList(
             TabletBorderLine()
 
             ItemMainSettingSingleTablet(
-                containerColor = colorABD436,
+                containerColor = color31C3AE,
                 image = R.drawable.icon_webtoon_wht,
                 title = "마나바라 베스트 웹툰 DB",
                 body = "마나바라에 기록된 웹툰 웹툰 리스트",
@@ -337,8 +369,8 @@ fun ScreenManavaraPropertyList(
             )
 
             ItemMainSettingSingleTablet(
-                containerColor = colorF17FA0,
-                image = R.drawable.icon_webtoon_wht,
+                containerColor = color7C81FF,
+                image = R.drawable.icon_genre_wht,
                 title = "투데이 웹툰 장르 베스트",
                 body = "플랫폼별 웹툰 베스트 장르 리스트 보기",
                 current = state.menu,
@@ -347,8 +379,8 @@ fun ScreenManavaraPropertyList(
             )
 
             ItemMainSettingSingleTablet(
-                containerColor = color21C2EC,
-                image = R.drawable.icon_webtoon_wht,
+                containerColor = color64C157,
+                image = R.drawable.icon_genre_wht,
                 title = "주간 웹툰 장르 베스트",
                 body = "플랫폼별 웹툰 베스트 장르 리스트 보기",
                 current = state.menu,
@@ -357,8 +389,8 @@ fun ScreenManavaraPropertyList(
             )
 
             ItemMainSettingSingleTablet(
-                containerColor = color31C3AE,
-                image = R.drawable.icon_webtoon_wht,
+                containerColor = colorF17666,
+                image = R.drawable.icon_genre_wht,
                 title = "월간 웹툰 장르 베스트",
                 body = "플랫폼별 월간 웹툰 베스트 장르 리스트 보기",
                 current = state.menu,
@@ -366,31 +398,41 @@ fun ScreenManavaraPropertyList(
                 value = "웹툰 월간 장르"
             )
 
+            ItemMainSettingSingleTablet(
+                containerColor = color536FD2,
+                image = R.drawable.icon_keyword_wht,
+                title = "웹툰 투데이 키워드 베스트",
+                body = "웹툰 월간 키워드 보기",
+                current = state.menu,
+                onClick = {  },
+                value = "웹소설 월간 장르"
+            )
+
+            ItemMainSettingSingleTablet(
+                containerColor = color4996E8,
+                image = R.drawable.icon_keyword_wht,
+                title = "웹툰 주간 키워드 베스트",
+                body = "웹툰 월간 키워드 보기",
+                current = state.menu,
+                onClick = {  },
+                value = "웹소설 월간 장르"
+            )
+
+            ItemMainSettingSingleTablet(
+                containerColor = colorFDC24E,
+                image = R.drawable.icon_keyword_wht,
+                title = "웹툰 월간 키워드 베스트",
+                body = "웹툰 월간 키워드 보기",
+                current = state.menu,
+                onClick = {  },
+                value = "웹소설 월간 장르"
+            )
+
             TabletBorderLine()
 
             ItemMainSettingSingleTablet(
-                containerColor = color7C81FF,
-                image = R.drawable.icon_search_wht,
-                title = "작품 검색",
-                body = "플랫폼과 무관하게 작품 검색 진행",
-                current = state.menu,
-                onClick = {  },
-                value = "작품 검색",
-            )
-
-            ItemMainSettingSingleTablet(
-                containerColor = color64C157,
-                image = R.drawable.icon_search_wht,
-                title = "북코드 검색",
-                body = "플랫폼과 무관하게 작품 검색 진행",
-                current = state.menu,
-                onClick = {  },
-                value = "북코드 검색",
-            )
-
-            ItemMainSettingSingleTablet(
-                containerColor = colorF17666,
-                image = R.drawable.icon_search_wht,
+                containerColor = color80BF78,
+                image = R.drawable.icon_novel_wht,
                 title = "웹소설 DB 검색",
                 body = "웹소설 DB 검색",
                 current = state.menu,
@@ -399,8 +441,8 @@ fun ScreenManavaraPropertyList(
             )
 
             ItemMainSettingSingleTablet(
-                containerColor = color536FD2,
-                image = R.drawable.icon_search_wht,
+                containerColor = color91CEC7,
+                image = R.drawable.icon_webtoon_wht,
                 title = "웹툰 DB 검색",
                 body = "웹툰 DB 검색",
                 current = state.menu,

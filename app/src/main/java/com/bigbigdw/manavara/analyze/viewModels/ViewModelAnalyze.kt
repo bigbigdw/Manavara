@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.models.ItemKeyword
-import com.bigbigdw.manavara.analyze.event.EventManavara
+import com.bigbigdw.manavara.analyze.event.EventAnalyze
 import com.bigbigdw.manavara.analyze.event.StateAnalyze
 import com.bigbigdw.manavara.util.DBDate
 import com.google.firebase.database.DataSnapshot
@@ -35,7 +35,7 @@ import javax.inject.Inject
 
 class ViewModelAnalyze @Inject constructor() : ViewModel() {
 
-    private val events = Channel<EventManavara>()
+    private val events = Channel<EventAnalyze>()
 
     val state: StateFlow<StateAnalyze> = events.receiveAsFlow()
         .runningFold(StateAnalyze(), ::reduceState)
@@ -45,67 +45,67 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
 
     val sideEffects = _sideEffects.receiveAsFlow()
 
-    private fun reduceState(current: StateAnalyze, event: EventManavara): StateAnalyze {
+    private fun reduceState(current: StateAnalyze, event: EventAnalyze): StateAnalyze {
         return when(event){
-            EventManavara.Loaded -> {
+            EventAnalyze.Loaded -> {
                 current.copy(Loaded = true)
             }
 
-            is EventManavara.SetItemBestInfoList -> {
+            is EventAnalyze.SetItemBestInfoList -> {
                 current.copy(itemBookInfoList = event.itemBookInfoList)
             }
 
-            is EventManavara.SetItemBookInfoList -> {
+            is EventAnalyze.SetItemBookInfoList -> {
                 current.copy(itemBestInfoList = event.itemBestInfoList)
             }
 
-            is EventManavara.SetWeekTrophyList -> {
+            is EventAnalyze.SetWeekTrophyList -> {
                 current.copy(weekTrophyList = event.weekTrophyList)
             }
 
-            is EventManavara.SetItemBookInfoMap -> {
+            is EventAnalyze.SetItemBookInfoMap -> {
                 current.copy(itemBookInfoMap = event.itemBookInfoMap)
             }
 
-            is EventManavara.SetWeekList -> {
+            is EventAnalyze.SetWeekList -> {
                 current.copy(weekList = event.weekList)
             }
 
-            is EventManavara.SetMonthList -> {
+            is EventAnalyze.SetMonthList -> {
                 current.copy(monthList = event.monthList)
             }
 
-            is EventManavara.SetMonthTrophyList -> {
+            is EventAnalyze.SetMonthTrophyList -> {
                 current.copy(monthTrophyList = event.monthTrophyList)
             }
 
-            is EventManavara.SetGenreDay -> {
+            is EventAnalyze.SetGenreDay -> {
                 current.copy(
                     genreDay = event.genreDay
                 )
             }
 
-            is EventManavara.SetGenreWeek -> {
+            is EventAnalyze.SetGenreWeek -> {
                 current.copy(
                     genreDay = event.genreDay,
                     genreDayList = event.genreDayList
                 )
             }
 
-            is EventManavara.SetItemBookInfo -> {
+            is EventAnalyze.SetItemBookInfo -> {
                 current.copy(
                     itemBookInfo = event.itemBookInfo
                 )
             }
 
-            is EventManavara.SetItemBestInfoTrophyList ->{
+            is EventAnalyze.SetItemBestInfoTrophyList ->{
                 current.copy(
                     itemBestInfoTrophyList = event.itemBestInfoTrophyList,
                     itemBookInfo = event.itemBookInfo
                 )
             }
 
-            is EventManavara.SetBest -> {
+            is EventAnalyze.SetBest -> {
                 current.copy(platform = event.platform, bestType = event.bestType, type = event.type, menu = event.menu)
             }
 
@@ -135,7 +135,7 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
                 }
 
                 viewModelScope.launch {
-                    events.send(EventManavara.SetItemBestInfoList(itemBookInfoList = todayJsonList))
+                    events.send(EventAnalyze.SetItemBestInfoList(itemBookInfoList = todayJsonList))
                 }
             } catch (e: Exception) {
                 getBestListTodayStorage(context = context)
@@ -150,7 +150,7 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
         val state = state.value
 
         viewModelScope.launch {
-            events.send(EventManavara.SetItemBestInfoList(itemBookInfoList = ArrayList()))
+            events.send(EventAnalyze.SetItemBestInfoList(itemBookInfoList = ArrayList()))
         }
 
         val storage = Firebase.storage
@@ -170,7 +170,7 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
             }
 
             viewModelScope.launch {
-                events.send(EventManavara.SetItemBestInfoList(itemBookInfoList = todayJsonList))
+                events.send(EventAnalyze.SetItemBestInfoList(itemBookInfoList = todayJsonList))
             }
         }.addOnFailureListener {
             getBestList()
@@ -202,7 +202,7 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
                     }
 
                     viewModelScope.launch {
-                        events.send(EventManavara.SetItemBestInfoList(itemBookInfoList = bestList))
+                        events.send(EventAnalyze.SetItemBestInfoList(itemBookInfoList = bestList))
                     }
 
                 }
@@ -222,7 +222,7 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
         val weekTrophyFile = weekTrophyRef.getBytes(1024 * 1024)
 
         viewModelScope.launch {
-            events.send(EventManavara.SetWeekTrophyList(weekTrophyList = ArrayList()))
+            events.send(EventAnalyze.SetWeekTrophyList(weekTrophyList = ArrayList()))
         }
 
         weekTrophyFile.addOnSuccessListener { bytes ->
@@ -241,7 +241,7 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
             }
 
             viewModelScope.launch {
-                events.send(EventManavara.SetWeekTrophyList(weekTrophyList = weekJsonList))
+                events.send(EventAnalyze.SetWeekTrophyList(weekTrophyList = weekJsonList))
             }
         }
     }
@@ -269,7 +269,7 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
                     }
 
                     viewModelScope.launch {
-                        events.send(EventManavara.SetItemBookInfoMap(itemBookInfoMap = itemMap))
+                        events.send(EventAnalyze.SetItemBookInfoMap(itemBookInfoMap = itemMap))
                     }
 
                 }
@@ -316,7 +316,7 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
                 }
 
                 viewModelScope.launch {
-                    events.send(EventManavara.SetWeekList(weekList = weekJsonList))
+                    events.send(EventAnalyze.SetWeekList(weekList = weekJsonList))
                 }
             } catch (e: Exception) {
                 getBestWeekListStorage(context = context)
@@ -336,7 +336,7 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
         val weekFile = File(context.filesDir, "${state.platform}_WEEK_${state.type}.json")
 
         viewModelScope.launch {
-            events.send(EventManavara.SetWeekList(weekList = ArrayList()))
+            events.send(EventAnalyze.SetWeekList(weekList = ArrayList()))
         }
 
         weekRef.getFile(weekFile).addOnSuccessListener {
@@ -369,7 +369,7 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
             }
 
             viewModelScope.launch {
-                events.send(EventManavara.SetWeekList(weekList = weekJsonList))
+                events.send(EventAnalyze.SetWeekList(weekList = weekJsonList))
             }
         }
     }
@@ -409,7 +409,7 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
                 }
 
                 viewModelScope.launch {
-                    events.send(EventManavara.SetMonthList(monthList = monthJsonList))
+                    events.send(EventAnalyze.SetMonthList(monthList = monthJsonList))
                 }
 
             } catch (e: Exception) {
@@ -429,7 +429,7 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
         val monthFile = File(context.filesDir, "${state.platform}_MONTH_${state.type}.json")
 
         viewModelScope.launch {
-            events.send(EventManavara.SetMonthList(monthList = ArrayList()))
+            events.send(EventAnalyze.SetMonthList(monthList = ArrayList()))
         }
 
         monthRef.getFile(monthFile).addOnSuccessListener { bytes ->
@@ -460,7 +460,7 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
             }
 
             viewModelScope.launch {
-                events.send(EventManavara.SetMonthList(monthList = monthJsonList))
+                events.send(EventAnalyze.SetMonthList(monthList = monthJsonList))
             }
         }
     }
@@ -473,7 +473,7 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
         val monthTrophyFile = monthTrophyRef.getBytes(1024 * 1024)
 
         viewModelScope.launch {
-            events.send(EventManavara.SetMonthTrophyList(monthTrophyList = ArrayList()))
+            events.send(EventAnalyze.SetMonthTrophyList(monthTrophyList = ArrayList()))
         }
 
         monthTrophyFile.addOnSuccessListener { bytes ->
@@ -492,7 +492,7 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
             }
 
             viewModelScope.launch {
-                events.send(EventManavara.SetMonthTrophyList(monthTrophyList = monthJsonList))
+                events.send(EventAnalyze.SetMonthTrophyList(monthTrophyList = monthJsonList))
             }
         }
     }
@@ -533,7 +533,7 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
                     Collections.sort(arrayList, cmpAsc)
 
                     viewModelScope.launch {
-                        events.send(EventManavara.SetGenreDay(genreDay = arrayList))
+                        events.send(EventAnalyze.SetGenreDay(genreDay = arrayList))
                     }
                 }
             }
@@ -597,7 +597,7 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
                     Collections.sort(arrayList, cmpAsc)
 
                     viewModelScope.launch {
-                        events.send(EventManavara.SetGenreDay(genreDay = arrayList))
+                        events.send(EventAnalyze.SetGenreDay(genreDay = arrayList))
                     }
 
                 }
@@ -662,7 +662,7 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
                     Collections.sort(arrayList, cmpAsc)
 
                     viewModelScope.launch {
-                        events.send(EventManavara.SetGenreDay(genreDay = arrayList))
+                        events.send(EventAnalyze.SetGenreDay(genreDay = arrayList))
                     }
 
                 }
@@ -695,7 +695,7 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
             Collections.sort(jsonList, cmpAsc)
 
             viewModelScope.launch {
-                events.send(EventManavara.SetGenreDay(genreDay = jsonList))
+                events.send(EventAnalyze.SetGenreDay(genreDay = jsonList))
             }
         }
     }
@@ -776,7 +776,7 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
             Collections.sort(arrayList, cmpAsc)
 
             viewModelScope.launch {
-                events.send(EventManavara.SetGenreWeek(genreDayList = weekJsonList, genreDay = arrayList))
+                events.send(EventAnalyze.SetGenreWeek(genreDayList = weekJsonList, genreDay = arrayList))
             }
         }
     }
@@ -857,14 +857,14 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
             Collections.sort(arrayList, cmpAsc)
 
             viewModelScope.launch {
-                events.send(EventManavara.SetGenreWeek(genreDayList = weekJsonList, genreDay = arrayList))
+                events.send(EventAnalyze.SetGenreWeek(genreDayList = weekJsonList, genreDay = arrayList))
             }
         }
     }
 
     fun getBookItemInfo(itemBookInfo: ItemBookInfo){
         viewModelScope.launch {
-            events.send(EventManavara.SetItemBookInfo(itemBookInfo = itemBookInfo))
+            events.send(EventAnalyze.SetItemBookInfo(itemBookInfo = itemBookInfo))
         }
     }
 
@@ -902,7 +902,7 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
                     }
 
                     viewModelScope.launch {
-                        events.send(EventManavara.SetItemBestInfoTrophyList(itemBestInfoTrophyList = weekArray, itemBookInfo = itemBookInfo))
+                        events.send(EventAnalyze.SetItemBestInfoTrophyList(itemBestInfoTrophyList = weekArray, itemBookInfo = itemBookInfo))
                     }
                 }
             }
@@ -921,7 +921,7 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
 
             Log.d("SETBEST", "platform = $platform | menu = $menu | bestType = $bestType | type = $type")
 
-            events.send(EventManavara.SetBest(platform = platform, menu = menu, bestType = bestType, type = type))
+            events.send(EventAnalyze.SetBest(platform = platform, menu = menu, bestType = bestType, type = type))
         }
     }
 
