@@ -1,6 +1,9 @@
 package com.bigbigdw.manavara.analyze.screen
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -31,8 +34,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetState
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -43,11 +44,14 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -62,32 +66,39 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.analyze.viewModels.ViewModelAnalyze
-import com.bigbigdw.manavara.best.screen.ScreenDialogBest
+import com.bigbigdw.manavara.best.getBookMap
 import com.bigbigdw.manavara.best.models.ItemKeyword
+import com.bigbigdw.manavara.best.screen.ListBest
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color1CE3EE
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color21C2EC
+import com.bigbigdw.manavara.ui.theme.color2EA259
 import com.bigbigdw.manavara.ui.theme.color31C3AE
 import com.bigbigdw.manavara.ui.theme.color4996E8
 import com.bigbigdw.manavara.ui.theme.color4AD7CF
 import com.bigbigdw.manavara.ui.theme.color536FD2
 import com.bigbigdw.manavara.ui.theme.color5372DE
 import com.bigbigdw.manavara.ui.theme.color64C157
+import com.bigbigdw.manavara.ui.theme.color79B4F8
 import com.bigbigdw.manavara.ui.theme.color7C81FF
+import com.bigbigdw.manavara.ui.theme.color808CF8
 import com.bigbigdw.manavara.ui.theme.color80BF78
+import com.bigbigdw.manavara.ui.theme.color8AA6BD
 import com.bigbigdw.manavara.ui.theme.color91CEC7
 import com.bigbigdw.manavara.ui.theme.color998DF9
 import com.bigbigdw.manavara.ui.theme.colorABD436
-import com.bigbigdw.manavara.ui.theme.colorDCDCDD
 import com.bigbigdw.manavara.ui.theme.colorEA927C
 import com.bigbigdw.manavara.ui.theme.colorF17666
 import com.bigbigdw.manavara.ui.theme.colorF17FA0
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorF7F7F7
 import com.bigbigdw.manavara.ui.theme.colorFDC24E
+import com.bigbigdw.manavara.ui.theme.colorFFAC59
 import com.bigbigdw.manavara.util.DataStoreManager
 import com.bigbigdw.manavara.util.changeDetailNameKor
 import com.bigbigdw.manavara.util.changePlatformNameKor
@@ -106,6 +117,8 @@ import com.bigbigdw.manavara.util.screen.TabletBorderLine
 import com.bigbigdw.manavara.util.screen.TabletContentWrapBtn
 import com.bigbigdw.manavara.util.screen.spannableString
 import getBookCount
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
@@ -114,26 +127,36 @@ fun ScreenAnalyze(
     isExpandedScreen: Boolean,
     modalSheetState: ModalBottomSheetState? = null,
     drawerState: DrawerState,
-    viewModelAnalyze: ViewModelAnalyze,
     currentRoute: String?,
 ) {
 
     val context = LocalContext.current
-
-    val state = viewModelAnalyze.state.collectAsState().value
-
-    LaunchedEffect(state.platform, state.type) {
-        viewModelAnalyze.getBestListTodayStorage(
-            context = context,
-        )
-
-        viewModelAnalyze.getBestWeekTrophy()
-        viewModelAnalyze.getBestWeekListStorage(context)
-        viewModelAnalyze.getBestMonthTrophy()
-        viewModelAnalyze.getBestMonthListStorage(context)
-    }
-
     val coroutineScope = rememberCoroutineScope()
+    val viewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelAnalyze: ViewModelAnalyze = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+    val state = viewModelAnalyze.state.collectAsState().value
+    val (menu, setMenu) = remember { mutableStateOf("") }
+    val (platform, setPlatform) = remember { mutableStateOf("") }
+    val (detail, setDetail) = remember { mutableStateOf("") }
+    val (type, setType) = remember { mutableStateOf("") }
+
+    DisposableEffect(context) {
+
+        viewModelAnalyze.sideEffects
+            .onEach { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
+            .launchIn(coroutineScope)
+
+        if (menu.isEmpty()) {
+            setMenu("베스트 웹소설 DB")
+        }
+
+        onDispose {
+            setMenu("베스트 웹소설 DB")
+            setDetail("")
+            setPlatform("")
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -146,25 +169,25 @@ fun ScreenAnalyze(
 
                 val (getDialogOpen, setDialogOpen) = remember { mutableStateOf(false) }
 
-                if(getDialogOpen){
+                if (getDialogOpen) {
                     Dialog(
                         onDismissRequest = { setDialogOpen(false) },
                     ) {
                         AlertTwoBtn(
-                            isShow = {  },
+                            isShow = { },
                             onFetchClick = { },
                             btnLeft = "취소",
                             btnRight = "확인",
                             modifier = Modifier.requiredWidth(400.dp),
                             contents = {
                                 if (modalSheetState != null) {
-                                    ScreenDialogBest(
-                                        item = viewModelAnalyze.state.collectAsState().value.itemBookInfo,
-                                        trophy = viewModelAnalyze.state.collectAsState().value.itemBestInfoTrophyList,
-                                        isExpandedScreen = isExpandedScreen,
-                                        currentRoute = "NOVEL",
-                                        modalSheetState = modalSheetState
-                                    )
+//                                    ScreenDialogBest(
+//                                        item = viewModelAnalyze.state.collectAsState().value.itemBookInfo,
+//                                        trophy = viewModelAnalyze.state.collectAsState().value.itemBestInfoTrophyList,
+//                                        isExpandedScreen = isExpandedScreen,
+//                                        currentRoute = "NOVEL",
+//                                        modalSheetState = modalSheetState
+//                                    )
                                 }
                             })
                     }
@@ -172,6 +195,9 @@ fun ScreenAnalyze(
 
                 ScreenManavaraPropertyList(
                     viewModelAnalyze = viewModelAnalyze,
+                    drawerState = drawerState,
+                    menu = menu,
+                    setMenu = setMenu
                 )
 
                 Spacer(
@@ -181,22 +207,31 @@ fun ScreenAnalyze(
                         .background(color = colorF6F6F6)
                 )
 
-                ScreenManavaDetail(
-                    viewModelAnalyze = viewModelAnalyze
+                ScreenManavaItems(
+                    viewModelAnalyze = viewModelAnalyze,
+                    drawerState = drawerState,
+                    modalSheetState = modalSheetState,
+                    setDialogOpen = setDialogOpen,
+                    detail = detail,
+                    menu = menu,
+                    platform = platform,
+                    type = type,
+                    setDetail = setDetail,
+                    setPlatform = setPlatform,
+                    setType = setType
                 )
+
+                BestAnalyzeBackOnPressed(detail = detail, setDetail = setDetail)
 
             } else {
-
-                val modalSheetState = rememberModalBottomSheetState(
-                    initialValue = ModalBottomSheetValue.Hidden,
-                    confirmValueChange = { it != ModalBottomSheetValue.HalfExpanded },
-                    skipHalfExpanded = false
-                )
 
                 ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
 
                     ScreenManavaraPropertyList(
                         viewModelAnalyze = viewModelAnalyze,
+                        drawerState = drawerState,
+                        menu = menu,
+                        setMenu = setMenu
                     )
 
                 }) {
@@ -218,52 +253,71 @@ fun ScreenAnalyze(
                                 .background(color = colorF6F6F6)
                                 .fillMaxSize()
                         ) {
-                            ScreenManavaraItemDetail(
-                                viewModelAnalyze = viewModelAnalyze
+                            ScreenManavaItems(
+                                viewModelAnalyze = viewModelAnalyze,
+                                drawerState = drawerState,
+                                modalSheetState = modalSheetState,
+                                setDialogOpen = null,
+                                detail = detail,
+                                menu = menu,
+                                platform = platform,
+                                type = type,
+                                setDetail = setDetail,
+                                setPlatform = setPlatform,
+                                setType = setType
                             )
                         }
                     }
 
-                    ModalBottomSheetLayout(
-                        sheetState = modalSheetState,
-                        sheetElevation = 50.dp,
-                        sheetShape = RoundedCornerShape(
-                            topStart = 25.dp,
-                            topEnd = 25.dp
-                        ),
-                        sheetContent = {
+                    if (modalSheetState != null) {
+                        ModalBottomSheetLayout(
+                            sheetState = modalSheetState,
+                            sheetElevation = 50.dp,
+                            sheetShape = RoundedCornerShape(
+                                topStart = 25.dp,
+                                topEnd = 25.dp
+                            ),
+                            sheetContent = {
 
-//                            if(currentRoute == "NOVEL" || currentRoute == "COMIC"){
-//
-//                                Spacer(modifier = Modifier.size(4.dp))
-//
-//                                ScreenDialogBest(
-//                                    item = state.itemBookInfo,
-//                                    trophy = state.itemBestInfoTrophyList,
-//                                    isExpandedScreen = isExpandedScreen,
-//                                    currentRoute = currentRoute,
-//                                    modalSheetState = modalSheetState
-//                                )
-//                            } else {
-//                                ScreenTest()
-//                            }
-                        },
-                    ) {}
+                                //                            if(currentRoute == "NOVEL" || currentRoute == "COMIC"){
+                                //
+                                //                                Spacer(modifier = Modifier.size(4.dp))
+                                //
+                                //                                ScreenDialogBest(
+                                //                                    item = state.itemBookInfo,
+                                //                                    trophy = state.itemBestInfoTrophyList,
+                                //                                    isExpandedScreen = isExpandedScreen,
+                                //                                    currentRoute = currentRoute,
+                                //                                    modalSheetState = modalSheetState
+                                //                                )
+                                //                            } else {
+                                //                                ScreenTest()
+                                //                            }
+                            },
+                        ) {}
+                    }
                 }
 
-                BackOnPressedMobile(modalSheetState = modalSheetState)
+                if (modalSheetState != null) {
+                    BackOnPressedMobile(modalSheetState = modalSheetState)
+                }
 
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenManavaraPropertyList(
     viewModelAnalyze: ViewModelAnalyze,
+    drawerState: DrawerState?,
+    menu: String,
+    setMenu: (String) -> Unit
 ) {
 
     val state = viewModelAnalyze.state.collectAsState().value
+    val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -291,309 +345,362 @@ fun ScreenManavaraPropertyList(
                 image = R.drawable.icon_novel_wht,
                 title = "마나바라 베스트 웹소설 DB",
                 body = "마나바라에 기록된 베스트 웹소설 리스트",
-                current = state.menu,
-                onClick = {  },
+                current = menu,
+                onClick = {
+                    coroutineScope.launch {
+                        drawerState?.close()
+                        setMenu("베스트 웹소설 DB")
+                    }
+                },
                 value = "베스트 웹소설 DB"
             )
 
             ItemMainSettingSingleTablet(
                 containerColor = color5372DE,
-                image = R.drawable.icon_genre_wht,
-                title = "투데이 장르 베스트",
-                body = "플랫폼별 투데이 베스트 장르 리스트 보기",
-                current = state.menu,
-                onClick = {  },
-                value = "웹소설 투데이 장르"
+                image = R.drawable.icon_best_wht,
+                title = "주차별 웹소설 베스트",
+                body = "주차별 웹소설 베스트 리스트",
+                current = menu,
+                onClick = {
+                    coroutineScope.launch {
+                        drawerState?.close()
+                        setMenu("베스트 웹소설 DB")
+                    }
+                },
+                value = "주차별 웹소설 베스트"
             )
 
             ItemMainSettingSingleTablet(
                 containerColor = color998DF9,
-                image = R.drawable.icon_genre_wht,
-                title = "주간 장르 베스트",
-                body = "플랫폼별 주간 베스트 장르 리스트 보기",
-                current = state.menu,
-                onClick = {  },
-                value = "웹소설 주간 장르"
+                image = R.drawable.icon_best_wht,
+                title = "연간 웹소설 베스트",
+                body = "연간 웹소설 베스트 리스트",
+                current = menu,
+                onClick = {
+                    coroutineScope.launch {
+                        drawerState?.close()
+                        setMenu("베스트 웹소설 DB")
+                    }
+                },
+                value = "웹소설 월간 장르"
             )
 
             ItemMainSettingSingleTablet(
                 containerColor = colorEA927C,
-                image = R.drawable.icon_genre_wht,
-                title = "월간 장르 베스트",
-                body = "플랫폼별 월간 베스트 장르 리스트 보기",
-                current = state.menu,
-                onClick = {  },
+                image = R.drawable.icon_trophy_wht,
+                title = "주차별 웹소설 트로피",
+                body = "주차별 웹소설 트로피 리스트",
+                current = menu,
+                onClick = {
+                    coroutineScope.launch {
+                        drawerState?.close()
+                        setMenu("베스트 웹소설 DB")
+                    }
+                },
                 value = "웹소설 월간 장르"
             )
 
             ItemMainSettingSingleTablet(
                 containerColor = colorABD436,
-                image = R.drawable.icon_keyword_wht,
-                title = "웹소설 투데이 키워드 베스트",
-                body = "웹소설 월간 키워드 보기",
-                current = state.menu,
-                onClick = {  },
+                image = R.drawable.icon_trophy_wht,
+                title = "연간 웹소설 트로피",
+                body = "연간 웹소설 트로피 리스트",
+                current = menu,
+                onClick = {
+                    coroutineScope.launch {
+                        drawerState?.close()
+                        setMenu("베스트 웹소설 DB")
+                    }
+                },
                 value = "웹소설 월간 장르"
             )
 
             ItemMainSettingSingleTablet(
                 containerColor = colorF17FA0,
-                image = R.drawable.icon_keyword_wht,
-                title = "웹소설 주간 키워드 베스트",
-                body = "웹소설 월간 키워드 보기",
-                current = state.menu,
-                onClick = {  },
-                value = "웹소설 월간 장르"
+                image = R.drawable.icon_genre_wht,
+                title = "투데이 장르 베스트",
+                body = "플랫폼별 투데이 베스트 장르 리스트 보기",
+                current = menu,
+                onClick = {
+                    coroutineScope.launch {
+                        drawerState?.close()
+                        setMenu("베스트 웹소설 DB")
+                    }
+                },
+                value = "웹소설 투데이 장르"
             )
 
             ItemMainSettingSingleTablet(
                 containerColor = color21C2EC,
-                image = R.drawable.icon_keyword_wht,
-                title = "웹소설 월간 키워드 베스트",
-                body = "웹소설 월간 키워드 보기",
-                current = state.menu,
-                onClick = {  },
-                value = "웹소설 월간 장르"
+                image = R.drawable.icon_genre_wht,
+                title = "주간 장르 베스트",
+                body = "플랫폼별 주간 베스트 장르 리스트 보기",
+                current = menu,
+                onClick = {
+                    coroutineScope.launch {
+                        drawerState?.close()
+                        setMenu("베스트 웹소설 DB")
+                    }
+                },
+                value = "웹소설 주간 장르"
             )
-
-            TabletBorderLine()
 
             ItemMainSettingSingleTablet(
                 containerColor = color31C3AE,
-                image = R.drawable.icon_webtoon_wht,
-                title = "마나바라 베스트 웹툰 DB",
-                body = "마나바라에 기록된 웹툰 웹툰 리스트",
-                current = state.menu,
-                onClick = {  },
-                value = "베스트 웹툰 DB"
+                image = R.drawable.icon_genre_wht,
+                title = "월간 장르 베스트",
+                body = "플랫폼별 월간 베스트 장르 리스트 보기",
+                current = menu,
+                onClick = {
+                    coroutineScope.launch {
+                        drawerState?.close()
+                        setMenu("베스트 웹소설 DB")
+                    }
+                },
+                value = "웹소설 월간 장르"
             )
 
             ItemMainSettingSingleTablet(
                 containerColor = color7C81FF,
-                image = R.drawable.icon_genre_wht,
-                title = "투데이 웹툰 장르 베스트",
-                body = "플랫폼별 웹툰 베스트 장르 리스트 보기",
-                current = state.menu,
-                onClick = {  },
-                value = "웹툰 투데이 장르"
+                image = R.drawable.icon_keyword_wht,
+                title = "웹소설 투데이 키워드 베스트",
+                body = "웹소설 월간 키워드 보기",
+                current = menu,
+                onClick = {
+                    coroutineScope.launch {
+                        drawerState?.close()
+                        setMenu("베스트 웹소설 DB")
+                    }
+                },
+                value = "웹소설 월간 장르"
             )
 
             ItemMainSettingSingleTablet(
                 containerColor = color64C157,
-                image = R.drawable.icon_genre_wht,
-                title = "주간 웹툰 장르 베스트",
-                body = "플랫폼별 웹툰 베스트 장르 리스트 보기",
-                current = state.menu,
-                onClick = {  },
-                value = "웹툰 주간 장르"
+                image = R.drawable.icon_keyword_wht,
+                title = "웹소설 주간 키워드 베스트",
+                body = "웹소설 월간 키워드 보기",
+                current = menu,
+                onClick = {
+                    coroutineScope.launch {
+                        drawerState?.close()
+                        setMenu("베스트 웹소설 DB")
+                    }
+                },
+                value = "웹소설 월간 장르"
             )
 
             ItemMainSettingSingleTablet(
                 containerColor = colorF17666,
-                image = R.drawable.icon_genre_wht,
-                title = "월간 웹툰 장르 베스트",
-                body = "플랫폼별 월간 웹툰 베스트 장르 리스트 보기",
-                current = state.menu,
-                onClick = {  },
-                value = "웹툰 월간 장르"
+                image = R.drawable.icon_keyword_wht,
+                title = "웹소설 월간 키워드 베스트",
+                body = "웹소설 월간 키워드 보기",
+                current = menu,
+                onClick = {
+                    coroutineScope.launch {
+                        drawerState?.close()
+                        setMenu("베스트 웹소설 DB")
+                    }
+                },
+                value = "웹소설 월간 장르"
             )
 
             ItemMainSettingSingleTablet(
                 containerColor = color536FD2,
-                image = R.drawable.icon_keyword_wht,
-                title = "웹툰 투데이 키워드 베스트",
-                body = "웹툰 월간 키워드 보기",
-                current = state.menu,
-                onClick = {  },
-                value = "웹소설 월간 장르"
-            )
-
-            ItemMainSettingSingleTablet(
-                containerColor = color4996E8,
-                image = R.drawable.icon_keyword_wht,
-                title = "웹툰 주간 키워드 베스트",
-                body = "웹툰 월간 키워드 보기",
-                current = state.menu,
-                onClick = {  },
-                value = "웹소설 월간 장르"
-            )
-
-            ItemMainSettingSingleTablet(
-                containerColor = colorFDC24E,
-                image = R.drawable.icon_keyword_wht,
-                title = "웹툰 월간 키워드 베스트",
-                body = "웹툰 월간 키워드 보기",
-                current = state.menu,
-                onClick = {  },
-                value = "웹소설 월간 장르"
+                image = R.drawable.icon_search_wht,
+                title = "웹소설 DB 검색",
+                body = "웹소설 DB 검색",
+                current = menu,
+                onClick = {
+                    coroutineScope.launch {
+                        drawerState?.close()
+                        setMenu("베스트 웹소설 DB")
+                    }
+                },
+                value = "웹소설 DB 검색",
             )
 
             TabletBorderLine()
 
             ItemMainSettingSingleTablet(
+                containerColor = color4996E8,
+                image = R.drawable.icon_webtoon_wht,
+                title = "마나바라 베스트 웹툰 DB",
+                body = "마나바라에 기록된 웹툰 웹툰 리스트",
+                current = menu,
+                onClick = {
+                    coroutineScope.launch {
+                        drawerState?.close()
+                        setMenu("베스트 웹소설 DB")
+                    }
+                },
+                value = "베스트 웹툰 DB"
+            )
+
+            ItemMainSettingSingleTablet(
+                containerColor = colorFDC24E,
+                image = R.drawable.icon_best_wht,
+                title = "주차별 웹소설 베스트",
+                body = "주차별 웹소설 베스트 리스트",
+                current = menu,
+                onClick = {
+                    coroutineScope.launch {
+                        drawerState?.close()
+                        setMenu("베스트 웹소설 DB")
+                    }
+                },
+                value = "웹소설 월간 장르"
+            )
+
+            ItemMainSettingSingleTablet(
                 containerColor = color80BF78,
-                image = R.drawable.icon_novel_wht,
-                title = "웹소설 DB 검색",
-                body = "웹소설 DB 검색",
-                current = state.menu,
-                onClick = {  },
-                value = "웹소설 DB 검색",
+                image = R.drawable.icon_best_wht,
+                title = "연간 웹소설 베스트",
+                body = "연간 웹소설 베스트 리스트",
+                current = menu,
+                onClick = {
+                    coroutineScope.launch {
+                        drawerState?.close()
+                        setMenu("베스트 웹소설 DB")
+                    }
+                },
+                value = "웹소설 월간 장르"
             )
 
             ItemMainSettingSingleTablet(
                 containerColor = color91CEC7,
-                image = R.drawable.icon_webtoon_wht,
+                image = R.drawable.icon_trophy_wht,
+                title = "주차별 웹소설 트로피",
+                body = "주차별 웹소설 트로피 리스트",
+                current = menu,
+                onClick = {
+                    coroutineScope.launch {
+                        drawerState?.close()
+                        setMenu("베스트 웹소설 DB")
+                    }
+                },
+                value = "웹소설 월간 장르"
+            )
+
+            ItemMainSettingSingleTablet(
+                containerColor = color79B4F8,
+                image = R.drawable.icon_trophy_wht,
+                title = "연간 웹소설 트로피",
+                body = "연간 웹소설 트로피 리스트",
+                current = menu,
+                onClick = {
+                    coroutineScope.launch {
+                        drawerState?.close()
+                        setMenu("베스트 웹소설 DB")
+                    }
+                },
+                value = "웹소설 월간 장르"
+            )
+
+            ItemMainSettingSingleTablet(
+                containerColor = color8AA6BD,
+                image = R.drawable.icon_genre_wht,
+                title = "투데이 웹툰 장르 베스트",
+                body = "플랫폼별 웹툰 베스트 장르 리스트 보기",
+                current = menu,
+                onClick = {
+                    coroutineScope.launch {
+                        drawerState?.close()
+                        setMenu("베스트 웹소설 DB")
+                    }
+                },
+                value = "웹툰 투데이 장르"
+            )
+
+            ItemMainSettingSingleTablet(
+                containerColor = color2EA259,
+                image = R.drawable.icon_genre_wht,
+                title = "주간 웹툰 장르 베스트",
+                body = "플랫폼별 웹툰 베스트 장르 리스트 보기",
+                current = menu,
+                onClick = {
+                    coroutineScope.launch {
+                        drawerState?.close()
+                        setMenu("베스트 웹소설 DB")
+                    }
+                },
+                value = "웹툰 주간 장르"
+            )
+
+            ItemMainSettingSingleTablet(
+                containerColor = color808CF8,
+                image = R.drawable.icon_genre_wht,
+                title = "월간 웹툰 장르 베스트",
+                body = "플랫폼별 월간 웹툰 베스트 장르 리스트 보기",
+                current = menu,
+                onClick = {
+                    coroutineScope.launch {
+                        drawerState?.close()
+                        setMenu("베스트 웹소설 DB")
+                    }
+                },
+                value = "웹툰 월간 장르"
+            )
+
+            ItemMainSettingSingleTablet(
+                containerColor = colorFFAC59,
+                image = R.drawable.icon_keyword_wht,
+                title = "웹툰 투데이 키워드 베스트",
+                body = "웹툰 월간 키워드 보기",
+                current = menu,
+                onClick = {
+                    coroutineScope.launch {
+                        drawerState?.close()
+                        setMenu("베스트 웹소설 DB")
+                    }
+                },
+                value = "웹소설 월간 장르"
+            )
+
+            ItemMainSettingSingleTablet(
+                containerColor = color4AD7CF,
+                image = R.drawable.icon_keyword_wht,
+                title = "웹툰 주간 키워드 베스트",
+                body = "웹툰 월간 키워드 보기",
+                current = menu,
+                onClick = {
+                    coroutineScope.launch {
+                        drawerState?.close()
+                        setMenu("베스트 웹소설 DB")
+                    }
+                },
+                value = "웹소설 월간 장르"
+            )
+
+            ItemMainSettingSingleTablet(
+                containerColor = color5372DE,
+                image = R.drawable.icon_keyword_wht,
+                title = "웹툰 월간 키워드 베스트",
+                body = "웹툰 월간 키워드 보기",
+                current = menu,
+                onClick = {
+                    coroutineScope.launch {
+                        drawerState?.close()
+                        setMenu("베스트 웹소설 DB")
+                    }
+                },
+                value = "웹소설 월간 장르"
+            )
+
+            ItemMainSettingSingleTablet(
+                containerColor = color998DF9,
+                image = R.drawable.icon_search_wht,
                 title = "웹툰 DB 검색",
                 body = "웹툰 DB 검색",
-                current = state.menu,
-                onClick = {  },
+                current = menu,
+                onClick = {
+                    coroutineScope.launch {
+                        drawerState?.close()
+                        setMenu("베스트 웹소설 DB")
+                    }
+                },
                 value = "웹툰 DB 검색",
             )
-        }
-    }
-}
-
-@Composable
-fun ScreenBestDBListNovel(isInit: Boolean = true, type: String) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colorF6F6F6),
-        contentAlignment = if(isInit){
-            Alignment.Center
-        } else {
-            Alignment.TopStart
-        }
-    ) {
-        val context = LocalContext.current
-        val dataStore = DataStoreManager(context)
-
-        LazyColumn(
-            modifier = Modifier.wrapContentSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-
-            if(isInit){
-                item {
-                    Card(
-                        modifier = Modifier
-                            .wrapContentSize(),
-                        colors = CardDefaults.cardColors(containerColor = colorDCDCDD),
-                        shape = RoundedCornerShape(50.dp, 50.dp, 50.dp, 50.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .height(90.dp)
-                                .width(90.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Image(
-                                contentScale = ContentScale.FillWidth,
-                                painter = painterResource(id = R.drawable.ic_launcher),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .height(72.dp)
-                                    .width(72.dp)
-                            )
-                        }
-                    }
-                }
-
-                item { Spacer(modifier = Modifier.size(8.dp)) }
-
-                item {
-                    Text(
-                        text = "마나바라에 기록된 작품들",
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Center,
-                        color = color000000
-                    )
-                }
-            }
-
-            item { Spacer(modifier = Modifier.size(8.dp)) }
-
-            if(type == "NOVEL"){
-                itemsIndexed(novelListEng()) { index, item ->
-                    Box(modifier = Modifier.padding(16.dp, 8.dp)) {
-                        TabletContentWrapBtn(
-                            onClick = {},
-                            content = {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.Start,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-
-                                    Image(
-                                        painter = painterResource(id = getPlatformLogoEng(item)),
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .width(20.dp)
-                                            .height(20.dp)
-                                    )
-
-                                    Spacer(modifier = Modifier.size(8.dp))
-
-                                    getBookCount(context = context, type = type, platform = item)
-
-                                    Text(
-                                        text = spannableString(
-                                            textFront = "${changePlatformNameKor(item)} : ",
-                                            color = color000000,
-                                            textEnd = "${dataStore.getDataStoreString(
-                                                getPlatformDataKeyNovel(item)
-                                            ).collectAsState(initial = "").value ?: "0"} 작품"
-                                        ),
-                                        color = color20459E,
-                                        fontSize = 18.sp,
-                                    )
-                                }
-                            }
-                        )
-                    }
-                }
-            } else {
-                itemsIndexed(comicListEng()) { index, item ->
-                    Box(modifier = Modifier.padding(16.dp, 8.dp)) {
-                        TabletContentWrapBtn(
-                            onClick = {},
-                            content = {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.Start,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-
-                                    Image(
-                                        painter = painterResource(id = getPlatformLogoEng(item)),
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .width(20.dp)
-                                            .height(20.dp)
-                                    )
-
-                                    Spacer(modifier = Modifier.size(8.dp))
-
-                                    getBookCount(context = context, type = type, platform = item)
-
-                                    Text(
-                                        text = spannableString(
-                                            textFront = "${changePlatformNameKor(item)} : ",
-                                            color = color000000,
-                                            textEnd = "${dataStore.getDataStoreString(
-                                                getPlatformDataKeyComic(item)
-                                            ).collectAsState(initial = "").value ?: "0"} 작품"
-                                        ),
-                                        color = color20459E,
-                                        fontSize = 18.sp,
-                                    )
-                                }
-                            }
-                        )
-                    }
-                }
-            }
         }
     }
 }
@@ -609,21 +716,21 @@ fun GenreDetailJson(
 
     LaunchedEffect(menuType, getPlatform) {
         when (menuType) {
-            "투데이" -> {
-                viewModelAnalyze.getJsonGenreList(platform = getPlatform, type = getDetailType)
-            }
-            "주간" -> {
-                viewModelAnalyze.getJsonGenreWeekList(
-                    platform = getPlatform,
-                    type = getDetailType
-                )
-            }
-            else -> {
-                viewModelAnalyze.getJsonGenreMonthList(
-                    platform = getPlatform,
-                    type = getDetailType
-                )
-            }
+//            "투데이" -> {
+//                viewModelAnalyze.getJsonGenreList(platform = getPlatform, type = getDetailType)
+//            }
+//            "주간" -> {
+//                viewModelAnalyze.getJsonGenreWeekList(
+//                    platform = getPlatform,
+//                    type = getDetailType
+//                )
+//            }
+//            else -> {
+//                viewModelAnalyze.getJsonGenreMonthList(
+//                    platform = getPlatform,
+//                    type = getDetailType
+//                )
+//            }
         }
     }
 
@@ -636,7 +743,7 @@ fun GenreDetailJson(
                     ScreenItemKeyword(
                         getter = getPlatform,
                         setter = setPlatform,
-                        title =  changePlatformNameKor(item),
+                        title = changePlatformNameKor(item),
                         getValue = item
                     )
                 }
@@ -644,12 +751,12 @@ fun GenreDetailJson(
         }
 
         LazyColumn(modifier = Modifier.padding(0.dp, 16.dp)) {
-            itemsIndexed(state.genreDay) { index, item ->
-                ListGenreToday(
-                    itemBestKeyword = item,
-                    index = index
-                )
-            }
+//            itemsIndexed(state.genreDay) { index, item ->
+//                ListGenreToday(
+//                    itemBestKeyword = item,
+//                    index = index
+//                )
+//            }
         }
     }
 
@@ -793,66 +900,185 @@ fun ListGenreToday(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScreenManavaraItemDetail(
+fun ScreenManavaraItem(
     viewModelAnalyze: ViewModelAnalyze,
+    drawerState: DrawerState?,
+    menu: String,
+    setDetail: (String) -> Unit,
+    setPlatform: (String) -> Unit,
+    setType: (String) -> Unit
 ) {
 
     val state = viewModelAnalyze.state.collectAsState().value
 
-    if (state.menu.contains("베스트 웹소설 DB")) {
-        ScreenBestDBListNovel(isInit = false, type = "NOVEL")
-    } else if (state.menu.contains("베스트 웹툰 DB")) {
-        ScreenBestDBListNovel(isInit = false, type = "COMIC")
-    } else if (state.menu.contains("웹소설 투데이 장르")) {
+    if (menu.contains("베스트 웹소설 DB")) {
+        ScreenBestDBListNovel(
+            type = "NOVEL",
+            drawerState = drawerState,
+            setDetail = setDetail,
+            setPlatform = setPlatform,
+            setType = setType
+        )
+    } else if (menu.contains("베스트 웹툰 DB")) {
+        ScreenBestDBListNovel(
+            type = "COMIC",
+            drawerState = drawerState,
+            setDetail = setDetail,
+            setPlatform = setPlatform,
+            setType = setType
+        )
+    } else if (menu.contains("웹소설 투데이 장르")) {
         GenreDetailJson(
             viewModelAnalyze = viewModelAnalyze,
             getDetailType = "NOVEL",
             menuType = "투데이"
         )
 
-    } else if (state.menu.contains("웹소설 주간 장르")) {
+    } else if (menu.contains("웹소설 주간 장르")) {
         GenreDetailJson(
             getDetailType = "NOVEL",
             menuType = "주간",
             viewModelAnalyze = viewModelAnalyze
         )
 
-    } else if (state.menu.contains("웹소설 월간 장르")) {
+    } else if (menu.contains("웹소설 월간 장르")) {
         GenreDetailJson(
             getDetailType = "NOVEL",
             menuType = "월간",
             viewModelAnalyze = viewModelAnalyze
         )
-    } else if (state.menu.contains("웹툰 투데이 장르")) {
+    } else if (menu.contains("웹툰 투데이 장르")) {
         GenreDetailJson(
             getDetailType = "COMIC",
             menuType = "투데이",
             viewModelAnalyze = viewModelAnalyze
         )
 
-    } else if (state.menu.contains("웹툰 주간 장르")) {
+    } else if (menu.contains("웹툰 주간 장르")) {
         GenreDetailJson(
             getDetailType = "COMIC",
             menuType = "주간",
             viewModelAnalyze = viewModelAnalyze
         )
 
-    } else if (state.menu.contains("웹툰 월간 장르")) {
+    } else if (menu.contains("웹툰 월간 장르")) {
         GenreDetailJson(
             getDetailType = "COMIC",
             menuType = "월간",
             viewModelAnalyze = viewModelAnalyze
         )
     } else {
-        ScreenBestDBListNovel(type = "NOVEL")
+        ScreenBestDBListNovel(
+            type = "NOVEL",
+            drawerState = drawerState,
+            setDetail = setDetail,
+            setPlatform = setPlatform,
+            setType = setType
+        )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@Composable
+fun ScreenManavaraItemDetail(
+    viewModelAnalyze: ViewModelAnalyze,
+    drawerState: DrawerState?,
+    modalSheetState: ModalBottomSheetState?,
+    setDialogOpen: ((Boolean) -> Unit)?,
+    platform: String,
+    type: String,
+    menu: String,
+    setDetail: (String) -> Unit,
+    setPlatform: (String) -> Unit,
+    setType: (String) -> Unit
+) {
+
+    val state = viewModelAnalyze.state.collectAsState().value
+
+    if (menu.contains("베스트 웹소설 DB")) {
+        ScreenBookMap(
+            modalSheetState = modalSheetState,
+            setDialogOpen = setDialogOpen,
+            viewModelAnalyze = viewModelAnalyze,
+            platform = platform,
+            type = type
+        )
+    } else if (menu.contains("베스트 웹툰 DB")) {
+        ScreenBestDBListNovel(
+            type = "NOVEL",
+            drawerState = drawerState,
+            setDetail = setDetail,
+            setPlatform = setPlatform,
+            setType = setType
+        )
+    } else if (menu.contains("웹소설 투데이 장르")) {
+        GenreDetailJson(
+            viewModelAnalyze = viewModelAnalyze,
+            getDetailType = "NOVEL",
+            menuType = "투데이"
+        )
+
+    } else if (menu.contains("웹소설 주간 장르")) {
+        GenreDetailJson(
+            getDetailType = "NOVEL",
+            menuType = "주간",
+            viewModelAnalyze = viewModelAnalyze
+        )
+
+    } else if (menu.contains("웹소설 월간 장르")) {
+        GenreDetailJson(
+            getDetailType = "NOVEL",
+            menuType = "월간",
+            viewModelAnalyze = viewModelAnalyze
+        )
+    } else if (menu.contains("웹툰 투데이 장르")) {
+        GenreDetailJson(
+            getDetailType = "COMIC",
+            menuType = "투데이",
+            viewModelAnalyze = viewModelAnalyze
+        )
+
+    } else if (menu.contains("웹툰 주간 장르")) {
+        GenreDetailJson(
+            getDetailType = "COMIC",
+            menuType = "주간",
+            viewModelAnalyze = viewModelAnalyze
+        )
+
+    } else if (menu.contains("웹툰 월간 장르")) {
+        GenreDetailJson(
+            getDetailType = "COMIC",
+            menuType = "월간",
+            viewModelAnalyze = viewModelAnalyze
+        )
+    } else {
+        ScreenBestDBListNovel(
+            type = "NOVEL",
+            drawerState = drawerState,
+            setDetail = setDetail,
+            setPlatform = setPlatform,
+            setType = setType
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @SuppressLint("MutableCollectionMutableState")
 @Composable
-fun ScreenManavaDetail(
-    viewModelAnalyze: ViewModelAnalyze
+fun ScreenManavaItems(
+    viewModelAnalyze: ViewModelAnalyze,
+    drawerState: DrawerState?,
+    modalSheetState: ModalBottomSheetState?,
+    setDialogOpen: ((Boolean) -> Unit)?,
+    detail: String,
+    menu: String,
+    platform: String,
+    type: String,
+    setDetail: (String) -> Unit,
+    setPlatform: (String) -> Unit,
+    setType: (String) -> Unit
 ) {
 
     val state = viewModelAnalyze.state.collectAsState().value
@@ -863,7 +1089,7 @@ fun ScreenManavaDetail(
             .background(color = colorF6F6F6)
     ) {
 
-        if(manavaraListKor().contains(state.menu)){
+        if (manavaraListKor().contains(menu)) {
             Spacer(modifier = Modifier.size(16.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -878,22 +1104,66 @@ fun ScreenManavaDetail(
                 Text(
                     modifier = Modifier
                         .padding(16.dp, 0.dp, 0.dp, 0.dp),
-                    text = changeDetailNameKor(state.menu),
+                    text = changeDetailNameKor(menu),
                     fontSize = 24.sp,
                     color = color000000,
                     fontWeight = FontWeight(weight = 700)
                 )
             }
+        } else if (manavaraListKor().contains(detail)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(id = R.drawable.icon_arrow_left),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .width(30.dp)
+                        .height(30.dp)
+                )
+
+                Text(
+                    modifier = Modifier
+                        .padding(16.dp, 0.dp, 0.dp, 0.dp),
+                    text = changeDetailNameKor(detail),
+                    fontSize = 24.sp,
+                    color = color000000,
+                    fontWeight = FontWeight(weight = 700)
+                )
+            }
+
+            Spacer(modifier = Modifier.size(16.dp))
         }
 
-        ScreenManavaraItemDetail(
-            viewModelAnalyze = viewModelAnalyze
-        )
+        if (detail.isNotEmpty()) {
+            ScreenManavaraItemDetail(
+                viewModelAnalyze = viewModelAnalyze,
+                drawerState = drawerState,
+                modalSheetState = modalSheetState,
+                setDialogOpen = setDialogOpen,
+                menu = menu,
+                platform = platform,
+                type = type,
+                setDetail = setDetail,
+                setPlatform = setPlatform,
+                setType = setType
+            )
+        } else {
+
+            Spacer(modifier = Modifier.width(4.dp))
+
+            ScreenManavaraItem(
+                viewModelAnalyze = viewModelAnalyze,
+                drawerState = drawerState,
+                menu = menu,
+                setDetail = setDetail,
+                setPlatform = setPlatform,
+                setType = setType
+            )
+        }
     }
 }
 
 @Composable
-fun ScreenManavaraTopbar(viewModelAnalyze: ViewModelAnalyze, onClick: () -> Unit){
+fun ScreenManavaraTopbar(viewModelAnalyze: ViewModelAnalyze, onClick: () -> Unit) {
     val state = viewModelAnalyze.state.collectAsState().value
 
     Row(
@@ -937,5 +1207,162 @@ fun ScreenManavaraTopbar(viewModelAnalyze: ViewModelAnalyze, onClick: () -> Unit
         }
 
 
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ScreenBestDBListNovel(
+    type: String, drawerState: DrawerState?,
+    setDetail: (String) -> Unit,
+    setPlatform: (String) -> Unit,
+    setType: (String) -> Unit
+) {
+    val context = LocalContext.current
+    val dataStore = DataStoreManager(context)
+    val coroutineScope = rememberCoroutineScope()
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(colorF6F6F6),
+    ) {
+        Column(
+            modifier = Modifier
+                .wrapContentSize()
+        ) {
+
+            val itemList = if (type == "NOVEL") novelListEng() else comicListEng()
+
+            itemList.forEach { item ->
+                Box(modifier = Modifier.padding(8.dp)) {
+                    TabletContentWrapBtn(
+                        onClick = {
+                            coroutineScope.launch {
+                                setDetail(item)
+                                setPlatform(item)
+                                setType(type)
+                                drawerState?.close()
+                            }
+                        },
+                        content = {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Start,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Image(
+                                    painter = painterResource(id = getPlatformLogoEng(item)),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .width(20.dp)
+                                        .height(20.dp)
+                                )
+
+                                Spacer(modifier = Modifier.size(8.dp))
+
+                                getBookCount(context = context, type = type, platform = item)
+
+                                Text(
+                                    text = spannableString(
+                                        textFront = "${changePlatformNameKor(item)} : ",
+                                        color = color000000,
+                                        textEnd = "${
+                                            dataStore.getDataStoreString(
+                                                if (type == "NOVEL") getPlatformDataKeyNovel(item) else getPlatformDataKeyComic(
+                                                    item
+                                                )
+                                            ).collectAsState(initial = "").value ?: "0"
+                                        } 작품"
+                                    ),
+                                    color = color20459E,
+                                    fontSize = 18.sp,
+                                )
+                            }
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun ScreenBookMap(
+    modalSheetState: ModalBottomSheetState?,
+    setDialogOpen: ((Boolean) -> Unit)?,
+    viewModelAnalyze: ViewModelAnalyze,
+    platform: String,
+    type: String
+) {
+
+    val state = viewModelAnalyze.state.collectAsState().value
+    val coroutineScope = rememberCoroutineScope()
+
+    getBookMap(
+        platform = platform,
+        type = type
+    ) {
+        viewModelAnalyze.setItemBookInfoMap(it)
+    }
+
+
+    Column(modifier = Modifier.background(color = colorF6F6F6)) {
+
+        LazyColumn(
+            modifier = Modifier
+                .background(colorF6F6F6)
+                .padding(16.dp, 0.dp, 16.dp, 0.dp)
+        ) {
+
+            itemsIndexed(ArrayList(state.itemBookInfoMap.values)) { index, item ->
+                ListBest(
+                    item = item,
+                    type = "MONTH",
+                    index = index,
+                ) {
+                    coroutineScope.launch {
+//                        viewModelBest.getBookItemInfo(itemBookInfo = item)
+//
+//                        viewModelBest.getBookItemWeekTrophy(
+//                            itemBookInfo = item
+//                        )
+
+                        modalSheetState?.show()
+
+                        if (setDialogOpen != null) {
+                            setDialogOpen(true)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun BestAnalyzeBackOnPressed(
+    detail: String,
+    setDetail: (String) -> Unit
+) {
+    val context = LocalContext.current
+    var backPressedState by remember { mutableStateOf(true) }
+    var backPressedTime = 0L
+
+    BackHandler(enabled = true) {
+
+        if (detail.isNotEmpty()) {
+            setDetail("")
+        } else {
+            if (System.currentTimeMillis() - backPressedTime <= 400L) {
+                // 앱 종료
+                (context as Activity).finish()
+            } else {
+                backPressedState = true
+                Toast.makeText(context, "한 번 더 누르시면 앱이 종료됩니다.", Toast.LENGTH_SHORT).show()
+            }
+            backPressedTime = System.currentTimeMillis()
+        }
     }
 }

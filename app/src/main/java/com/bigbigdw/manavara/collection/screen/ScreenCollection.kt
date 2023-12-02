@@ -1,5 +1,6 @@
 package com.bigbigdw.manavara.collection.screen
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,15 +18,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetState
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,30 +38,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bigbigdw.manavara.R
-import com.bigbigdw.manavara.analyze.screen.ScreenManavaDetail
-import com.bigbigdw.manavara.analyze.screen.ScreenManavaraItemDetail
-import com.bigbigdw.manavara.analyze.screen.ScreenManavaraPropertyList
+import com.bigbigdw.manavara.analyze.screen.ScreenManavaItems
+import com.bigbigdw.manavara.analyze.screen.ScreenManavaraItem
 import com.bigbigdw.manavara.analyze.screen.ScreenManavaraTopbar
 import com.bigbigdw.manavara.analyze.viewModels.ViewModelAnalyze
-import com.bigbigdw.manavara.best.screen.ScreenDialogBest
-import com.bigbigdw.manavara.ui.theme.color21C2EC
-import com.bigbigdw.manavara.ui.theme.color31C3AE
-import com.bigbigdw.manavara.ui.theme.color4AD7CF
-import com.bigbigdw.manavara.ui.theme.color536FD2
-import com.bigbigdw.manavara.ui.theme.color5372DE
 import com.bigbigdw.manavara.ui.theme.color64C157
 import com.bigbigdw.manavara.ui.theme.color7C81FF
-import com.bigbigdw.manavara.ui.theme.color998DF9
-import com.bigbigdw.manavara.ui.theme.colorABD436
-import com.bigbigdw.manavara.ui.theme.colorEA927C
-import com.bigbigdw.manavara.ui.theme.colorF17666
-import com.bigbigdw.manavara.ui.theme.colorF17FA0
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.util.screen.AlertTwoBtn
 import com.bigbigdw.manavara.util.screen.BackOnPressedMobile
 import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
 import com.bigbigdw.manavara.util.screen.TabletBorderLine
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
@@ -71,26 +62,26 @@ fun ScreenCollection(
     isExpandedScreen: Boolean,
     modalSheetState: ModalBottomSheetState? = null,
     drawerState: DrawerState,
-    viewModelAnalyze: ViewModelAnalyze,
     currentRoute: String?,
 ) {
 
     val context = LocalContext.current
-
+    val coroutineScope = rememberCoroutineScope()
+    val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelAnalyze: ViewModelAnalyze = viewModel(viewModelStoreOwner = viewModelStoreOwner)
     val state = viewModelAnalyze.state.collectAsState().value
 
-    LaunchedEffect(state.platform, state.type) {
-        viewModelAnalyze.getBestListTodayStorage(
-            context = context,
-        )
+    DisposableEffect(context) {
 
-        viewModelAnalyze.getBestWeekTrophy()
-        viewModelAnalyze.getBestWeekListStorage(context)
-        viewModelAnalyze.getBestMonthTrophy()
-        viewModelAnalyze.getBestMonthListStorage(context)
+        viewModelAnalyze.sideEffects
+            .onEach { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
+            .launchIn(coroutineScope)
+
+        onDispose {
+            // 컴포넌트가 detached 될 때 실행되는 코드
+            // 이 부분에 필요한 clean-up 코드를 작성할 수 있습니다.
+        }
     }
-
-    val coroutineScope = rememberCoroutineScope()
 
     Box(
         modifier = Modifier
@@ -115,13 +106,13 @@ fun ScreenCollection(
                             modifier = Modifier.requiredWidth(400.dp),
                             contents = {
                                 if (modalSheetState != null) {
-                                    ScreenDialogBest(
-                                        item = viewModelAnalyze.state.collectAsState().value.itemBookInfo,
-                                        trophy = viewModelAnalyze.state.collectAsState().value.itemBestInfoTrophyList,
-                                        isExpandedScreen = isExpandedScreen,
-                                        currentRoute = "NOVEL",
-                                        modalSheetState = modalSheetState
-                                    )
+//                                    ScreenDialogBest(
+//                                        item = viewModelAnalyze.state.collectAsState().value.itemBookInfo,
+//                                        trophy = viewModelAnalyze.state.collectAsState().value.itemBestInfoTrophyList,
+//                                        isExpandedScreen = isExpandedScreen,
+//                                        currentRoute = "NOVEL",
+//                                        modalSheetState = modalSheetState
+//                                    )
                                 }
                             })
                     }
@@ -138,17 +129,7 @@ fun ScreenCollection(
                         .background(color = colorF6F6F6)
                 )
 
-                ScreenManavaDetail(
-                    viewModelAnalyze = viewModelAnalyze
-                )
-
             } else {
-
-                val modalSheetState = rememberModalBottomSheetState(
-                    initialValue = ModalBottomSheetValue.Hidden,
-                    confirmValueChange = { it != ModalBottomSheetValue.HalfExpanded },
-                    skipHalfExpanded = false
-                )
 
                 ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
 
@@ -175,40 +156,49 @@ fun ScreenCollection(
                                 .background(color = colorF6F6F6)
                                 .fillMaxSize()
                         ) {
-                            ScreenManavaraItemDetail(
-                                viewModelAnalyze = viewModelAnalyze
+                            ScreenManavaraItem(
+                                viewModelAnalyze = viewModelAnalyze,
+                                drawerState = drawerState,
+                                menu = "",
+                                setDetail = {},
+                                setPlatform = {},
+                                setType = {}
                             )
                         }
                     }
 
-                    ModalBottomSheetLayout(
-                        sheetState = modalSheetState,
-                        sheetElevation = 50.dp,
-                        sheetShape = RoundedCornerShape(
-                            topStart = 25.dp,
-                            topEnd = 25.dp
-                        ),
-                        sheetContent = {
+                    if (modalSheetState != null) {
+                        ModalBottomSheetLayout(
+                            sheetState = modalSheetState,
+                            sheetElevation = 50.dp,
+                            sheetShape = RoundedCornerShape(
+                                topStart = 25.dp,
+                                topEnd = 25.dp
+                            ),
+                            sheetContent = {
 
-//                            if(currentRoute == "NOVEL" || currentRoute == "COMIC"){
-//
-//                                Spacer(modifier = Modifier.size(4.dp))
-//
-//                                ScreenDialogBest(
-//                                    item = state.itemBookInfo,
-//                                    trophy = state.itemBestInfoTrophyList,
-//                                    isExpandedScreen = isExpandedScreen,
-//                                    currentRoute = currentRoute,
-//                                    modalSheetState = modalSheetState
-//                                )
-//                            } else {
-//                                ScreenTest()
-//                            }
-                        },
-                    ) {}
+                //                            if(currentRoute == "NOVEL" || currentRoute == "COMIC"){
+                //
+                //                                Spacer(modifier = Modifier.size(4.dp))
+                //
+                //                                ScreenDialogBest(
+                //                                    item = state.itemBookInfo,
+                //                                    trophy = state.itemBestInfoTrophyList,
+                //                                    isExpandedScreen = isExpandedScreen,
+                //                                    currentRoute = currentRoute,
+                //                                    modalSheetState = modalSheetState
+                //                                )
+                //                            } else {
+                //                                ScreenTest()
+                //                            }
+                            },
+                        ) {}
+                    }
                 }
 
-                BackOnPressedMobile(modalSheetState = modalSheetState)
+                if (modalSheetState != null) {
+                    BackOnPressedMobile(modalSheetState = modalSheetState)
+                }
 
             }
         }
@@ -248,7 +238,7 @@ fun ScreenCollectionPropertyList(
                 image = R.drawable.ic_launcher,
                 title = "나의 PICK 보기",
                 body = "------",
-                current = state.menu,
+                 current = "",
                 onClick = {  },
                 value = "작품 검색",
             )
@@ -258,7 +248,7 @@ fun ScreenCollectionPropertyList(
                 image = R.drawable.ic_launcher,
                 title = "다른 PICK 보기",
                 body = "------",
-                current = state.menu,
+                 current = "",
                 onClick = {  },
                 value = "작품 검색",
             )
@@ -270,7 +260,7 @@ fun ScreenCollectionPropertyList(
                 image = R.drawable.ic_launcher,
                 title = "웹소설 신규 작품",
                 body = "------",
-                current = state.menu,
+                 current = "",
                 onClick = {  },
                 value = "작품 검색",
             )
@@ -280,7 +270,7 @@ fun ScreenCollectionPropertyList(
                 image = R.drawable.ic_launcher,
                 title = "웹툰 신규 작품",
                 body = "------",
-                current = state.menu,
+                 current = "",
                 onClick = {  },
                 value = "작품 검색",
             )
@@ -292,7 +282,7 @@ fun ScreenCollectionPropertyList(
                 image = R.drawable.icon_search_wht,
                 title = "작품 링크",
                 body = "타 플랫폼에 있는 작품과 링크",
-                current = state.menu,
+                 current = "",
                 onClick = {  },
                 value = "작품 검색",
             )
@@ -302,7 +292,7 @@ fun ScreenCollectionPropertyList(
                 image = R.drawable.icon_search_wht,
                 title = "작품 링크 리스트",
                 body = "내가 링크한 작품 리스트",
-                current = state.menu,
+                 current = "",
                 onClick = {  },
                 value = "작품 검색",
             )
@@ -312,7 +302,7 @@ fun ScreenCollectionPropertyList(
                 image = R.drawable.icon_search_wht,
                 title = "공유된 링크 리스트",
                 body = "타인이 링크한 작품 리스트",
-                current = state.menu,
+                 current = "",
                 onClick = {  },
                 value = "작품 검색",
             )
@@ -322,7 +312,7 @@ fun ScreenCollectionPropertyList(
                 image = R.drawable.icon_search_wht,
                 title = "나의 콜렉션 분석 명세서",
                 body = "내가 수집한 작품들 분석 현황 보기",
-                current = state.menu,
+                 current = "",
                 onClick = {  },
                 value = "북코드 검색",
             )
@@ -334,7 +324,7 @@ fun ScreenCollectionPropertyList(
                 image = R.drawable.icon_search_wht,
                 title = "작품 검색",
                 body = "플랫폼과 무관하게 작품 검색 진행",
-                current = state.menu,
+                 current = "",
                 onClick = {  },
                 value = "작품 검색",
             )
@@ -344,7 +334,7 @@ fun ScreenCollectionPropertyList(
                 image = R.drawable.icon_search_wht,
                 title = "북코드 검색",
                 body = "플랫폼과 무관하게 작품 검색 진행",
-                current = state.menu,
+                 current = "",
                 onClick = {  },
                 value = "북코드 검색",
             )

@@ -274,7 +274,6 @@ fun NavigationGraph(
                 isExpandedScreen = isExpandedScreen,
                 modalSheetState = null,
                 drawerState = drawerState,
-                viewModelAnalyze = viewModelAnalyze,
                 currentRoute = currentRoute
             )
 
@@ -285,7 +284,6 @@ fun NavigationGraph(
                 isExpandedScreen = isExpandedScreen,
                 modalSheetState = null,
                 drawerState = drawerState,
-                viewModelAnalyze = viewModelAnalyze,
                 currentRoute = currentRoute
             )
 

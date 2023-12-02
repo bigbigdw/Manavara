@@ -92,7 +92,6 @@ fun ScreenTodayBest(
     viewModelBest: ViewModelBest,
 ) {
 
-    val context = LocalContext.current
     val state = viewModelBest.state.collectAsState().value
 
     getBookMap(
@@ -366,13 +365,24 @@ fun ScreenTodayWeek(
                 itemsIndexed(filteredList) { index, item ->
 
                     ListBest(
-                        viewModelBest = viewModelBest,
                         item = item,
                         type = "WEEK",
-                        modalSheetState = modalSheetState,
-                        setDialogOpen = setDialogOpen,
                         index = index
-                    )
+                    ){
+                        coroutineScope.launch {
+                            viewModelBest.getBookItemInfo(itemBookInfo = item)
+
+                            viewModelBest.getBookItemWeekTrophy(
+                                itemBookInfo = item
+                            )
+
+                            modalSheetState?.show()
+
+                            if (setDialogOpen != null) {
+                                setDialogOpen(true)
+                            }
+                        }
+                    }
 
                 }
             } else {
@@ -394,15 +404,12 @@ fun ScreenTodayWeek(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ListBest(
-    viewModelBest: ViewModelBest,
     item: ItemBookInfo,
     type: String,
-    modalSheetState: ModalBottomSheetState?,
-    setDialogOpen: ((Boolean) -> Unit)?,
-    index: Int
+    index: Int,
+    onClick: () -> Unit
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -418,17 +425,7 @@ fun ListBest(
         shape = RoundedCornerShape(20.dp),
         onClick = {
             coroutineScope.launch {
-                viewModelBest.getBookItemInfo(itemBookInfo = item)
-
-                viewModelBest.getBookItemWeekTrophy(
-                    itemBookInfo = item
-                )
-
-                modalSheetState?.show()
-
-                if (setDialogOpen != null) {
-                    setDialogOpen(true)
-                }
+                onClick()
             }
         },
         content = {
@@ -563,13 +560,24 @@ fun ScreenTodayMonth(
 
                 itemsIndexed(filteredList) { index, item ->
                     ListBest(
-                        viewModelBest = viewModelBest,
                         item = item,
                         type = "MONTH",
-                        modalSheetState = modalSheetState,
-                        setDialogOpen = setDialogOpen,
                         index = index,
-                    )
+                    ){
+                        coroutineScope.launch {
+                            viewModelBest.getBookItemInfo(itemBookInfo = item)
+
+                            viewModelBest.getBookItemWeekTrophy(
+                                itemBookInfo = item
+                            )
+
+                            modalSheetState?.show()
+
+                            if (setDialogOpen != null) {
+                                setDialogOpen(true)
+                            }
+                        }
+                    }
                 }
             }
         } else {
@@ -596,13 +604,24 @@ fun ScreenTodayMonth(
                         }
 
                         ListBest(
-                            viewModelBest = viewModelBest,
                             item = item,
                             type = "WEEK",
-                            modalSheetState = null,
-                            setDialogOpen = null,
                             index = index,
-                        )
+                        ){
+                            coroutineScope.launch {
+                                viewModelBest.getBookItemInfo(itemBookInfo = item)
+
+                                viewModelBest.getBookItemWeekTrophy(
+                                    itemBookInfo = item
+                                )
+
+                                modalSheetState?.show()
+
+                                if (setDialogOpen != null) {
+                                    setDialogOpen(true)
+                                }
+                            }
+                        }
                     }
                 }
             } else {
