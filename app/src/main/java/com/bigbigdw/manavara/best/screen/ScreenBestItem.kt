@@ -73,6 +73,7 @@ import com.bigbigdw.manavara.best.getBestMonthTrophy
 import com.bigbigdw.manavara.best.getBestWeekListStorage
 import com.bigbigdw.manavara.best.getBestWeekTrophy
 import com.bigbigdw.manavara.best.getBookItemWeekTrophy
+import com.bigbigdw.manavara.best.getBookItemWeekTrophyDialog
 import com.bigbigdw.manavara.best.getBookMap
 import com.bigbigdw.manavara.util.getWeekDate
 import com.bigbigdw.manavara.util.screen.ScreenEmpty
@@ -304,7 +305,6 @@ fun ScreenTodayWeek(
     }
 
     getBestWeekListStorage(
-        context = context,
         platform = state.platform,
         type = state.type
     ){
@@ -372,9 +372,16 @@ fun ScreenTodayWeek(
                         coroutineScope.launch {
                             viewModelBest.getBookItemInfo(itemBookInfo = item)
 
-                            viewModelBest.getBookItemWeekTrophy(
-                                itemBookInfo = item
-                            )
+                            getBookItemWeekTrophyDialog(
+                                itemBookInfo = item,
+                                type = state.type,
+                                platform = state.platform
+                            ) { itemBookInfo, itemBestInfoTrophyList ->
+                                viewModelBest.setItemBestInfoTrophyList(
+                                    itemBookInfo = itemBookInfo,
+                                    itemBestInfoTrophyList = itemBestInfoTrophyList
+                                )
+                            }
 
                             modalSheetState?.show()
 
@@ -567,9 +574,16 @@ fun ScreenTodayMonth(
                         coroutineScope.launch {
                             viewModelBest.getBookItemInfo(itemBookInfo = item)
 
-                            viewModelBest.getBookItemWeekTrophy(
-                                itemBookInfo = item
-                            )
+                            getBookItemWeekTrophyDialog(
+                                itemBookInfo = item,
+                                type = state.type,
+                                platform = state.platform
+                            ) { itemBookInfo, itemBestInfoTrophyList ->
+                                viewModelBest.setItemBestInfoTrophyList(
+                                    itemBookInfo = itemBookInfo,
+                                    itemBestInfoTrophyList = itemBestInfoTrophyList
+                                )
+                            }
 
                             modalSheetState?.show()
 
@@ -611,9 +625,16 @@ fun ScreenTodayMonth(
                             coroutineScope.launch {
                                 viewModelBest.getBookItemInfo(itemBookInfo = item)
 
-                                viewModelBest.getBookItemWeekTrophy(
-                                    itemBookInfo = item
-                                )
+                                getBookItemWeekTrophyDialog(
+                                    itemBookInfo = item,
+                                    type = state.type,
+                                    platform = state.platform
+                                ) { itemBookInfo, itemBestInfoTrophyList ->
+                                    viewModelBest.setItemBestInfoTrophyList(
+                                        itemBookInfo = itemBookInfo,
+                                        itemBestInfoTrophyList = itemBestInfoTrophyList
+                                    )
+                                }
 
                                 modalSheetState?.show()
 

@@ -156,6 +156,8 @@ fun ScreenCollection(
                                 .background(color = colorF6F6F6)
                                 .fillMaxSize()
                         ) {
+                            Spacer(modifier = Modifier.size(8.dp))
+
                             ScreenManavaraItem(
                                 viewModelAnalyze = viewModelAnalyze,
                                 drawerState = drawerState,

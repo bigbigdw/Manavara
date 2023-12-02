@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.bigbigdw.manavara.analyze.event.EventAnalyze
 import com.bigbigdw.manavara.analyze.event.StateAnalyze
 import com.bigbigdw.manavara.best.event.EventBest
+import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
@@ -37,6 +38,14 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
                 current.copy(itemBookInfoMap = event.itemBookInfoMap)
             }
 
+            is EventAnalyze.SetItemBookInfo -> {
+                current.copy(itemBookInfo = event.itemBookInfo)
+            }
+
+            is EventAnalyze.SetItemBestInfoTrophyList -> {
+                current.copy(itemBookInfo = event.itemBookInfo, itemBestInfoTrophyList = event.itemBestInfoTrophyList)
+            }
+
             else -> {
                 current.copy(Loaded = false)
             }
@@ -46,6 +55,18 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
     fun setItemBookInfoMap(itemBookInfoMap: MutableMap<String, ItemBookInfo>) {
         viewModelScope.launch {
             events.send(EventAnalyze.SetItemBookInfoMap(itemBookInfoMap = itemBookInfoMap))
+        }
+    }
+
+    fun setItemBookInfo(itemBookInfo: ItemBookInfo){
+        viewModelScope.launch {
+            events.send(EventAnalyze.SetItemBookInfo(itemBookInfo = itemBookInfo))
+        }
+    }
+
+    fun setItemBestInfoTrophyList(itemBookInfo: ItemBookInfo,  itemBestInfoTrophyList: ArrayList<ItemBestInfo>){
+        viewModelScope.launch {
+            events.send(EventAnalyze.SetItemBestInfoTrophyList(itemBookInfo = itemBookInfo, itemBestInfoTrophyList = itemBestInfoTrophyList))
         }
     }
 

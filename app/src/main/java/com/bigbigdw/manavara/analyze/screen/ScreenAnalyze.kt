@@ -2,6 +2,7 @@ package com.bigbigdw.manavara.analyze.screen
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Intent
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
@@ -70,9 +71,13 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.analyze.viewModels.ViewModelAnalyze
+import com.bigbigdw.manavara.best.ActivityBestDetail
+import com.bigbigdw.manavara.best.getBookItemWeekTrophy
+import com.bigbigdw.manavara.best.getBookItemWeekTrophyDialog
 import com.bigbigdw.manavara.best.getBookMap
 import com.bigbigdw.manavara.best.models.ItemKeyword
 import com.bigbigdw.manavara.best.screen.ListBest
+import com.bigbigdw.manavara.best.screen.ScreenDialogBest
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color1CE3EE
 import com.bigbigdw.manavara.ui.theme.color20459E
@@ -141,6 +146,8 @@ fun ScreenAnalyze(
     val (detail, setDetail) = remember { mutableStateOf("") }
     val (type, setType) = remember { mutableStateOf("") }
 
+    BestAnalyzeBackOnPressed(detail = detail, setDetail = setDetail)
+
     DisposableEffect(context) {
 
         viewModelAnalyze.sideEffects
@@ -173,23 +180,27 @@ fun ScreenAnalyze(
                     Dialog(
                         onDismissRequest = { setDialogOpen(false) },
                     ) {
-                        AlertTwoBtn(
-                            isShow = { },
-                            onFetchClick = { },
+                        AlertTwoBtn(isShow = { setDialogOpen(false) },
+                            onFetchClick = {
+                                val intent = Intent(context, ActivityBestDetail::class.java)
+                                intent.putExtra("BOOKCODE", state.itemBookInfo.bookCode)
+                                intent.putExtra("PLATFORM", state.itemBookInfo.type)
+                                intent.putExtra("TYPE", type)
+                                context.startActivity(intent)
+                            },
                             btnLeft = "취소",
-                            btnRight = "확인",
+                            btnRight = "작품 보러가기",
                             modifier = Modifier.requiredWidth(400.dp),
                             contents = {
-                                if (modalSheetState != null) {
-//                                    ScreenDialogBest(
-//                                        item = viewModelAnalyze.state.collectAsState().value.itemBookInfo,
-//                                        trophy = viewModelAnalyze.state.collectAsState().value.itemBestInfoTrophyList,
-//                                        isExpandedScreen = isExpandedScreen,
-//                                        currentRoute = "NOVEL",
-//                                        modalSheetState = modalSheetState
-//                                    )
-                                }
-                            })
+                                ScreenDialogBest(
+                                    item = state.itemBookInfo,
+                                    trophy = state.itemBestInfoTrophyList,
+                                    isExpandedScreen = isExpandedScreen,
+                                    currentRoute = type,
+                                    modalSheetState = null
+                                )
+                            }
+                        )
                     }
                 }
 
@@ -221,9 +232,11 @@ fun ScreenAnalyze(
                     setType = setType
                 )
 
-                BestAnalyzeBackOnPressed(detail = detail, setDetail = setDetail)
-
             } else {
+
+                if (modalSheetState != null) {
+                    BestAnalyzeBackOnPressed(detail = detail, setDetail = setDetail)
+                }
 
                 ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
 
@@ -278,28 +291,20 @@ fun ScreenAnalyze(
                                 topEnd = 25.dp
                             ),
                             sheetContent = {
+                                Spacer(modifier = Modifier.size(4.dp))
 
-                                //                            if(currentRoute == "NOVEL" || currentRoute == "COMIC"){
-                                //
-                                //                                Spacer(modifier = Modifier.size(4.dp))
-                                //
-                                //                                ScreenDialogBest(
-                                //                                    item = state.itemBookInfo,
-                                //                                    trophy = state.itemBestInfoTrophyList,
-                                //                                    isExpandedScreen = isExpandedScreen,
-                                //                                    currentRoute = currentRoute,
-                                //                                    modalSheetState = modalSheetState
-                                //                                )
-                                //                            } else {
-                                //                                ScreenTest()
-                                //                            }
+                                if (currentRoute != null) {
+                                    ScreenDialogBest(
+                                        item = state.itemBookInfo,
+                                        trophy = state.itemBestInfoTrophyList,
+                                        isExpandedScreen = isExpandedScreen,
+                                        currentRoute = currentRoute,
+                                        modalSheetState = modalSheetState
+                                    )
+                                }
                             },
                         ) {}
                     }
-                }
-
-                if (modalSheetState != null) {
-                    BackOnPressedMobile(modalSheetState = modalSheetState)
                 }
 
             }
@@ -339,6 +344,8 @@ fun ScreenManavaraPropertyList(
                 color = Color.Black,
                 fontWeight = FontWeight(weight = 700)
             )
+
+            Spacer(modifier = Modifier.size(16.dp))
 
             ItemMainSettingSingleTablet(
                 containerColor = color4AD7CF,
@@ -1133,7 +1140,11 @@ fun ScreenManavaItems(
             Spacer(modifier = Modifier.size(16.dp))
         }
 
+
         if (detail.isNotEmpty()) {
+
+            Spacer(modifier = Modifier.size(16.dp))
+
             ScreenManavaraItemDetail(
                 viewModelAnalyze = viewModelAnalyze,
                 drawerState = drawerState,
@@ -1148,7 +1159,7 @@ fun ScreenManavaItems(
             )
         } else {
 
-            Spacer(modifier = Modifier.width(4.dp))
+            Spacer(modifier = Modifier.size(8.dp))
 
             ScreenManavaraItem(
                 viewModelAnalyze = viewModelAnalyze,
@@ -1323,11 +1334,18 @@ fun ScreenBookMap(
                     index = index,
                 ) {
                     coroutineScope.launch {
-//                        viewModelBest.getBookItemInfo(itemBookInfo = item)
-//
-//                        viewModelBest.getBookItemWeekTrophy(
-//                            itemBookInfo = item
-//                        )
+                        viewModelAnalyze.setItemBookInfo(itemBookInfo = item)
+
+                        getBookItemWeekTrophyDialog(
+                            itemBookInfo = item,
+                            type = type,
+                            platform = platform
+                        ) { itemBookInfo, itemBestInfoTrophyList ->
+                            viewModelAnalyze.setItemBestInfoTrophyList(
+                                itemBookInfo = itemBookInfo,
+                                itemBestInfoTrophyList = itemBestInfoTrophyList
+                            )
+                        }
 
                         modalSheetState?.show()
 
@@ -1349,11 +1367,14 @@ fun BestAnalyzeBackOnPressed(
     val context = LocalContext.current
     var backPressedState by remember { mutableStateOf(true) }
     var backPressedTime = 0L
+    val coroutineScope = rememberCoroutineScope()
 
     BackHandler(enabled = true) {
 
         if (detail.isNotEmpty()) {
-            setDetail("")
+            coroutineScope.launch {
+                setDetail("")
+            }
         } else {
             if (System.currentTimeMillis() - backPressedTime <= 400L) {
                 // 앱 종료

@@ -197,67 +197,46 @@ fun getBookItemWeekTrophy(bookCode: String, platform : String, type : String, ca
     })
 }
 
-fun getBestWeekListJson(
-    context: Context,
-    platform: String,
-    type: String,
-    callbacks: (ArrayList<ArrayList<ItemBookInfo>>) -> Unit
-) {
+fun getBookItemWeekTrophyDialog(itemBookInfo: ItemBookInfo, type : String, platform: String, callbacks: (itemBookInfo: ItemBookInfo,  itemBestInfoTrophyList: ArrayList<ItemBestInfo>) -> Unit){
 
-    val dataStore = DataStoreManager(context)
+    val weekArray = ArrayList<ItemBestInfo>()
 
-    CoroutineScope(Dispatchers.IO).launch {
-        dataStore.getDataStoreBoolean(DataStoreManager.NEED_UPDATE).collect { value ->
-            if (value == true) {
-                getBestWeekListStorage(context = context, platform = platform, type = type) {
-                    callbacks.invoke(it)
+    val mRootRef =
+        FirebaseDatabase.getInstance().reference.child("BEST").child(type).child(platform)
+            .child("TROPHY_WEEK").child(itemBookInfo.bookCode)
+
+    mRootRef.addListenerForSingleValueEvent(object :
+        ValueEventListener {
+        override fun onDataChange(dataSnapshot: DataSnapshot) {
+            if (dataSnapshot.exists()) {
+
+                for(i in 0..6){
+                    weekArray.add(ItemBestInfo())
                 }
-            } else {
-                val filePath = File(context.filesDir, "${platform}_WEEK_${type}.json").absolutePath
 
-                try {
-                    val jsonString = File(filePath).readText(Charset.forName("UTF-8"))
+                for (snapshot in dataSnapshot.children) {
+                    val key = snapshot.key
+                    val value = snapshot.value
 
-                    val jsonArray = JSONArray(jsonString)
+                    if (key != null && value != null) {
 
-                    val weekJsonList = ArrayList<ArrayList<ItemBookInfo>>()
+                        val item = snapshot.getValue(ItemBestInfo::class.java)
 
-                    for (i in 0 until jsonArray.length()) {
-
-                        try {
-                            val jsonArrayItem = jsonArray.getJSONArray(i)
-                            val itemList = ArrayList<ItemBookInfo>()
-
-                            for (j in 0 until jsonArrayItem.length()) {
-
-                                try {
-                                    val jsonObject = jsonArrayItem.getJSONObject(j)
-                                    itemList.add(convertItemBookJson(jsonObject))
-                                } catch (e: Exception) {
-                                    itemList.add(ItemBookInfo())
-                                }
-                            }
-
-                            weekJsonList.add(itemList)
-                        } catch (e: Exception) {
-                            weekJsonList.add(ArrayList())
+                        if (item != null) {
+                            weekArray[key.toInt()] = item
                         }
                     }
-
-                    callbacks.invoke(weekJsonList)
-
-                } catch (e: Exception) {
-                    getBestWeekListStorage(context = context, platform = platform, type = type) {
-                        callbacks.invoke(it)
-                    }
                 }
+
+                callbacks.invoke(itemBookInfo, weekArray)
             }
         }
-    }
+
+        override fun onCancelled(databaseError: DatabaseError) {}
+    })
 }
 
 fun getBestWeekListStorage(
-    context: Context,
     platform: String,
     type: String,
     callbacks: (ArrayList<ArrayList<ItemBookInfo>>) -> Unit

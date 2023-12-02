@@ -13,9 +13,20 @@ sealed interface EventAnalyze{
     class SetItemBookInfoMap(
         var itemBookInfoMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
     ) : EventAnalyze
+
+    class SetItemBookInfo(
+        val itemBookInfo : ItemBookInfo = ItemBookInfo(),
+    ) : EventAnalyze
+
+    class SetItemBestInfoTrophyList(
+        val itemBestInfoTrophyList : ArrayList<ItemBestInfo> = ArrayList(),
+        val itemBookInfo : ItemBookInfo = ItemBookInfo()
+    ) : EventAnalyze
 }
 
 data class StateAnalyze(
     val Loaded: Boolean = false,
     var itemBookInfoMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
+    val itemBestInfoTrophyList : ArrayList<ItemBestInfo> = ArrayList(),
+    val itemBookInfo : ItemBookInfo = ItemBookInfo(),
 )

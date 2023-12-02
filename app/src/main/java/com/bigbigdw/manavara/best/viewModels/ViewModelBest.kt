@@ -117,49 +117,6 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         }
     }
 
-    fun getBookItemWeekTrophy(itemBookInfo: ItemBookInfo){
-
-        val state = state.value
-
-        val weekArray = ArrayList<ItemBestInfo>()
-
-        val mRootRef =
-            FirebaseDatabase.getInstance().reference.child("BEST").child(state.type).child(state.platform)
-                .child("TROPHY_WEEK").child(itemBookInfo.bookCode)
-
-        mRootRef.addListenerForSingleValueEvent(object :
-            ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                if (dataSnapshot.exists()) {
-
-                    for(i in 0..6){
-                        weekArray.add(ItemBestInfo())
-                    }
-
-                    for (snapshot in dataSnapshot.children) {
-                        val key = snapshot.key
-                        val value = snapshot.value
-
-                        if (key != null && value != null) {
-
-                            val item = snapshot.getValue(ItemBestInfo::class.java)
-
-                            if (item != null) {
-                                weekArray[key.toInt()] = item
-                            }
-                        }
-                    }
-
-                    viewModelScope.launch {
-                        events.send(EventBest.SetItemBestInfoTrophyList(itemBestInfoTrophyList = weekArray, itemBookInfo = itemBookInfo))
-                    }
-                }
-            }
-
-            override fun onCancelled(databaseError: DatabaseError) {}
-        })
-    }
-
     fun setBest(
         platform: String = state.value.platform,
         menu: String = state.value.menu,
