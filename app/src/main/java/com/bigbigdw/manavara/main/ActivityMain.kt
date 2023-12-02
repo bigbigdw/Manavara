@@ -1,7 +1,6 @@
 package com.bigbigdw.manavara.main
 
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,9 +11,9 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.lifecycle.lifecycleScope
 import checkMining
 import checkUpdateTime
+import com.bigbigdw.manavara.analyze.viewModels.ViewModelAnalyze
 import com.bigbigdw.manavara.main.screen.ScreenMain
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
-import com.bigbigdw.manavara.manavara.viewModels.ViewModelManavara
 import com.bigbigdw.manavara.util.DataStoreManager
 import com.bigbigdw.manavara.util.novelListEng
 import deleteJson
@@ -27,7 +26,7 @@ import kotlinx.coroutines.launch
 class ActivityMain : ComponentActivity() {
 
     private val viewModelMain: ViewModelMain by viewModels()
-    private val viewModelManavara: ViewModelManavara by viewModels()
+    private val viewModelAnalyze: ViewModelAnalyze by viewModels()
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,7 +72,7 @@ class ActivityMain : ComponentActivity() {
             .onEach { Toast.makeText(this@ActivityMain, it, Toast.LENGTH_SHORT).show() }
             .launchIn(lifecycleScope)
 
-        viewModelManavara.sideEffects
+        viewModelAnalyze.sideEffects
             .onEach { Toast.makeText(this@ActivityMain, it, Toast.LENGTH_SHORT).show() }
             .launchIn(lifecycleScope)
 
@@ -84,7 +83,7 @@ class ActivityMain : ComponentActivity() {
 
             ScreenMain(
                 viewModelMain = viewModelMain,
-                viewModelManavara = viewModelManavara,
+                viewModelAnalyze = viewModelAnalyze,
                 isExpandedScreen = isExpandedScreen
             )
         }

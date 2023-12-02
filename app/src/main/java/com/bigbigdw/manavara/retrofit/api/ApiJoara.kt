@@ -11,7 +11,6 @@ import com.bigbigdw.manavara.retrofit.result.JoaraLoginResult
 import com.bigbigdw.manavara.retrofit.result.JoaraNoticeDetailResult
 import com.bigbigdw.manavara.retrofit.result.JoaraNoticeResult
 import com.bigbigdw.manavara.retrofit.result.JoaraSearchResult
-import com.bigbigdw.moavara.Retrofit.*
 import retrofit2.Call
 import retrofit2.http.*
 

@@ -56,14 +56,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.bigbigdw.manavara.R
+import com.bigbigdw.manavara.analyze.screen.ScreenAnalyze
 import com.bigbigdw.manavara.best.screen.ScreenBest
-import com.bigbigdw.manavara.best.screen.ScreenBestTopbar
-import com.bigbigdw.manavara.best.viewModels.ViewModelBest
 import com.bigbigdw.manavara.firebase.DataFCMBodyNotification
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
+import com.bigbigdw.manavara.analyze.viewModels.ViewModelAnalyze
+import com.bigbigdw.manavara.collection.screen.ScreenCollection
 import com.bigbigdw.manavara.manavara.screen.ScreenManavara
-import com.bigbigdw.manavara.manavara.screen.ScreenManavaraTopbar
-import com.bigbigdw.manavara.manavara.viewModels.ViewModelManavara
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color1E4394
 import com.bigbigdw.manavara.ui.theme.color555b68
@@ -80,7 +79,7 @@ import postFCMAlert
 @Composable
 fun ScreenMain(
     viewModelMain: ViewModelMain,
-    viewModelManavara: ViewModelManavara,
+    viewModelAnalyze: ViewModelAnalyze,
     isExpandedScreen: Boolean
 ) {
 
@@ -99,7 +98,7 @@ fun ScreenMain(
             isExpandedScreen = isExpandedScreen,
             listState = listState,
             drawerState = drawerState,
-            viewModelManavara = viewModelManavara
+            viewModelAnalyze = viewModelAnalyze
         )
         BackOnPressed()
 
@@ -112,7 +111,7 @@ fun ScreenMain(
             drawerState = drawerState,
             listState = listState,
             viewModelMain = viewModelMain,
-            viewModelManavara = viewModelManavara
+            viewModelAnalyze = viewModelAnalyze
         )
     }
 }
@@ -126,7 +125,7 @@ fun ScreenMainTablet(
     isExpandedScreen: Boolean,
     listState: LazyListState,
     drawerState: DrawerState,
-    viewModelManavara: ViewModelManavara,
+    viewModelAnalyze: ViewModelAnalyze,
 ) {
 
     Row {
@@ -138,7 +137,7 @@ fun ScreenMainTablet(
             listState = listState,
             viewModelMain = viewModelMain,
             drawerState = drawerState,
-            viewModelManavara = viewModelManavara,
+            viewModelAnalyze = viewModelAnalyze,
             currentRoute = currentRoute
         )
     }
@@ -153,7 +152,7 @@ fun ScreenMainMobile(
     drawerState: DrawerState,
     listState: LazyListState,
     viewModelMain: ViewModelMain,
-    viewModelManavara: ViewModelManavara,
+    viewModelAnalyze: ViewModelAnalyze,
 ) {
 
     Scaffold(
@@ -171,24 +170,10 @@ fun ScreenMainMobile(
                 listState = listState,
                 viewModelMain = viewModelMain,
                 drawerState = drawerState,
-                viewModelManavara = viewModelManavara,
+                viewModelAnalyze = viewModelAnalyze,
                 currentRoute = currentRoute,
             )
         }
-    }
-}
-
-@Composable
-fun TopbarMain(
-    viewModelBest: ViewModelBest,
-    currentRoute: String?,
-    setDrawer: (Boolean) -> Unit,
-) {
-
-    if(currentRoute == "NOVEL" || currentRoute == "COMIC"){
-        ScreenBestTopbar(viewModelBest = viewModelBest, onClick = { setDrawer(true) })
-    } else if(currentRoute == "MANAVARA"){
-        ScreenManavaraTopbar(viewModelBest = viewModelBest, onClick = { setDrawer(true) })
     }
 }
 
@@ -197,9 +182,9 @@ fun BottomNavScreen(navController: NavHostController, currentRoute: String?) {
     val items = listOf(
         ScreemBottomItem.NOVEL,
         ScreemBottomItem.COMIC,
+        ScreemBottomItem.ANALYZE,
+        ScreemBottomItem.COLLECTION,
         ScreemBottomItem.MANAVARA,
-        ScreemBottomItem.PICK,
-        ScreemBottomItem.EVENT,
     )
 
     BottomNavigation(
@@ -255,7 +240,7 @@ fun NavigationGraph(
     listState: LazyListState,
     viewModelMain: ViewModelMain,
     drawerState: DrawerState,
-    viewModelManavara: ViewModelManavara,
+    viewModelAnalyze: ViewModelAnalyze,
     currentRoute: String?,
 ) {
 
@@ -282,22 +267,39 @@ fun NavigationGraph(
                 currentRoute = currentRoute
             )
 
-            ScreenTest()
+        }
+        composable(ScreemBottomItem.ANALYZE.screenRoute) {
+
+            ScreenAnalyze(
+                isExpandedScreen = isExpandedScreen,
+                modalSheetState = null,
+                drawerState = drawerState,
+                viewModelAnalyze = viewModelAnalyze,
+                currentRoute = currentRoute
+            )
+
+        }
+        composable(ScreemBottomItem.COLLECTION.screenRoute) {
+
+            ScreenCollection(
+                isExpandedScreen = isExpandedScreen,
+                modalSheetState = null,
+                drawerState = drawerState,
+                viewModelAnalyze = viewModelAnalyze,
+                currentRoute = currentRoute
+            )
+
         }
         composable(ScreemBottomItem.MANAVARA.screenRoute) {
 
             ScreenManavara(
                 isExpandedScreen = isExpandedScreen,
                 modalSheetState = null,
-                viewModelManavara = viewModelManavara
+                drawerState = drawerState,
+                viewModelAnalyze = viewModelAnalyze,
+                currentRoute = currentRoute
             )
 
-        }
-        composable(ScreemBottomItem.PICK.screenRoute) {
-            ScreenTest()
-        }
-        composable(ScreemBottomItem.EVENT.screenRoute) {
-            ScreenTest()
         }
     }
 }
@@ -311,9 +313,9 @@ fun TableAppNavRail(
     val items = listOf(
         ScreemBottomItem.NOVEL,
         ScreemBottomItem.COMIC,
+        ScreemBottomItem.ANALYZE,
+        ScreemBottomItem.COLLECTION,
         ScreemBottomItem.MANAVARA,
-        ScreemBottomItem.PICK,
-        ScreemBottomItem.EVENT,
     )
 
     val context = LocalContext.current

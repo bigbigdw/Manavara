@@ -1185,7 +1185,7 @@ fun ScreenBestDetailAnalyze(
                         } else {
                             item[index - 1].cntRecom
                         },
-                        type = getMenu,
+                        type = "평점 분석",
                         isLast = index == item.size - 1
                     )
                 }
@@ -1211,7 +1211,7 @@ fun ScreenBestDetailAnalyze(
                         } else {
                             item[index - 1].cntFavorite
                         },
-                        type = getMenu,
+                        type = "선호작 분석",
                         isLast = index == item.size - 1
                     )
                 }
@@ -1236,7 +1236,7 @@ fun ScreenBestDetailAnalyze(
                         } else {
                             item[index - 1].cntPageRead
                         },
-                        type = getMenu,
+                        type = "조회 분석",
                         isLast = index == item.size - 1
                     )
                 }
@@ -1262,7 +1262,7 @@ fun ScreenBestDetailAnalyze(
                         } else {
                             item[index - 1].cntTotalComment
                         },
-                        type = getMenu,
+                        type = "댓글 분석",
                         isLast = index == item.size - 1
                     )
 
@@ -1289,7 +1289,7 @@ fun ScreenBestDetailAnalyze(
                         } else {
                             (item[index - 1].number + 1).toString()
                         },
-                        type = getMenu,
+                        type = "랭킹 분석",
                         isLast = index == item.size - 1
                     )
                 }

@@ -35,7 +35,7 @@ fun getBestListTodayJson(
         dataStore.getDataStoreBoolean(DataStoreManager.NEED_UPDATE).collect { value ->
 
             if (value == true) {
-                getBestListTodayStorage(context = context, platform = platform, type = type){
+                getBestListTodayStorage(platform = platform, type = type){
                     callbacks.invoke(it)
                 }
             } else {
@@ -65,16 +65,19 @@ fun getBestListTodayJson(
     }
 }
 
-private fun getBestListTodayStorage(context: Context, platform : String, type : String, callbacks: (ArrayList<ItemBookInfo>) -> Unit){
+fun getBestListTodayStorage(
+    platform: String,
+    type: String,
+    callbacks: (ArrayList<ItemBookInfo>) -> Unit
+){
 
     try {
         val storage = Firebase.storage
         val storageRef = storage.reference
         val todayFileRef = storageRef.child("${platform}/${type}/DAY/${DBDate.dateMMDD()}.json")
-        val localFile = File(context.filesDir, "${platform}_TODAY_${type}.json")
 
-        todayFileRef.getFile(localFile).addOnSuccessListener {
-            val jsonString = localFile.readText(Charset.forName("UTF-8"))
+        todayFileRef.getBytes(1024 * 1024).addOnSuccessListener { bytes ->
+            val jsonString = String(bytes, Charset.forName("UTF-8"))
             val json = Json { ignoreUnknownKeys = true }
             val itemList = json.decodeFromString<List<ItemBookInfo>>(jsonString)
 
@@ -85,11 +88,13 @@ private fun getBestListTodayStorage(context: Context, platform : String, type : 
             }
 
             callbacks(todayJsonList)
+
         }.addOnFailureListener {
             getBestList(platform = platform, type = type) {
                 callbacks.invoke(it)
             }
         }
+
     } catch (e: Exception) {
         getBestList(platform = platform, type = type) {
             callbacks.invoke(it)
@@ -251,7 +256,7 @@ fun getBestWeekListJson(
     }
 }
 
-private fun getBestWeekListStorage(
+fun getBestWeekListStorage(
     context: Context,
     platform: String,
     type: String,
@@ -261,10 +266,9 @@ private fun getBestWeekListStorage(
     val storage = Firebase.storage
     val storageRef = storage.reference
     val weekRef = storageRef.child("${platform}/${type}/WEEK/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
-    val weekFile = File(context.filesDir, "${platform}_WEEK_${type}.json")
 
-    weekRef.getFile(weekFile).addOnSuccessListener {
-        val jsonString = weekFile.readText(Charset.forName("UTF-8"))
+    weekRef.getBytes(1024 * 1024).addOnSuccessListener {
+        val jsonString = String(it, Charset.forName("UTF-8"))
 
         val jsonArray = JSONArray(jsonString)
 
@@ -328,65 +332,7 @@ fun getBestWeekTrophy(
     }
 }
 
-fun getBestMonthTrophyJson(
-    context: Context,
-    platform: String,
-    type: String,
-    callbacks: (ArrayList<ArrayList<ItemBookInfo>>) -> Unit
-) {
-
-    val dataStore = DataStoreManager(context)
-
-    CoroutineScope(Dispatchers.IO).launch {
-        dataStore.getDataStoreBoolean(DataStoreManager.NEED_UPDATE).collect { value ->
-            if (value == true) {
-                getBestMonthListStorage(context = context, platform = platform, type = type){
-                    callbacks.invoke(it)
-                }
-            } else {
-                val filePath = File(context.filesDir, "${platform}_MONTH_${type}.json").absolutePath
-
-                try {
-                    val jsonString = File(filePath).readText(Charset.forName("UTF-8"))
-                    val jsonArray = JSONArray(jsonString)
-                    val monthJsonList = ArrayList<ArrayList<ItemBookInfo>>()
-
-                    for (i in 0 until jsonArray.length()) {
-
-                        try{
-                            val jsonArrayItem = jsonArray.getJSONArray(i)
-                            val itemList = ArrayList<ItemBookInfo>()
-
-                            for (j in 0 until jsonArrayItem.length()) {
-
-                                try{
-                                    val jsonObject = jsonArrayItem.getJSONObject(j)
-                                    itemList.add(convertItemBookJson(jsonObject))
-                                }catch (e : Exception){
-                                    itemList.add(ItemBookInfo())
-                                }
-                            }
-
-                            monthJsonList.add(itemList)
-                        } catch (e : Exception){
-                            monthJsonList.add(ArrayList())
-                        }
-                    }
-
-                    callbacks.invoke(monthJsonList)
-
-                } catch (e: Exception) {
-                    getBestMonthListStorage(context = context, platform = platform, type = type){
-                        callbacks.invoke(it)
-                    }
-                }
-            }
-        }
-    }
-}
-
-private fun getBestMonthListStorage(
-    context: Context,
+fun getBestMonthListStorage(
     platform: String,
     type: String,
     callbacks: (ArrayList<ArrayList<ItemBookInfo>>) -> Unit
@@ -395,10 +341,9 @@ private fun getBestMonthListStorage(
     val storage = Firebase.storage
     val storageRef = storage.reference
     val monthRef = storageRef.child("${platform}/${type}/MONTH/${DBDate.year()}_${DBDate.month()}.json")
-    val monthFile = File(context.filesDir, "${platform}_MONTH_${type}.json")
 
-    monthRef.getFile(monthFile).addOnSuccessListener { bytes ->
-        val jsonString = monthFile.readText(Charset.forName("UTF-8"))
+    monthRef.getBytes(1024 * 1024).addOnSuccessListener {
+        val jsonString = String(it, Charset.forName("UTF-8"))
         val jsonArray = JSONArray(jsonString)
         val monthJsonList = ArrayList<ArrayList<ItemBookInfo>>()
 
@@ -434,6 +379,8 @@ fun getBestMonthTrophy(
     callbacks: (ArrayList<ItemBestInfo>) -> Unit
 ) {
 
+    Log.d("HIHI", "DBDate.getCurrentWeekNumber() == ${DBDate.getCurrentWeekNumber()}")
+
     val storage = Firebase.storage
     val storageRef = storage.reference
     val monthTrophyRef =  storageRef.child("${platform}/${type}/MONTH_TROPHY/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
@@ -455,5 +402,7 @@ fun getBestMonthTrophy(
         }
 
         callbacks.invoke(monthJsonList)
+    }.addOnFailureListener {
+        Log.d("HIHI", "FAIL == $it")
     }
 }

@@ -2,7 +2,6 @@ package com.bigbigdw.manavara.best.screen
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -41,7 +40,7 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -63,12 +62,9 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.ActivityBestDetail
-import com.bigbigdw.manavara.best.getBookMap
 import com.bigbigdw.manavara.best.viewModels.ViewModelBest
 import com.bigbigdw.manavara.main.screen.ScreenUser
-import com.bigbigdw.manavara.main.screen.TopbarMain
 import com.bigbigdw.manavara.ui.theme.color000000
-import com.bigbigdw.manavara.ui.theme.color1E1E20
 import com.bigbigdw.manavara.ui.theme.color1E4394
 import com.bigbigdw.manavara.ui.theme.color4AD7CF
 import com.bigbigdw.manavara.ui.theme.color5372DE
@@ -111,29 +107,35 @@ fun ScreenBest(
     val state = viewModelBest.state.collectAsState().value
     val item = state.itemBookInfo
 
-    LaunchedEffect(viewModelBest){
+    DisposableEffect(context) {
+
         viewModelBest.sideEffects
             .onEach { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
             .launchIn(coroutineScope)
-    }
 
-    if(currentRoute == "NOVEL"){
-        if (state.type != "NOVEL") {
-            viewModelBest.setBest(
-                type = "NOVEL",
-                platform = "JOARA",
-                bestType = "TODAY_BEST",
-                menu = changePlatformNameKor("JOARA")
-            )
+        if(currentRoute == "NOVEL"){
+            if (state.type != "NOVEL") {
+                viewModelBest.setBest(
+                    type = "NOVEL",
+                    platform = "JOARA",
+                    bestType = "TODAY_BEST",
+                    menu = changePlatformNameKor("JOARA")
+                )
+            }
+        } else if(currentRoute == "COMIC"){
+            if (state.type != "COMIC") {
+                viewModelBest.setBest(
+                    type = "COMIC",
+                    platform = "NAVER_SERIES",
+                    bestType = "TODAY_BEST",
+                    menu = changePlatformNameKor("NAVER_SERIES")
+                )
+            }
         }
-    } else if(currentRoute == "COMIC"){
-        if (state.type != "COMIC") {
-            viewModelBest.setBest(
-                type = "COMIC",
-                platform = "NAVER_SERIES",
-                bestType = "TODAY_BEST",
-                menu = changePlatformNameKor("NAVER_SERIES")
-            )
+
+        onDispose {
+            // 컴포넌트가 detached 될 때 실행되는 코드
+            // 이 부분에 필요한 clean-up 코드를 작성할 수 있습니다.
         }
     }
 
@@ -216,14 +218,11 @@ fun ScreenBest(
                 }) {
                     Scaffold(
                         topBar = {
-                            TopbarMain(
-                                viewModelBest = viewModelBest,
-                                currentRoute = currentRoute
-                            ) {
+                            ScreenBestTopbar(viewModelBest = viewModelBest, onClick = {
                                 coroutineScope.launch {
                                     drawerState.open()
                                 }
-                            }
+                            })
                         },
 
                         ) {

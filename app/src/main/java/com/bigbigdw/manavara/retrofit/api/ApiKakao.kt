@@ -10,7 +10,6 @@ import com.bigbigdw.manavara.retrofit.result.KakaoStageBestBookResult
 import com.bigbigdw.manavara.retrofit.result.KakaoStageEventList
 import com.bigbigdw.manavara.retrofit.result.KakaoStageSearchResult
 import com.bigbigdw.manavara.retrofit.result.SearchResultKakao
-import com.bigbigdw.moavara.Retrofit.*
 import retrofit2.Call
 import retrofit2.http.*
 

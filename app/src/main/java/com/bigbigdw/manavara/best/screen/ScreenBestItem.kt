@@ -67,10 +67,10 @@ import com.bigbigdw.manavara.ui.theme.color8F8F8F
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorFF2366
 import com.bigbigdw.manavara.util.geMonthDate
-import com.bigbigdw.manavara.best.getBestListTodayJson
+import com.bigbigdw.manavara.best.getBestListTodayStorage
+import com.bigbigdw.manavara.best.getBestMonthListStorage
 import com.bigbigdw.manavara.best.getBestMonthTrophy
-import com.bigbigdw.manavara.best.getBestMonthTrophyJson
-import com.bigbigdw.manavara.best.getBestWeekListJson
+import com.bigbigdw.manavara.best.getBestWeekListStorage
 import com.bigbigdw.manavara.best.getBestWeekTrophy
 import com.bigbigdw.manavara.best.getBookItemWeekTrophy
 import com.bigbigdw.manavara.best.getBookMap
@@ -102,8 +102,7 @@ fun ScreenTodayBest(
         viewModelBest.setItemBookInfoMap(it)
     }
 
-    getBestListTodayJson(
-        context = context,
+    getBestListTodayStorage(
         platform = state.platform,
         type = state.type
     ) {
@@ -305,7 +304,7 @@ fun ScreenTodayWeek(
         viewModelBest.setItemBookInfoMap(it)
     }
 
-    getBestWeekListJson(
+    getBestWeekListStorage(
         context = context,
         platform = state.platform,
         type = state.type
@@ -504,8 +503,7 @@ fun ScreenTodayMonth(
         viewModelBest.setItemBookInfoMap(it)
     }
 
-    getBestMonthTrophyJson(
-        context = context,
+    getBestMonthListStorage(
         platform = state.platform,
         type = state.type,
     ){

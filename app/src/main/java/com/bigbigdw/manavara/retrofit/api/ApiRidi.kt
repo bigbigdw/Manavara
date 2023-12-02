@@ -1,6 +1,5 @@
 package com.bigbigdw.manavara.retrofit.api
 
-import com.bigbigdw.moavara.Retrofit.*
 import retrofit2.Call
 import retrofit2.http.*
 

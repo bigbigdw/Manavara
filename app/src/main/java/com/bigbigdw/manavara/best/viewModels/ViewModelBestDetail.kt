@@ -92,8 +92,6 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
 
     fun setBestDetailInfo(platform: String, bookCode: String, context: Context) {
 
-        Log.d("HIHI", "platform == $platform")
-
         when (platform) {
             "JOARA", "JOARA_NOBLESS", "JOARA_PREMIUM" -> {
                 setLayoutJoara(bookCode = bookCode, context = context, platform = platform)

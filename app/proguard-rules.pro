@@ -35,7 +35,7 @@
 }
 
 -keep class com.bigbigdw.manavara.login.models.** { *; }
--keep class com.bigbigdw.manavara.manavara.models.** { *; }
+-keep class com.bigbigdw.manavara.analyze.models.** { *; }
 -keep class com.bigbigdw.manavara.best.models.** { *; }
 -keep class com.bigbigdw.manavara.best.viewModels.** { *; }
 -keep class com.bigbigdw.manavara.retrofit.** { *; }
