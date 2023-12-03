@@ -138,13 +138,11 @@ fun ScreenCollection(
                 }) {
                     Scaffold(
                         topBar = {
-                            ScreenAnalyzeTopbar(
-                                viewModelAnalyze = viewModelAnalyze,
-                                onClick = {
-                                    coroutineScope.launch {
-                                        drawerState.open()
-                                    }
-                                })
+                            ScreenAnalyzeTopbar {
+                                coroutineScope.launch {
+                                    drawerState.open()
+                                }
+                            }
                         },
 
                         ) {

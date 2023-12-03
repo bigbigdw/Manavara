@@ -356,14 +356,13 @@ fun getBestMonthListStorage(
 fun getBestMonthTrophy(
     platform: String,
     type: String,
+    root: String = "${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json",
     callbacks: (ArrayList<ItemBestInfo>) -> Unit
 ) {
 
-    Log.d("HIHI", "DBDate.getCurrentWeekNumber() == ${DBDate.getCurrentWeekNumber()}")
-
     val storage = Firebase.storage
     val storageRef = storage.reference
-    val monthTrophyRef =  storageRef.child("${platform}/${type}/MONTH_TROPHY/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
+    val monthTrophyRef =  storageRef.child("${platform}/${type}/MONTH_TROPHY/${root}")
     val monthTrophyFile = monthTrophyRef.getBytes(1024 * 1024)
 
     monthTrophyFile.addOnSuccessListener { bytes ->

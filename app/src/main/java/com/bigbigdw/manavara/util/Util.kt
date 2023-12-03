@@ -32,10 +32,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
 import java.lang.Math.abs
-import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Locale
 
 @SuppressLint("SuspiciousIndentation")
 fun convertItemBook(bestItemData: ItemBookInfo): JsonObject {
@@ -301,7 +299,7 @@ fun deleteJson(context: Context, platform : String, type : String){
     filePath.delete()
 }
 
-fun convertDateString(inputDateString: String): String {
+fun convertDateStringWeek(inputDateString: String): String {
 
     var string = ""
 
@@ -310,6 +308,18 @@ fun convertDateString(inputDateString: String): String {
     val day = inputDateString.substring(8)
 
     string = "${year}년 ${month}월 ${day.replace(".json", "")}주차"
+
+    return string
+}
+
+fun convertDateStringMonth(inputDateString: String): String {
+
+    var string = ""
+
+    val year = inputDateString.substring(0, 4)
+    val month = inputDateString.substring(5, 7)
+
+    string = "${year}년 ${month.replace(".json", "")}월"
 
     return string
 }

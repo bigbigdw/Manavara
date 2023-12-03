@@ -3,12 +3,10 @@ package com.bigbigdw.manavara.analyze.screen
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,7 +29,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
@@ -39,8 +36,6 @@ import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalNavigationDrawer
@@ -58,7 +53,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
@@ -75,6 +69,7 @@ import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.analyze.getJsonFiles
 import com.bigbigdw.manavara.analyze.viewModels.ViewModelAnalyze
 import com.bigbigdw.manavara.best.ActivityBestDetail
+import com.bigbigdw.manavara.best.getBestMonthTrophy
 import com.bigbigdw.manavara.best.getBestWeekTrophy
 import com.bigbigdw.manavara.best.getBookItemWeekTrophyDialog
 import com.bigbigdw.manavara.best.getBookMap
@@ -99,25 +94,18 @@ import com.bigbigdw.manavara.ui.theme.color80BF78
 import com.bigbigdw.manavara.ui.theme.color8AA6BD
 import com.bigbigdw.manavara.ui.theme.color91CEC7
 import com.bigbigdw.manavara.ui.theme.color998DF9
-import com.bigbigdw.manavara.ui.theme.colorABD436
-import com.bigbigdw.manavara.ui.theme.colorEA927C
 import com.bigbigdw.manavara.ui.theme.colorF17666
 import com.bigbigdw.manavara.ui.theme.colorF17FA0
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
-import com.bigbigdw.manavara.ui.theme.colorF7F7F7
 import com.bigbigdw.manavara.ui.theme.colorFDC24E
 import com.bigbigdw.manavara.ui.theme.colorFFAC59
 import com.bigbigdw.manavara.util.DataStoreManager
-import com.bigbigdw.manavara.util.changeDetailNameKor
 import com.bigbigdw.manavara.util.changePlatformNameKor
 import com.bigbigdw.manavara.util.comicListEng
 import com.bigbigdw.manavara.util.genreListEng
 import com.bigbigdw.manavara.util.getPlatformDataKeyComic
 import com.bigbigdw.manavara.util.getPlatformDataKeyNovel
-import com.bigbigdw.manavara.util.getPlatformLogo
 import com.bigbigdw.manavara.util.getPlatformLogoEng
-import com.bigbigdw.manavara.util.getWeekDate
-import com.bigbigdw.manavara.util.manavaraListKor
 import com.bigbigdw.manavara.util.novelListEng
 import com.bigbigdw.manavara.util.screen.AlertTwoBtn
 import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
@@ -126,8 +114,8 @@ import com.bigbigdw.manavara.util.screen.ScreenItemKeyword
 import com.bigbigdw.manavara.util.screen.TabletBorderLine
 import com.bigbigdw.manavara.util.screen.TabletContentWrapBtn
 import com.bigbigdw.manavara.util.screen.spannableString
-import com.bigbigdw.manavara.util.weekListAll
-import convertDateString
+import convertDateStringMonth
+import convertDateStringWeek
 import getBookCount
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -234,13 +222,11 @@ fun ScreenAnalyze(
                 }) {
                     Scaffold(
                         topBar = {
-                            ScreenAnalyzeTopbar(
-                                viewModelAnalyze = viewModelAnalyze,
-                                onClick = {
-                                    coroutineScope.launch {
-                                        drawerState.open()
-                                    }
-                                })
+                            ScreenAnalyzeTopbar {
+                                coroutineScope.launch {
+                                    drawerState.open()
+                                }
+                            }
                         },
 
                         ) {
@@ -364,49 +350,26 @@ fun ScreenAnalyzePropertyList(
             ItemMainSettingSingleTablet(
                 containerColor = color998DF9,
                 image = R.drawable.icon_best_wht,
-                title = "연간 웹소설 베스트",
-                body = "연간 웹소설 베스트 리스트",
+                title = "월별 웹소설 베스트",
+                body = "월별 웹소설 베스트 리스트",
                 current = state.menu,
                 onClick = {
                     coroutineScope.launch {
-                        viewModelAnalyze.setScreen(detail = "", menu = "주차별 웹소설 베스트")
+                        viewModelAnalyze.setScreen(
+                            detail = "",
+                            menu = "월별 웹소설 베스트",
+                            type = "NOVEL",
+                            platform = "JOARA"
+                        )
                     }
                 },
-                value = "웹소설 월간 장르"
-            )
-
-            ItemMainSettingSingleTablet(
-                containerColor = colorEA927C,
-                image = R.drawable.icon_trophy_wht,
-                title = "주차별 웹소설 트로피",
-                body = "주차별 웹소설 트로피 리스트",
-                current = state.menu,
-                onClick = {
-                    coroutineScope.launch {
-                        viewModelAnalyze.setScreen(detail = "", menu = "주차별 웹소설 베스트")
-                    }
-                },
-                value = "웹소설 월간 장르"
-            )
-
-            ItemMainSettingSingleTablet(
-                containerColor = colorABD436,
-                image = R.drawable.icon_trophy_wht,
-                title = "연간 웹소설 트로피",
-                body = "연간 웹소설 트로피 리스트",
-                current = state.menu,
-                onClick = {
-                    coroutineScope.launch {
-                        viewModelAnalyze.setScreen(detail = "", menu = "주차별 웹소설 베스트")
-                    }
-                },
-                value = "웹소설 월간 장르"
+                value = "월별 웹소설 베스트"
             )
 
             ItemMainSettingSingleTablet(
                 containerColor = colorF17FA0,
                 image = R.drawable.icon_genre_wht,
-                title = "투데이 장르 베스트",
+                title = "투데이 장르 현황",
                 body = "플랫폼별 투데이 베스트 장르 리스트 보기",
                 current = state.menu,
                 onClick = {
@@ -420,7 +383,7 @@ fun ScreenAnalyzePropertyList(
             ItemMainSettingSingleTablet(
                 containerColor = color21C2EC,
                 image = R.drawable.icon_genre_wht,
-                title = "주간 장르 베스트",
+                title = "주간 장르 현황",
                 body = "플랫폼별 주간 베스트 장르 리스트 보기",
                 current = state.menu,
                 onClick = {
@@ -434,7 +397,21 @@ fun ScreenAnalyzePropertyList(
             ItemMainSettingSingleTablet(
                 containerColor = color31C3AE,
                 image = R.drawable.icon_genre_wht,
-                title = "월간 장르 베스트",
+                title = "월간 장르 현황",
+                body = "플랫폼별 월간 베스트 장르 리스트 보기",
+                current = state.menu,
+                onClick = {
+                    coroutineScope.launch {
+                        viewModelAnalyze.setScreen(detail = "", menu = "주차별 웹소설 베스트")
+                    }
+                },
+                value = "웹소설 월간 장르"
+            )
+
+            ItemMainSettingSingleTablet(
+                containerColor = color31C3AE,
+                image = R.drawable.icon_genre_wht,
+                title = "장르 리스트 작품",
                 body = "플랫폼별 월간 베스트 장르 리스트 보기",
                 current = state.menu,
                 onClick = {
@@ -477,6 +454,20 @@ fun ScreenAnalyzePropertyList(
                 containerColor = colorF17666,
                 image = R.drawable.icon_keyword_wht,
                 title = "웹소설 월간 키워드 베스트",
+                body = "웹소설 월간 키워드 보기",
+                current = state.menu,
+                onClick = {
+                    coroutineScope.launch {
+                        viewModelAnalyze.setScreen(detail = "", menu = "주차별 웹소설 베스트")
+                    }
+                },
+                value = "웹소설 월간 장르"
+            )
+
+            ItemMainSettingSingleTablet(
+                containerColor = colorF17666,
+                image = R.drawable.icon_keyword_wht,
+                title = "키워드 리스트 작품",
                 body = "웹소설 월간 키워드 보기",
                 current = state.menu,
                 onClick = {
@@ -821,29 +812,31 @@ fun ScreenAnalyzeItem(
     val state = viewModelAnalyze.state.collectAsState().value
 
     if (state.menu.contains("베스트 웹소설 DB")) {
+
         ScreenBestDBListNovel(
             drawerState = drawerState,
             viewModelAnalyze = viewModelAnalyze
-        )
-    } else if (state.menu.contains("베스트 웹툰 DB")) {
-        ScreenBestDBListNovel(
-            drawerState = drawerState,
-            viewModelAnalyze = viewModelAnalyze
-        )
-    } else if (state.menu.contains("주차별 웹소설 베스트")) {
-        ScreenBestAnalyze(
-            viewModelAnalyze = viewModelAnalyze,
-            root = "WEEK",
-            modalSheetState = modalSheetState,
-            setDialogOpen = setDialogOpen
         )
 
-    } else if (state.menu.contains("월간 웹소설 베스트")) {
-        ScreenBestAnalyze(
+    } else if (state.menu.contains("베스트 웹툰 DB")) {
+
+        ScreenBestDBListNovel(
+            drawerState = drawerState,
+            viewModelAnalyze = viewModelAnalyze
+        )
+
+    } else if (state.menu.contains("주차별 웹소설 베스트")) {
+
+        ScreenBestAnalyzeList(
             viewModelAnalyze = viewModelAnalyze,
-            root = "MONTH",
-            modalSheetState = modalSheetState,
-            setDialogOpen = setDialogOpen
+            drawerState = drawerState,
+        )
+
+    } else if (state.menu.contains("월별 웹소설 베스트")) {
+
+        ScreenBestAnalyzeList(
+            viewModelAnalyze = viewModelAnalyze,
+            drawerState = drawerState,
         )
 
     } else if (state.menu.contains("웹소설 투데이 장르")) {
@@ -921,6 +914,23 @@ fun ScreenAnalyzeItemDetail(
             platform = state.platform,
             type = state.type
         )
+    }  else if (state.menu.contains("주차별 웹소설 베스트")) {
+        ScreenBestAnalyze(
+            viewModelAnalyze = viewModelAnalyze,
+            root = "WEEK",
+            modalSheetState = modalSheetState,
+            setDialogOpen = setDialogOpen
+        )
+
+    }  else if (state.menu.contains("월별 웹소설 베스트")) {
+
+        ScreenBestAnalyze(
+            viewModelAnalyze = viewModelAnalyze,
+            root = "MONTH",
+            modalSheetState = modalSheetState,
+            setDialogOpen = setDialogOpen
+        )
+
     } else if (state.menu.contains("웹소설 투데이 장르")) {
         GenreDetailJson(
             viewModelAnalyze = viewModelAnalyze,
@@ -987,54 +997,56 @@ fun ScreenAnalyzeItems(
             .background(color = colorF6F6F6)
     ) {
 
-        if (manavaraListKor().contains(state.menu)) {
-            Spacer(modifier = Modifier.size(16.dp))
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    painter = painterResource(id = R.drawable.icon_arrow_left),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(30.dp)
-                        .height(30.dp)
-                )
-
-                Text(
-                    modifier = Modifier
-                        .padding(16.dp, 0.dp, 0.dp, 0.dp),
-                    text = changeDetailNameKor(state.menu),
-                    fontSize = 24.sp,
-                    color = color000000,
-                    fontWeight = FontWeight(weight = 700)
-                )
-            }
-        } else if (manavaraListKor().contains(state.detail)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    painter = painterResource(id = R.drawable.icon_arrow_left),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(30.dp)
-                        .height(30.dp)
-                )
-
-                Text(
-                    modifier = Modifier
-                        .padding(16.dp, 0.dp, 0.dp, 0.dp),
-                    text = changeDetailNameKor(state.detail),
-                    fontSize = 24.sp,
-                    color = color000000,
-                    fontWeight = FontWeight(weight = 700)
-                )
-            }
-
-            Spacer(modifier = Modifier.size(16.dp))
-        }
-
+        Spacer(modifier = Modifier.size(16.dp))
 
         if (state.detail.isNotEmpty()) {
 
-            Spacer(modifier = Modifier.size(16.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(id = R.drawable.icon_arrow_left),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .width(30.dp)
+                        .height(30.dp)
+                )
+
+                Text(
+                    modifier = Modifier
+                        .padding(16.dp, 0.dp, 0.dp, 0.dp),
+                    text = state.detail,
+                    fontSize = 24.sp,
+                    color = color000000,
+                    fontWeight = FontWeight(weight = 700)
+                )
+            }
+
+
+        } else if (state.menu.isNotEmpty()) {
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(id = R.drawable.icon_arrow_left),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .width(30.dp)
+                        .height(30.dp)
+                )
+
+                Text(
+                    modifier = Modifier
+                        .padding(16.dp, 0.dp, 0.dp, 0.dp),
+                    text = state.menu,
+                    fontSize = 24.sp,
+                    color = color000000,
+                    fontWeight = FontWeight(weight = 700)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.size(16.dp))
+
+
+        if (state.detail.isNotEmpty()) {
 
             ScreenAnalyzeItemDetail(
                 viewModelAnalyze = viewModelAnalyze,
@@ -1057,7 +1069,7 @@ fun ScreenAnalyzeItems(
 }
 
 @Composable
-fun ScreenAnalyzeTopbar(viewModelAnalyze: ViewModelAnalyze, onClick: () -> Unit) {
+fun ScreenAnalyzeTopbar(onClick: () -> Unit) {
 
     Row(
         Modifier
@@ -1133,7 +1145,8 @@ fun ScreenBestDBListNovel(
                             coroutineScope.launch {
                                 
                                 viewModelAnalyze.setScreen(
-                                    detail = item,
+                                    menu = state.menu,
+                                    detail = "${changePlatformNameKor(item)} ${state.menu}",
                                     platform = item,
                                     type = state.type
                                 )
@@ -1204,6 +1217,8 @@ fun ScreenBookMap(
 
 
     Column(modifier = Modifier.background(color = colorF6F6F6)) {
+
+        Spacer(modifier = Modifier.size(16.dp))
 
         LazyColumn(
             modifier = Modifier
@@ -1282,7 +1297,6 @@ fun ScreenBestAnalyze(
     setDialogOpen: ((Boolean) -> Unit)?,
 ) {
 
-    val context = LocalContext.current
     val state = viewModelAnalyze.state.collectAsState().value
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
@@ -1301,12 +1315,22 @@ fun ScreenBestAnalyze(
 
     if(state.jsonNameList.isNotEmpty()){
 
-        getBestWeekTrophy(
-            platform = state.platform,
-            type = state.type,
-            root = state.date
-        ) {
-            viewModelAnalyze.setWeekTrophyList(it)
+        if(root == "WEEK"){
+            getBestWeekTrophy(
+                platform = state.platform,
+                type = state.type,
+                root = state.date
+            ) {
+                viewModelAnalyze.setWeekTrophyList(it)
+            }
+        } else {
+            getBestMonthTrophy(
+                platform = state.platform,
+                type = state.type,
+                root = state.date
+            ) {
+                viewModelAnalyze.setWeekTrophyList(it)
+            }
         }
 
         getBookMap(
@@ -1327,15 +1351,27 @@ fun ScreenBestAnalyze(
             itemsIndexed(state.jsonNameList) { index, item ->
                 Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
                     ScreenItemKeyword(
-                        getter = convertDateString(item),
+                        getter = if (root == "WEEK") {
+                            convertDateStringWeek(item)
+                        } else {
+                            convertDateStringMonth(item)
+                        },
                         onClick = {
                             coroutineScope.launch {
                                 viewModelAnalyze.setDate(item)
                                 listState.scrollToItem(index = 0)
                             }
                         },
-                        title = convertDateString(item),
-                        getValue = convertDateString(state.date)
+                        title = if (root == "WEEK") {
+                            convertDateStringWeek(item)
+                        } else {
+                            convertDateStringMonth(item)
+                        },
+                        getValue = if (root == "WEEK") {
+                            convertDateStringWeek(state.date)
+                        } else {
+                            convertDateStringMonth(state.date)
+                        }
                     )
                 }
             }
@@ -1353,7 +1389,7 @@ fun ScreenBestAnalyze(
 
                     ListBest(
                         item = item,
-                        type = "WEEK",
+                        type = root,
                         index = index
                     ){
                         coroutineScope.launch {
@@ -1381,6 +1417,73 @@ fun ScreenBestAnalyze(
                 }
             } else {
                 item { ScreenEmpty(str = "데이터가 없습니다") }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ScreenBestAnalyzeList(
+    drawerState: DrawerState?,
+    viewModelAnalyze: ViewModelAnalyze,
+) {
+
+    val coroutineScope = rememberCoroutineScope()
+    val state = viewModelAnalyze.state.collectAsState().value
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(colorF6F6F6),
+    ) {
+        Column(
+            modifier = Modifier
+                .wrapContentSize()
+        ) {
+
+            val itemList = if (state.type == "NOVEL") novelListEng() else comicListEng()
+
+            itemList.forEach { item ->
+                Box(modifier = Modifier.padding(8.dp)) {
+                    TabletContentWrapBtn(
+                        onClick = {
+                            coroutineScope.launch {
+
+                                viewModelAnalyze.setScreen(
+                                    menu = state.menu,
+                                    detail = "${changePlatformNameKor(item)} ${state.menu}",
+                                    platform = item,
+                                    type = state.type
+                                )
+                                drawerState?.close()
+                            }
+                        },
+                        content = {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Start,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Image(
+                                    painter = painterResource(id = getPlatformLogoEng(item)),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .width(20.dp)
+                                        .height(20.dp)
+                                )
+
+                                Spacer(modifier = Modifier.size(8.dp))
+
+                                Text(
+                                    text = changePlatformNameKor(item),
+                                    color = color000000,
+                                    fontSize = 18.sp,
+                                )
+                            }
+                        }
+                    )
+                }
             }
         }
     }
