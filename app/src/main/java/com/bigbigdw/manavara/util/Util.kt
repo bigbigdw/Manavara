@@ -141,7 +141,8 @@ fun convertItemKeyword(jsonObject: JSONObject): ItemKeyword {
 
     return ItemKeyword(
         key = jsonObject.optString("key"),
-        value = jsonObject.optString("value")
+        value = jsonObject.optString("value"),
+        date = jsonObject.optString("date")
     )
 }
 

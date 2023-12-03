@@ -75,6 +75,14 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
                 current.copy(week = event.week, month = event.month)
             }
 
+            is EventAnalyze.SetKeywordDay -> {
+                current.copy(keywordDay = event.keywordDay)
+            }
+
+            is EventAnalyze.SetKeywordWeek -> {
+                current.copy(keywordDay = event.keywordDay, keywordDayList = event.keywordDayList)
+            }
+
             else -> {
                 current.copy(Loaded = false)
             }
@@ -153,6 +161,18 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
     fun setDate(week: String = "", month: String = ""){
         viewModelScope.launch {
             events.send(EventAnalyze.SetDate(week = week, month = month))
+        }
+    }
+
+    fun setKeywordDay(keywordDay: ArrayList<ItemKeyword>){
+        viewModelScope.launch {
+            events.send(EventAnalyze.SetKeywordDay(keywordDay = keywordDay))
+        }
+    }
+
+    fun setKeywordWeek(keywordDay: ArrayList<ItemKeyword>){
+        viewModelScope.launch {
+            events.send(EventAnalyze.SetKeywordWeek(keywordDay = keywordDay))
         }
     }
 }

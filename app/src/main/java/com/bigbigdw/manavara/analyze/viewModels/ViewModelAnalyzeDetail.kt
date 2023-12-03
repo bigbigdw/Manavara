@@ -39,7 +39,7 @@ class ViewModelAnalyzeDetail @Inject constructor() : ViewModel() {
             is EventAnalyzeDetail.SetScreen -> {
                 current.copy(
                     menu = event.menu,
-
+                    key = event.key,
                 )
             }
 
@@ -49,6 +49,19 @@ class ViewModelAnalyzeDetail @Inject constructor() : ViewModel() {
                     type = event.type,
                     title = event.title,
                     json = event.json
+                )
+            }
+
+            is EventAnalyzeDetail.SetItemBookInfo -> {
+                current.copy(
+                    itemBookInfo = event.itemBookInfo,
+                )
+            }
+
+            is EventAnalyzeDetail.SetItemBestInfoTrophyList -> {
+                current.copy(
+                    itemBookInfo = event.itemBookInfo,
+                    itemBestInfoTrophyList = event.itemBestInfoTrophyList,
                 )
             }
 
@@ -78,9 +91,21 @@ class ViewModelAnalyzeDetail @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setScreen(menu: String = ""){
+    fun setScreen(menu: String = "", key: String = ""){
         viewModelScope.launch {
-            events.send(EventAnalyzeDetail.SetScreen(menu = menu,))
+            events.send(EventAnalyzeDetail.SetScreen(menu = menu,key = key))
+        }
+    }
+
+    fun setItemBestInfoTrophyList(itemBookInfo: ItemBookInfo, itemBestInfoTrophyList: ArrayList<ItemBestInfo> = ArrayList()){
+        viewModelScope.launch {
+            events.send(EventAnalyzeDetail.SetItemBestInfoTrophyList(itemBookInfo = itemBookInfo, itemBestInfoTrophyList = itemBestInfoTrophyList))
+        }
+    }
+
+    fun setItemBookInfo(itemBookInfo: ItemBookInfo){
+        viewModelScope.launch {
+            events.send(EventAnalyzeDetail.SetItemBookInfo(itemBookInfo = itemBookInfo))
         }
     }
 

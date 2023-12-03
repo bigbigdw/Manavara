@@ -831,6 +831,27 @@ fun getPlatformDataKeyNovel(platform : String) : Preferences.Key<String> {
     }
 }
 
+fun keywordListEng(): List<String> {
+    return listOf(
+        "JOARA",
+        "JOARA_NOBLESS",
+        "JOARA_PREMIUM",
+        "ONESTORY_FANTAGY",
+        "ONESTORY_ROMANCE",
+        "ONESTORY_PASS_FANTAGY",
+        "ONESTORY_PASS_ROMANCE",
+        "TOKSODA",
+        "TOKSODA_FREE",
+        "RIDI_FANTAGY",
+        "RIDI_ROMANCE", "RIDI_ROFAN",
+        "NAVER_WEBNOVEL_FREE",
+        "NAVER_WEBNOVEL_PAY",
+        "NAVER_BEST",
+        "NAVER_CHALLENGE",
+    )
+}
+
+
 fun getPlatformDataKeyComic(platform : String) : Preferences.Key<String> {
     return when (platform) {
         "NAVER_SERIES" -> {

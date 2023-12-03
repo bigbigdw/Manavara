@@ -32,8 +32,13 @@ sealed interface EventAnalyze{
         val type: String = "",
     ) : EventAnalyze
 
-    class SetWeekList(
-        val weekList : ArrayList<ArrayList<ItemBookInfo>> = ArrayList(),
+    class SetKeywordDay(
+        val keywordDay : ArrayList<ItemKeyword> = ArrayList()
+    ) : EventAnalyze
+
+    class SetKeywordWeek(
+        val keywordDay : ArrayList<ItemKeyword> = ArrayList(),
+        val keywordDayList : ArrayList<ArrayList<ItemKeyword>> = ArrayList()
     ) : EventAnalyze
 
     class SetWeekTrophyList(
@@ -75,5 +80,7 @@ data class StateAnalyze(
     val week: String = "",
     val month: String = "",
     var genreList : ArrayList<ItemGenre> = ArrayList(),
-    var genreWeekList :  ArrayList<ArrayList<ItemGenre>> = ArrayList()
+    var genreWeekList :  ArrayList<ArrayList<ItemGenre>> = ArrayList(),
+    val keywordDay : ArrayList<ItemKeyword> = ArrayList(),
+    val keywordDayList : ArrayList<ArrayList<ItemKeyword>> = ArrayList()
 )

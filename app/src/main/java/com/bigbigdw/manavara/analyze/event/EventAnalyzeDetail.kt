@@ -4,6 +4,7 @@ import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.models.ItemGenre
 import com.bigbigdw.manavara.best.models.ItemKeyword
+import com.bigbigdw.manavara.manavara.event.EventManavara
 
 sealed interface EventAnalyzeDetail{
     object Loaded: EventAnalyzeDetail
@@ -14,6 +15,16 @@ sealed interface EventAnalyzeDetail{
 
     class SetScreen(
         val menu: String = "",
+        val key: String = "",
+    ) : EventAnalyzeDetail
+
+    class SetItemBookInfo(
+        val itemBookInfo : ItemBookInfo = ItemBookInfo(),
+    ) : EventAnalyzeDetail
+
+    class SetItemBestInfoTrophyList(
+        val itemBestInfoTrophyList : ArrayList<ItemBestInfo> = ArrayList(),
+        val itemBookInfo : ItemBookInfo = ItemBookInfo()
     ) : EventAnalyzeDetail
 
     class SetInit(
@@ -35,6 +46,9 @@ data class StateAnalyzeDetail(
     val type: String = "",
     val title: String = "",
     val json: String = "",
+    val key: String = "",
     var genreList : ArrayList<ItemGenre> = ArrayList(),
     var itemBookInfoMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
+    val itemBookInfo : ItemBookInfo = ItemBookInfo(),
+    val itemBestInfoTrophyList : ArrayList<ItemBestInfo> = ArrayList(),
 )

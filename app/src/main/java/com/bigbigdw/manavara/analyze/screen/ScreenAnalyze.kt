@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -59,29 +60,22 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bigbigdw.manavara.R
-import com.bigbigdw.manavara.analyze.ActivityGenreDetail
-import com.bigbigdw.manavara.analyze.getGenreDay
 import com.bigbigdw.manavara.analyze.getJsonFiles
-import com.bigbigdw.manavara.analyze.getJsonGenreMonthList
-import com.bigbigdw.manavara.analyze.getJsonGenreWeekList
 import com.bigbigdw.manavara.analyze.viewModels.ViewModelAnalyze
 import com.bigbigdw.manavara.best.ActivityBestDetail
 import com.bigbigdw.manavara.best.getBestMonthTrophy
 import com.bigbigdw.manavara.best.getBestWeekTrophy
 import com.bigbigdw.manavara.best.getBookItemWeekTrophyDialog
 import com.bigbigdw.manavara.best.getBookMap
-import com.bigbigdw.manavara.best.models.ItemGenre
 import com.bigbigdw.manavara.best.screen.ListBest
 import com.bigbigdw.manavara.best.screen.ScreenDialogBest
 import com.bigbigdw.manavara.ui.theme.color000000
-import com.bigbigdw.manavara.ui.theme.color1CE3EE
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color21C2EC
 import com.bigbigdw.manavara.ui.theme.color2EA259
@@ -110,6 +104,7 @@ import com.bigbigdw.manavara.util.genreListEng
 import com.bigbigdw.manavara.util.getPlatformDataKeyComic
 import com.bigbigdw.manavara.util.getPlatformDataKeyNovel
 import com.bigbigdw.manavara.util.getPlatformLogoEng
+import com.bigbigdw.manavara.util.keywordListEng
 import com.bigbigdw.manavara.util.novelListEng
 import com.bigbigdw.manavara.util.screen.AlertTwoBtn
 import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
@@ -373,7 +368,7 @@ fun ScreenAnalyzePropertyList(
             containerColor = colorF17FA0,
             image = R.drawable.icon_genre_wht,
             title = "투데이 장르 현황",
-            body = "플랫폼별 투데이 장르 리스트 보기",
+            body = "웹소설 플랫폼별 투데이 장르 리스트",
             current = state.menu,
             onClick = {
                 coroutineScope.launch {
@@ -392,7 +387,7 @@ fun ScreenAnalyzePropertyList(
             containerColor = color21C2EC,
             image = R.drawable.icon_genre_wht,
             title = "주간 장르 현황",
-            body = "플랫폼별 주간 장르 리스트 보기",
+            body = "웹소설 플랫폼별 주간 장르 리스트",
             current = state.menu,
             onClick = {
                 coroutineScope.launch {
@@ -411,7 +406,7 @@ fun ScreenAnalyzePropertyList(
             containerColor = color31C3AE,
             image = R.drawable.icon_genre_wht,
             title = "월간 장르 현황",
-            body = "플랫폼별 월간 장르 리스트 보기",
+            body = "웹소설 플랫폼별 월간 장르 리스트",
             current = state.menu,
             onClick = {
                 coroutineScope.launch {
@@ -430,7 +425,7 @@ fun ScreenAnalyzePropertyList(
             containerColor = color7C81FF,
             image = R.drawable.icon_genre_wht,
             title = "장르 리스트 작품",
-            body = "플랫폼별 장르 리스트 작품 보기",
+            body = "웹소설 주차별 투데이 키워드 현황",
             current = state.menu,
             onClick = {
                 coroutineScope.launch {
@@ -448,57 +443,77 @@ fun ScreenAnalyzePropertyList(
         ItemMainSettingSingleTablet(
             containerColor = color64C157,
             image = R.drawable.icon_keyword_wht,
-            title = "웹소설 투데이 키워드 베스트",
-            body = "웹소설 월간 키워드 보기",
+            title = "투데이 키워드 현황",
+            body = "웹소설 주차별 투데이 키워드 현황",
             current = state.menu,
             onClick = {
                 coroutineScope.launch {
-                    viewModelAnalyze.setScreen(detail = "", menu = "주차별 웹소설 베스트")
+                    viewModelAnalyze.setScreen(
+                        detail = "",
+                        menu = "투데이 키워드 현황",
+                        type = "NOVEL",
+                        platform = "JOARA"
+                    )
                 }
             },
-            value = "웹소설 월간 장르"
+            value = "투데이 키워드 현황"
         )
 
         ItemMainSettingSingleTablet(
             containerColor = colorF17666,
             image = R.drawable.icon_keyword_wht,
-            title = "웹소설 주간 키워드 베스트",
-            body = "웹소설 월간 키워드 보기",
+            title = "주차별 키워드 현황",
+            body = "웹소설 주차별 월별 키워드 현황",
             current = state.menu,
             onClick = {
                 coroutineScope.launch {
-                    viewModelAnalyze.setScreen(detail = "", menu = "주차별 웹소설 베스트")
+                    viewModelAnalyze.setScreen(
+                        detail = "",
+                        menu = "주차별 키워드 현황",
+                        type = "NOVEL",
+                        platform = "JOARA"
+                    )
                 }
             },
-            value = "웹소설 월간 장르"
+            value = "주차별 키워드 현황"
         )
 
         ItemMainSettingSingleTablet(
             containerColor = color536FD2,
             image = R.drawable.icon_keyword_wht,
-            title = "웹소설 월간 키워드 베스트",
-            body = "웹소설 월간 키워드 보기",
+            title = "월별 키워드 현황",
+            body = "웹소설 플랫폼별 월별 키워드 현황",
             current = state.menu,
             onClick = {
                 coroutineScope.launch {
-                    viewModelAnalyze.setScreen(detail = "", menu = "주차별 웹소설 베스트")
+                    viewModelAnalyze.setScreen(
+                        detail = "",
+                        menu = "월별 키워드 현황",
+                        type = "NOVEL",
+                        platform = "JOARA"
+                    )
                 }
             },
-            value = "웹소설 월간 장르"
+            value = "월별 키워드 현황"
         )
 
         ItemMainSettingSingleTablet(
             containerColor = color4996E8,
             image = R.drawable.icon_keyword_wht,
-            title = "키워드 리스트 작품",
-            body = "웹소설 월간 키워드 보기",
+            title = "키워드 리스트",
+            body = "웹소설 키워드 리스트 작품 보기",
             current = state.menu,
             onClick = {
                 coroutineScope.launch {
-                    viewModelAnalyze.setScreen(detail = "", menu = "주차별 웹소설 베스트")
+                    viewModelAnalyze.setScreen(
+                        detail = "",
+                        menu = "키워드 리스트",
+                        type = "NOVEL",
+                        platform = "JOARA"
+                    )
                 }
             },
-            value = "웹소설 월간 장르"
+            value = "키워드 리스트"
         )
 
         ItemMainSettingSingleTablet(
@@ -750,12 +765,44 @@ fun ScreenAnalyzeItem(
             itemList = genreListEng()
         )
 
-    }  else if (state.menu.contains("장르 리스트 작품")) {
+    } else if (state.menu.contains("장르 리스트 작품")) {
 
         ScreenBestAnalyzeList(
             viewModelAnalyze = viewModelAnalyze,
             drawerState = drawerState,
             itemList = genreListEng()
+        )
+
+    } else if (state.menu.contains("투데이 키워드 현황")) {
+
+        ScreenBestAnalyzeList(
+            viewModelAnalyze = viewModelAnalyze,
+            drawerState = drawerState,
+            itemList = keywordListEng()
+        )
+
+    } else if (state.menu.contains("주차별 키워드 현황")) {
+
+        ScreenBestAnalyzeList(
+            viewModelAnalyze = viewModelAnalyze,
+            drawerState = drawerState,
+            itemList = keywordListEng()
+        )
+
+    } else if (state.menu.contains("월별 키워드 현황")) {
+
+        ScreenBestAnalyzeList(
+            viewModelAnalyze = viewModelAnalyze,
+            drawerState = drawerState,
+            itemList = keywordListEng()
+        )
+
+    } else if (state.menu.contains("키워드 리스트")) {
+
+        ScreenBestAnalyzeList(
+            viewModelAnalyze = viewModelAnalyze,
+            drawerState = drawerState,
+            itemList = keywordListEng()
         )
 
     } else if (state.menu.contains("웹툰 투데이 장르")) {
@@ -798,17 +845,15 @@ fun ScreenAnalyzeItemDetail(
         ScreenBookMap(
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen,
-            viewModelAnalyze = viewModelAnalyze,
-            platform = state.platform
+            viewModelAnalyze = viewModelAnalyze
         )
     } else if (state.menu.contains("베스트 웹툰 DB")) {
         ScreenBookMap(
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen,
-            viewModelAnalyze = viewModelAnalyze,
-            platform = state.platform
+            viewModelAnalyze = viewModelAnalyze
         )
-    }  else if (state.menu.contains("주차별 웹소설 베스트")) {
+    } else if (state.menu.contains("주차별 웹소설 베스트")) {
         ScreenBestAnalyze(
             viewModelAnalyze = viewModelAnalyze,
             root = "WEEK",
@@ -816,7 +861,7 @@ fun ScreenAnalyzeItemDetail(
             setDialogOpen = setDialogOpen
         )
 
-    }  else if (state.menu.contains("월별 웹소설 베스트")) {
+    } else if (state.menu.contains("월별 웹소설 베스트")) {
 
         ScreenBestAnalyze(
             viewModelAnalyze = viewModelAnalyze,
@@ -848,6 +893,33 @@ fun ScreenAnalyzeItemDetail(
             menuType = "월간",
             viewModelAnalyze = viewModelAnalyze
         )
+    } else if (state.menu.contains("투데이 키워드 현황")) {
+
+        ScreenKeyword(
+            menuType = "투데이",
+            viewModelAnalyze = viewModelAnalyze,
+        )
+
+    } else if (state.menu.contains("주차별 키워드 현황")) {
+
+        ScreenKeyword(
+            menuType = "주간",
+            viewModelAnalyze = viewModelAnalyze
+        )
+
+    } else if (state.menu.contains("월별 키워드 현황")) {
+
+        ScreenKeyword(
+            menuType = "월간",
+            viewModelAnalyze = viewModelAnalyze
+        )
+
+    } else if (state.menu.contains("키워드 리스트")) {
+
+        ScreenGenreDetail(
+            viewModelAnalyze = viewModelAnalyze,
+        )
+
     } else if (state.menu.contains("웹툰 투데이 장르")) {
         ScreenGenre(
             menuType = "투데이",
@@ -873,358 +945,6 @@ fun ScreenAnalyzeItemDetail(
     }
 }
 
-@Composable
-fun ScreenGenre(
-    menuType: String,
-    viewModelAnalyze: ViewModelAnalyze
-) {
-
-    val state = viewModelAnalyze.state.collectAsState().value
-    val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
-
-    LaunchedEffect(state.platform, state.type, state.jsonNameList, state.week, state.month){
-        when (menuType) {
-            "투데이" -> {
-                getGenreDay(platform = state.platform, type = state.type){
-                    viewModelAnalyze.setGenreList(it)
-                }
-            }
-            "주간" -> {
-
-                getJsonFiles(
-                    platform = state.platform,
-                    type = state.type,
-                    root = "WEEK",
-                ) {
-                    viewModelAnalyze.setJsonNameList(it)
-
-                    if(state.week.isEmpty()){
-                        viewModelAnalyze.setDate(week = it.get(0))
-                    }
-                }
-
-                if(state.jsonNameList.isNotEmpty()){
-                    getJsonGenreWeekList(
-                        platform = state.platform,
-                        type = state.type,
-                        root = state.week
-                    ) { weekList, list ->
-                        viewModelAnalyze.setGenreList(list)
-                    }
-                }
-
-            }
-            else -> {
-
-                getJsonFiles(
-                    platform = state.platform,
-                    type = state.type,
-                    root = "MONTH",
-                ) {
-                    viewModelAnalyze.setJsonNameList(it)
-
-                    if(state.month.isEmpty()){
-                        viewModelAnalyze.setDate(month = it.get(0))
-                    }
-                }
-
-                if(state.jsonNameList.isNotEmpty()){
-                    getJsonGenreMonthList(
-                        platform = state.platform,
-                        type = state.type,
-                        root = state.month
-                    ) { monthList, list ->
-                        viewModelAnalyze.setGenreList(list)
-                    }
-                }
-            }
-        }
-    }
-
-    Spacer(modifier = Modifier.size(8.dp))
-
-    when (menuType) {
-        "투데이" -> {
-            LazyColumn(
-                modifier = Modifier
-                    .background(colorF6F6F6)
-                    .padding(16.dp, 0.dp, 16.dp, 0.dp)
-            ) {
-                itemsIndexed(state.genreList) { index, item ->
-                    ListGenreToday(
-                        itemBestKeyword = item,
-                        index = index
-                    )
-                }
-            }
-        }
-        "주간" -> {
-
-            LazyColumn(
-                modifier = Modifier
-                    .background(colorF6F6F6)
-                    .padding(16.dp, 0.dp, 16.dp, 0.dp)
-            ) {
-
-                item {
-                    LazyRow(
-                        modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 8.dp),
-                    ) {
-                        itemsIndexed(state.jsonNameList) { index, item ->
-                            Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
-                                ScreenItemKeyword(
-                                    getter = convertDateStringWeek(item),
-                                    onClick = {
-                                        coroutineScope.launch {
-                                            viewModelAnalyze.setDate(week = item)
-
-                                            listState.scrollToItem(index = 0)
-                                        }
-                                    },
-                                    title = convertDateStringWeek(item),
-                                    getValue = convertDateStringWeek(state.week)
-                                )
-                            }
-                        }
-                    }
-                }
-
-                item { Spacer(modifier = Modifier.size(4.dp)) }
-
-                itemsIndexed(state.genreList) { index, item ->
-                    ListGenreToday(
-                        itemBestKeyword = item,
-                        index = index
-                    )
-                }
-            }
-        }
-        else -> {
-
-            LazyColumn(
-                modifier = Modifier
-                    .background(colorF6F6F6)
-                    .padding(16.dp, 0.dp, 16.dp, 0.dp)
-            ) {
-
-                item {
-                    LazyRow(
-                        modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 8.dp),
-                    ) {
-                        itemsIndexed(state.jsonNameList) { index, item ->
-                            Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
-                                ScreenItemKeyword(
-                                    getter = convertDateStringMonth(item),
-                                    onClick = {
-                                        coroutineScope.launch {
-                                            viewModelAnalyze.setDate(month = item)
-
-                                            listState.scrollToItem(index = 0)
-                                        }
-                                    },
-                                    title =  convertDateStringMonth(item),
-                                    getValue =  convertDateStringMonth(state.month)
-                                )
-                            }
-                        }
-                    }
-                }
-
-                item { Spacer(modifier = Modifier.size(4.dp)) }
-
-
-                itemsIndexed(state.genreList) { index, item ->
-                    ListGenreToday(
-                        itemBestKeyword = item,
-                        index = index
-                    )
-                }
-
-                item { Spacer(modifier = Modifier.size(60.dp)) }
-            }
-        }
-    }
-
-}
-
-@Composable
-fun ScreenGenreDetail(
-    viewModelAnalyze: ViewModelAnalyze
-) {
-
-    val state = viewModelAnalyze.state.collectAsState().value
-    val context = LocalContext.current
-
-    LaunchedEffect(state.platform, state.type, state.jsonNameList, state.week, state.month){
-        getJsonFiles(
-            platform = state.platform,
-            type = state.type,
-            root = "MONTH",
-        ) {
-            viewModelAnalyze.setJsonNameList(it)
-
-            if(state.month.isEmpty()){
-                viewModelAnalyze.setDate(month = it.get(0))
-            }
-        }
-
-    }
-
-    Spacer(modifier = Modifier.size(8.dp))
-
-    LazyColumn(
-        modifier = Modifier
-            .background(colorF6F6F6)
-            .padding(16.dp, 0.dp, 16.dp, 0.dp)
-    ) {
-
-        itemsIndexed(state.jsonNameList) { index, item ->
-
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(0.dp, 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-
-                Button(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(4.dp, 0.dp, 0.dp, 0.dp)
-                        .fillMaxWidth(),
-                    shape = RoundedCornerShape(25.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                    onClick = {
-                        val intent = Intent(context, ActivityGenreDetail::class.java)
-                        intent.putExtra("TITLE", "${changePlatformNameKor(state.platform)} ${convertDateStringMonth(item)} 장르")
-                        intent.putExtra("JSON", item)
-                        intent.putExtra("PLATFORM", state.platform)
-                        intent.putExtra("TYPE", state.type)
-                        context.startActivity(intent)
-                    },
-                    contentPadding = PaddingValues(
-                        start = 0.dp,
-                        top = 0.dp,
-                        end = 0.dp,
-                        bottom = 0.dp,
-                    ),
-                    content = {
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-
-                            Text(
-                                text = "${index + 1} ",
-                                modifier = Modifier
-                                    .wrapContentHeight()
-                                    .padding(16.dp, 0.dp, 0.dp, 0.dp),
-                                fontSize = 24.sp,
-                                textAlign = TextAlign.Left,
-                                color = color20459E,
-                                fontWeight = FontWeight.Bold,
-                            )
-                            Text(
-                                maxLines = 1,
-                                text = convertDateStringMonth(item),
-                                modifier = Modifier
-                                    .wrapContentHeight()
-                                    .weight(1f),
-                                fontSize = 18.sp,
-                                textAlign = TextAlign.Left,
-                                color = Color.Black,
-                                fontWeight = FontWeight.Bold,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                        }
-                    })
-            }
-        }
-
-        item { Spacer(modifier = Modifier.size(60.dp)) }
-    }
-
-}
-
-
-@Composable
-fun ListGenreToday(
-    itemBestKeyword: ItemGenre,
-    index: Int,
-) {
-
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .padding(0.dp, 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-
-        Button(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(4.dp, 0.dp, 0.dp, 0.dp)
-                .fillMaxWidth(),
-            shape = RoundedCornerShape(25.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-            onClick = {},
-            contentPadding = PaddingValues(
-                start = 0.dp,
-                top = 0.dp,
-                end = 0.dp,
-                bottom = 0.dp,
-            ),
-            content = {
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    Text(
-                        text = "${index + 1} ",
-                        modifier = Modifier
-                            .wrapContentHeight()
-                            .padding(16.dp, 0.dp, 0.dp, 0.dp),
-                        fontSize = 24.sp,
-                        textAlign = TextAlign.Left,
-                        color = color20459E,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Text(
-                        maxLines = 1,
-                        text = itemBestKeyword.title,
-                        modifier = Modifier
-                            .wrapContentHeight()
-                            .weight(1f),
-                        fontSize = 18.sp,
-                        textAlign = TextAlign.Left,
-                        color = Color.Black,
-                        fontWeight = FontWeight.Bold,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-
-                    Spacer(modifier = Modifier.width(16.dp))
-
-                    Text(
-                        text = itemBestKeyword.value,
-                        modifier = Modifier
-                            .wrapContentHeight()
-                            .padding(0.dp, 0.dp, 16.dp, 0.dp)
-                            .wrapContentSize(),
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Left,
-                        color = color1CE3EE,
-                        fontWeight = FontWeight.Bold,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            })
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @SuppressLint("MutableCollectionMutableState")
 @Composable
@@ -1234,7 +954,7 @@ fun ScreenAnalyzeItems(
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?
 ) {
-    
+
     val state = viewModelAnalyze.state.collectAsState().value
 
     Column(
@@ -1362,7 +1082,7 @@ fun ScreenAnalyzeTopbar(onClick: () -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenBestDBListNovel(
-    drawerState: DrawerState?, 
+    drawerState: DrawerState?,
     viewModelAnalyze: ViewModelAnalyze
 ) {
     val context = LocalContext.current
@@ -1439,8 +1159,7 @@ fun ScreenBestDBListNovel(
 fun ScreenBookMap(
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
-    viewModelAnalyze: ViewModelAnalyze,
-    platform: String
+    viewModelAnalyze: ViewModelAnalyze
 ) {
 
     val state = viewModelAnalyze.state.collectAsState().value
@@ -1459,7 +1178,7 @@ fun ScreenBookMap(
             .padding(16.dp, 0.dp, 16.dp, 0.dp)
     ) {
 
-        item {  Spacer(modifier = Modifier.size(16.dp)) }
+        item { Spacer(modifier = Modifier.size(16.dp)) }
 
         itemsIndexed(ArrayList(state.itemBookInfoMap.values)) { index, item ->
             ListBest(
@@ -1473,7 +1192,7 @@ fun ScreenBookMap(
                     getBookItemWeekTrophyDialog(
                         itemBookInfo = item,
                         type = state.type,
-                        platform = platform
+                        platform = state.platform
                     ) { itemBookInfo, itemBestInfoTrophyList ->
                         viewModelAnalyze.setItemBestInfoTrophyList(
                             itemBookInfo = itemBookInfo,
@@ -1500,14 +1219,14 @@ fun BestAnalyzeBackOnPressed(
     var backPressedState by remember { mutableStateOf(true) }
     var backPressedTime = 0L
     val coroutineScope = rememberCoroutineScope()
-    
+
     val state = viewModelAnalyze.state.collectAsState().value
 
     BackHandler(enabled = true) {
 
         if (state.detail.isNotEmpty()) {
             coroutineScope.launch {
-               viewModelAnalyze.setScreen(detail = "", menu = state.menu)
+                viewModelAnalyze.setScreen(detail = "", menu = state.menu)
             }
         } else {
             if (System.currentTimeMillis() - backPressedTime <= 400L) {
@@ -1543,19 +1262,19 @@ fun ScreenBestAnalyze(
         viewModelAnalyze.setJsonNameList(it)
 
         if (root == "WEEK") {
-            if(state.week.isEmpty()){
+            if (state.week.isEmpty()) {
                 viewModelAnalyze.setDate(week = it.get(0))
             }
         } else {
-            if(state.month.isEmpty()){
+            if (state.month.isEmpty()) {
                 viewModelAnalyze.setDate(month = it.get(0))
             }
         }
     }
 
-    if(state.jsonNameList.isNotEmpty()){
+    if (state.jsonNameList.isNotEmpty()) {
 
-        if(root == "WEEK"){
+        if (root == "WEEK") {
             getBestWeekTrophy(
                 platform = state.platform,
                 type = state.type,
@@ -1586,7 +1305,7 @@ fun ScreenBestAnalyze(
     LazyColumn(
         modifier = Modifier
             .background(colorF6F6F6)
-    ){
+    ) {
 
         item {
             LazyRow(
@@ -1647,7 +1366,7 @@ fun ScreenBestAnalyze(
                         item = item,
                         type = root,
                         index = index
-                    ){
+                    ) {
                         coroutineScope.launch {
                             viewModelAnalyze.setItemBookInfo(itemBookInfo = item)
 
@@ -1682,7 +1401,7 @@ fun ScreenBestAnalyze(
 fun ScreenBestAnalyzeList(
     drawerState: DrawerState?,
     viewModelAnalyze: ViewModelAnalyze,
-    itemList : List<String> = novelListEng()
+    itemList: List<String> = novelListEng()
 ) {
 
     val coroutineScope = rememberCoroutineScope()
