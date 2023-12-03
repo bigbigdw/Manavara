@@ -263,39 +263,35 @@ fun ScreenTabletBestDetail(
     ) {
 
         Row {
-            if (isExpandedScreen) {
+            ScreenItemBestDetailMenu(
+                item = item,
+                viewModelBestDetail = viewModelBestDetail,
+                platform = platform,
+                bookCode = bookCode,
+                isExpandedScreen = isExpandedScreen,
+                getMenu = getMenu,
+                type = type
+            )
 
-                ScreenItemBestDetailMenu(
-                    item = item,
+            Spacer(modifier = Modifier.size(16.dp))
+
+            if (getMenu.isNotEmpty()) {
+                ScreenBestDetailTabs(
+                    getMenu = getMenu,
                     viewModelBestDetail = viewModelBestDetail,
                     platform = platform,
                     bookCode = bookCode,
-                    isExpandedScreen = isExpandedScreen,
-                    getMenu = getMenu,
                     type = type
                 )
-
-                Spacer(modifier = Modifier.size(16.dp))
-
-                if (getMenu.isNotEmpty()) {
-                    ScreenBestDetailTabs(
-                        getMenu = getMenu,
-                        viewModelBestDetail = viewModelBestDetail,
-                        platform = platform,
-                        bookCode = bookCode,
-                        type = type
-                    )
-                } else {
-                    ScreenBestDetailTabsEmpty(
-                        viewModelBestDetail = viewModelBestDetail,
-                        platform = platform,
-                        bookCode = bookCode,
-                        type = type,
-                        setMenu = setMenu,
-                        item = item
-                    )
-                }
-
+            } else {
+                ScreenBestDetailTabsEmpty(
+                    viewModelBestDetail = viewModelBestDetail,
+                    platform = platform,
+                    bookCode = bookCode,
+                    type = type,
+                    setMenu = setMenu,
+                    item = item
+                )
             }
         }
     }

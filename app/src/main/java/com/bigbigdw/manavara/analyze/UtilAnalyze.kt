@@ -16,9 +16,9 @@ import java.nio.charset.Charset
 import java.util.Collections
 
 fun getJsonFiles(
-    platform : String,
-    type : String,
-    root : String,
+    platform: String,
+    type: String,
+    root: String,
     callbacks: (List<String>) -> Unit
 ) {
 
@@ -34,7 +34,7 @@ fun getJsonFiles(
     }
 }
 
-fun getJsonGenreList(platform: String, type: String, callbacks: (ArrayList<ItemGenre>) -> Unit){
+fun getJsonGenreList(platform: String, type: String, callbacks: (ArrayList<ItemGenre>) -> Unit) {
     val storage = Firebase.storage
     val storageRef = storage.reference
     val todayFileRef = storageRef.child("${platform}/${type}/GENRE_DAY/${DBDate.dateMMDD()}.json")
@@ -60,11 +60,17 @@ fun getJsonGenreList(platform: String, type: String, callbacks: (ArrayList<ItemG
     }
 }
 
-fun getJsonGenreWeekList(platform: String, type: String, callbacks: (ArrayList<ArrayList<ItemGenre>>, ArrayList<ItemGenre>) -> Unit) {
+fun getJsonGenreWeekList(
+    platform: String,
+    type: String,
+    root: String = "${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json",
+    callbacks: (ArrayList<ArrayList<ItemGenre>>, ArrayList<ItemGenre>) -> Unit
+) {
     val storage = Firebase.storage
     val storageRef = storage.reference
 
-    val fileRef: StorageReference =  storageRef.child("${platform}/${type}/GENRE_WEEK/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
+    val fileRef: StorageReference =
+        storageRef.child("${platform}/${type}/GENRE_WEEK/${root}")
 
     val file = fileRef.getBytes(1024 * 1024)
 
@@ -104,12 +110,12 @@ fun getJsonGenreWeekList(platform: String, type: String, callbacks: (ArrayList<A
             }
         }
 
-        for(item in sumList){
+        for (item in sumList) {
 
             val key = item.title
             val value = item.value
 
-            if(dataMap[key] != null){
+            if (dataMap[key] != null) {
 
                 val preValue = dataMap[key] as Long
                 val currentValue = value.toLong()
@@ -140,11 +146,17 @@ fun getJsonGenreWeekList(platform: String, type: String, callbacks: (ArrayList<A
     }
 }
 
-fun getJsonGenreMonthList(platform: String, type: String, callbacks: (ArrayList<ArrayList<ItemGenre>>, ArrayList<ItemGenre>) -> Unit) {
+fun getJsonGenreMonthList(
+    platform: String,
+    type: String,
+    root: String = "${DBDate.year()}_${DBDate.month()}.json",
+    callbacks: (ArrayList<ArrayList<ItemGenre>>, ArrayList<ItemGenre>) -> Unit
+) {
     val storage = Firebase.storage
     val storageRef = storage.reference
 
-    val fileRef: StorageReference = storageRef.child("${platform}/${type}/GENRE_MONTH/${DBDate.year()}_${DBDate.month()}.json")
+    val fileRef: StorageReference =
+        storageRef.child("${platform}/${type}/GENRE_MONTH/${root}")
 
     val file = fileRef.getBytes(1024 * 1024)
 
@@ -184,12 +196,12 @@ fun getJsonGenreMonthList(platform: String, type: String, callbacks: (ArrayList<
             }
         }
 
-        for(item in sumList){
+        for (item in sumList) {
 
             val key = item.title
             val value = item.value
 
-            if(dataMap[key] != null){
+            if (dataMap[key] != null) {
 
                 val preValue = dataMap[key] as Long
                 val currentValue = value.toLong()
@@ -270,12 +282,14 @@ fun getGenreDayWeek(
     callbacks: (ArrayList<ItemGenre>) -> Unit
 ) {
 
-    val mRootRef =  FirebaseDatabase.getInstance().reference.child("BEST").child(type).child(platform).child("GENRE_WEEK")
+    val mRootRef =
+        FirebaseDatabase.getInstance().reference.child("BEST").child(type).child(platform)
+            .child("GENRE_WEEK")
 
     mRootRef.addListenerForSingleValueEvent(object :
         ValueEventListener {
         override fun onDataChange(dataSnapshot: DataSnapshot) {
-            if(dataSnapshot.exists()){
+            if (dataSnapshot.exists()) {
 
                 val dataMap = HashMap<String, Any>()
                 val arrayList = ArrayList<ItemGenre>()
@@ -292,7 +306,7 @@ fun getGenreDayWeek(
 
                             if (key != null && value != null) {
 
-                                if(dataMap[key] != null){
+                                if (dataMap[key] != null) {
 
                                     val preValue = dataMap[key] as Long
                                     val currentValue = value as Long
@@ -334,12 +348,14 @@ fun getGenreDayMonth(
     callbacks: (ArrayList<ItemGenre>) -> Unit
 ) {
 
-    val mRootRef =  FirebaseDatabase.getInstance().reference.child("BEST").child(type).child(platform).child("GENRE_MONTH")
+    val mRootRef =
+        FirebaseDatabase.getInstance().reference.child("BEST").child(type).child(platform)
+            .child("GENRE_MONTH")
 
     mRootRef.addListenerForSingleValueEvent(object :
         ValueEventListener {
         override fun onDataChange(dataSnapshot: DataSnapshot) {
-            if(dataSnapshot.exists()){
+            if (dataSnapshot.exists()) {
 
                 val dataMap = HashMap<String, Any>()
                 val arrayList = ArrayList<ItemGenre>()
@@ -356,7 +372,7 @@ fun getGenreDayMonth(
 
                             if (key != null && value != null) {
 
-                                if(dataMap[key] != null){
+                                if (dataMap[key] != null) {
 
                                     val preValue = dataMap[key] as Long
                                     val currentValue = value as Long
