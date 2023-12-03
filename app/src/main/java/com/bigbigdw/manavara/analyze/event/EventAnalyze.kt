@@ -22,6 +22,33 @@ sealed interface EventAnalyze{
         val itemBestInfoTrophyList : ArrayList<ItemBestInfo> = ArrayList(),
         val itemBookInfo : ItemBookInfo = ItemBookInfo()
     ) : EventAnalyze
+
+    class SetJsonNameList(
+        val jsonNameList : List<String> = arrayListOf(),
+    ) : EventAnalyze
+
+    class SetScreen(
+        val menu: String = "",
+        val platform: String = "",
+        val detail: String = "",
+        val type: String = "",
+    ) : EventAnalyze
+
+    class SetWeekList(
+        val weekList : ArrayList<ArrayList<ItemBookInfo>> = ArrayList(),
+    ) : EventAnalyze
+
+    class SetWeekTrophyList(
+        var weekTrophyList: ArrayList<ItemBestInfo> = ArrayList(),
+    ) : EventAnalyze
+
+    class SetFilteredList(
+        val filteredList: ArrayList<ItemBookInfo> = ArrayList()
+    ) : EventAnalyze
+
+    class SetDate(
+        val date: String = "",
+    ) : EventAnalyze
 }
 
 data class StateAnalyze(
@@ -29,4 +56,13 @@ data class StateAnalyze(
     var itemBookInfoMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
     val itemBestInfoTrophyList : ArrayList<ItemBestInfo> = ArrayList(),
     val itemBookInfo : ItemBookInfo = ItemBookInfo(),
+    val jsonNameList : List<String> = arrayListOf(),
+    val menu: String = "베스트 웹소설 DB",
+    val platform: String = "",
+    val detail: String = "",
+    val type: String = "NOVEL",
+    val weekList : ArrayList<ArrayList<ItemBookInfo>> = ArrayList(),
+    var weekTrophyList: ArrayList<ItemBestInfo> = ArrayList(),
+    val filteredList: ArrayList<ItemBookInfo> = ArrayList(),
+    val date: String = "",
 )

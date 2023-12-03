@@ -46,6 +46,30 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
                 current.copy(itemBookInfo = event.itemBookInfo, itemBestInfoTrophyList = event.itemBestInfoTrophyList)
             }
 
+            is EventAnalyze.SetJsonNameList -> {
+                current.copy(jsonNameList = event.jsonNameList)
+            }
+
+            is EventAnalyze.SetScreen -> {
+                current.copy(menu = event.menu, platform = event.platform, detail = event.detail, type = event.type)
+            }
+
+            is EventAnalyze.SetWeekList -> {
+                current.copy(weekList = event.weekList)
+            }
+
+            is EventAnalyze.SetWeekTrophyList -> {
+                current.copy(weekTrophyList = event.weekTrophyList)
+            }
+
+            is EventAnalyze.SetFilteredList -> {
+                current.copy(filteredList = event.filteredList)
+            }
+
+            is EventAnalyze.SetDate -> {
+                current.copy(date = event.date)
+            }
+
             else -> {
                 current.copy(Loaded = false)
             }
@@ -70,4 +94,54 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
         }
     }
 
+    fun setJsonNameList( jsonNameList: List<String>){
+        viewModelScope.launch {
+            events.send(EventAnalyze.SetJsonNameList(jsonNameList = jsonNameList))
+        }
+    }
+
+    fun setScreen(menu: String = "", platform: String = "", detail: String = "", type: String = "" ){
+        viewModelScope.launch {
+            events.send(EventAnalyze.SetScreen(menu = menu, platform = platform, detail = detail, type = type))
+        }
+    }
+
+    fun setWeekList(weekList: ArrayList<ArrayList<ItemBookInfo>>){
+        viewModelScope.launch {
+            events.send(EventAnalyze.SetWeekList(weekList = weekList))
+        }
+    }
+
+    fun setWeekTrophyList(weekTrophyList: ArrayList<ItemBestInfo>){
+        viewModelScope.launch {
+            events.send(EventAnalyze.SetWeekTrophyList(weekTrophyList = weekTrophyList))
+        }
+    }
+
+    fun setFilteredList(){
+
+        val filteredList: ArrayList<ItemBookInfo> = ArrayList()
+
+        if(state.value.weekTrophyList.isNotEmpty() && state.value.itemBookInfoMap.isNotEmpty()){
+            for (trophyItem in state.value.weekTrophyList) {
+                val bookCode = trophyItem.bookCode
+                val bookInfo = state.value.itemBookInfoMap[bookCode]
+
+                if (bookInfo != null) {
+                    filteredList.add(bookInfo)
+                }
+            }
+        }
+
+
+        viewModelScope.launch {
+            events.send(EventAnalyze.SetFilteredList(filteredList = filteredList))
+        }
+    }
+
+    fun setDate(date: String){
+        viewModelScope.launch {
+            events.send(EventAnalyze.SetDate(date = date))
+        }
+    }
 }

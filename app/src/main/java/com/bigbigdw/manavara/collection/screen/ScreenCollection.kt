@@ -41,9 +41,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bigbigdw.manavara.R
-import com.bigbigdw.manavara.analyze.screen.ScreenManavaItems
-import com.bigbigdw.manavara.analyze.screen.ScreenManavaraItem
-import com.bigbigdw.manavara.analyze.screen.ScreenManavaraTopbar
+import com.bigbigdw.manavara.analyze.screen.ScreenAnalyzeTopbar
 import com.bigbigdw.manavara.analyze.viewModels.ViewModelAnalyze
 import com.bigbigdw.manavara.ui.theme.color64C157
 import com.bigbigdw.manavara.ui.theme.color7C81FF
@@ -140,7 +138,7 @@ fun ScreenCollection(
                 }) {
                     Scaffold(
                         topBar = {
-                            ScreenManavaraTopbar(
+                            ScreenAnalyzeTopbar(
                                 viewModelAnalyze = viewModelAnalyze,
                                 onClick = {
                                     coroutineScope.launch {
@@ -158,14 +156,16 @@ fun ScreenCollection(
                         ) {
                             Spacer(modifier = Modifier.size(8.dp))
 
-                            ScreenManavaraItem(
-                                viewModelAnalyze = viewModelAnalyze,
-                                drawerState = drawerState,
-                                menu = "",
-                                setDetail = {},
-                                setPlatform = {},
-                                setType = {}
-                            )
+//                            ScreenAnalyzeItem(
+//                                viewModelAnalyze = viewModelAnalyze,
+//                                drawerState = drawerState,
+//                                menu = "",
+//                                setDetail = {},
+//                                setPlatform = {},
+//                                setType = {},
+//                                platform = platform,
+//                                type = type
+//                            )
                         }
                     }
 

@@ -239,7 +239,7 @@ fun getBookItemWeekTrophyDialog(itemBookInfo: ItemBookInfo, type : String, platf
 fun getBestWeekListStorage(
     platform: String,
     type: String,
-    callbacks: (ArrayList<ArrayList<ItemBookInfo>>) -> Unit
+    callbacks: (ArrayList<ArrayList<ItemBookInfo>>) -> Unit,
 ) {
 
     val storage = Firebase.storage
@@ -282,12 +282,13 @@ fun getBestWeekListStorage(
 fun getBestWeekTrophy(
     platform: String,
     type: String,
+    root: String = "${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json",
     callbacks: (ArrayList<ItemBestInfo>) -> Unit
 ) {
 
     val storage = Firebase.storage
     val storageRef = storage.reference
-    val weekTrophyRef = storageRef.child("${platform}/${type}/WEEK_TROPHY/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
+    val weekTrophyRef = storageRef.child("${platform}/${type}/WEEK_TROPHY/${root}")
     val weekTrophyFile = weekTrophyRef.getBytes(1024 * 1024)
 
     weekTrophyFile.addOnSuccessListener { bytes ->

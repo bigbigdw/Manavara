@@ -291,7 +291,6 @@ fun ScreenTodayWeek(
     viewModelBest: ViewModelBest,
 ) {
 
-    val context = LocalContext.current
     val state = viewModelBest.state.collectAsState().value
     val (getDate, setDate) = remember { mutableStateOf("전체") }
     val listState = rememberLazyListState()

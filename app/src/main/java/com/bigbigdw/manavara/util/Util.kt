@@ -1,14 +1,10 @@
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.compose.ui.graphics.Color
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.models.ItemKeyword
-import com.bigbigdw.manavara.util.DataStoreManager
-import com.bigbigdw.manavara.util.getPlatformDataKeyComic
-import com.bigbigdw.manavara.util.getPlatformDataKeyNovel
 import com.bigbigdw.manavara.firebase.DataFCMBody
 import com.bigbigdw.manavara.firebase.DataFCMBodyData
 import com.bigbigdw.manavara.firebase.DataFCMBodyNotification
@@ -16,7 +12,10 @@ import com.bigbigdw.manavara.firebase.FCMAlert
 import com.bigbigdw.manavara.firebase.FWorkManagerResult
 import com.bigbigdw.manavara.firebase.FirebaseService
 import com.bigbigdw.manavara.util.DBDate
+import com.bigbigdw.manavara.util.DataStoreManager
 import com.bigbigdw.manavara.util.colorList
+import com.bigbigdw.manavara.util.getPlatformDataKeyComic
+import com.bigbigdw.manavara.util.getPlatformDataKeyNovel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -33,8 +32,10 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
 import java.lang.Math.abs
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 
 @SuppressLint("SuspiciousIndentation")
 fun convertItemBook(bestItemData: ItemBookInfo): JsonObject {
@@ -298,4 +299,17 @@ fun calculateTimeDifference(updateTime: Date, storeTime: Date): Long {
 fun deleteJson(context: Context, platform : String, type : String){
     val filePath = File(context.filesDir, "${platform}_TODAY_${type}.json")
     filePath.delete()
+}
+
+fun convertDateString(inputDateString: String): String {
+
+    var string = ""
+
+    val year = inputDateString.substring(0, 4)
+    val month = inputDateString.substring(5, 7)
+    val day = inputDateString.substring(8)
+
+    string = "${year}년 ${month}월 ${day.replace(".json", "")}주차"
+
+    return string
 }
