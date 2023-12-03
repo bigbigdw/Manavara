@@ -74,7 +74,7 @@ fun getBestListTodayStorage(
     try {
         val storage = Firebase.storage
         val storageRef = storage.reference
-        val todayFileRef = storageRef.child("${platform}/${type}/DAY/${DBDate.dateMMDD()}.json")
+        val todayFileRef = storageRef.child("${platform}/${type}/BEST_DAY/${DBDate.dateMMDD()}.json")
 
         todayFileRef.getBytes(1024 * 1024).addOnSuccessListener { bytes ->
             val jsonString = String(bytes, Charset.forName("UTF-8"))
@@ -244,7 +244,7 @@ fun getBestWeekListStorage(
 
     val storage = Firebase.storage
     val storageRef = storage.reference
-    val weekRef = storageRef.child("${platform}/${type}/WEEK/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
+    val weekRef = storageRef.child("${platform}/${type}/BEST_WEEK/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
 
     weekRef.getBytes(1024 * 1024).addOnSuccessListener {
         val jsonString = String(it, Charset.forName("UTF-8"))
@@ -288,7 +288,7 @@ fun getBestWeekTrophy(
 
     val storage = Firebase.storage
     val storageRef = storage.reference
-    val weekTrophyRef = storageRef.child("${platform}/${type}/WEEK_TROPHY/${root}")
+    val weekTrophyRef = storageRef.child("${platform}/${type}/TROPHY_WEEK/${root}")
     val weekTrophyFile = weekTrophyRef.getBytes(1024 * 1024)
 
     weekTrophyFile.addOnSuccessListener { bytes ->
@@ -320,7 +320,7 @@ fun getBestMonthListStorage(
 
     val storage = Firebase.storage
     val storageRef = storage.reference
-    val monthRef = storageRef.child("${platform}/${type}/MONTH/${DBDate.year()}_${DBDate.month()}.json")
+    val monthRef = storageRef.child("${platform}/${type}/BEST_MONTH/${DBDate.year()}_${DBDate.month()}.json")
 
     monthRef.getBytes(1024 * 1024).addOnSuccessListener {
         val jsonString = String(it, Charset.forName("UTF-8"))
@@ -362,7 +362,7 @@ fun getBestMonthTrophy(
 
     val storage = Firebase.storage
     val storageRef = storage.reference
-    val monthTrophyRef =  storageRef.child("${platform}/${type}/MONTH_TROPHY/${root}")
+    val monthTrophyRef =  storageRef.child("${platform}/${type}/TROPHY_MONTH/${root}")
     val monthTrophyFile = monthTrophyRef.getBytes(1024 * 1024)
 
     monthTrophyFile.addOnSuccessListener { bytes ->
