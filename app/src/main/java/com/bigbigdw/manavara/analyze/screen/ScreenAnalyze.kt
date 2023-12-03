@@ -66,13 +66,20 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bigbigdw.manavara.R
+import com.bigbigdw.manavara.analyze.getGenreDay
+import com.bigbigdw.manavara.analyze.getGenreDayMonth
+import com.bigbigdw.manavara.analyze.getGenreDayWeek
 import com.bigbigdw.manavara.analyze.getJsonFiles
+import com.bigbigdw.manavara.analyze.getJsonGenreList
+import com.bigbigdw.manavara.analyze.getJsonGenreMonthList
+import com.bigbigdw.manavara.analyze.getJsonGenreWeekList
 import com.bigbigdw.manavara.analyze.viewModels.ViewModelAnalyze
 import com.bigbigdw.manavara.best.ActivityBestDetail
 import com.bigbigdw.manavara.best.getBestMonthTrophy
 import com.bigbigdw.manavara.best.getBestWeekTrophy
 import com.bigbigdw.manavara.best.getBookItemWeekTrophyDialog
 import com.bigbigdw.manavara.best.getBookMap
+import com.bigbigdw.manavara.best.models.ItemGenre
 import com.bigbigdw.manavara.best.models.ItemKeyword
 import com.bigbigdw.manavara.best.screen.ListBest
 import com.bigbigdw.manavara.best.screen.ScreenDialogBest
@@ -92,6 +99,7 @@ import com.bigbigdw.manavara.ui.theme.color7C81FF
 import com.bigbigdw.manavara.ui.theme.color808CF8
 import com.bigbigdw.manavara.ui.theme.color80BF78
 import com.bigbigdw.manavara.ui.theme.color8AA6BD
+import com.bigbigdw.manavara.ui.theme.color8E8E8E
 import com.bigbigdw.manavara.ui.theme.color91CEC7
 import com.bigbigdw.manavara.ui.theme.color998DF9
 import com.bigbigdw.manavara.ui.theme.colorF17666
@@ -370,56 +378,76 @@ fun ScreenAnalyzePropertyList(
                 containerColor = colorF17FA0,
                 image = R.drawable.icon_genre_wht,
                 title = "투데이 장르 현황",
-                body = "플랫폼별 투데이 베스트 장르 리스트 보기",
+                body = "플랫폼별 투데이 장르 리스트 보기",
                 current = state.menu,
                 onClick = {
                     coroutineScope.launch {
-                        viewModelAnalyze.setScreen(detail = "", menu = "주차별 웹소설 베스트")
+                        viewModelAnalyze.setScreen(
+                            detail = "",
+                            menu = "투데이 장르 현황",
+                            type = "NOVEL",
+                            platform = "JOARA"
+                        )
                     }
                 },
-                value = "웹소설 투데이 장르"
+                value = "투데이 장르 현황"
             )
 
             ItemMainSettingSingleTablet(
                 containerColor = color21C2EC,
                 image = R.drawable.icon_genre_wht,
                 title = "주간 장르 현황",
-                body = "플랫폼별 주간 베스트 장르 리스트 보기",
+                body = "플랫폼별 주간 장르 리스트 보기",
                 current = state.menu,
                 onClick = {
                     coroutineScope.launch {
-                        viewModelAnalyze.setScreen(detail = "", menu = "주차별 웹소설 베스트")
+                        viewModelAnalyze.setScreen(
+                            detail = "",
+                            menu = "주간 장르 현황",
+                            type = "NOVEL",
+                            platform = "JOARA"
+                        )
                     }
                 },
-                value = "웹소설 주간 장르"
+                value = "주간 장르 현황"
             )
 
             ItemMainSettingSingleTablet(
                 containerColor = color31C3AE,
                 image = R.drawable.icon_genre_wht,
                 title = "월간 장르 현황",
-                body = "플랫폼별 월간 베스트 장르 리스트 보기",
+                body = "플랫폼별 월간 장르 리스트 보기",
                 current = state.menu,
                 onClick = {
                     coroutineScope.launch {
-                        viewModelAnalyze.setScreen(detail = "", menu = "주차별 웹소설 베스트")
+                        viewModelAnalyze.setScreen(
+                            detail = "",
+                            menu = "월간 장르 현황",
+                            type = "NOVEL",
+                            platform = "JOARA"
+                        )
                     }
                 },
-                value = "웹소설 월간 장르"
+                value = "월간 장르 현황"
             )
 
             ItemMainSettingSingleTablet(
                 containerColor = color31C3AE,
                 image = R.drawable.icon_genre_wht,
                 title = "장르 리스트 작품",
-                body = "플랫폼별 월간 베스트 장르 리스트 보기",
+                body = "플랫폼별 장르 리스트 작품 보기",
                 current = state.menu,
                 onClick = {
                     coroutineScope.launch {
-                        viewModelAnalyze.setScreen(detail = "", menu = "주차별 웹소설 베스트")
+                        viewModelAnalyze.setScreen(
+                            detail = "",
+                            menu = "장르 리스트 작품",
+                            type = "NOVEL",
+                            platform = "JOARA"
+                        )
                     }
                 },
-                value = "웹소설 월간 장르"
+                value = "장르 리스트 작품"
             )
 
             ItemMainSettingSingleTablet(
@@ -465,7 +493,7 @@ fun ScreenAnalyzePropertyList(
             )
 
             ItemMainSettingSingleTablet(
-                containerColor = colorF17666,
+                containerColor = color536FD2,
                 image = R.drawable.icon_keyword_wht,
                 title = "키워드 리스트 작품",
                 body = "웹소설 월간 키워드 보기",
@@ -479,7 +507,7 @@ fun ScreenAnalyzePropertyList(
             )
 
             ItemMainSettingSingleTablet(
-                containerColor = color536FD2,
+                containerColor = color4996E8,
                 image = R.drawable.icon_search_wht,
                 title = "웹소설 DB 검색",
                 body = "웹소설 DB 검색",
@@ -495,7 +523,7 @@ fun ScreenAnalyzePropertyList(
             TabletBorderLine()
 
             ItemMainSettingSingleTablet(
-                containerColor = color4996E8,
+                containerColor = colorFDC24E,
                 image = R.drawable.icon_webtoon_wht,
                 title = "마나바라 베스트 웹툰 DB",
                 body = "마나바라에 기록된 웹툰 웹툰 리스트",
@@ -509,7 +537,7 @@ fun ScreenAnalyzePropertyList(
             )
 
             ItemMainSettingSingleTablet(
-                containerColor = colorFDC24E,
+                containerColor = color80BF78,
                 image = R.drawable.icon_best_wht,
                 title = "주차별 웹소설 베스트",
                 body = "주차별 웹소설 베스트 리스트",
@@ -523,10 +551,10 @@ fun ScreenAnalyzePropertyList(
             )
 
             ItemMainSettingSingleTablet(
-                containerColor = color80BF78,
+                containerColor = color91CEC7,
                 image = R.drawable.icon_best_wht,
-                title = "연간 웹소설 베스트",
-                body = "연간 웹소설 베스트 리스트",
+                title = "월별 웹소설 베스트",
+                body = "월별 웹소설 베스트 리스트",
                 current = state.menu,
                 onClick = {
                     coroutineScope.launch {
@@ -537,7 +565,7 @@ fun ScreenAnalyzePropertyList(
             )
 
             ItemMainSettingSingleTablet(
-                containerColor = color91CEC7,
+                containerColor = color79B4F8,
                 image = R.drawable.icon_trophy_wht,
                 title = "주차별 웹소설 트로피",
                 body = "주차별 웹소설 트로피 리스트",
@@ -551,7 +579,7 @@ fun ScreenAnalyzePropertyList(
             )
 
             ItemMainSettingSingleTablet(
-                containerColor = color79B4F8,
+                containerColor = color8AA6BD,
                 image = R.drawable.icon_trophy_wht,
                 title = "연간 웹소설 트로피",
                 body = "연간 웹소설 트로피 리스트",
@@ -565,7 +593,7 @@ fun ScreenAnalyzePropertyList(
             )
 
             ItemMainSettingSingleTablet(
-                containerColor = color8AA6BD,
+                containerColor = color2EA259,
                 image = R.drawable.icon_genre_wht,
                 title = "투데이 웹툰 장르 베스트",
                 body = "플랫폼별 웹툰 베스트 장르 리스트 보기",
@@ -579,7 +607,7 @@ fun ScreenAnalyzePropertyList(
             )
 
             ItemMainSettingSingleTablet(
-                containerColor = color2EA259,
+                containerColor = color808CF8,
                 image = R.drawable.icon_genre_wht,
                 title = "주간 웹툰 장르 베스트",
                 body = "플랫폼별 웹툰 베스트 장르 리스트 보기",
@@ -593,7 +621,7 @@ fun ScreenAnalyzePropertyList(
             )
 
             ItemMainSettingSingleTablet(
-                containerColor = color808CF8,
+                containerColor = colorFFAC59,
                 image = R.drawable.icon_genre_wht,
                 title = "월간 웹툰 장르 베스트",
                 body = "플랫폼별 월간 웹툰 베스트 장르 리스트 보기",
@@ -607,7 +635,7 @@ fun ScreenAnalyzePropertyList(
             )
 
             ItemMainSettingSingleTablet(
-                containerColor = colorFFAC59,
+                containerColor = color4AD7CF,
                 image = R.drawable.icon_keyword_wht,
                 title = "웹툰 투데이 키워드 베스트",
                 body = "웹툰 월간 키워드 보기",
@@ -621,7 +649,7 @@ fun ScreenAnalyzePropertyList(
             )
 
             ItemMainSettingSingleTablet(
-                containerColor = color4AD7CF,
+                containerColor = color5372DE,
                 image = R.drawable.icon_keyword_wht,
                 title = "웹툰 주간 키워드 베스트",
                 body = "웹툰 월간 키워드 보기",
@@ -665,68 +693,282 @@ fun ScreenAnalyzePropertyList(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@Composable
+fun ScreenAnalyzeItem(
+    viewModelAnalyze: ViewModelAnalyze,
+    drawerState: DrawerState?,
+    modalSheetState: ModalBottomSheetState?,
+    setDialogOpen: ((Boolean) -> Unit)?,
+) {
+
+    val state = viewModelAnalyze.state.collectAsState().value
+
+    if (state.menu.contains("베스트 웹소설 DB")) {
+
+        ScreenBestDBListNovel(
+            drawerState = drawerState,
+            viewModelAnalyze = viewModelAnalyze
+        )
+
+    } else if (state.menu.contains("베스트 웹툰 DB")) {
+
+        ScreenBestDBListNovel(
+            drawerState = drawerState,
+            viewModelAnalyze = viewModelAnalyze
+        )
+
+    } else if (state.menu.contains("주차별 웹소설 베스트")) {
+
+        ScreenBestAnalyzeList(
+            viewModelAnalyze = viewModelAnalyze,
+            drawerState = drawerState,
+        )
+
+    } else if (state.menu.contains("월별 웹소설 베스트")) {
+
+        ScreenBestAnalyzeList(
+            viewModelAnalyze = viewModelAnalyze,
+            drawerState = drawerState,
+        )
+
+    } else if (state.menu.contains("투데이 장르 현황")) {
+
+        ScreenBestAnalyzeList(
+            viewModelAnalyze = viewModelAnalyze,
+            drawerState = drawerState,
+            itemList = genreListEng()
+        )
+
+    } else if (state.menu.contains("주간 장르 현황")) {
+
+        ScreenBestAnalyzeList(
+            viewModelAnalyze = viewModelAnalyze,
+            drawerState = drawerState,
+            itemList = genreListEng()
+        )
+
+    } else if (state.menu.contains("월간 장르 현황")) {
+
+        ScreenBestAnalyzeList(
+            viewModelAnalyze = viewModelAnalyze,
+            drawerState = drawerState,
+            itemList = genreListEng()
+        )
+
+    }  else if (state.menu.contains("장르 리스트 작품")) {
+
+        ScreenBestAnalyzeList(
+            viewModelAnalyze = viewModelAnalyze,
+            drawerState = drawerState,
+            itemList = genreListEng()
+        )
+
+    } else if (state.menu.contains("웹툰 투데이 장르")) {
+        GenreDetailJson(
+            menuType = "투데이",
+            viewModelAnalyze = viewModelAnalyze
+        )
+
+    } else if (state.menu.contains("웹툰 주간 장르")) {
+        GenreDetailJson(
+            menuType = "주간",
+            viewModelAnalyze = viewModelAnalyze
+        )
+
+    } else if (state.menu.contains("웹툰 월간 장르")) {
+        GenreDetailJson(
+            menuType = "월간",
+            viewModelAnalyze = viewModelAnalyze
+        )
+    } else {
+        ScreenBestDBListNovel(
+            drawerState = drawerState,
+            viewModelAnalyze = viewModelAnalyze
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@Composable
+fun ScreenAnalyzeItemDetail(
+    viewModelAnalyze: ViewModelAnalyze,
+    drawerState: DrawerState?,
+    modalSheetState: ModalBottomSheetState?,
+    setDialogOpen: ((Boolean) -> Unit)?
+) {
+
+    val state = viewModelAnalyze.state.collectAsState().value
+
+    if (state.menu.contains("베스트 웹소설 DB")) {
+        ScreenBookMap(
+            modalSheetState = modalSheetState,
+            setDialogOpen = setDialogOpen,
+            viewModelAnalyze = viewModelAnalyze,
+            platform = state.platform
+        )
+    } else if (state.menu.contains("베스트 웹툰 DB")) {
+        ScreenBookMap(
+            modalSheetState = modalSheetState,
+            setDialogOpen = setDialogOpen,
+            viewModelAnalyze = viewModelAnalyze,
+            platform = state.platform
+        )
+    }  else if (state.menu.contains("주차별 웹소설 베스트")) {
+        ScreenBestAnalyze(
+            viewModelAnalyze = viewModelAnalyze,
+            root = "WEEK",
+            modalSheetState = modalSheetState,
+            setDialogOpen = setDialogOpen
+        )
+
+    }  else if (state.menu.contains("월별 웹소설 베스트")) {
+
+        ScreenBestAnalyze(
+            viewModelAnalyze = viewModelAnalyze,
+            root = "MONTH",
+            modalSheetState = modalSheetState,
+            setDialogOpen = setDialogOpen
+        )
+
+    } else if (state.menu.contains("투데이 장르 현황")) {
+        GenreDetailJson(
+            menuType = "투데이",
+            viewModelAnalyze = viewModelAnalyze
+        )
+
+    } else if (state.menu.contains("주간 장르 현황")) {
+        GenreDetailJson(
+            menuType = "주간",
+            viewModelAnalyze = viewModelAnalyze
+        )
+
+    } else if (state.menu.contains("월간 장르 현황")) {
+        GenreDetailJson(
+            menuType = "월간",
+            viewModelAnalyze = viewModelAnalyze
+        )
+    } else if (state.menu.contains("웹툰 투데이 장르")) {
+        GenreDetailJson(
+            menuType = "투데이",
+            viewModelAnalyze = viewModelAnalyze
+        )
+
+    } else if (state.menu.contains("웹툰 주간 장르")) {
+        GenreDetailJson(
+            menuType = "주간",
+            viewModelAnalyze = viewModelAnalyze
+        )
+
+    } else if (state.menu.contains("웹툰 월간 장르")) {
+        GenreDetailJson(
+            menuType = "월간",
+            viewModelAnalyze = viewModelAnalyze
+        )
+    } else {
+        ScreenBestDBListNovel(
+            drawerState = drawerState,
+            viewModelAnalyze = viewModelAnalyze
+        )
+    }
+}
+
 @Composable
 fun GenreDetailJson(
-    getDetailType: String,
     menuType: String,
     viewModelAnalyze: ViewModelAnalyze
 ) {
 
-    val (getPlatform, setPlatform) = remember { mutableStateOf("JOARA") }
-
-    LaunchedEffect(menuType, getPlatform) {
-        when (menuType) {
-//            "투데이" -> {
-//                viewModelAnalyze.getJsonGenreList(platform = getPlatform, type = getDetailType)
-//            }
-//            "주간" -> {
-//                viewModelAnalyze.getJsonGenreWeekList(
-//                    platform = getPlatform,
-//                    type = getDetailType
-//                )
-//            }
-//            else -> {
-//                viewModelAnalyze.getJsonGenreMonthList(
-//                    platform = getPlatform,
-//                    type = getDetailType
-//                )
-//            }
-        }
-    }
-
     val state = viewModelAnalyze.state.collectAsState().value
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        LazyRow {
-            itemsIndexed(genreListEng()) { index, item ->
-                Box {
-//                    ScreenItemKeyword(
-//                        getter = getPlatform,
-//                        setter = setPlatform,
-//                        title = changePlatformNameKor(item),
-//                        getValue = item
-//                    )
+    LaunchedEffect(state.platform, state.type){
+        when (menuType) {
+            "투데이" -> {
+                getGenreDay(platform = state.platform, type = state.type){
+                    viewModelAnalyze.setGenreList(it)
+                }
+            }
+            "주간" -> {
+                getGenreDayWeek(
+                    platform = state.platform,
+                    type = state.type
+                ) {
+                    viewModelAnalyze.setGenreList(it)
+                }
+            }
+            else -> {
+                getGenreDayMonth(
+                    platform = state.platform,
+                    type = state.type
+                ) {
+                    viewModelAnalyze.setGenreList(it)
                 }
             }
         }
+    }
 
-        LazyColumn(modifier = Modifier.padding(0.dp, 16.dp)) {
-//            itemsIndexed(state.genreDay) { index, item ->
-//                ListGenreToday(
-//                    itemBestKeyword = item,
-//                    index = index
-//                )
-//            }
+    Spacer(modifier = Modifier.size(8.dp))
+
+    when (menuType) {
+        "투데이" -> {
+            LazyColumn(
+                modifier = Modifier
+                    .background(colorF6F6F6)
+                    .padding(16.dp, 0.dp, 16.dp, 0.dp)
+            ) {
+                itemsIndexed(state.genreList) { index, item ->
+                    ListGenreToday(
+                        itemBestKeyword = item,
+                        index = index
+                    )
+                }
+            }
+        }
+        "주간" -> {
+
+            LazyColumn(
+                modifier = Modifier
+                    .background(colorF6F6F6)
+                    .padding(16.dp, 0.dp, 16.dp, 0.dp)
+            ) {
+
+                itemsIndexed(state.genreList) { index, item ->
+                    ListGenreToday(
+                        itemBestKeyword = item,
+                        index = index
+                    )
+                }
+            }
+        }
+        else -> {
+
+            Column(modifier = Modifier.background(color = colorF6F6F6)) {
+
+                LazyColumn(
+                    modifier = Modifier
+                        .background(colorF6F6F6)
+                        .padding(16.dp, 0.dp, 16.dp, 0.dp)
+                ) {
+
+                    itemsIndexed(state.genreList) { index, item ->
+                        ListGenreToday(
+                            itemBestKeyword = item,
+                            index = index
+                        )
+                    }
+
+                    item { Spacer(modifier = Modifier.size(60.dp)) }
+                }
+            }
         }
     }
 
-    Spacer(modifier = Modifier.size(60.dp))
 }
 
 
 @Composable
 fun ListGenreToday(
-    itemBestKeyword: ItemKeyword,
+    itemBestKeyword: ItemGenre,
     index: Int,
 ) {
 
@@ -797,185 +1039,6 @@ fun ListGenreToday(
                     )
                 }
             })
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
-@Composable
-fun ScreenAnalyzeItem(
-    viewModelAnalyze: ViewModelAnalyze,
-    drawerState: DrawerState?,
-    modalSheetState: ModalBottomSheetState?,
-    setDialogOpen: ((Boolean) -> Unit)?,
-) {
-
-    val state = viewModelAnalyze.state.collectAsState().value
-
-    if (state.menu.contains("베스트 웹소설 DB")) {
-
-        ScreenBestDBListNovel(
-            drawerState = drawerState,
-            viewModelAnalyze = viewModelAnalyze
-        )
-
-    } else if (state.menu.contains("베스트 웹툰 DB")) {
-
-        ScreenBestDBListNovel(
-            drawerState = drawerState,
-            viewModelAnalyze = viewModelAnalyze
-        )
-
-    } else if (state.menu.contains("주차별 웹소설 베스트")) {
-
-        ScreenBestAnalyzeList(
-            viewModelAnalyze = viewModelAnalyze,
-            drawerState = drawerState,
-        )
-
-    } else if (state.menu.contains("월별 웹소설 베스트")) {
-
-        ScreenBestAnalyzeList(
-            viewModelAnalyze = viewModelAnalyze,
-            drawerState = drawerState,
-        )
-
-    } else if (state.menu.contains("웹소설 투데이 장르")) {
-        GenreDetailJson(
-            viewModelAnalyze = viewModelAnalyze,
-            getDetailType = "NOVEL",
-            menuType = "투데이"
-        )
-
-    } else if (state.menu.contains("웹소설 주간 장르")) {
-        GenreDetailJson(
-            getDetailType = "NOVEL",
-            menuType = "주간",
-            viewModelAnalyze = viewModelAnalyze
-        )
-
-    } else if (state.menu.contains("웹소설 월간 장르")) {
-        GenreDetailJson(
-            getDetailType = "NOVEL",
-            menuType = "월간",
-            viewModelAnalyze = viewModelAnalyze
-        )
-    } else if (state.menu.contains("웹툰 투데이 장르")) {
-        GenreDetailJson(
-            getDetailType = "COMIC",
-            menuType = "투데이",
-            viewModelAnalyze = viewModelAnalyze
-        )
-
-    } else if (state.menu.contains("웹툰 주간 장르")) {
-        GenreDetailJson(
-            getDetailType = "COMIC",
-            menuType = "주간",
-            viewModelAnalyze = viewModelAnalyze
-        )
-
-    } else if (state.menu.contains("웹툰 월간 장르")) {
-        GenreDetailJson(
-            getDetailType = "COMIC",
-            menuType = "월간",
-            viewModelAnalyze = viewModelAnalyze
-        )
-    } else {
-        ScreenBestDBListNovel(
-            drawerState = drawerState,
-            viewModelAnalyze = viewModelAnalyze
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
-@Composable
-fun ScreenAnalyzeItemDetail(
-    viewModelAnalyze: ViewModelAnalyze,
-    drawerState: DrawerState?,
-    modalSheetState: ModalBottomSheetState?,
-    setDialogOpen: ((Boolean) -> Unit)?
-) {
-    
-    val state = viewModelAnalyze.state.collectAsState().value
-
-    if (state.menu.contains("베스트 웹소설 DB")) {
-        ScreenBookMap(
-            modalSheetState = modalSheetState,
-            setDialogOpen = setDialogOpen,
-            viewModelAnalyze = viewModelAnalyze,
-            platform = state.platform,
-            type = state.type
-        )
-    } else if (state.menu.contains("베스트 웹툰 DB")) {
-        ScreenBookMap(
-            modalSheetState = modalSheetState,
-            setDialogOpen = setDialogOpen,
-            viewModelAnalyze = viewModelAnalyze,
-            platform = state.platform,
-            type = state.type
-        )
-    }  else if (state.menu.contains("주차별 웹소설 베스트")) {
-        ScreenBestAnalyze(
-            viewModelAnalyze = viewModelAnalyze,
-            root = "WEEK",
-            modalSheetState = modalSheetState,
-            setDialogOpen = setDialogOpen
-        )
-
-    }  else if (state.menu.contains("월별 웹소설 베스트")) {
-
-        ScreenBestAnalyze(
-            viewModelAnalyze = viewModelAnalyze,
-            root = "MONTH",
-            modalSheetState = modalSheetState,
-            setDialogOpen = setDialogOpen
-        )
-
-    } else if (state.menu.contains("웹소설 투데이 장르")) {
-        GenreDetailJson(
-            viewModelAnalyze = viewModelAnalyze,
-            getDetailType = "NOVEL",
-            menuType = "투데이"
-        )
-
-    } else if (state.menu.contains("웹소설 주간 장르")) {
-        GenreDetailJson(
-            getDetailType = "NOVEL",
-            menuType = "주간",
-            viewModelAnalyze = viewModelAnalyze
-        )
-
-    } else if (state.menu.contains("웹소설 월간 장르")) {
-        GenreDetailJson(
-            getDetailType = "NOVEL",
-            menuType = "월간",
-            viewModelAnalyze = viewModelAnalyze
-        )
-    } else if (state.menu.contains("웹툰 투데이 장르")) {
-        GenreDetailJson(
-            getDetailType = "COMIC",
-            menuType = "투데이",
-            viewModelAnalyze = viewModelAnalyze
-        )
-
-    } else if (state.menu.contains("웹툰 주간 장르")) {
-        GenreDetailJson(
-            getDetailType = "COMIC",
-            menuType = "주간",
-            viewModelAnalyze = viewModelAnalyze
-        )
-
-    } else if (state.menu.contains("웹툰 월간 장르")) {
-        GenreDetailJson(
-            getDetailType = "COMIC",
-            menuType = "월간",
-            viewModelAnalyze = viewModelAnalyze
-        )
-    } else {
-        ScreenBestDBListNovel(
-            drawerState = drawerState,
-            viewModelAnalyze = viewModelAnalyze
-        )
     }
 }
 
@@ -1055,8 +1118,6 @@ fun ScreenAnalyzeItems(
                 setDialogOpen = setDialogOpen
             )
         } else {
-
-            Spacer(modifier = Modifier.size(8.dp))
 
             ScreenAnalyzeItem(
                 viewModelAnalyze = viewModelAnalyze,
@@ -1201,8 +1262,7 @@ fun ScreenBookMap(
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
     viewModelAnalyze: ViewModelAnalyze,
-    platform: String,
-    type: String
+    platform: String
 ) {
 
     val state = viewModelAnalyze.state.collectAsState().value
@@ -1216,7 +1276,11 @@ fun ScreenBookMap(
     }
 
 
-    Column(modifier = Modifier.background(color = colorF6F6F6)) {
+    Column(
+        modifier = Modifier
+            .background(colorF6F6F6)
+            .padding(16.dp, 0.dp, 16.dp, 0.dp)
+    ) {
 
         Spacer(modifier = Modifier.size(16.dp))
 
@@ -1308,8 +1372,14 @@ fun ScreenBestAnalyze(
     ) {
         viewModelAnalyze.setJsonNameList(it)
 
-        if(state.date.isEmpty()){
-          viewModelAnalyze.setDate(it.get(0))
+        if (root == "WEEK") {
+            if(state.week.isEmpty()){
+                viewModelAnalyze.setDate(week = it.get(0))
+            }
+        } else {
+            if(state.month.isEmpty()){
+                viewModelAnalyze.setDate(month = it.get(0))
+            }
         }
     }
 
@@ -1319,7 +1389,7 @@ fun ScreenBestAnalyze(
             getBestWeekTrophy(
                 platform = state.platform,
                 type = state.type,
-                root = state.date
+                root = state.week
             ) {
                 viewModelAnalyze.setWeekTrophyList(it)
             }
@@ -1327,7 +1397,7 @@ fun ScreenBestAnalyze(
             getBestMonthTrophy(
                 platform = state.platform,
                 type = state.type,
-                root = state.date
+                root = state.month
             ) {
                 viewModelAnalyze.setWeekTrophyList(it)
             }
@@ -1343,7 +1413,11 @@ fun ScreenBestAnalyze(
         viewModelAnalyze.setFilteredList()
     }
 
-    Column(modifier = Modifier.background(color = colorF6F6F6)) {
+    Column(
+        modifier = Modifier
+            .background(colorF6F6F6)
+            .padding(16.dp, 0.dp, 16.dp, 0.dp)
+    ){
 
         LazyRow(
             modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 8.dp),
@@ -1358,7 +1432,12 @@ fun ScreenBestAnalyze(
                         },
                         onClick = {
                             coroutineScope.launch {
-                                viewModelAnalyze.setDate(item)
+                                if (root == "WEEK") {
+                                    viewModelAnalyze.setDate(week = item)
+                                } else {
+                                    viewModelAnalyze.setDate(month = item)
+                                }
+
                                 listState.scrollToItem(index = 0)
                             }
                         },
@@ -1368,9 +1447,9 @@ fun ScreenBestAnalyze(
                             convertDateStringMonth(item)
                         },
                         getValue = if (root == "WEEK") {
-                            convertDateStringWeek(state.date)
+                            convertDateStringWeek(state.week)
                         } else {
-                            convertDateStringMonth(state.date)
+                            convertDateStringMonth(state.month)
                         }
                     )
                 }
@@ -1427,6 +1506,7 @@ fun ScreenBestAnalyze(
 fun ScreenBestAnalyzeList(
     drawerState: DrawerState?,
     viewModelAnalyze: ViewModelAnalyze,
+    itemList : List<String> = novelListEng()
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -1441,8 +1521,6 @@ fun ScreenBestAnalyzeList(
             modifier = Modifier
                 .wrapContentSize()
         ) {
-
-            val itemList = if (state.type == "NOVEL") novelListEng() else comicListEng()
 
             itemList.forEach { item ->
                 Box(modifier = Modifier.padding(8.dp)) {

@@ -4,9 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bigbigdw.manavara.analyze.event.EventAnalyze
 import com.bigbigdw.manavara.analyze.event.StateAnalyze
-import com.bigbigdw.manavara.best.event.EventBest
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
+import com.bigbigdw.manavara.best.models.ItemGenre
+import com.bigbigdw.manavara.best.models.ItemKeyword
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -54,8 +55,12 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
                 current.copy(menu = event.menu, platform = event.platform, detail = event.detail, type = event.type)
             }
 
-            is EventAnalyze.SetWeekList -> {
-                current.copy(weekList = event.weekList)
+            is EventAnalyze.SetGenreList -> {
+                current.copy(genreList = event.genreList)
+            }
+
+            is EventAnalyze.SetGenreWeekList -> {
+                current.copy(genreWeekList = event.genreWeekList, genreList = event.genreList)
             }
 
             is EventAnalyze.SetWeekTrophyList -> {
@@ -67,7 +72,7 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
             }
 
             is EventAnalyze.SetDate -> {
-                current.copy(date = event.date)
+                current.copy(week = event.week, month = event.month)
             }
 
             else -> {
@@ -106,9 +111,15 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setWeekList(weekList: ArrayList<ArrayList<ItemBookInfo>>){
+    fun setGenreWeekList(genreWeekList: ArrayList<ArrayList<ItemGenre>>, genreList: ArrayList<ItemGenre>){
         viewModelScope.launch {
-            events.send(EventAnalyze.SetWeekList(weekList = weekList))
+            events.send(EventAnalyze.SetGenreWeekList(genreWeekList = genreWeekList, genreList = genreList))
+        }
+    }
+
+    fun setGenreList(genreList: ArrayList<ItemGenre>){
+        viewModelScope.launch {
+            events.send(EventAnalyze.SetGenreWeekList(genreList = genreList))
         }
     }
 
@@ -139,9 +150,9 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setDate(date: String){
+    fun setDate(week: String = "", month: String = ""){
         viewModelScope.launch {
-            events.send(EventAnalyze.SetDate(date = date))
+            events.send(EventAnalyze.SetDate(week = week, month = month))
         }
     }
 }

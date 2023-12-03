@@ -620,9 +620,9 @@ fun ItemMainSettingSingleTablet(
 @Composable
 fun ScreenItemKeyword(
     getter: String,
-    onClick: () -> Unit,
     title: String,
     getValue: String,
+    onClick: () -> Unit,
 ) {
 
     Card(

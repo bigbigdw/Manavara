@@ -356,7 +356,7 @@ fun getBestMonthListStorage(
 fun getBestMonthTrophy(
     platform: String,
     type: String,
-    root: String = "${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json",
+    root: String = "${DBDate.year()}_${DBDate.month()}.json",
     callbacks: (ArrayList<ItemBestInfo>) -> Unit
 ) {
 

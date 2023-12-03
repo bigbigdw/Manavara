@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.compose.ui.graphics.Color
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
+import com.bigbigdw.manavara.best.models.ItemGenre
 import com.bigbigdw.manavara.best.models.ItemKeyword
 import com.bigbigdw.manavara.firebase.DataFCMBody
 import com.bigbigdw.manavara.firebase.DataFCMBodyData
@@ -122,16 +123,24 @@ fun convertItemBest(bestItemData: ItemBestInfo): JsonObject {
 fun convertItemKeywordJson(itemBestKeyword: ItemKeyword): JsonObject {
     val jsonObject = JsonObject()
 
-    jsonObject.addProperty("title", itemBestKeyword.title)
+    jsonObject.addProperty("key", itemBestKeyword.key)
     jsonObject.addProperty("value", itemBestKeyword.value)
     return jsonObject
 }
 
 @SuppressLint("SuspiciousIndentation")
+fun convertItemGenre(jsonObject: JSONObject): ItemGenre {
+
+    return ItemGenre(
+        title = jsonObject.optString("title"),
+        value = jsonObject.optString("value")
+    )
+}
+@SuppressLint("SuspiciousIndentation")
 fun convertItemKeyword(jsonObject: JSONObject): ItemKeyword {
 
     return ItemKeyword(
-        title = jsonObject.optString("title"),
+        key = jsonObject.optString("key"),
         value = jsonObject.optString("value")
     )
 }
@@ -303,11 +312,15 @@ fun convertDateStringWeek(inputDateString: String): String {
 
     var string = ""
 
-    val year = inputDateString.substring(0, 4)
-    val month = inputDateString.substring(5, 7)
-    val day = inputDateString.substring(8)
+    try {
+        val year = inputDateString.substring(0, 4)
+        val month = inputDateString.substring(5, 7)
+        val day = inputDateString.substring(8)
 
-    string = "${year}년 ${month}월 ${day.replace(".json", "")}주차"
+        string = "${year}년 ${month}월 ${day.replace(".json", "")}주차"
+    } catch (e : Exception){
+
+    }
 
     return string
 }
@@ -316,10 +329,14 @@ fun convertDateStringMonth(inputDateString: String): String {
 
     var string = ""
 
-    val year = inputDateString.substring(0, 4)
-    val month = inputDateString.substring(5, 7)
+    try {
+        val year = inputDateString.substring(0, 4)
+        val month = inputDateString.substring(5, 7)
 
-    string = "${year}년 ${month.replace(".json", "")}월"
+        string = "${year}년 ${month.replace(".json", "")}월"
+    } catch (e : Exception){
+
+    }
 
     return string
 }

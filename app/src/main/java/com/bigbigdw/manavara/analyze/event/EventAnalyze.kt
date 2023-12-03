@@ -1,11 +1,9 @@
 package com.bigbigdw.manavara.analyze.event
 
-import com.bigbigdw.manavara.best.event.EventBest
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
+import com.bigbigdw.manavara.best.models.ItemGenre
 import com.bigbigdw.manavara.best.models.ItemKeyword
-import com.bigbigdw.manavara.main.models.UserInfo
-import com.bigbigdw.manavara.util.novelListEng
 
 sealed interface EventAnalyze{
     object Loaded: EventAnalyze
@@ -47,7 +45,17 @@ sealed interface EventAnalyze{
     ) : EventAnalyze
 
     class SetDate(
-        val date: String = "",
+        val week: String = "",
+        val month: String = "",
+    ) : EventAnalyze
+
+    class SetGenreList(
+        var genreList : ArrayList<ItemGenre> = ArrayList()
+    ) : EventAnalyze
+
+    class SetGenreWeekList(
+        var genreWeekList :  ArrayList<ArrayList<ItemGenre>> = ArrayList(),
+        var genreList : ArrayList<ItemGenre> = ArrayList(),
     ) : EventAnalyze
 }
 
@@ -64,5 +72,8 @@ data class StateAnalyze(
     val weekList : ArrayList<ArrayList<ItemBookInfo>> = ArrayList(),
     var weekTrophyList: ArrayList<ItemBestInfo> = ArrayList(),
     val filteredList: ArrayList<ItemBookInfo> = ArrayList(),
-    val date: String = "",
+    val week: String = "",
+    val month: String = "",
+    var genreList : ArrayList<ItemGenre> = ArrayList(),
+    var genreWeekList :  ArrayList<ArrayList<ItemGenre>> = ArrayList()
 )
