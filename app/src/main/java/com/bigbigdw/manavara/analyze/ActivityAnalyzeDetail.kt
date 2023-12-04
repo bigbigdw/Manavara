@@ -10,16 +10,16 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.lifecycle.lifecycleScope
 import com.bigbigdw.manavara.analyze.screen.ScreenAnalyzeDetail
 import com.bigbigdw.manavara.analyze.viewModels.ViewModelAnalyzeDetail
-import com.bigbigdw.manavara.best.getBookMap
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class ActivityGenreDetail : ComponentActivity() {
+class ActivityAnalyzeDetail : ComponentActivity() {
 
     private var title: String = ""
     private var json: String = ""
     private var platform: String = ""
     private var type: String = ""
+    private var mode: String = ""
     private val viewModelAnalyzeDetail: ViewModelAnalyzeDetail by viewModels()
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -27,13 +27,14 @@ class ActivityGenreDetail : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         viewModelAnalyzeDetail.sideEffects
-            .onEach { Toast.makeText(this@ActivityGenreDetail, it, Toast.LENGTH_SHORT).show() }
+            .onEach { Toast.makeText(this@ActivityAnalyzeDetail, it, Toast.LENGTH_SHORT).show() }
             .launchIn(lifecycleScope)
 
         title = intent.getStringExtra("TITLE") ?: ""
         json = intent.getStringExtra("JSON") ?: ""
         platform = intent.getStringExtra("PLATFORM") ?: ""
         type = intent.getStringExtra("TYPE") ?: ""
+        mode = intent.getStringExtra("MODE") ?: ""
 
         setContent {
 
@@ -43,7 +44,8 @@ class ActivityGenreDetail : ComponentActivity() {
                 platform = platform,
                 type = type,
                 json = json,
-                title = title
+                title = title,
+                mode = mode
             )
 
             ScreenAnalyzeDetail(

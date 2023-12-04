@@ -99,8 +99,6 @@ fun ScreenAnalyzeDetail(
 
             if(state.menu.isEmpty()){
 
-                Log.d("HIHI", "${list.get(0).title} 작품 리스트")
-
                 viewModelAnalyzeDetail.setScreen(menu = "${list.get(0).title} 작품 리스트", key = list.get(0).title)
             }
         }
@@ -199,32 +197,30 @@ fun ScreenAnalyzeDetailPropertyList(
             ItemMainSettingSingleTablet(
                 containerColor = colorList.get(index),
                 image = R.drawable.icon_genre_wht,
-                title = "${item.title} 작품 리스트",
-                body = "${state.title}이 포함된 작품 확인",
-                current = "${item.title} 작품 리스트",
-                onClick = {
-                    coroutineScope.launch {
-                        viewModelAnalyzeDetail.setScreen(menu = "${item.title} 작품 리스트", key = item.title)
-                    }
+                title = if (state.mode == "GENRE_BOOK") {
+                    "${item.title} 작품 리스트"
+                } else {
+                    item.title
                 },
-                value = state.menu,
-            )
-        }
-
-        item {
-            TabletBorderLine()
-        }
-
-        itemsIndexed(state.genreList) { index, item ->
-            ItemMainSettingSingleTablet(
-                containerColor = colorList.get(index),
-                image = R.drawable.icon_genre_wht,
-                title = "${item.title} 변동 현황",
-                body = "${state.title} 변동 현황",
-                current = "${item.title} 변동 현황",
+                body = if (state.mode == "GENRE_BOOK") {
+                    "${state.title}이 포함된 작품 확인"
+                } else {
+                    item.title
+                },
+                current = if (state.mode == "GENRE_BOOK") {
+                    "${item.title} 작품 리스트"
+                } else {
+                    item.title
+                },
                 onClick = {
                     coroutineScope.launch {
-                        viewModelAnalyzeDetail.setScreen(menu = "${item.title} 변동 현황", key = item.title)
+                        viewModelAnalyzeDetail.setScreen(
+                            menu = if (state.mode == "GENRE_BOOK") {
+                                "${item.title} 작품 리스트"
+                            } else {
+                                item.title
+                            }, key = item.title
+                        )
                     }
                 },
                 value = state.menu,

@@ -32,6 +32,7 @@ sealed interface EventAnalyzeDetail{
         val type: String = "",
         val title: String = "",
         val json: String = "",
+        val mode: String = "",
     ) : EventAnalyzeDetail
 
     class SetGenreList(
@@ -47,6 +48,7 @@ data class StateAnalyzeDetail(
     val title: String = "",
     val json: String = "",
     val key: String = "",
+    val mode: String = "",
     var genreList : ArrayList<ItemGenre> = ArrayList(),
     var itemBookInfoMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
     val itemBookInfo : ItemBookInfo = ItemBookInfo(),

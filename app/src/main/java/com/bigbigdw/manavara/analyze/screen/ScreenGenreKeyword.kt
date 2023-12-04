@@ -35,7 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bigbigdw.manavara.analyze.ActivityGenreDetail
+import com.bigbigdw.manavara.analyze.ActivityAnalyzeDetail
 import com.bigbigdw.manavara.analyze.getGenreDay
 import com.bigbigdw.manavara.analyze.getJsonFiles
 import com.bigbigdw.manavara.analyze.getJsonGenreMonthList
@@ -253,7 +253,7 @@ fun ScreenKeyword(
                 getJsonFiles(
                     platform = state.platform,
                     type = state.type,
-                    root = "WEEK",
+                    root = "BEST_WEEK",
                 ) {
                     viewModelAnalyze.setJsonNameList(it)
 
@@ -279,7 +279,7 @@ fun ScreenKeyword(
                 getJsonFiles(
                     platform = state.platform,
                     type = state.type,
-                    root = "MONTH",
+                    root = "BEST_MONTH",
                 ) {
                     viewModelAnalyze.setJsonNameList(it)
 
@@ -345,7 +345,8 @@ fun ScreenKeyword(
 
 @Composable
 fun ScreenGenreDetail(
-    viewModelAnalyze: ViewModelAnalyze
+    viewModelAnalyze: ViewModelAnalyze,
+    mode : String = "GENRE_BOOK"
 ) {
 
     val state = viewModelAnalyze.state.collectAsState().value
@@ -355,7 +356,7 @@ fun ScreenGenreDetail(
         getJsonFiles(
             platform = state.platform,
             type = state.type,
-            root = "MONTH",
+            root = "BEST_MONTH",
         ) {
             viewModelAnalyze.setJsonNameList(it)
 
@@ -391,7 +392,7 @@ fun ScreenGenreDetail(
                     shape = RoundedCornerShape(25.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                     onClick = {
-                        val intent = Intent(context, ActivityGenreDetail::class.java)
+                        val intent = Intent(context, ActivityAnalyzeDetail::class.java)
                         intent.putExtra(
                             "TITLE",
                             "${changePlatformNameKor(state.platform)} ${convertDateStringMonth(item)} 장르"
@@ -399,6 +400,7 @@ fun ScreenGenreDetail(
                         intent.putExtra("JSON", item)
                         intent.putExtra("PLATFORM", state.platform)
                         intent.putExtra("TYPE", state.type)
+                        intent.putExtra("MODE", mode)
                         context.startActivity(intent)
                     },
                     contentPadding = PaddingValues(
@@ -546,7 +548,7 @@ fun ScreenGenre(
                 getJsonFiles(
                     platform = state.platform,
                     type = state.type,
-                    root = "WEEK",
+                    root = "BEST_WEEK",
                 ) {
                     viewModelAnalyze.setJsonNameList(it)
 
@@ -572,7 +574,7 @@ fun ScreenGenre(
                 getJsonFiles(
                     platform = state.platform,
                     type = state.type,
-                    root = "MONTH",
+                    root = "BEST_MONTH",
                 ) {
                     viewModelAnalyze.setJsonNameList(it)
 

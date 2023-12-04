@@ -33,7 +33,7 @@
         </activity>
 
         <activity
-            android:name=".analyze.ActivityGenreDetail"
+            android:name=".analyze.ActivityAnalyzeDetail"
             android:exported="true"
             android:theme="@style/Theme.Manavara">
         </activity>

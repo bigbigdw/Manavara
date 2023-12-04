@@ -48,7 +48,8 @@ class ViewModelAnalyzeDetail @Inject constructor() : ViewModel() {
                     platform = event.platform,
                     type = event.type,
                     title = event.title,
-                    json = event.json
+                    json = event.json,
+                    mode = event.mode
                 )
             }
 
@@ -109,9 +110,9 @@ class ViewModelAnalyzeDetail @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setInit(title: String = "", type: String = "", json: String = "" , platform: String = ""){
+    fun setInit(title: String = "", type: String = "", json: String = "" , platform: String = "", mode: String = ""){
         viewModelScope.launch {
-            events.send(EventAnalyzeDetail.SetInit(title = title, type = type, json = json, platform = platform))
+            events.send(EventAnalyzeDetail.SetInit(title = title, type = type, json = json, platform = platform, mode = mode))
         }
     }
 }
