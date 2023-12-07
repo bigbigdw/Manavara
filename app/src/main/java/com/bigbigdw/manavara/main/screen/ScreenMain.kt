@@ -61,7 +61,6 @@ import com.bigbigdw.manavara.best.screen.ScreenBest
 import com.bigbigdw.manavara.firebase.DataFCMBodyNotification
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.analyze.viewModels.ViewModelAnalyze
-import com.bigbigdw.manavara.collection.screen.ScreenCollection
 import com.bigbigdw.manavara.manavara.screen.ScreenManavara
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color1E4394
@@ -71,7 +70,6 @@ import com.bigbigdw.manavara.ui.theme.colorDCDCDD
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.util.screen.BackOnPressed
 import com.bigbigdw.manavara.util.screen.ItemTabletTitle
-import com.bigbigdw.manavara.util.screen.ScreenTest
 import com.bigbigdw.manavara.util.screen.TabletContentWrap
 import postFCMAlert
 
@@ -182,9 +180,9 @@ fun BottomNavScreen(navController: NavHostController, currentRoute: String?) {
     val items = listOf(
         ScreemBottomItem.NOVEL,
         ScreemBottomItem.COMIC,
-        ScreemBottomItem.ANALYZE,
-        ScreemBottomItem.COLLECTION,
         ScreemBottomItem.MANAVARA,
+        ScreemBottomItem.NOVELDB,
+        ScreemBottomItem.WEBTOONDB,
     )
 
     BottomNavigation(
@@ -268,7 +266,7 @@ fun NavigationGraph(
             )
 
         }
-        composable(ScreemBottomItem.ANALYZE.screenRoute) {
+        composable(ScreemBottomItem.NOVELDB.screenRoute) {
 
             ScreenAnalyze(
                 isExpandedScreen = isExpandedScreen,
@@ -278,9 +276,9 @@ fun NavigationGraph(
             )
 
         }
-        composable(ScreemBottomItem.COLLECTION.screenRoute) {
+        composable(ScreemBottomItem.WEBTOONDB.screenRoute) {
 
-            ScreenCollection(
+            ScreenAnalyze(
                 isExpandedScreen = isExpandedScreen,
                 modalSheetState = null,
                 drawerState = drawerState,
@@ -311,9 +309,9 @@ fun TableAppNavRail(
     val items = listOf(
         ScreemBottomItem.NOVEL,
         ScreemBottomItem.COMIC,
-        ScreemBottomItem.ANALYZE,
-        ScreemBottomItem.COLLECTION,
         ScreemBottomItem.MANAVARA,
+        ScreemBottomItem.NOVELDB,
+        ScreemBottomItem.WEBTOONDB,
     )
 
     val context = LocalContext.current

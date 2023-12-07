@@ -318,7 +318,7 @@ fun ScreenBestPropertyList(
             item {
                 ItemMainSettingSingleTablet(
                     containerColor = color4AD7CF,
-                    image = R.drawable.ic_launcher,
+                    image = R.drawable.icon_trophy_wht,
                     title = "투데이 베스트",
                     body = "베스트 모드를 투데이로 전환",
                     current = state.bestType,
@@ -335,7 +335,7 @@ fun ScreenBestPropertyList(
             item {
                 ItemMainSettingSingleTablet(
                     containerColor = color5372DE,
-                    image = R.drawable.ic_launcher,
+                    image = R.drawable.icon_trophy_wht,
                     title = "주간 베스트",
                     body = "베스트 모드를 주간으로 전환",
                     current = state.bestType,
@@ -352,7 +352,7 @@ fun ScreenBestPropertyList(
             item {
                 ItemMainSettingSingleTablet(
                     containerColor = color998DF9,
-                    image = R.drawable.ic_launcher,
+                    image = R.drawable.icon_trophy_wht,
                     title = "월간 베스트",
                     body = "베스트 모드를 월간으로 전환",
                     current = state.bestType,

@@ -266,6 +266,28 @@ fun ScreenManavaraPropertyList(
             ItemMainSettingSingleTablet(
                 containerColor = color7C81FF,
                 image = R.drawable.ic_launcher,
+                title = "나의 PICK 보기",
+                body = "------",
+                current = "",
+                onClick = {  },
+                value = "작품 검색",
+            )
+
+            ItemMainSettingSingleTablet(
+                containerColor = color7C81FF,
+                image = R.drawable.ic_launcher,
+                title = "다른 PICK 보기",
+                body = "------",
+                current = "",
+                onClick = {  },
+                value = "작품 검색",
+            )
+
+            TabletBorderLine()
+
+            ItemMainSettingSingleTablet(
+                containerColor = color7C81FF,
+                image = R.drawable.ic_launcher,
                 title = "이벤트",
                 body = "------",
                 current = "",

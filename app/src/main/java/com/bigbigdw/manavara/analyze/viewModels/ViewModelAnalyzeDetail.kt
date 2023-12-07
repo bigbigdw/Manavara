@@ -2,13 +2,11 @@ package com.bigbigdw.manavara.analyze.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bigbigdw.manavara.analyze.event.EventAnalyze
 import com.bigbigdw.manavara.analyze.event.EventAnalyzeDetail
 import com.bigbigdw.manavara.analyze.event.StateAnalyzeDetail
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.models.ItemGenre
-import com.bigbigdw.manavara.best.models.ItemKeyword
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

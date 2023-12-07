@@ -92,6 +92,8 @@ import com.bigbigdw.manavara.ui.theme.color80BF78
 import com.bigbigdw.manavara.ui.theme.color8AA6BD
 import com.bigbigdw.manavara.ui.theme.color91CEC7
 import com.bigbigdw.manavara.ui.theme.color998DF9
+import com.bigbigdw.manavara.ui.theme.colorABD436
+import com.bigbigdw.manavara.ui.theme.colorEA927C
 import com.bigbigdw.manavara.ui.theme.colorF17666
 import com.bigbigdw.manavara.ui.theme.colorF17FA0
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
@@ -327,6 +329,18 @@ fun ScreenAnalyzePropertyList(
 
         ItemMainSettingSingleTablet(
             containerColor = color5372DE,
+            image = R.drawable.icon_novel_wht,
+            title = "웹소설 신규 작품",
+            body = "------",
+            current = "",
+            onClick = {  },
+            value = "작품 검색",
+        )
+
+        TabletBorderLine()
+
+        ItemMainSettingSingleTablet(
+            containerColor = color998DF9,
             image = R.drawable.icon_best_wht,
             title = "주차별 웹소설 베스트",
             body = "주차별 웹소설 베스트 리스트",
@@ -346,7 +360,7 @@ fun ScreenAnalyzePropertyList(
         )
 
         ItemMainSettingSingleTablet(
-            containerColor = color998DF9,
+            containerColor = colorEA927C,
             image = R.drawable.icon_best_wht,
             title = "월별 웹소설 베스트",
             body = "월별 웹소설 베스트 리스트",
@@ -364,8 +378,10 @@ fun ScreenAnalyzePropertyList(
             value = "월별 웹소설 베스트"
         )
 
+        TabletBorderLine()
+
         ItemMainSettingSingleTablet(
-            containerColor = colorF17FA0,
+            containerColor = colorABD436,
             image = R.drawable.icon_genre_wht,
             title = "투데이 장르 현황",
             body = "웹소설 플랫폼별 투데이 장르 리스트",
@@ -384,7 +400,7 @@ fun ScreenAnalyzePropertyList(
         )
 
         ItemMainSettingSingleTablet(
-            containerColor = color21C2EC,
+            containerColor = colorF17FA0,
             image = R.drawable.icon_genre_wht,
             title = "주간 장르 현황",
             body = "웹소설 플랫폼별 주간 장르 리스트",
@@ -403,7 +419,7 @@ fun ScreenAnalyzePropertyList(
         )
 
         ItemMainSettingSingleTablet(
-            containerColor = color31C3AE,
+            containerColor = color21C2EC,
             image = R.drawable.icon_genre_wht,
             title = "월간 장르 현황",
             body = "웹소설 플랫폼별 월간 장르 리스트",
@@ -422,7 +438,7 @@ fun ScreenAnalyzePropertyList(
         )
 
         ItemMainSettingSingleTablet(
-            containerColor = color7C81FF,
+            containerColor = color31C3AE,
             image = R.drawable.icon_genre_wht,
             title = "장르 리스트 작품",
             body = "장르별 작품 리스트 보기",
@@ -441,7 +457,7 @@ fun ScreenAnalyzePropertyList(
         )
 
         ItemMainSettingSingleTablet(
-            containerColor = color64C157,
+            containerColor = color7C81FF,
             image = R.drawable.icon_genre_wht,
             title = "장르 리스트 현황",
             body = "장르별 랭킹 변동 현황",
@@ -459,8 +475,10 @@ fun ScreenAnalyzePropertyList(
             value = "장르 리스트 현황"
         )
 
+        TabletBorderLine()
+
         ItemMainSettingSingleTablet(
-            containerColor = colorF17666,
+            containerColor = color64C157,
             image = R.drawable.icon_keyword_wht,
             title = "투데이 키워드 현황",
             body = "웹소설 주차별 투데이 키워드 현황",
@@ -479,7 +497,7 @@ fun ScreenAnalyzePropertyList(
         )
 
         ItemMainSettingSingleTablet(
-            containerColor = color536FD2,
+            containerColor = colorF17666,
             image = R.drawable.icon_keyword_wht,
             title = "주차별 키워드 현황",
             body = "웹소설 주차별 월별 키워드 현황",
@@ -498,7 +516,7 @@ fun ScreenAnalyzePropertyList(
         )
 
         ItemMainSettingSingleTablet(
-            containerColor = color4996E8,
+            containerColor = color536FD2,
             image = R.drawable.icon_keyword_wht,
             title = "월별 키워드 현황",
             body = "웹소설 플랫폼별 월별 키워드 현황",
@@ -517,7 +535,7 @@ fun ScreenAnalyzePropertyList(
         )
 
         ItemMainSettingSingleTablet(
-            containerColor = colorFDC24E,
+            containerColor = color4996E8,
             image = R.drawable.icon_keyword_wht,
             title = "키워드 리스트",
             body = "웹소설 키워드 리스트 작품 보기",
@@ -535,6 +553,8 @@ fun ScreenAnalyzePropertyList(
             value = "키워드 리스트"
         )
 
+        TabletBorderLine()
+
         ItemMainSettingSingleTablet(
             containerColor = colorFDC24E,
             image = R.drawable.icon_search_wht,
@@ -549,175 +569,26 @@ fun ScreenAnalyzePropertyList(
             value = "웹소설 DB 검색",
         )
 
-        TabletBorderLine()
-
         ItemMainSettingSingleTablet(
             containerColor = color80BF78,
-            image = R.drawable.icon_webtoon_wht,
-            title = "마나바라 베스트 웹툰 DB",
-            body = "마나바라에 기록된 웹툰 웹툰 리스트",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelAnalyze.setScreen(detail = "", menu = "주차별 웹소설 베스트")
-                }
-            },
-            value = "베스트 웹툰 DB"
+            image = R.drawable.icon_search_wht,
+            title = "작품 검색",
+            body = "플랫폼과 무관하게 작품 검색 진행",
+            current = "",
+            onClick = {  },
+            value = "작품 검색",
         )
 
         ItemMainSettingSingleTablet(
             containerColor = color91CEC7,
-            image = R.drawable.icon_best_wht,
-            title = "주차별 웹소설 베스트",
-            body = "주차별 웹소설 베스트 리스트",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelAnalyze.setScreen(detail = "", menu = "주차별 웹소설 베스트")
-                }
-            },
-            value = "웹소설 월간 장르"
-        )
-
-        ItemMainSettingSingleTablet(
-            containerColor = color79B4F8,
-            image = R.drawable.icon_best_wht,
-            title = "월별 웹소설 베스트",
-            body = "월별 웹소설 베스트 리스트",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelAnalyze.setScreen(detail = "", menu = "주차별 웹소설 베스트")
-                }
-            },
-            value = "웹소설 월간 장르"
-        )
-
-        ItemMainSettingSingleTablet(
-            containerColor = color8AA6BD,
-            image = R.drawable.icon_trophy_wht,
-            title = "주차별 웹소설 트로피",
-            body = "주차별 웹소설 트로피 리스트",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelAnalyze.setScreen(detail = "", menu = "주차별 웹소설 베스트")
-                }
-            },
-            value = "웹소설 월간 장르"
-        )
-
-        ItemMainSettingSingleTablet(
-            containerColor = color2EA259,
-            image = R.drawable.icon_trophy_wht,
-            title = "연간 웹소설 트로피",
-            body = "연간 웹소설 트로피 리스트",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelAnalyze.setScreen(detail = "", menu = "주차별 웹소설 베스트")
-                }
-            },
-            value = "웹소설 월간 장르"
-        )
-
-        ItemMainSettingSingleTablet(
-            containerColor = color808CF8,
-            image = R.drawable.icon_genre_wht,
-            title = "투데이 웹툰 장르 베스트",
-            body = "플랫폼별 웹툰 베스트 장르 리스트 보기",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelAnalyze.setScreen(detail = "", menu = "주차별 웹소설 베스트")
-                }
-            },
-            value = "웹툰 투데이 장르"
-        )
-
-        ItemMainSettingSingleTablet(
-            containerColor = colorFFAC59,
-            image = R.drawable.icon_genre_wht,
-            title = "주간 웹툰 장르 베스트",
-            body = "플랫폼별 웹툰 베스트 장르 리스트 보기",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelAnalyze.setScreen(detail = "", menu = "주차별 웹소설 베스트")
-                }
-            },
-            value = "웹툰 주간 장르"
-        )
-
-        ItemMainSettingSingleTablet(
-            containerColor = color4AD7CF,
-            image = R.drawable.icon_genre_wht,
-            title = "월간 웹툰 장르 베스트",
-            body = "플랫폼별 월간 웹툰 베스트 장르 리스트 보기",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelAnalyze.setScreen(detail = "", menu = "주차별 웹소설 베스트")
-                }
-            },
-            value = "웹툰 월간 장르"
-        )
-
-        ItemMainSettingSingleTablet(
-            containerColor = color5372DE,
-            image = R.drawable.icon_keyword_wht,
-            title = "웹툰 투데이 키워드 베스트",
-            body = "웹툰 월간 키워드 보기",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelAnalyze.setScreen(detail = "", menu = "주차별 웹소설 베스트")
-                }
-            },
-            value = "웹소설 월간 장르"
-        )
-
-        ItemMainSettingSingleTablet(
-            containerColor = color998DF9,
-            image = R.drawable.icon_keyword_wht,
-            title = "웹툰 주간 키워드 베스트",
-            body = "웹툰 월간 키워드 보기",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelAnalyze.setScreen(detail = "", menu = "주차별 웹소설 베스트")
-                }
-            },
-            value = "웹소설 월간 장르"
-        )
-
-        ItemMainSettingSingleTablet(
-            containerColor = color5372DE,
-            image = R.drawable.icon_keyword_wht,
-            title = "웹툰 월간 키워드 베스트",
-            body = "웹툰 월간 키워드 보기",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelAnalyze.setScreen(detail = "", menu = "주차별 웹소설 베스트")
-                }
-            },
-            value = "웹소설 월간 장르"
-        )
-
-        ItemMainSettingSingleTablet(
-            containerColor = color998DF9,
             image = R.drawable.icon_search_wht,
-            title = "웹툰 DB 검색",
-            body = "웹툰 DB 검색",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelAnalyze.setScreen(detail = "", menu = "주차별 웹소설 베스트")
-                }
-            },
-            value = "웹툰 DB 검색",
+            title = "북코드 검색",
+            body = "플랫폼과 무관하게 작품 검색 진행",
+            current = "",
+            onClick = {  },
+            value = "북코드 검색",
         )
+
     }
 }
 

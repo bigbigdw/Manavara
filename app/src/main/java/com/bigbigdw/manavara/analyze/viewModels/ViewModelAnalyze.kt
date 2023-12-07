@@ -2,8 +2,8 @@ package com.bigbigdw.manavara.analyze.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bigbigdw.manavara.analyze.event.EventAnalyze
-import com.bigbigdw.manavara.analyze.event.StateAnalyze
+import com.bigbigdw.manavara.analyze.event.EventDB
+import com.bigbigdw.manavara.analyze.event.StateDB
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.models.ItemGenre
@@ -19,67 +19,67 @@ import javax.inject.Inject
 
 class ViewModelAnalyze @Inject constructor() : ViewModel() {
 
-    private val events = Channel<EventAnalyze>()
+    private val events = Channel<EventDB>()
 
-    val state: StateFlow<StateAnalyze> = events.receiveAsFlow()
-        .runningFold(StateAnalyze(), ::reduceState)
-        .stateIn(viewModelScope, SharingStarted.Eagerly, StateAnalyze())
+    val state: StateFlow<StateDB> = events.receiveAsFlow()
+        .runningFold(StateDB(), ::reduceState)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, StateDB())
 
     private val _sideEffects = Channel<String>()
 
     val sideEffects = _sideEffects.receiveAsFlow()
 
-    private fun reduceState(current: StateAnalyze, event: EventAnalyze): StateAnalyze {
+    private fun reduceState(current: StateDB, event: EventDB): StateDB {
         return when (event) {
-            EventAnalyze.Loaded -> {
+            EventDB.Loaded -> {
                 current.copy(Loaded = true)
             }
 
-            is EventAnalyze.SetItemBookInfoMap -> {
+            is EventDB.SetItemBookInfoMap -> {
                 current.copy(itemBookInfoMap = event.itemBookInfoMap)
             }
 
-            is EventAnalyze.SetItemBookInfo -> {
+            is EventDB.SetItemBookInfo -> {
                 current.copy(itemBookInfo = event.itemBookInfo)
             }
 
-            is EventAnalyze.SetItemBestInfoTrophyList -> {
+            is EventDB.SetItemBestInfoTrophyList -> {
                 current.copy(itemBookInfo = event.itemBookInfo, itemBestInfoTrophyList = event.itemBestInfoTrophyList)
             }
 
-            is EventAnalyze.SetJsonNameList -> {
+            is EventDB.SetJsonNameList -> {
                 current.copy(jsonNameList = event.jsonNameList)
             }
 
-            is EventAnalyze.SetScreen -> {
+            is EventDB.SetScreen -> {
                 current.copy(menu = event.menu, platform = event.platform, detail = event.detail, type = event.type)
             }
 
-            is EventAnalyze.SetGenreList -> {
+            is EventDB.SetGenreList -> {
                 current.copy(genreList = event.genreList)
             }
 
-            is EventAnalyze.SetGenreWeekList -> {
+            is EventDB.SetGenreWeekList -> {
                 current.copy(genreWeekList = event.genreWeekList, genreList = event.genreList)
             }
 
-            is EventAnalyze.SetWeekTrophyList -> {
+            is EventDB.SetWeekTrophyList -> {
                 current.copy(weekTrophyList = event.weekTrophyList)
             }
 
-            is EventAnalyze.SetFilteredList -> {
+            is EventDB.SetFilteredList -> {
                 current.copy(filteredList = event.filteredList)
             }
 
-            is EventAnalyze.SetDate -> {
+            is EventDB.SetDate -> {
                 current.copy(week = event.week, month = event.month)
             }
 
-            is EventAnalyze.SetKeywordDay -> {
+            is EventDB.SetKeywordDay -> {
                 current.copy(keywordDay = event.keywordDay)
             }
 
-            is EventAnalyze.SetKeywordWeek -> {
+            is EventDB.SetKeywordWeek -> {
                 current.copy(keywordDay = event.keywordDay, keywordDayList = event.keywordDayList)
             }
 
@@ -91,49 +91,49 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
 
     fun setItemBookInfoMap(itemBookInfoMap: MutableMap<String, ItemBookInfo>) {
         viewModelScope.launch {
-            events.send(EventAnalyze.SetItemBookInfoMap(itemBookInfoMap = itemBookInfoMap))
+            events.send(EventDB.SetItemBookInfoMap(itemBookInfoMap = itemBookInfoMap))
         }
     }
 
     fun setItemBookInfo(itemBookInfo: ItemBookInfo){
         viewModelScope.launch {
-            events.send(EventAnalyze.SetItemBookInfo(itemBookInfo = itemBookInfo))
+            events.send(EventDB.SetItemBookInfo(itemBookInfo = itemBookInfo))
         }
     }
 
     fun setItemBestInfoTrophyList(itemBookInfo: ItemBookInfo,  itemBestInfoTrophyList: ArrayList<ItemBestInfo>){
         viewModelScope.launch {
-            events.send(EventAnalyze.SetItemBestInfoTrophyList(itemBookInfo = itemBookInfo, itemBestInfoTrophyList = itemBestInfoTrophyList))
+            events.send(EventDB.SetItemBestInfoTrophyList(itemBookInfo = itemBookInfo, itemBestInfoTrophyList = itemBestInfoTrophyList))
         }
     }
 
     fun setJsonNameList( jsonNameList: List<String>){
         viewModelScope.launch {
-            events.send(EventAnalyze.SetJsonNameList(jsonNameList = jsonNameList))
+            events.send(EventDB.SetJsonNameList(jsonNameList = jsonNameList))
         }
     }
 
     fun setScreen(menu: String = "", platform: String = "", detail: String = "", type: String = "" ){
         viewModelScope.launch {
-            events.send(EventAnalyze.SetScreen(menu = menu, platform = platform, detail = detail, type = type))
+            events.send(EventDB.SetScreen(menu = menu, platform = platform, detail = detail, type = type))
         }
     }
 
     fun setGenreWeekList(genreWeekList: ArrayList<ArrayList<ItemGenre>>, genreList: ArrayList<ItemGenre>){
         viewModelScope.launch {
-            events.send(EventAnalyze.SetGenreWeekList(genreWeekList = genreWeekList, genreList = genreList))
+            events.send(EventDB.SetGenreWeekList(genreWeekList = genreWeekList, genreList = genreList))
         }
     }
 
     fun setGenreList(genreList: ArrayList<ItemGenre>){
         viewModelScope.launch {
-            events.send(EventAnalyze.SetGenreWeekList(genreList = genreList))
+            events.send(EventDB.SetGenreWeekList(genreList = genreList))
         }
     }
 
     fun setWeekTrophyList(weekTrophyList: ArrayList<ItemBestInfo>){
         viewModelScope.launch {
-            events.send(EventAnalyze.SetWeekTrophyList(weekTrophyList = weekTrophyList))
+            events.send(EventDB.SetWeekTrophyList(weekTrophyList = weekTrophyList))
         }
     }
 
@@ -154,25 +154,25 @@ class ViewModelAnalyze @Inject constructor() : ViewModel() {
 
 
         viewModelScope.launch {
-            events.send(EventAnalyze.SetFilteredList(filteredList = filteredList))
+            events.send(EventDB.SetFilteredList(filteredList = filteredList))
         }
     }
 
     fun setDate(week: String = "", month: String = ""){
         viewModelScope.launch {
-            events.send(EventAnalyze.SetDate(week = week, month = month))
+            events.send(EventDB.SetDate(week = week, month = month))
         }
     }
 
     fun setKeywordDay(keywordDay: ArrayList<ItemKeyword>){
         viewModelScope.launch {
-            events.send(EventAnalyze.SetKeywordDay(keywordDay = keywordDay))
+            events.send(EventDB.SetKeywordDay(keywordDay = keywordDay))
         }
     }
 
     fun setKeywordWeek(keywordDay: ArrayList<ItemKeyword>){
         viewModelScope.launch {
-            events.send(EventAnalyze.SetKeywordWeek(keywordDay = keywordDay))
+            events.send(EventDB.SetKeywordWeek(keywordDay = keywordDay))
         }
     }
 }

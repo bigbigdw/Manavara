@@ -3,8 +3,6 @@ package com.bigbigdw.manavara.analyze.event
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.models.ItemGenre
-import com.bigbigdw.manavara.best.models.ItemKeyword
-import com.bigbigdw.manavara.manavara.event.EventManavara
 
 sealed interface EventAnalyzeDetail{
     object Loaded: EventAnalyzeDetail
