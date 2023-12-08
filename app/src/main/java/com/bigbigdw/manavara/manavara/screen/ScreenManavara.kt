@@ -41,7 +41,15 @@ import androidx.compose.ui.window.Dialog
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.analyze.screen.ScreenAnalyzeTopbar
 import com.bigbigdw.manavara.analyze.viewModels.ViewModelAnalyze
+import com.bigbigdw.manavara.ui.theme.color21C2EC
+import com.bigbigdw.manavara.ui.theme.color31C3AE
+import com.bigbigdw.manavara.ui.theme.color4AD7CF
+import com.bigbigdw.manavara.ui.theme.color5372DE
 import com.bigbigdw.manavara.ui.theme.color7C81FF
+import com.bigbigdw.manavara.ui.theme.color998DF9
+import com.bigbigdw.manavara.ui.theme.colorABD436
+import com.bigbigdw.manavara.ui.theme.colorEA927C
+import com.bigbigdw.manavara.ui.theme.colorF17FA0
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.util.screen.AlertTwoBtn
 import com.bigbigdw.manavara.util.screen.BackOnPressedMobile
@@ -222,7 +230,7 @@ fun ScreenManavaraPropertyList(
 
 
             ItemMainSettingSingleTablet(
-                containerColor = color7C81FF,
+                containerColor = color4AD7CF,
                 image = R.drawable.ic_launcher,
                 title = "나의 기록",
                 body = "https://m.comic.naver.com/event/yearend/2023",
@@ -232,7 +240,7 @@ fun ScreenManavaraPropertyList(
             )
 
             ItemMainSettingSingleTablet(
-                containerColor = color7C81FF,
+                containerColor = color5372DE,
                 image = R.drawable.ic_launcher,
                 title = "내가 분석한 작품",
                 body = "--------",
@@ -242,7 +250,7 @@ fun ScreenManavaraPropertyList(
             )
 
             ItemMainSettingSingleTablet(
-                containerColor = color7C81FF,
+                containerColor = color998DF9,
                 image = R.drawable.ic_launcher,
                 title = "옵션",
                 body = "--------",
@@ -252,7 +260,7 @@ fun ScreenManavaraPropertyList(
             )
 
             ItemMainSettingSingleTablet(
-                containerColor = color7C81FF,
+                containerColor = colorEA927C,
                 image = R.drawable.ic_launcher,
                 title = "메세지함",
                 body = "--------",
@@ -264,7 +272,7 @@ fun ScreenManavaraPropertyList(
             TabletBorderLine()
 
             ItemMainSettingSingleTablet(
-                containerColor = color7C81FF,
+                containerColor = colorABD436,
                 image = R.drawable.ic_launcher,
                 title = "나의 PICK 보기",
                 body = "------",
@@ -274,7 +282,7 @@ fun ScreenManavaraPropertyList(
             )
 
             ItemMainSettingSingleTablet(
-                containerColor = color7C81FF,
+                containerColor = colorF17FA0,
                 image = R.drawable.ic_launcher,
                 title = "다른 PICK 보기",
                 body = "------",
@@ -286,7 +294,7 @@ fun ScreenManavaraPropertyList(
             TabletBorderLine()
 
             ItemMainSettingSingleTablet(
-                containerColor = color7C81FF,
+                containerColor = color21C2EC,
                 image = R.drawable.ic_launcher,
                 title = "이벤트",
                 body = "------",
@@ -296,7 +304,7 @@ fun ScreenManavaraPropertyList(
             )
 
             ItemMainSettingSingleTablet(
-                containerColor = color7C81FF,
+                containerColor = color31C3AE,
                 image = R.drawable.ic_launcher,
                 title = "커뮤니티",
                 body = "------",
