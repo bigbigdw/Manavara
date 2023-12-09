@@ -2,7 +2,6 @@ package com.bigbigdw.manavara.dataBase.event
 
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
-import com.bigbigdw.manavara.best.models.ItemGenre
 import com.bigbigdw.manavara.best.models.ItemKeyword
 
 sealed interface EventDataBase{
@@ -55,12 +54,12 @@ sealed interface EventDataBase{
     ) : EventDataBase
 
     class SetGenreList(
-        var genreList : ArrayList<ItemGenre> = ArrayList()
+        var genreList : ArrayList<ItemKeyword> = ArrayList()
     ) : EventDataBase
 
     class SetGenreWeekList(
-        var genreWeekList :  ArrayList<ArrayList<ItemGenre>> = ArrayList(),
-        var genreList : ArrayList<ItemGenre> = ArrayList(),
+        var genreWeekList :  ArrayList<ArrayList<ItemKeyword>> = ArrayList(),
+        var genreList : ArrayList<ItemKeyword> = ArrayList(),
     ) : EventDataBase
 }
 
@@ -79,8 +78,8 @@ data class StateDataBase(
     val filteredList: ArrayList<ItemBookInfo> = ArrayList(),
     val week: String = "",
     val month: String = "",
-    var genreList : ArrayList<ItemGenre> = ArrayList(),
-    var genreWeekList :  ArrayList<ArrayList<ItemGenre>> = ArrayList(),
+    var genreList : ArrayList<ItemKeyword> = ArrayList(),
+    var genreWeekList :  ArrayList<ArrayList<ItemKeyword>> = ArrayList(),
     val keywordDay : ArrayList<ItemKeyword> = ArrayList(),
     val keywordDayList : ArrayList<ArrayList<ItemKeyword>> = ArrayList(),
 )

@@ -6,8 +6,7 @@ import com.bigbigdw.manavara.dataBase.event.EventDataBaseDetail
 import com.bigbigdw.manavara.dataBase.event.StateDataBaseDetail
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
-import com.bigbigdw.manavara.best.models.ItemGenre
-import com.bigbigdw.manavara.dataBase.event.EventDataBase
+import com.bigbigdw.manavara.best.models.ItemKeyword
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -74,7 +73,7 @@ class ViewModelDataBaseDetail @Inject constructor() : ViewModel() {
             }
 
             is EventDataBaseDetail.SetGenreMap -> {
-                current.copy(itemGenreMap = event.itemGenreMap)
+                current.copy(itemKeywordMap = event.ItemKeywordMap)
             }
 
             is EventDataBaseDetail.SetJsonNameList -> {
@@ -93,9 +92,9 @@ class ViewModelDataBaseDetail @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setGenreMap(itemGenreMap: MutableMap<String, ArrayList<ItemGenre>>){
+    fun setGenreMap(ItemKeywordMap: MutableMap<String, ArrayList<ItemKeyword>>){
         viewModelScope.launch {
-            events.send(EventDataBaseDetail.SetGenreMap(itemGenreMap = itemGenreMap))
+            events.send(EventDataBaseDetail.SetGenreMap(ItemKeywordMap = ItemKeywordMap))
         }
     }
 
@@ -105,7 +104,7 @@ class ViewModelDataBaseDetail @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setGenreList(genreList: ArrayList<ItemGenre>, genreMonthList: ArrayList<ArrayList<ItemGenre>>){
+    fun setGenreList(genreList: ArrayList<ItemKeyword>, genreMonthList: ArrayList<ArrayList<ItemKeyword>>){
         viewModelScope.launch {
             events.send(EventDataBaseDetail.SetGenreList(genreList = genreList, genreMonthList = genreMonthList))
         }

@@ -344,6 +344,7 @@ fun ScreenTodayWeek(
 
         LazyRow(
             modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 8.dp),
+            state = listState,
         ) {
             itemsIndexed(weekListAll()) { index, item ->
                 Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
@@ -395,6 +396,8 @@ fun ScreenTodayWeek(
                             if (setDialogOpen != null) {
                                 setDialogOpen(true)
                             }
+
+                            listState.scrollToItem(index = 0)
                         }
                     }
 

@@ -98,16 +98,6 @@ data class ItemBestInfo (
     var date: String = "",
 )
 
-@Serializable
-class ItemGenre(
-    @SerialName("title")
-    var title: String = "",
-    @SerialName("value")
-    var value: String = "",
-    @SerialName("date")
-    var date: String = "",
-)
-
 
 @Serializable
 class ItemKeyword(

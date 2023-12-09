@@ -6,7 +6,6 @@ import com.bigbigdw.manavara.dataBase.event.EventDataBase
 import com.bigbigdw.manavara.dataBase.event.StateDataBase
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
-import com.bigbigdw.manavara.best.models.ItemGenre
 import com.bigbigdw.manavara.best.models.ItemKeyword
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
@@ -119,13 +118,13 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setGenreWeekList(genreWeekList: ArrayList<ArrayList<ItemGenre>>, genreList: ArrayList<ItemGenre>){
+    fun setGenreWeekList(genreWeekList: ArrayList<ArrayList<ItemKeyword>>, genreList: ArrayList<ItemKeyword>){
         viewModelScope.launch {
             events.send(EventDataBase.SetGenreWeekList(genreWeekList = genreWeekList, genreList = genreList))
         }
     }
 
-    fun setGenreList(genreList: ArrayList<ItemGenre>){
+    fun setGenreList(genreList: ArrayList<ItemKeyword>){
         viewModelScope.launch {
             events.send(EventDataBase.SetGenreWeekList(genreList = genreList))
         }

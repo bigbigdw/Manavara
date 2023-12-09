@@ -2,7 +2,7 @@ package com.bigbigdw.manavara.dataBase.event
 
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
-import com.bigbigdw.manavara.best.models.ItemGenre
+import com.bigbigdw.manavara.best.models.ItemKeyword
 
 sealed interface EventDataBaseDetail{
     object Loaded: EventDataBaseDetail
@@ -38,12 +38,12 @@ sealed interface EventDataBaseDetail{
     ) : EventDataBaseDetail
 
     class SetGenreList(
-        var genreList : ArrayList<ItemGenre> = ArrayList(),
-        val genreMonthList: ArrayList<ArrayList<ItemGenre>> = ArrayList()
+        var genreList : ArrayList<ItemKeyword> = ArrayList(),
+        val genreMonthList: ArrayList<ArrayList<ItemKeyword>> = ArrayList()
     ) : EventDataBaseDetail
 
     class SetGenreMap(
-        var itemGenreMap: MutableMap<String, ArrayList<ItemGenre>> = mutableMapOf(),
+        var ItemKeywordMap: MutableMap<String, ArrayList<ItemKeyword>> = mutableMapOf(),
     ) : EventDataBaseDetail
 }
 
@@ -56,11 +56,11 @@ data class StateDataBaseDetail(
     val json: String = "",
     val key: String = "",
     val mode: String = "",
-    var genreList : ArrayList<ItemGenre> = ArrayList(),
+    var genreList : ArrayList<ItemKeyword> = ArrayList(),
     var itemBookInfoMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
     val itemBookInfo : ItemBookInfo = ItemBookInfo(),
     val itemBestInfoTrophyList : ArrayList<ItemBestInfo> = ArrayList(),
-    val genreMonthList: ArrayList<ArrayList<ItemGenre>> = ArrayList(),
-    var itemGenreMap: MutableMap<String, ArrayList<ItemGenre>> = mutableMapOf(),
+    val genreMonthList: ArrayList<ArrayList<ItemKeyword>> = ArrayList(),
+    var itemKeywordMap: MutableMap<String, ArrayList<ItemKeyword>> = mutableMapOf(),
     val jsonNameList : List<String> = arrayListOf(),
 )

@@ -4,7 +4,6 @@ import android.content.Intent
 import androidx.compose.ui.graphics.Color
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
-import com.bigbigdw.manavara.best.models.ItemGenre
 import com.bigbigdw.manavara.best.models.ItemKeyword
 import com.bigbigdw.manavara.firebase.DataFCMBody
 import com.bigbigdw.manavara.firebase.DataFCMBodyData
@@ -125,17 +124,10 @@ fun convertItemKeywordJson(itemBestKeyword: ItemKeyword): JsonObject {
 
     jsonObject.addProperty("key", itemBestKeyword.key)
     jsonObject.addProperty("value", itemBestKeyword.value)
+    jsonObject.addProperty("date", itemBestKeyword.date)
     return jsonObject
 }
 
-@SuppressLint("SuspiciousIndentation")
-fun convertItemGenre(jsonObject: JSONObject): ItemGenre {
-
-    return ItemGenre(
-        title = jsonObject.optString("title"),
-        value = jsonObject.optString("value")
-    )
-}
 @SuppressLint("SuspiciousIndentation")
 fun convertItemKeyword(jsonObject: JSONObject): ItemKeyword {
 

@@ -60,7 +60,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bigbigdw.manavara.R
-import com.bigbigdw.manavara.dataBase.getJsonFiles
 import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDatabase
 import com.bigbigdw.manavara.best.ActivityBestDetail
 import com.bigbigdw.manavara.best.getBestMonthTrophy
@@ -69,6 +68,7 @@ import com.bigbigdw.manavara.best.getBookItemWeekTrophyDialog
 import com.bigbigdw.manavara.best.getBookMap
 import com.bigbigdw.manavara.best.screen.ListBest
 import com.bigbigdw.manavara.best.screen.ScreenDialogBest
+import com.bigbigdw.manavara.dataBase.getJsonFiles
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color21C2EC
@@ -92,6 +92,7 @@ import com.bigbigdw.manavara.ui.theme.colorF17666
 import com.bigbigdw.manavara.ui.theme.colorF17FA0
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorFDC24E
+import com.bigbigdw.manavara.ui.theme.colorFFAC59
 import com.bigbigdw.manavara.util.DataStoreManager
 import com.bigbigdw.manavara.util.changePlatformNameKor
 import com.bigbigdw.manavara.util.comicListEng
@@ -326,7 +327,7 @@ fun ScreenDataBasePropertyList(
             title = "웹소설 신규 작품",
             body = "------",
             current = "",
-            onClick = {  },
+            onClick = { },
             value = "작품 검색",
         )
 
@@ -531,38 +532,38 @@ fun ScreenDataBasePropertyList(
             containerColor = color4996E8,
             image = R.drawable.icon_keyword_wht,
             title = "주간 키워드 현황",
-            body = "웹소설 주간 주간 키워드 현황",
+            body = "웹소설 주간 키워드 현황",
             current = state.menu,
             onClick = {
                 coroutineScope.launch {
                     viewModelDatabase.setScreen(
                         detail = "",
-                        menu = "투데이 키워드 현황",
+                        menu = "주간 키워드 현황",
                         type = "NOVEL",
                         platform = "JOARA"
                     )
                 }
             },
-            value = "투데이 키워드 현황"
+            value = "주간 키워드 현황"
         )
 
         ItemMainSettingSingleTablet(
             containerColor = colorFDC24E,
             image = R.drawable.icon_keyword_wht,
             title = "월간 키워드 현황",
-            body = "웹소설 월간 투데이 키워드 현황",
+            body = "웹소설 월간 키워드 현황",
             current = state.menu,
             onClick = {
                 coroutineScope.launch {
                     viewModelDatabase.setScreen(
                         detail = "",
-                        menu = "투데이 키워드 현황",
+                        menu = "월간 키워드 현황",
                         type = "NOVEL",
                         platform = "JOARA"
                     )
                 }
             },
-            value = "투데이 키워드 현황"
+            value = "월간 키워드 현황"
         )
 
         ItemMainSettingSingleTablet(
@@ -606,26 +607,45 @@ fun ScreenDataBasePropertyList(
         ItemMainSettingSingleTablet(
             containerColor = color79B4F8,
             image = R.drawable.icon_keyword_wht,
-            title = "키워드 리스트",
+            title = "키워드 리스트 작품",
             body = "웹소설 키워드 리스트 작품 보기",
             current = state.menu,
             onClick = {
                 coroutineScope.launch {
                     viewModelDatabase.setScreen(
                         detail = "",
-                        menu = "키워드 리스트",
+                        menu = "키워드 리스트 작품",
                         type = "NOVEL",
                         platform = "JOARA"
                     )
                 }
             },
-            value = "키워드 리스트"
+            value = "키워드 리스트 작품"
+        )
+
+        ItemMainSettingSingleTablet(
+            containerColor = color8AA6BD,
+            image = R.drawable.icon_keyword_wht,
+            title = "키워드 리스트 현황",
+            body = "웹소설 키워드 리스트 작품 보기",
+            current = state.menu,
+            onClick = {
+                coroutineScope.launch {
+                    viewModelDatabase.setScreen(
+                        detail = "",
+                        menu = "키워드 리스트 현황",
+                        type = "NOVEL",
+                        platform = "JOARA"
+                    )
+                }
+            },
+            value = "키워드 리스트 현황"
         )
 
         TabletBorderLine()
 
         ItemMainSettingSingleTablet(
-            containerColor = color8AA6BD,
+            containerColor = color2EA259,
             image = R.drawable.icon_search_wht,
             title = "웹소설 DB 검색",
             body = "웹소설 DB 검색",
@@ -639,22 +659,22 @@ fun ScreenDataBasePropertyList(
         )
 
         ItemMainSettingSingleTablet(
-            containerColor = color2EA259,
+            containerColor = color808CF8,
             image = R.drawable.icon_search_wht,
             title = "작품 검색",
             body = "플랫폼과 무관하게 작품 검색 진행",
             current = "",
-            onClick = {  },
+            onClick = { },
             value = "작품 검색",
         )
 
         ItemMainSettingSingleTablet(
-            containerColor = color808CF8,
+            containerColor = colorFFAC59,
             image = R.drawable.icon_search_wht,
             title = "북코드 검색",
             body = "플랫폼과 무관하게 작품 검색 진행",
             current = "",
-            onClick = {  },
+            onClick = { },
             value = "북코드 검색",
         )
 
@@ -669,8 +689,6 @@ fun ScreenDataBaseItem(
 ) {
 
     val state = viewModelDatabase.state.collectAsState().value
-
-    Log.d("MENU", "state.menu == ${state.menu}")
 
     if (state.menu.contains("베스트 웹소설 DB")) {
 
@@ -693,7 +711,10 @@ fun ScreenDataBaseItem(
             drawerState = drawerState,
         )
 
-    } else if (state.menu.contains("투데이 장르 현황") || state.menu.contains("주차별 장르 현황") || state.menu.contains("월별 장르 현황") || state.menu.contains("주간 장르 현황") || state.menu.contains("월간 장르 현황")) {
+    } else if (state.menu.contains("투데이 장르 현황") || state.menu.contains("주차별 장르 현황") || state.menu.contains(
+            "월별 장르 현황"
+        ) || state.menu.contains("주간 장르 현황") || state.menu.contains("월간 장르 현황")
+    ) {
 
         ScreenBestDataBaseList(
             viewModelDatabase = viewModelDatabase,
@@ -709,7 +730,12 @@ fun ScreenDataBaseItem(
             itemList = genreListEng()
         )
 
-    } else if (state.menu.contains("투데이 키워드 현황")) {
+    } else if (state.menu.contains("투데이 키워드 현황")
+        || state.menu.contains("주차별 키워드 현황")
+        || state.menu.contains("월별 키워드 현황")
+        || state.menu.contains("주간 키워드 현황")
+        || state.menu.contains("월간 키워드 현황")
+    ) {
 
         ScreenBestDataBaseList(
             viewModelDatabase = viewModelDatabase,
@@ -717,23 +743,7 @@ fun ScreenDataBaseItem(
             itemList = keywordListEng()
         )
 
-    } else if (state.menu.contains("주차별 키워드 현황")) {
-
-        ScreenBestDataBaseList(
-            viewModelDatabase = viewModelDatabase,
-            drawerState = drawerState,
-            itemList = keywordListEng()
-        )
-
-    } else if (state.menu.contains("월별 키워드 현황")) {
-
-        ScreenBestDataBaseList(
-            viewModelDatabase = viewModelDatabase,
-            drawerState = drawerState,
-            itemList = keywordListEng()
-        )
-
-    } else if (state.menu.contains("키워드 리스트")) {
+    } else if (state.menu.contains("키워드 리스트 작품") || state.menu.contains("키워드 리스트 현황")) {
 
         ScreenBestDataBaseList(
             viewModelDatabase = viewModelDatabase,
@@ -762,14 +772,14 @@ fun ScreenAnalyzeItemDetail(
             viewModelDatabase = viewModelDatabase
         )
 
-    } else if (state.menu.contains("주차별 웹소설 베스트")|| state.menu.contains("월별 웹소설 베스트")) {
+    } else if (state.menu.contains("주차별 웹소설 베스트") || state.menu.contains("월별 웹소설 베스트")) {
         ScreenBestAnalyze(
             viewModelDatabase = viewModelDatabase,
             root = if (state.menu.contains("주차별 웹소설 베스트")) {
                 "BEST_WEEK"
-            } else if(state.menu.contains("월별 웹소설 베스트")) {
+            } else if (state.menu.contains("월별 웹소설 베스트")) {
                 "BEST_MONTH"
-            }else {
+            } else {
                 ""
             },
             modalSheetState = modalSheetState,
@@ -782,20 +792,23 @@ fun ScreenAnalyzeItemDetail(
             viewModelDatabase = viewModelDatabase,
             mode = if (state.menu.contains("장르 리스트 작품")) {
                 "GENRE_BOOK"
-            } else if(state.menu.contains("장르 리스트 현황")) {
+            } else if (state.menu.contains("장르 리스트 현황")) {
                 "GENRE_STATUS"
-            }else {
-                ""
+            } else {
+                "GENRE_BOOK"
             },
         )
 
-    } else if (state.menu.contains("투데이 장르 현황") || state.menu.contains("주차별 장르 현황") || state.menu.contains("월별 장르 현황")) {
+    } else if (state.menu.contains("투데이 장르 현황")
+        || state.menu.contains("주차별 장르 현황")
+        || state.menu.contains("월별 장르 현황")
+    ) {
         ScreenGenre(
             menuType = if (state.menu.contains("투데이 장르 현황")) {
                 "투데이"
-            } else if(state.menu.contains("주차별 장르 현황")) {
+            } else if (state.menu.contains("주차별 장르 현황")) {
                 "주간"
-            }else {
+            } else {
                 "월간"
             },
             viewModelDatabase = viewModelDatabase
@@ -805,38 +818,52 @@ fun ScreenAnalyzeItemDetail(
 
         GenreDetailJson(
             viewModelDatabase = viewModelDatabase,
-            menuType = if(state.menu.contains("주간 장르 현황")){
+            menuType = if (state.menu.contains("주간 장르 현황")) {
                 "주간"
             } else {
                 "월간"
             }
         )
 
-    } else if (state.menu.contains("투데이 키워드 현황")) {
+    } else if (state.menu.contains("투데이 키워드 현황")
+        || state.menu.contains("주차별 키워드 현황")
+        || state.menu.contains("월별 키워드 현황")) {
 
         ScreenKeyword(
-            menuType = "투데이",
+            menuType = if (state.menu.contains("투데이 키워드 현황")) {
+                "투데이"
+            } else if (state.menu.contains("주차별 키워드 현황")) {
+                "주간"
+            } else {
+                "월간"
+            },
             viewModelDatabase = viewModelDatabase,
         )
 
-    } else if (state.menu.contains("주차별 키워드 현황")) {
+    } else if (state.menu.contains("주간 키워드 현황")
+        || state.menu.contains("월간 키워드 현황")) {
 
-        ScreenKeyword(
-            menuType = "주간",
-            viewModelDatabase = viewModelDatabase
+        GenreDetailJson(
+            viewModelDatabase = viewModelDatabase,
+            menuType = if (state.menu.contains("주간 키워드 현황")) {
+                "주간"
+            } else {
+                "월간"
+            },
+            type = "KEYWORD"
         )
 
-    } else if (state.menu.contains("월별 키워드 현황")) {
-
-        ScreenKeyword(
-            menuType = "월간",
-            viewModelDatabase = viewModelDatabase
-        )
-
-    } else if (state.menu.contains("키워드 리스트")) {
+    } else if (state.menu.contains("키워드 리스트 작품") || state.menu.contains("키워드 리스트 현황")) {
 
         ScreenGenreDetail(
             viewModelDatabase = viewModelDatabase,
+            mode = if (state.menu.contains("키워드 리스트 작품")) {
+                "KEYWORD_BOOK"
+            } else if (state.menu.contains("키워드 리스트 현황")) {
+                "KEYWORD_STATUS"
+            } else {
+                "KEYWORD_BOOK"
+            },
         )
 
     }
@@ -1307,9 +1334,9 @@ fun ScreenBestDataBaseList(
             .background(colorF6F6F6),
     ) {
 
-        item {Spacer(modifier = Modifier.size(16.dp))}
+        item { Spacer(modifier = Modifier.size(16.dp)) }
 
-        itemsIndexed(itemList) {index, item ->
+        itemsIndexed(itemList) { index, item ->
             Box(modifier = Modifier.padding(8.dp)) {
                 TabletContentWrapBtn(
                     onClick = {

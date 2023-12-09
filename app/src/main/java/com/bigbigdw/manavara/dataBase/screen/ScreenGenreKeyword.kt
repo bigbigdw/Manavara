@@ -1,7 +1,6 @@
 package com.bigbigdw.manavara.dataBase.screen
 
 import android.content.Intent
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,11 +44,9 @@ import com.bigbigdw.manavara.dataBase.getJsonFiles
 import com.bigbigdw.manavara.dataBase.getJsonGenreMonthList
 import com.bigbigdw.manavara.dataBase.getJsonGenreWeekList
 import com.bigbigdw.manavara.dataBase.getJsonKeywordList
-import com.bigbigdw.manavara.dataBase.getJsonKeywordMonthList
-import com.bigbigdw.manavara.dataBase.getJsonKeywordWeekList
 import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDatabase
-import com.bigbigdw.manavara.best.models.ItemGenre
 import com.bigbigdw.manavara.best.models.ItemKeyword
+import com.bigbigdw.manavara.dataBase.getJsonGenreList
 import com.bigbigdw.manavara.ui.theme.color1CE3EE
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
@@ -68,8 +65,8 @@ import java.util.Collections
 
 
 @Composable
-fun ScreenItemGenreToday(
-    genreList: ArrayList<ItemGenre> = ArrayList(),
+fun ScreenItemKeywordToday(
+    genreList: ArrayList<ItemKeyword> = ArrayList(),
     keywordList: ArrayList<ItemKeyword> = ArrayList(),
     mode: String = "GENRE"
 ) {
@@ -93,7 +90,7 @@ fun ScreenItemGenreToday(
         } else {
             itemsIndexed(genreList) { index, item ->
                 ListGenreToday(
-                    title = item.title,
+                    title = item.key,
                     value = item.value,
                     index = index
                 )
@@ -105,8 +102,8 @@ fun ScreenItemGenreToday(
 }
 
 @Composable
-fun ScreenItemGenreWeek(
-    genreList: ArrayList<ItemGenre> = ArrayList(),
+fun ScreenItemKeywordWeek(
+    genreList: ArrayList<ItemKeyword> = ArrayList(),
     keywordList: ArrayList<ItemKeyword> = ArrayList(),
     mode: String = "GENRE",
     jsonNameList: List<String>,
@@ -160,7 +157,7 @@ fun ScreenItemGenreWeek(
         } else {
             itemsIndexed(genreList) { index, item ->
                 ListGenreToday(
-                    title = item.title,
+                    title = item.key,
                     value = item.value,
                     index = index
                 )
@@ -172,8 +169,8 @@ fun ScreenItemGenreWeek(
 }
 
 @Composable
-fun ScreenItemGenreMonth(
-    genreList: ArrayList<ItemGenre> = ArrayList(),
+fun ScreenItemKeywordMonth(
+    genreList: ArrayList<ItemKeyword> = ArrayList(),
     keywordList: ArrayList<ItemKeyword> = ArrayList(),
     mode: String = "GENRE",
     jsonNameList: List<String>,
@@ -229,7 +226,7 @@ fun ScreenItemGenreMonth(
         } else {
             itemsIndexed(genreList) { index, item ->
                 ListGenreToday(
-                    title = item.title,
+                    title = item.key,
                     value = item.value,
                     index = index
                 )
@@ -272,7 +269,7 @@ fun ScreenKeyword(
                 }
 
                 if (state.jsonNameList.isNotEmpty()) {
-                    getJsonKeywordWeekList(
+                    getJsonGenreWeekList(
                         platform = state.platform,
                         type = state.type,
                         root = state.week
@@ -298,7 +295,7 @@ fun ScreenKeyword(
                 }
 
                 if (state.jsonNameList.isNotEmpty()) {
-                    getJsonKeywordMonthList(
+                    getJsonGenreMonthList(
                         platform = state.platform,
                         type = state.type,
                         root = state.month
@@ -323,12 +320,12 @@ fun ScreenKeyword(
 
     when (menuType) {
         "투데이" -> {
-            ScreenItemGenreToday(keywordList = state.keywordDay, mode = "KEYWORD")
+            ScreenItemKeywordToday(keywordList = state.keywordDay, mode = "KEYWORD")
         }
 
         "주간" -> {
 
-            ScreenItemGenreWeek(
+            ScreenItemKeywordWeek(
                 keywordList = state.keywordDay,
                 jsonNameList = state.jsonNameList,
                 mode = "KEYWORD",
@@ -340,7 +337,7 @@ fun ScreenKeyword(
 
         else -> {
 
-            ScreenItemGenreMonth(
+            ScreenItemKeywordMonth(
                 keywordList = state.keywordDay,
                 jsonNameList = state.jsonNameList,
                 mode = "KEYWORD",
@@ -355,7 +352,7 @@ fun ScreenKeyword(
 @Composable
 fun ScreenGenreDetail(
     viewModelDatabase: ViewModelDatabase,
-    mode : String = "GENRE_BOOK"
+    mode : String
 ) {
 
     val state = viewModelDatabase.state.collectAsState().value
@@ -404,7 +401,11 @@ fun ScreenGenreDetail(
                         val intent = Intent(context, ActivityDataBaseDetail::class.java)
                         intent.putExtra(
                             "TITLE",
-                            "${changePlatformNameKor(state.platform)} ${convertDateStringMonth(item)} 장르"
+                            if (mode.contains("GENRE")) {
+                                "${changePlatformNameKor(state.platform)} ${convertDateStringMonth(item)} 장르"
+                            } else {
+                                "${changePlatformNameKor(state.platform)} ${convertDateStringMonth(item)} 키워드"
+                            }
                         )
                         intent.putExtra("JSON", item)
                         intent.putExtra("PLATFORM", state.platform)
@@ -547,7 +548,7 @@ fun ScreenGenre(
     LaunchedEffect(state.platform, state.type, state.jsonNameList, state.week, state.month) {
         when (menuType) {
             "투데이" -> {
-                getGenreDay(platform = state.platform, type = state.type) {
+                getJsonGenreList(platform = state.platform, type = state.type) {
                     viewModelDatabase.setGenreList(it)
                 }
             }
@@ -570,7 +571,7 @@ fun ScreenGenre(
                     getJsonGenreWeekList(
                         platform = state.platform,
                         type = state.type,
-                        root = state.week
+                        root = state.week,
                     ) { weekList, list ->
                         viewModelDatabase.setGenreList(list)
                     }
@@ -609,12 +610,12 @@ fun ScreenGenre(
 
     when (menuType) {
         "투데이" -> {
-            ScreenItemGenreToday(state.genreList)
+            ScreenItemKeywordToday(state.genreList)
         }
 
         "주간" -> {
 
-            ScreenItemGenreWeek(
+            ScreenItemKeywordWeek(
                 genreList = state.genreList,
                 jsonNameList = state.jsonNameList,
                 listState = listState,
@@ -625,7 +626,7 @@ fun ScreenGenre(
 
         else -> {
 
-            ScreenItemGenreMonth(
+            ScreenItemKeywordMonth(
                 genreList = state.genreList,
                 jsonNameList = state.jsonNameList,
                 listState = listState,
@@ -639,7 +640,8 @@ fun ScreenGenre(
 @Composable
 fun GenreDetailJson(
     viewModelDatabase: ViewModelDatabase,
-    menuType: String
+    menuType: String,
+    type : String = "GENRE"
 ) {
 
     val state = viewModelDatabase.state.collectAsState().value
@@ -649,21 +651,43 @@ fun GenreDetailJson(
         when (menuType) {
 
             "주간" -> {
-                getJsonGenreWeekList(
-                    platform = state.platform,
-                    type = state.type,
-                ) { genreWeekList, genreList ->
-                    viewModelDatabase.setGenreWeekList(genreWeekList = genreWeekList, genreList = genreList)
+
+                if(type == "GENRE"){
+                    getJsonGenreWeekList(
+                        platform = state.platform,
+                        type = state.type,
+                    ) { genreWeekList, genreList ->
+                        viewModelDatabase.setGenreWeekList(genreWeekList = genreWeekList, genreList = genreList)
+                    }
+                } else {
+                    getJsonGenreWeekList(
+                        platform = state.platform,
+                        type = state.type,
+                        dataType = "KEYWORD"
+                    ) { genreWeekList, genreList ->
+                        viewModelDatabase.setGenreWeekList(genreWeekList = genreWeekList, genreList = genreList)
+                    }
                 }
             }
 
             else -> {
-                getJsonGenreMonthList(
-                    platform = state.platform,
-                    type = state.type,
-                ) { monthList, list ->
-                    viewModelDatabase.setGenreWeekList(genreWeekList = monthList, genreList = list)
+                if(type == "GENRE"){
+                    getJsonGenreMonthList(
+                        platform = state.platform,
+                        type = state.type,
+                    ) { monthList, list ->
+                        viewModelDatabase.setGenreWeekList(genreWeekList = monthList, genreList = list)
+                    }
+                } else {
+                    getJsonGenreMonthList(
+                        platform = state.platform,
+                        type = state.type,
+                        dataType = "KEYWORD"
+                    ) { monthList, list ->
+                        viewModelDatabase.setGenreWeekList(genreWeekList = monthList, genreList = list)
+                    }
                 }
+
             }
         }
     }
@@ -703,7 +727,7 @@ fun GenreDetailJson(
 
                         itemsIndexed(state.genreList) { index, item ->
                             ListGenreToday(
-                                title = item.title,
+                                title = item.key,
                                 value = item.value,
                                 index = index
                             )
@@ -720,7 +744,7 @@ fun GenreDetailJson(
 
                             itemsIndexed(state.genreWeekList[getWeekDate(getDate)]) { index, item ->
                                 ListGenreToday(
-                                    title = item.title,
+                                    title = item.key,
                                     value = item.value,
                                     index = index
                                 )
@@ -805,7 +829,7 @@ fun GenreDetailJson(
 
                         itemsIndexed(state.genreList) { index, item ->
                             ListGenreToday(
-                                title = item.title,
+                                title = item.key,
                                 value = item.value,
                                 index = index
                             )
@@ -821,7 +845,7 @@ fun GenreDetailJson(
 
                                     if(innerIndex < 5){
                                         ListGenreToday(
-                                            title = innnerItem.title,
+                                            title = innnerItem.key,
                                             value = innnerItem.value,
                                             index = index
                                         )
@@ -842,7 +866,7 @@ fun GenreDetailJson(
 
                             itemsIndexed(state.genreWeekList[getDate.replace("일","").toInt() - 1]) { index, item ->
                                 ListGenreToday(
-                                    title = item.title,
+                                    title = item.key,
                                     value = item.value,
                                     index = index
                                 )
