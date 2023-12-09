@@ -1,4 +1,4 @@
-package com.bigbigdw.manavara.analyze.screen
+package com.bigbigdw.manavara.dataBase.screen
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -32,6 +31,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetState
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalNavigationDrawer
@@ -39,6 +40,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,8 +62,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bigbigdw.manavara.R
-import com.bigbigdw.manavara.analyze.getJsonFiles
-import com.bigbigdw.manavara.analyze.viewModels.ViewModelAnalyze
+import com.bigbigdw.manavara.dataBase.getJsonFiles
+import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDatabase
 import com.bigbigdw.manavara.best.ActivityBestDetail
 import com.bigbigdw.manavara.best.getBestMonthTrophy
 import com.bigbigdw.manavara.best.getBestWeekTrophy
@@ -117,7 +119,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun ScreenAnalyze(
+fun ScreenDataBase(
     isExpandedScreen: Boolean,
     modalSheetState: ModalBottomSheetState? = null,
     drawerState: DrawerState,
@@ -128,14 +130,14 @@ fun ScreenAnalyze(
     val coroutineScope = rememberCoroutineScope()
     val viewModelStoreOwner =
         checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
-    val viewModelAnalyze: ViewModelAnalyze = viewModel(viewModelStoreOwner = viewModelStoreOwner)
-    val state = viewModelAnalyze.state.collectAsState().value
+    val viewModelDatabase: ViewModelDatabase = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+    val state = viewModelDatabase.state.collectAsState().value
 
-    BestAnalyzeBackOnPressed(viewModelAnalyze = viewModelAnalyze)
+    BestAnalyzeBackOnPressed(viewModelDatabase = viewModelDatabase)
 
     DisposableEffect(context) {
 
-        viewModelAnalyze.sideEffects
+        viewModelDatabase.sideEffects
             .onEach { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
             .launchIn(coroutineScope)
 
@@ -181,9 +183,9 @@ fun ScreenAnalyze(
                     }
                 }
 
-                ScreenDBPropertyList(
+                ScreenDataBasePropertyList(
                     drawerState = drawerState,
-                    viewModelAnalyze = viewModelAnalyze
+                    viewModelDatabase = viewModelDatabase
                 )
 
                 Spacer(
@@ -194,7 +196,7 @@ fun ScreenAnalyze(
                 )
 
                 ScreenAnalyzeItems(
-                    viewModelAnalyze = viewModelAnalyze,
+                    viewModelDatabase = viewModelDatabase,
                     drawerState = drawerState,
                     modalSheetState = modalSheetState,
                     setDialogOpen = setDialogOpen
@@ -203,14 +205,14 @@ fun ScreenAnalyze(
             } else {
 
                 if (modalSheetState != null) {
-                    BestAnalyzeBackOnPressed(viewModelAnalyze = viewModelAnalyze)
+                    BestAnalyzeBackOnPressed(viewModelDatabase = viewModelDatabase)
                 }
 
                 ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
 
-                    ScreenDBPropertyList(
+                    ScreenDataBasePropertyList(
                         drawerState = drawerState,
-                        viewModelAnalyze = viewModelAnalyze
+                        viewModelDatabase = viewModelDatabase
                     )
 
                 }) {
@@ -231,7 +233,7 @@ fun ScreenAnalyze(
                                 .fillMaxSize()
                         ) {
                             ScreenAnalyzeItems(
-                                viewModelAnalyze = viewModelAnalyze,
+                                viewModelDatabase = viewModelDatabase,
                                 drawerState = drawerState,
                                 modalSheetState = modalSheetState,
                                 setDialogOpen = null
@@ -271,13 +273,13 @@ fun ScreenAnalyze(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScreenDBPropertyList(
+fun ScreenDataBasePropertyList(
     drawerState: DrawerState?,
-    viewModelAnalyze: ViewModelAnalyze
+    viewModelDatabase: ViewModelDatabase
 ) {
 
     val coroutineScope = rememberCoroutineScope()
-    val state = viewModelAnalyze.state.collectAsState().value
+    val state = viewModelDatabase.state.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -309,7 +311,7 @@ fun ScreenDBPropertyList(
             current = state.menu,
             onClick = {
                 coroutineScope.launch {
-                    viewModelAnalyze.setScreen(
+                    viewModelDatabase.setScreen(
                         detail = "",
                         menu = "베스트 웹소설 DB",
                         type = state.type
@@ -340,7 +342,7 @@ fun ScreenDBPropertyList(
             current = state.menu,
             onClick = {
                 coroutineScope.launch {
-                    viewModelAnalyze.setScreen(
+                    viewModelDatabase.setScreen(
                         detail = "",
                         menu = "주차별 웹소설 베스트",
                         type = "NOVEL",
@@ -360,7 +362,7 @@ fun ScreenDBPropertyList(
             current = state.menu,
             onClick = {
                 coroutineScope.launch {
-                    viewModelAnalyze.setScreen(
+                    viewModelDatabase.setScreen(
                         detail = "",
                         menu = "월별 웹소설 베스트",
                         type = "NOVEL",
@@ -381,7 +383,7 @@ fun ScreenDBPropertyList(
             current = state.menu,
             onClick = {
                 coroutineScope.launch {
-                    viewModelAnalyze.setScreen(
+                    viewModelDatabase.setScreen(
                         detail = "",
                         menu = "투데이 장르 현황",
                         type = "NOVEL",
@@ -400,7 +402,7 @@ fun ScreenDBPropertyList(
             current = state.menu,
             onClick = {
                 coroutineScope.launch {
-                    viewModelAnalyze.setScreen(
+                    viewModelDatabase.setScreen(
                         detail = "",
                         menu = "주간 장르 현황",
                         type = "NOVEL",
@@ -419,45 +421,7 @@ fun ScreenDBPropertyList(
             current = state.menu,
             onClick = {
                 coroutineScope.launch {
-                    viewModelAnalyze.setScreen(
-                        detail = "",
-                        menu = "주간 장르 현황",
-                        type = "NOVEL",
-                        platform = "JOARA"
-                    )
-                }
-            },
-            value = "주간 장르 현황"
-        )
-
-        ItemMainSettingSingleTablet(
-            containerColor = color31C3AE,
-            image = R.drawable.icon_genre_wht,
-            title = "주차별 장르 현황",
-            body = "웹소설 플랫폼별 주차별 장르 리스트",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelAnalyze.setScreen(
-                        detail = "",
-                        menu = "주간 장르 현황",
-                        type = "NOVEL",
-                        platform = "JOARA"
-                    )
-                }
-            },
-            value = "주간 장르 현황"
-        )
-
-        ItemMainSettingSingleTablet(
-            containerColor = color7C81FF,
-            image = R.drawable.icon_genre_wht,
-            title = "월별 장르 현황",
-            body = "웹소설 플랫폼별 월별 장르 리스트",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelAnalyze.setScreen(
+                    viewModelDatabase.setScreen(
                         detail = "",
                         menu = "월간 장르 현황",
                         type = "NOVEL",
@@ -469,6 +433,44 @@ fun ScreenDBPropertyList(
         )
 
         ItemMainSettingSingleTablet(
+            containerColor = color31C3AE,
+            image = R.drawable.icon_genre_wht,
+            title = "주차별 장르 현황",
+            body = "웹소설 플랫폼별 주차별 장르 리스트",
+            current = state.menu,
+            onClick = {
+                coroutineScope.launch {
+                    viewModelDatabase.setScreen(
+                        detail = "",
+                        menu = "주차별 장르 현황",
+                        type = "NOVEL",
+                        platform = "JOARA"
+                    )
+                }
+            },
+            value = "주차별 장르 현황"
+        )
+
+        ItemMainSettingSingleTablet(
+            containerColor = color7C81FF,
+            image = R.drawable.icon_genre_wht,
+            title = "월별 장르 현황",
+            body = "웹소설 플랫폼별 월별 장르 리스트",
+            current = state.menu,
+            onClick = {
+                coroutineScope.launch {
+                    viewModelDatabase.setScreen(
+                        detail = "",
+                        menu = "월별 장르 현황",
+                        type = "NOVEL",
+                        platform = "JOARA"
+                    )
+                }
+            },
+            value = "월별 장르 현황"
+        )
+
+        ItemMainSettingSingleTablet(
             containerColor = color64C157,
             image = R.drawable.icon_genre_wht,
             title = "장르 리스트 작품",
@@ -476,7 +478,7 @@ fun ScreenDBPropertyList(
             current = state.menu,
             onClick = {
                 coroutineScope.launch {
-                    viewModelAnalyze.setScreen(
+                    viewModelDatabase.setScreen(
                         detail = "",
                         menu = "장르 리스트 작품",
                         type = "NOVEL",
@@ -495,7 +497,7 @@ fun ScreenDBPropertyList(
             current = state.menu,
             onClick = {
                 coroutineScope.launch {
-                    viewModelAnalyze.setScreen(
+                    viewModelDatabase.setScreen(
                         detail = "",
                         menu = "장르 리스트 현황",
                         type = "NOVEL",
@@ -516,7 +518,7 @@ fun ScreenDBPropertyList(
             current = state.menu,
             onClick = {
                 coroutineScope.launch {
-                    viewModelAnalyze.setScreen(
+                    viewModelDatabase.setScreen(
                         detail = "",
                         menu = "투데이 키워드 현황",
                         type = "NOVEL",
@@ -535,7 +537,7 @@ fun ScreenDBPropertyList(
             current = state.menu,
             onClick = {
                 coroutineScope.launch {
-                    viewModelAnalyze.setScreen(
+                    viewModelDatabase.setScreen(
                         detail = "",
                         menu = "투데이 키워드 현황",
                         type = "NOVEL",
@@ -554,7 +556,7 @@ fun ScreenDBPropertyList(
             current = state.menu,
             onClick = {
                 coroutineScope.launch {
-                    viewModelAnalyze.setScreen(
+                    viewModelDatabase.setScreen(
                         detail = "",
                         menu = "투데이 키워드 현황",
                         type = "NOVEL",
@@ -573,7 +575,7 @@ fun ScreenDBPropertyList(
             current = state.menu,
             onClick = {
                 coroutineScope.launch {
-                    viewModelAnalyze.setScreen(
+                    viewModelDatabase.setScreen(
                         detail = "",
                         menu = "주차별 키워드 현황",
                         type = "NOVEL",
@@ -592,7 +594,7 @@ fun ScreenDBPropertyList(
             current = state.menu,
             onClick = {
                 coroutineScope.launch {
-                    viewModelAnalyze.setScreen(
+                    viewModelDatabase.setScreen(
                         detail = "",
                         menu = "월별 키워드 현황",
                         type = "NOVEL",
@@ -611,7 +613,7 @@ fun ScreenDBPropertyList(
             current = state.menu,
             onClick = {
                 coroutineScope.launch {
-                    viewModelAnalyze.setScreen(
+                    viewModelDatabase.setScreen(
                         detail = "",
                         menu = "키워드 리스트",
                         type = "NOVEL",
@@ -632,7 +634,7 @@ fun ScreenDBPropertyList(
             current = state.menu,
             onClick = {
                 coroutineScope.launch {
-                    viewModelAnalyze.setScreen(detail = "", menu = "주차별 웹소설 베스트")
+                    viewModelDatabase.setScreen(detail = "", menu = "주차별 웹소설 베스트")
                 }
             },
             value = "웹소설 DB 검색",
@@ -663,136 +665,128 @@ fun ScreenDBPropertyList(
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-fun ScreenAnalyzeItem(
-    viewModelAnalyze: ViewModelAnalyze,
+fun ScreenDataBaseItem(
+    viewModelDatabase: ViewModelDatabase,
     drawerState: DrawerState?,
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
 ) {
 
-    val state = viewModelAnalyze.state.collectAsState().value
+    val state = viewModelDatabase.state.collectAsState().value
 
     if (state.menu.contains("베스트 웹소설 DB")) {
 
         ScreenBestDBListNovel(
             drawerState = drawerState,
-            viewModelAnalyze = viewModelAnalyze
+            viewModelDatabase = viewModelDatabase
         )
 
     } else if (state.menu.contains("베스트 웹툰 DB")) {
 
         ScreenBestDBListNovel(
             drawerState = drawerState,
-            viewModelAnalyze = viewModelAnalyze
+            viewModelDatabase = viewModelDatabase
         )
 
     } else if (state.menu.contains("주차별 웹소설 베스트") || state.menu.contains("월별 웹소설 베스트")) {
 
-        ScreenBestDBList(
-            viewModelAnalyze = viewModelAnalyze,
+        ScreenBestDataBaseList(
+            viewModelDatabase = viewModelDatabase,
             drawerState = drawerState,
         )
 
-    } else if (state.menu.contains("투데이 장르 현황") || state.menu.contains("주간 장르 현황") || state.menu.contains("주간 장르 현황")) {
+    } else if (state.menu.contains("투데이 장르 현황") || state.menu.contains("주차별 장르 현황") || state.menu.contains("월별 장르 현황")) {
 
-        ScreenBestDBList(
-            viewModelAnalyze = viewModelAnalyze,
+        ScreenBestDataBaseList(
+            viewModelDatabase = viewModelDatabase,
             drawerState = drawerState,
             itemList = genreListEng()
         )
 
+    } else if (state.menu.contains("주간 장르 현황")) {
+
+        GenreDetailJson(
+            viewModelDatabase = viewModelDatabase,
+            menuType = "주간"
+        )
+
+    } else if (state.menu.contains("월간 장르 현황")) {
+
+        GenreDetailJson(
+            viewModelDatabase = viewModelDatabase,
+            menuType = "월간"
+        )
+
     } else if (state.menu.contains("장르 리스트 작품") || state.menu.contains("장르 리스트 현황")) {
 
-        ScreenBestDBList(
-            viewModelAnalyze = viewModelAnalyze,
+        ScreenBestDataBaseList(
+            viewModelDatabase = viewModelDatabase,
             drawerState = drawerState,
             itemList = genreListEng()
         )
 
     } else if (state.menu.contains("투데이 키워드 현황")) {
 
-        ScreenBestDBList(
-            viewModelAnalyze = viewModelAnalyze,
+        ScreenBestDataBaseList(
+            viewModelDatabase = viewModelDatabase,
             drawerState = drawerState,
             itemList = keywordListEng()
         )
 
     } else if (state.menu.contains("주차별 키워드 현황")) {
 
-        ScreenBestDBList(
-            viewModelAnalyze = viewModelAnalyze,
+        ScreenBestDataBaseList(
+            viewModelDatabase = viewModelDatabase,
             drawerState = drawerState,
             itemList = keywordListEng()
         )
 
     } else if (state.menu.contains("월별 키워드 현황")) {
 
-        ScreenBestDBList(
-            viewModelAnalyze = viewModelAnalyze,
+        ScreenBestDataBaseList(
+            viewModelDatabase = viewModelDatabase,
             drawerState = drawerState,
             itemList = keywordListEng()
         )
 
     } else if (state.menu.contains("키워드 리스트")) {
 
-        ScreenBestDBList(
-            viewModelAnalyze = viewModelAnalyze,
+        ScreenBestDataBaseList(
+            viewModelDatabase = viewModelDatabase,
             drawerState = drawerState,
             itemList = keywordListEng()
         )
 
-    } else if (state.menu.contains("웹툰 투데이 장르")) {
-        ScreenGenre(
-            menuType = "투데이",
-            viewModelAnalyze = viewModelAnalyze
-        )
-
-    } else if (state.menu.contains("웹툰 주간 장르")) {
-        ScreenGenre(
-            menuType = "주간",
-            viewModelAnalyze = viewModelAnalyze
-        )
-
-    } else if (state.menu.contains("웹툰 월간 장르")) {
-        ScreenGenre(
-            menuType = "월간",
-            viewModelAnalyze = viewModelAnalyze
-        )
-    } else {
-        ScreenBestDBListNovel(
-            drawerState = drawerState,
-            viewModelAnalyze = viewModelAnalyze
-        )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun ScreenAnalyzeItemDetail(
-    viewModelAnalyze: ViewModelAnalyze,
+    viewModelDatabase: ViewModelDatabase,
     drawerState: DrawerState?,
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?
 ) {
 
-    val state = viewModelAnalyze.state.collectAsState().value
+    val state = viewModelDatabase.state.collectAsState().value
 
     if (state.menu.contains("베스트 웹소설 DB")) {
         ScreenBookMap(
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen,
-            viewModelAnalyze = viewModelAnalyze
+            viewModelDatabase = viewModelDatabase
         )
 
     } else if (state.menu.contains("베스트 웹툰 DB")) {
         ScreenBookMap(
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen,
-            viewModelAnalyze = viewModelAnalyze
+            viewModelDatabase = viewModelDatabase
         )
     } else if (state.menu.contains("주차별 웹소설 베스트")|| state.menu.contains("월별 웹소설 베스트")) {
         ScreenBestAnalyze(
-            viewModelAnalyze = viewModelAnalyze,
+            viewModelDatabase = viewModelDatabase,
             root = if (state.menu.contains("주차별 웹소설 베스트")) {
                 "BEST_WEEK"
             } else if(state.menu.contains("월별 웹소설 베스트")) {
@@ -807,7 +801,7 @@ fun ScreenAnalyzeItemDetail(
     } else if (state.menu.contains("장르 리스트 작품") || state.menu.contains("장르 리스트 현황")) {
 
         ScreenGenreDetail(
-            viewModelAnalyze = viewModelAnalyze,
+            viewModelDatabase = viewModelDatabase,
             mode = if (state.menu.contains("장르 리스트 작품")) {
                 "GENRE_BOOK"
             } else if(state.menu.contains("장르 리스트 현황")) {
@@ -820,69 +814,47 @@ fun ScreenAnalyzeItemDetail(
     } else if (state.menu.contains("투데이 장르 현황")) {
         ScreenGenre(
             menuType = "투데이",
-            viewModelAnalyze = viewModelAnalyze
+            viewModelDatabase = viewModelDatabase
         )
 
     } else if (state.menu.contains("주간 장르 현황")) {
         ScreenGenre(
             menuType = "주간",
-            viewModelAnalyze = viewModelAnalyze
+            viewModelDatabase = viewModelDatabase
         )
 
     } else if (state.menu.contains("월간 장르 현황")) {
         ScreenGenre(
             menuType = "월간",
-            viewModelAnalyze = viewModelAnalyze
+            viewModelDatabase = viewModelDatabase
         )
     } else if (state.menu.contains("투데이 키워드 현황")) {
 
         ScreenKeyword(
             menuType = "투데이",
-            viewModelAnalyze = viewModelAnalyze,
+            viewModelDatabase = viewModelDatabase,
         )
 
     } else if (state.menu.contains("주차별 키워드 현황")) {
 
         ScreenKeyword(
             menuType = "주간",
-            viewModelAnalyze = viewModelAnalyze
+            viewModelDatabase = viewModelDatabase
         )
 
     } else if (state.menu.contains("월별 키워드 현황")) {
 
         ScreenKeyword(
             menuType = "월간",
-            viewModelAnalyze = viewModelAnalyze
+            viewModelDatabase = viewModelDatabase
         )
 
     } else if (state.menu.contains("키워드 리스트")) {
 
         ScreenGenreDetail(
-            viewModelAnalyze = viewModelAnalyze,
+            viewModelDatabase = viewModelDatabase,
         )
 
-    } else if (state.menu.contains("웹툰 투데이 장르")) {
-        ScreenGenre(
-            menuType = "투데이",
-            viewModelAnalyze = viewModelAnalyze
-        )
-
-    } else if (state.menu.contains("웹툰 주간 장르")) {
-        ScreenGenre(
-            menuType = "주간",
-            viewModelAnalyze = viewModelAnalyze
-        )
-
-    } else if (state.menu.contains("웹툰 월간 장르")) {
-        ScreenGenre(
-            menuType = "월간",
-            viewModelAnalyze = viewModelAnalyze
-        )
-    } else {
-        ScreenBestDBListNovel(
-            drawerState = drawerState,
-            viewModelAnalyze = viewModelAnalyze
-        )
     }
 }
 
@@ -890,13 +862,13 @@ fun ScreenAnalyzeItemDetail(
 @SuppressLint("MutableCollectionMutableState")
 @Composable
 fun ScreenAnalyzeItems(
-    viewModelAnalyze: ViewModelAnalyze,
+    viewModelDatabase: ViewModelDatabase,
     drawerState: DrawerState?,
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?
 ) {
 
-    val state = viewModelAnalyze.state.collectAsState().value
+    val state = viewModelDatabase.state.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -953,15 +925,15 @@ fun ScreenAnalyzeItems(
         if (state.detail.isNotEmpty()) {
 
             ScreenAnalyzeItemDetail(
-                viewModelAnalyze = viewModelAnalyze,
+                viewModelDatabase = viewModelDatabase,
                 drawerState = drawerState,
                 modalSheetState = modalSheetState,
                 setDialogOpen = setDialogOpen
             )
         } else {
 
-            ScreenAnalyzeItem(
-                viewModelAnalyze = viewModelAnalyze,
+            ScreenDataBaseItem(
+                viewModelDatabase = viewModelDatabase,
                 drawerState = drawerState,
                 modalSheetState = modalSheetState,
                 setDialogOpen = setDialogOpen
@@ -1021,12 +993,12 @@ fun ScreenAnalyzeTopbar(onClick: () -> Unit) {
 @Composable
 fun ScreenBestDBListNovel(
     drawerState: DrawerState?,
-    viewModelAnalyze: ViewModelAnalyze
+    viewModelDatabase: ViewModelDatabase
 ) {
     val context = LocalContext.current
     val dataStore = DataStoreManager(context)
     val coroutineScope = rememberCoroutineScope()
-    val state = viewModelAnalyze.state.collectAsState().value
+    val state = viewModelDatabase.state.collectAsState().value
 
     LazyColumn(
         modifier = Modifier
@@ -1044,7 +1016,7 @@ fun ScreenBestDBListNovel(
                     onClick = {
                         coroutineScope.launch {
 
-                            viewModelAnalyze.setScreen(
+                            viewModelDatabase.setScreen(
                                 menu = state.menu,
                                 detail = "${changePlatformNameKor(item)} ${state.menu}",
                                 platform = item,
@@ -1099,17 +1071,17 @@ fun ScreenBestDBListNovel(
 fun ScreenBookMap(
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
-    viewModelAnalyze: ViewModelAnalyze
+    viewModelDatabase: ViewModelDatabase
 ) {
 
-    val state = viewModelAnalyze.state.collectAsState().value
+    val state = viewModelDatabase.state.collectAsState().value
     val coroutineScope = rememberCoroutineScope()
 
     getBookMap(
         platform = state.platform,
         type = state.type
     ) {
-        viewModelAnalyze.setItemBookInfoMap(it)
+        viewModelDatabase.setItemBookInfoMap(it)
     }
 
     LazyColumn(
@@ -1127,14 +1099,14 @@ fun ScreenBookMap(
                 index = index,
             ) {
                 coroutineScope.launch {
-                    viewModelAnalyze.setItemBookInfo(itemBookInfo = item)
+                    viewModelDatabase.setItemBookInfo(itemBookInfo = item)
 
                     getBookItemWeekTrophyDialog(
                         itemBookInfo = item,
                         type = state.type,
                         platform = state.platform
                     ) { itemBookInfo, itemBestInfoTrophyList ->
-                        viewModelAnalyze.setItemBestInfoTrophyList(
+                        viewModelDatabase.setItemBestInfoTrophyList(
                             itemBookInfo = itemBookInfo,
                             itemBestInfoTrophyList = itemBestInfoTrophyList
                         )
@@ -1153,20 +1125,20 @@ fun ScreenBookMap(
 
 @Composable
 fun BestAnalyzeBackOnPressed(
-    viewModelAnalyze: ViewModelAnalyze,
+    viewModelDatabase: ViewModelDatabase,
 ) {
     val context = LocalContext.current
     var backPressedState by remember { mutableStateOf(true) }
     var backPressedTime = 0L
     val coroutineScope = rememberCoroutineScope()
 
-    val state = viewModelAnalyze.state.collectAsState().value
+    val state = viewModelDatabase.state.collectAsState().value
 
     BackHandler(enabled = true) {
 
         if (state.detail.isNotEmpty()) {
             coroutineScope.launch {
-                viewModelAnalyze.setScreen(detail = "", menu = state.menu)
+                viewModelDatabase.setScreen(detail = "", menu = state.menu)
             }
         } else {
             if (System.currentTimeMillis() - backPressedTime <= 400L) {
@@ -1184,13 +1156,13 @@ fun BestAnalyzeBackOnPressed(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScreenBestAnalyze(
-    viewModelAnalyze: ViewModelAnalyze,
+    viewModelDatabase: ViewModelDatabase,
     root: String,
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
 ) {
 
-    val state = viewModelAnalyze.state.collectAsState().value
+    val state = viewModelDatabase.state.collectAsState().value
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
@@ -1199,15 +1171,15 @@ fun ScreenBestAnalyze(
         type = state.type,
         root = root,
     ) {
-        viewModelAnalyze.setJsonNameList(it)
+        viewModelDatabase.setJsonNameList(it)
 
         if (root == "WEEK") {
             if (state.week.isEmpty()) {
-                viewModelAnalyze.setDate(week = it.get(0))
+                viewModelDatabase.setDate(week = it.get(0))
             }
         } else {
             if (state.month.isEmpty()) {
-                viewModelAnalyze.setDate(month = it.get(0))
+                viewModelDatabase.setDate(month = it.get(0))
             }
         }
     }
@@ -1220,7 +1192,7 @@ fun ScreenBestAnalyze(
                 type = state.type,
                 root = state.week
             ) {
-                viewModelAnalyze.setWeekTrophyList(it)
+                viewModelDatabase.setWeekTrophyList(it)
             }
         } else {
             getBestMonthTrophy(
@@ -1228,7 +1200,7 @@ fun ScreenBestAnalyze(
                 type = state.type,
                 root = state.month
             ) {
-                viewModelAnalyze.setWeekTrophyList(it)
+                viewModelDatabase.setWeekTrophyList(it)
             }
         }
 
@@ -1236,10 +1208,10 @@ fun ScreenBestAnalyze(
             platform = state.platform,
             type = state.type
         ) {
-            viewModelAnalyze.setItemBookInfoMap(it)
+            viewModelDatabase.setItemBookInfoMap(it)
         }
 
-        viewModelAnalyze.setFilteredList()
+        viewModelDatabase.setFilteredList()
     }
 
     LazyColumn(
@@ -1262,9 +1234,9 @@ fun ScreenBestAnalyze(
                             onClick = {
                                 coroutineScope.launch {
                                     if (root == "WEEK") {
-                                        viewModelAnalyze.setDate(week = item)
+                                        viewModelDatabase.setDate(week = item)
                                     } else {
-                                        viewModelAnalyze.setDate(month = item)
+                                        viewModelDatabase.setDate(month = item)
                                     }
 
                                     listState.scrollToItem(index = 0)
@@ -1308,14 +1280,14 @@ fun ScreenBestAnalyze(
                         index = index
                     ) {
                         coroutineScope.launch {
-                            viewModelAnalyze.setItemBookInfo(itemBookInfo = item)
+                            viewModelDatabase.setItemBookInfo(itemBookInfo = item)
 
                             getBookItemWeekTrophyDialog(
                                 itemBookInfo = item,
                                 type = state.type,
                                 platform = state.platform
                             ) { itemBookInfo, itemBestInfoTrophyList ->
-                                viewModelAnalyze.setItemBestInfoTrophyList(
+                                viewModelDatabase.setItemBestInfoTrophyList(
                                     itemBookInfo = itemBookInfo,
                                     itemBestInfoTrophyList = itemBestInfoTrophyList
                                 )
@@ -1338,14 +1310,14 @@ fun ScreenBestAnalyze(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScreenBestDBList(
+fun ScreenBestDataBaseList(
     drawerState: DrawerState?,
-    viewModelAnalyze: ViewModelAnalyze,
+    viewModelDatabase: ViewModelDatabase,
     itemList: List<String> = novelListEng()
 ) {
 
     val coroutineScope = rememberCoroutineScope()
-    val state = viewModelAnalyze.state.collectAsState().value
+    val state = viewModelDatabase.state.collectAsState().value
 
     LazyColumn(
         modifier = Modifier
@@ -1361,7 +1333,7 @@ fun ScreenBestDBList(
                     onClick = {
                         coroutineScope.launch {
 
-                            viewModelAnalyze.setScreen(
+                            viewModelDatabase.setScreen(
                                 menu = state.menu,
                                 detail = "${changePlatformNameKor(item.title)} ${state.menu}",
                                 platform = item.title,

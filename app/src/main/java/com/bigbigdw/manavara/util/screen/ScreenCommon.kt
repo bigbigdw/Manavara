@@ -161,8 +161,11 @@ fun ScreenTabletWrap(title: String, contents: @Composable () -> Unit) {
 }
 
 @Composable
-fun ItemTabletTitle(str: String) {
-    Spacer(modifier = Modifier.size(16.dp))
+fun ItemTabletTitle(str : String, isTopPadding : Boolean = true){
+
+    if(isTopPadding){
+        Spacer(modifier = Modifier.size(16.dp))
+    }
 
     Text(
         modifier = Modifier.padding(16.dp, 8.dp),

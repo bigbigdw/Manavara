@@ -1,9 +1,9 @@
-package com.bigbigdw.manavara.analyze.viewModels
+package com.bigbigdw.manavara.dataBase.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bigbigdw.manavara.analyze.event.EventAnalyzeDetail
-import com.bigbigdw.manavara.analyze.event.StateAnalyzeDetail
+import com.bigbigdw.manavara.dataBase.event.EventAnalyzeDetail
+import com.bigbigdw.manavara.dataBase.event.StateAnalyzeDetail
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.models.ItemGenre

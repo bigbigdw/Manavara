@@ -1,6 +1,7 @@
 package com.bigbigdw.manavara.main.screen
 
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -38,6 +39,8 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,11 +59,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.bigbigdw.manavara.R
-import com.bigbigdw.manavara.analyze.screen.ScreenAnalyze
+import com.bigbigdw.manavara.dataBase.screen.ScreenDataBase
 import com.bigbigdw.manavara.best.screen.ScreenBest
 import com.bigbigdw.manavara.firebase.DataFCMBodyNotification
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
-import com.bigbigdw.manavara.analyze.viewModels.ViewModelAnalyze
+import com.bigbigdw.manavara.best.areListsEqual
+import com.bigbigdw.manavara.best.getBestListTodayJson
+import com.bigbigdw.manavara.best.getBestListTodayStorage
 import com.bigbigdw.manavara.manavara.screen.ScreenManavara
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color1E4394
@@ -68,18 +73,34 @@ import com.bigbigdw.manavara.ui.theme.color555b68
 import com.bigbigdw.manavara.ui.theme.color898989
 import com.bigbigdw.manavara.ui.theme.colorDCDCDD
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
+import com.bigbigdw.manavara.util.novelListEng
 import com.bigbigdw.manavara.util.screen.BackOnPressed
 import com.bigbigdw.manavara.util.screen.ItemTabletTitle
 import com.bigbigdw.manavara.util.screen.TabletContentWrap
+import deleteJson
+import kotlinx.coroutines.runBlocking
 import postFCMAlert
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenMain(
     viewModelMain: ViewModelMain,
-    viewModelAnalyze: ViewModelAnalyze,
     isExpandedScreen: Boolean
 ) {
+
+    val context = LocalContext.current
+    val state = viewModelMain.state.collectAsState().value
+
+    DisposableEffect(context){
+
+        init(context)
+
+        onDispose {
+            // 컴포넌트가 detached 될 때 실행되는 코드
+            // 이 부분에 필요한 clean-up 코드를 작성할 수 있습니다.
+        }
+    }
+
 
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -96,7 +117,6 @@ fun ScreenMain(
             isExpandedScreen = isExpandedScreen,
             listState = listState,
             drawerState = drawerState,
-            viewModelAnalyze = viewModelAnalyze
         )
         BackOnPressed()
 
@@ -108,8 +128,6 @@ fun ScreenMain(
             isExpandedScreen = isExpandedScreen,
             drawerState = drawerState,
             listState = listState,
-            viewModelMain = viewModelMain,
-            viewModelAnalyze = viewModelAnalyze
         )
     }
 }
@@ -123,7 +141,6 @@ fun ScreenMainTablet(
     isExpandedScreen: Boolean,
     listState: LazyListState,
     drawerState: DrawerState,
-    viewModelAnalyze: ViewModelAnalyze,
 ) {
 
     Row {
@@ -133,9 +150,7 @@ fun ScreenMainTablet(
             navController = navController,
             isExpandedScreen = isExpandedScreen,
             listState = listState,
-            viewModelMain = viewModelMain,
             drawerState = drawerState,
-            viewModelAnalyze = viewModelAnalyze,
             currentRoute = currentRoute
         )
     }
@@ -149,8 +164,6 @@ fun ScreenMainMobile(
     isExpandedScreen: Boolean,
     drawerState: DrawerState,
     listState: LazyListState,
-    viewModelMain: ViewModelMain,
-    viewModelAnalyze: ViewModelAnalyze,
 ) {
 
     Scaffold(
@@ -166,9 +179,7 @@ fun ScreenMainMobile(
                 navController = navController,
                 isExpandedScreen = isExpandedScreen,
                 listState = listState,
-                viewModelMain = viewModelMain,
                 drawerState = drawerState,
-                viewModelAnalyze = viewModelAnalyze,
                 currentRoute = currentRoute,
             )
         }
@@ -236,9 +247,7 @@ fun NavigationGraph(
     navController: NavHostController,
     isExpandedScreen: Boolean,
     listState: LazyListState,
-    viewModelMain: ViewModelMain,
     drawerState: DrawerState,
-    viewModelAnalyze: ViewModelAnalyze,
     currentRoute: String?,
 ) {
 
@@ -268,7 +277,7 @@ fun NavigationGraph(
         }
         composable(ScreemBottomItem.NOVELDB.screenRoute) {
 
-            ScreenAnalyze(
+            ScreenDataBase(
                 isExpandedScreen = isExpandedScreen,
                 modalSheetState = null,
                 drawerState = drawerState,
@@ -278,7 +287,7 @@ fun NavigationGraph(
         }
         composable(ScreemBottomItem.WEBTOONDB.screenRoute) {
 
-            ScreenAnalyze(
+            ScreenDataBase(
                 isExpandedScreen = isExpandedScreen,
                 modalSheetState = null,
                 drawerState = drawerState,
@@ -292,7 +301,6 @@ fun NavigationGraph(
                 isExpandedScreen = isExpandedScreen,
                 modalSheetState = null,
                 drawerState = drawerState,
-                viewModelAnalyze = viewModelAnalyze,
                 currentRoute = currentRoute
             )
 
@@ -453,5 +461,56 @@ fun ScreenUser() {
         }
 
         Spacer(modifier = Modifier.size(60.dp))
+    }
+}
+
+
+fun init(context: Context) {
+    for (platform in novelListEng()) {
+        runBlocking {
+            getBestListTodayJson(
+                context = context,
+                platform = platform,
+                type = "NOVEL",
+                checkUpdate = true
+            ){ json ->
+
+                if(json.isNotEmpty()){
+                    getBestListTodayStorage(
+                        context = context,
+                        platform = platform,
+                        type = "NOVEL",
+                        checkUpdate = true
+                    ) { storage ->
+                        if (json.isNotEmpty() && storage.isNotEmpty()) {
+
+                            if (areListsEqual(json, storage)) {
+                                deleteJson(
+                                    context = context,
+                                    platform = platform,
+                                    type = "NOVEL",
+                                    jsonName = "BEST_TODAY"
+                                )
+
+                                deleteJson(
+                                    context = context,
+                                    platform = platform,
+                                    type = "NOVEL",
+                                    jsonName = "BEST_WEEK"
+                                )
+
+                                deleteJson(
+                                    context = context,
+                                    platform = platform,
+                                    type = "NOVEL",
+                                    jsonName = "BEST_MONTH"
+                                )
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
     }
 }

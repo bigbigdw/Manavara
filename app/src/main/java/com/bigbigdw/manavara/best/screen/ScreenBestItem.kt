@@ -36,6 +36,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,6 +56,8 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.ActivityBestDetail
+import com.bigbigdw.manavara.best.getBestListTodayJson
+import com.bigbigdw.manavara.best.getBestListWeekJson
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.viewModels.ViewModelBest
@@ -67,7 +70,6 @@ import com.bigbigdw.manavara.ui.theme.color8F8F8F
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorFF2366
 import com.bigbigdw.manavara.util.geMonthDate
-import com.bigbigdw.manavara.best.getBestListTodayStorage
 import com.bigbigdw.manavara.best.getBestMonthListStorage
 import com.bigbigdw.manavara.best.getBestMonthTrophy
 import com.bigbigdw.manavara.best.getBestWeekListStorage
@@ -94,19 +96,23 @@ fun ScreenTodayBest(
 ) {
 
     val state = viewModelBest.state.collectAsState().value
+    val context = LocalContext.current
 
-    getBookMap(
-        platform = state.platform,
-        type = state.type
-    ) {
-        viewModelBest.setItemBookInfoMap(it)
-    }
+    LaunchedEffect(state.platform, state.type){
+        getBookMap(
+            platform = state.platform,
+            type = state.type
+        ) {
+            viewModelBest.setItemBookInfoMap(it)
+        }
 
-    getBestListTodayStorage(
-        platform = state.platform,
-        type = state.type
-    ) {
-        viewModelBest.setItemBestInfoList(it)
+        getBestListTodayJson(
+            platform = state.platform,
+            type = state.type,
+            context = context
+        ) {
+            viewModelBest.setItemBestInfoList(it)
+        }
     }
 
     Column(modifier = Modifier.background(color = colorF6F6F6)) {
@@ -295,6 +301,7 @@ fun ScreenTodayWeek(
     val (getDate, setDate) = remember { mutableStateOf("전체") }
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     getBookMap(
         platform = state.platform,
@@ -303,10 +310,11 @@ fun ScreenTodayWeek(
         viewModelBest.setItemBookInfoMap(it)
     }
 
-    getBestWeekListStorage(
+    getBestListWeekJson(
+        context = context,
         platform = state.platform,
-        type = state.type
-    ){
+        type = state.type,
+    ) {
         viewModelBest.setWeekList(it)
     }
 
@@ -506,9 +514,11 @@ fun ScreenTodayMonth(
         viewModelBest.setItemBookInfoMap(it)
     }
 
-    getBestMonthListStorage(
+    getBestListWeekJson(
         platform = state.platform,
         type = state.type,
+        bestType = "MONTH",
+        context = context
     ){
         viewModelBest.setMonthList(it)
     }

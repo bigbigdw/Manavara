@@ -1,4 +1,4 @@
-package com.bigbigdw.manavara.analyze
+package com.bigbigdw.manavara.dataBase
 
 import com.bigbigdw.manavara.best.models.ItemKeyword
 import com.bigbigdw.manavara.util.DBDate

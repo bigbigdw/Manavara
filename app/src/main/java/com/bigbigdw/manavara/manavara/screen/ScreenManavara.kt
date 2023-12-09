@@ -38,14 +38,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bigbigdw.manavara.R
-import com.bigbigdw.manavara.analyze.screen.ScreenAnalyzeTopbar
-import com.bigbigdw.manavara.analyze.viewModels.ViewModelAnalyze
+import com.bigbigdw.manavara.dataBase.screen.ScreenAnalyzeTopbar
+import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDatabase
 import com.bigbigdw.manavara.ui.theme.color21C2EC
 import com.bigbigdw.manavara.ui.theme.color31C3AE
 import com.bigbigdw.manavara.ui.theme.color4AD7CF
 import com.bigbigdw.manavara.ui.theme.color5372DE
-import com.bigbigdw.manavara.ui.theme.color7C81FF
 import com.bigbigdw.manavara.ui.theme.color998DF9
 import com.bigbigdw.manavara.ui.theme.colorABD436
 import com.bigbigdw.manavara.ui.theme.colorEA927C
@@ -63,14 +64,15 @@ fun ScreenManavara(
     isExpandedScreen: Boolean,
     modalSheetState: ModalBottomSheetState? = null,
     drawerState: DrawerState,
-    viewModelAnalyze: ViewModelAnalyze,
     currentRoute: String?,
 ) {
 
     val context = LocalContext.current
 
-    val state = viewModelAnalyze.state.collectAsState().value
-
+    val viewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelDatabase: ViewModelDatabase = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+    val state = viewModelDatabase.state.collectAsState().value
     val coroutineScope = rememberCoroutineScope()
 
     Box(
@@ -109,7 +111,7 @@ fun ScreenManavara(
                 }
 
                 ScreenManavaraPropertyList(
-                    viewModelAnalyze = viewModelAnalyze,
+                    viewModelDatabase = viewModelDatabase,
                 )
 
                 Spacer(
@@ -131,7 +133,7 @@ fun ScreenManavara(
                 ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
 
                     ScreenManavaraPropertyList(
-                        viewModelAnalyze = viewModelAnalyze,
+                        viewModelDatabase = viewModelDatabase,
                     )
 
                 }) {
@@ -202,10 +204,10 @@ fun ScreenManavara(
 
 @Composable
 fun ScreenManavaraPropertyList(
-    viewModelAnalyze: ViewModelAnalyze,
+    viewModelDatabase: ViewModelDatabase,
 ) {
 
-    val state = viewModelAnalyze.state.collectAsState().value
+    val state = viewModelDatabase.state.collectAsState().value
 
     Column(
         modifier = Modifier

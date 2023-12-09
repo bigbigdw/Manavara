@@ -1,4 +1,4 @@
-package com.bigbigdw.manavara.analyze.event
+package com.bigbigdw.manavara.dataBase.event
 
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
@@ -82,5 +82,5 @@ data class StateDB(
     var genreList : ArrayList<ItemGenre> = ArrayList(),
     var genreWeekList :  ArrayList<ArrayList<ItemGenre>> = ArrayList(),
     val keywordDay : ArrayList<ItemKeyword> = ArrayList(),
-    val keywordDayList : ArrayList<ArrayList<ItemKeyword>> = ArrayList()
+    val keywordDayList : ArrayList<ArrayList<ItemKeyword>> = ArrayList(),
 )

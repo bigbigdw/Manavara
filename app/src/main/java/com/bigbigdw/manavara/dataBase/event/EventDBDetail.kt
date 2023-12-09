@@ -1,4 +1,4 @@
-package com.bigbigdw.manavara.analyze.event
+package com.bigbigdw.manavara.dataBase.event
 
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo

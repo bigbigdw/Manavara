@@ -1,9 +1,9 @@
-package com.bigbigdw.manavara.analyze.viewModels
+package com.bigbigdw.manavara.dataBase.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bigbigdw.manavara.analyze.event.EventDB
-import com.bigbigdw.manavara.analyze.event.StateDB
+import com.bigbigdw.manavara.dataBase.event.EventDB
+import com.bigbigdw.manavara.dataBase.event.StateDB
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.models.ItemGenre
@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class ViewModelAnalyze @Inject constructor() : ViewModel() {
+class ViewModelDatabase @Inject constructor() : ViewModel() {
 
     private val events = Channel<EventDB>()
 

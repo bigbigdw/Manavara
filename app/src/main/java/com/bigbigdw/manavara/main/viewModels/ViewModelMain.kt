@@ -3,6 +3,7 @@ package com.bigbigdw.manavara.main.viewModels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.main.event.EventMain
 import com.bigbigdw.manavara.main.event.StateMain
 import com.bigbigdw.manavara.main.models.UserInfo
@@ -45,40 +46,29 @@ class ViewModelMain @Inject constructor() : ViewModel() {
                 current.copy(userInfo = event.userInfo)
             }
 
+            is EventMain.SetJson -> {
+                current.copy(json = event.json)
+            }
+
+            is EventMain.SetStorage -> {
+                current.copy(storage = event.storage)
+            }
+
             else -> {
                 current.copy(Loaded = false)
             }
         }
     }
 
-    fun setUserInfo(){
+    fun setJson(json: ArrayList<ItemBookInfo>){
+        viewModelScope.launch {
+            events.send(EventMain.SetJson(json = json))
+        }
+    }
 
-        val currentUser :  FirebaseUser?
-        val auth: FirebaseAuth = Firebase.auth
-        currentUser = auth.currentUser
-
-        val mRootRef = FirebaseDatabase.getInstance().reference
-
-        mRootRef.child("USER").child(currentUser?.uid ?: "").child("USERINFO").addListenerForSingleValueEvent(object :
-            ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                if(dataSnapshot.exists()){
-
-                    val userInfoResult: UserInfo? = dataSnapshot.getValue(UserInfo::class.java)
-
-                    if (userInfoResult != null) {
-                        viewModelScope.launch {
-                            _sideEffects.send("허허")
-                            events.send(
-                                EventMain.SetUserInfo(userInfo = userInfoResult)
-                            )
-                        }
-                    }
-                }
-            }
-
-            override fun onCancelled(databaseError: DatabaseError) {}
-        })
-
+    fun setStorage(storage: ArrayList<ItemBookInfo>){
+        viewModelScope.launch {
+            events.send(EventMain.SetStorage(storage = storage))
+        }
     }
 }

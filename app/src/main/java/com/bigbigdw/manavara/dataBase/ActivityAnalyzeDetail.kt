@@ -1,4 +1,4 @@
-package com.bigbigdw.manavara.analyze
+package com.bigbigdw.manavara.dataBase
 
 import android.os.Bundle
 import android.widget.Toast
@@ -8,8 +8,8 @@ import androidx.activity.viewModels
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.lifecycle.lifecycleScope
-import com.bigbigdw.manavara.analyze.screen.ScreenAnalyzeDetail
-import com.bigbigdw.manavara.analyze.viewModels.ViewModelAnalyzeDetail
+import com.bigbigdw.manavara.dataBase.screen.ScreenAnalyzeDetail
+import com.bigbigdw.manavara.dataBase.viewModels.ViewModelAnalyzeDetail
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 

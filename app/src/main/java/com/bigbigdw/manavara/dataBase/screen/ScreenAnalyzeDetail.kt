@@ -1,9 +1,7 @@
-package com.bigbigdw.manavara.analyze.screen
+package com.bigbigdw.manavara.dataBase.screen
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,31 +40,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bigbigdw.manavara.R
-import com.bigbigdw.manavara.analyze.getJsonGenreMonthList
-import com.bigbigdw.manavara.analyze.viewModels.ViewModelAnalyze
-import com.bigbigdw.manavara.analyze.viewModels.ViewModelAnalyzeDetail
+import com.bigbigdw.manavara.dataBase.getJsonGenreMonthList
+import com.bigbigdw.manavara.dataBase.viewModels.ViewModelAnalyzeDetail
 import com.bigbigdw.manavara.best.getBookItemWeekTrophyDialog
 import com.bigbigdw.manavara.best.getBookMap
-import com.bigbigdw.manavara.best.models.ItemBestDetailInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.screen.ListBest
-import com.bigbigdw.manavara.best.screen.ScreenBestItemDetailTabItem
 import com.bigbigdw.manavara.ui.theme.color000000
-import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
-import com.bigbigdw.manavara.util.DataStoreManager
-import com.bigbigdw.manavara.util.changePlatformNameKor
 import com.bigbigdw.manavara.util.colorList
-import com.bigbigdw.manavara.util.comicListEng
-import com.bigbigdw.manavara.util.genreListEng
-import com.bigbigdw.manavara.util.getPlatformDataKeyComic
-import com.bigbigdw.manavara.util.getPlatformDataKeyNovel
-import com.bigbigdw.manavara.util.getPlatformLogoEng
-import com.bigbigdw.manavara.util.novelListEng
 import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
-import com.bigbigdw.manavara.util.screen.TabletBorderLine
-import com.bigbigdw.manavara.util.screen.TabletContentWrapBtn
-import com.bigbigdw.manavara.util.screen.spannableString
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)

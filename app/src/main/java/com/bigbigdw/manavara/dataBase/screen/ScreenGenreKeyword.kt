@@ -1,8 +1,9 @@
-package com.bigbigdw.manavara.analyze.screen
+package com.bigbigdw.manavara.dataBase.screen
 
 import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -25,6 +26,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,22 +38,28 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bigbigdw.manavara.analyze.ActivityAnalyzeDetail
-import com.bigbigdw.manavara.analyze.getGenreDay
-import com.bigbigdw.manavara.analyze.getJsonFiles
-import com.bigbigdw.manavara.analyze.getJsonGenreMonthList
-import com.bigbigdw.manavara.analyze.getJsonGenreWeekList
-import com.bigbigdw.manavara.analyze.getJsonKeywordList
-import com.bigbigdw.manavara.analyze.getJsonKeywordMonthList
-import com.bigbigdw.manavara.analyze.getJsonKeywordWeekList
-import com.bigbigdw.manavara.analyze.viewModels.ViewModelAnalyze
+import com.bigbigdw.manavara.dataBase.ActivityAnalyzeDetail
+import com.bigbigdw.manavara.dataBase.getGenreDay
+import com.bigbigdw.manavara.dataBase.getJsonFiles
+import com.bigbigdw.manavara.dataBase.getJsonGenreMonthList
+import com.bigbigdw.manavara.dataBase.getJsonGenreWeekList
+import com.bigbigdw.manavara.dataBase.getJsonKeywordList
+import com.bigbigdw.manavara.dataBase.getJsonKeywordMonthList
+import com.bigbigdw.manavara.dataBase.getJsonKeywordWeekList
+import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDatabase
 import com.bigbigdw.manavara.best.models.ItemGenre
 import com.bigbigdw.manavara.best.models.ItemKeyword
 import com.bigbigdw.manavara.ui.theme.color1CE3EE
 import com.bigbigdw.manavara.ui.theme.color20459E
+import com.bigbigdw.manavara.ui.theme.color8E8E8E
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
+import com.bigbigdw.manavara.util.DBDate
 import com.bigbigdw.manavara.util.changePlatformNameKor
+import com.bigbigdw.manavara.util.getWeekDate
+import com.bigbigdw.manavara.util.screen.ItemTabletTitle
+import com.bigbigdw.manavara.util.screen.ScreenEmpty
 import com.bigbigdw.manavara.util.screen.ScreenItemKeyword
+import com.bigbigdw.manavara.util.weekListAll
 import convertDateStringMonth
 import convertDateStringWeek
 import kotlinx.coroutines.launch
@@ -102,7 +111,7 @@ fun ScreenItemGenreWeek(
     jsonNameList: List<String>,
     listState: LazyListState,
     week: String,
-    viewModelAnalyze: ViewModelAnalyze
+    viewModelDatabase: ViewModelDatabase
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -123,7 +132,7 @@ fun ScreenItemGenreWeek(
                             getter = convertDateStringWeek(item),
                             onClick = {
                                 coroutineScope.launch {
-                                    viewModelAnalyze.setDate(week = item)
+                                    viewModelDatabase.setDate(week = item)
 
                                     listState.scrollToItem(index = 0)
                                 }
@@ -170,7 +179,7 @@ fun ScreenItemGenreMonth(
     jsonNameList: List<String>,
     listState: LazyListState,
     month: String,
-    viewModelAnalyze: ViewModelAnalyze
+    viewModelDatabase: ViewModelDatabase
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -191,7 +200,7 @@ fun ScreenItemGenreMonth(
                             getter = convertDateStringMonth(item),
                             onClick = {
                                 coroutineScope.launch {
-                                    viewModelAnalyze.setDate(month = item)
+                                    viewModelDatabase.setDate(month = item)
 
                                     listState.scrollToItem(index = 0)
                                 }
@@ -234,17 +243,17 @@ fun ScreenItemGenreMonth(
 @Composable
 fun ScreenKeyword(
     menuType: String,
-    viewModelAnalyze: ViewModelAnalyze
+    viewModelDatabase: ViewModelDatabase
 ) {
 
-    val state = viewModelAnalyze.state.collectAsState().value
+    val state = viewModelDatabase.state.collectAsState().value
     val listState = rememberLazyListState()
 
     LaunchedEffect(state.platform, state.type, state.jsonNameList, state.week, state.month) {
         when (menuType) {
             "투데이" -> {
                 getJsonKeywordList(platform = state.platform, type = state.type) {
-                    viewModelAnalyze.setKeywordDay(it)
+                    viewModelDatabase.setKeywordDay(it)
                 }
             }
 
@@ -255,10 +264,10 @@ fun ScreenKeyword(
                     type = state.type,
                     root = "BEST_WEEK",
                 ) {
-                    viewModelAnalyze.setJsonNameList(it)
+                    viewModelDatabase.setJsonNameList(it)
 
                     if (state.week.isEmpty()) {
-                        viewModelAnalyze.setDate(week = it.get(0))
+                        viewModelDatabase.setDate(week = it.get(0))
                     }
                 }
 
@@ -268,7 +277,7 @@ fun ScreenKeyword(
                         type = state.type,
                         root = state.week
                     ) { weekList, list ->
-                        viewModelAnalyze.setKeywordWeek(keywordDay = list)
+                        viewModelDatabase.setKeywordWeek(keywordDay = list)
                     }
                 }
 
@@ -281,10 +290,10 @@ fun ScreenKeyword(
                     type = state.type,
                     root = "BEST_MONTH",
                 ) {
-                    viewModelAnalyze.setJsonNameList(it)
+                    viewModelDatabase.setJsonNameList(it)
 
                     if (state.month.isEmpty()) {
-                        viewModelAnalyze.setDate(month = it.get(0))
+                        viewModelDatabase.setDate(month = it.get(0))
                     }
                 }
 
@@ -294,7 +303,7 @@ fun ScreenKeyword(
                         type = state.type,
                         root = state.month
                     ) { monthList, list ->
-                        viewModelAnalyze.setKeywordWeek(list)
+                        viewModelDatabase.setKeywordWeek(list)
                     }
                 }
             }
@@ -325,7 +334,7 @@ fun ScreenKeyword(
                 mode = "KEYWORD",
                 listState = listState,
                 week = state.week,
-                viewModelAnalyze = viewModelAnalyze
+                viewModelDatabase = viewModelDatabase
             )
         }
 
@@ -337,7 +346,7 @@ fun ScreenKeyword(
                 mode = "KEYWORD",
                 listState = listState,
                 month = state.month,
-                viewModelAnalyze = viewModelAnalyze
+                viewModelDatabase = viewModelDatabase
             )
         }
     }
@@ -345,11 +354,11 @@ fun ScreenKeyword(
 
 @Composable
 fun ScreenGenreDetail(
-    viewModelAnalyze: ViewModelAnalyze,
+    viewModelDatabase: ViewModelDatabase,
     mode : String = "GENRE_BOOK"
 ) {
 
-    val state = viewModelAnalyze.state.collectAsState().value
+    val state = viewModelDatabase.state.collectAsState().value
     val context = LocalContext.current
 
     LaunchedEffect(state.platform, state.type, state.jsonNameList, state.week, state.month) {
@@ -358,10 +367,10 @@ fun ScreenGenreDetail(
             type = state.type,
             root = "BEST_MONTH",
         ) {
-            viewModelAnalyze.setJsonNameList(it)
+            viewModelDatabase.setJsonNameList(it)
 
             if (state.month.isEmpty()) {
-                viewModelAnalyze.setDate(month = it.get(0))
+                viewModelDatabase.setDate(month = it.get(0))
             }
         }
 
@@ -529,17 +538,17 @@ fun ListGenreToday(
 @Composable
 fun ScreenGenre(
     menuType: String,
-    viewModelAnalyze: ViewModelAnalyze
+    viewModelDatabase: ViewModelDatabase
 ) {
 
-    val state = viewModelAnalyze.state.collectAsState().value
+    val state = viewModelDatabase.state.collectAsState().value
     val listState = rememberLazyListState()
 
     LaunchedEffect(state.platform, state.type, state.jsonNameList, state.week, state.month) {
         when (menuType) {
             "투데이" -> {
                 getGenreDay(platform = state.platform, type = state.type) {
-                    viewModelAnalyze.setGenreList(it)
+                    viewModelDatabase.setGenreList(it)
                 }
             }
 
@@ -550,10 +559,10 @@ fun ScreenGenre(
                     type = state.type,
                     root = "BEST_WEEK",
                 ) {
-                    viewModelAnalyze.setJsonNameList(it)
+                    viewModelDatabase.setJsonNameList(it)
 
                     if (state.week.isEmpty()) {
-                        viewModelAnalyze.setDate(week = it.get(0))
+                        viewModelDatabase.setDate(week = it.get(0))
                     }
                 }
 
@@ -563,7 +572,7 @@ fun ScreenGenre(
                         type = state.type,
                         root = state.week
                     ) { weekList, list ->
-                        viewModelAnalyze.setGenreList(list)
+                        viewModelDatabase.setGenreList(list)
                     }
                 }
 
@@ -576,10 +585,10 @@ fun ScreenGenre(
                     type = state.type,
                     root = "BEST_MONTH",
                 ) {
-                    viewModelAnalyze.setJsonNameList(it)
+                    viewModelDatabase.setJsonNameList(it)
 
                     if (state.month.isEmpty()) {
-                        viewModelAnalyze.setDate(month = it.get(0))
+                        viewModelDatabase.setDate(month = it.get(0))
                     }
                 }
 
@@ -589,7 +598,7 @@ fun ScreenGenre(
                         type = state.type,
                         root = state.month
                     ) { monthList, list ->
-                        viewModelAnalyze.setGenreList(list)
+                        viewModelDatabase.setGenreList(list)
                     }
                 }
             }
@@ -610,7 +619,7 @@ fun ScreenGenre(
                 jsonNameList = state.jsonNameList,
                 listState = listState,
                 week = state.week,
-                viewModelAnalyze = viewModelAnalyze
+                viewModelDatabase = viewModelDatabase
             )
         }
 
@@ -621,8 +630,277 @@ fun ScreenGenre(
                 jsonNameList = state.jsonNameList,
                 listState = listState,
                 month = state.month,
-                viewModelAnalyze = viewModelAnalyze
+                viewModelDatabase = viewModelDatabase
             )
+        }
+    }
+}
+
+@Composable
+fun GenreDetailJson(
+    viewModelDatabase: ViewModelDatabase,
+    menuType: String
+) {
+
+    val state = viewModelDatabase.state.collectAsState().value
+    val coroutineScope = rememberCoroutineScope()
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(menuType, state.platform, state.type) {
+        when (menuType) {
+            "투데이" -> {
+                getGenreDay(platform = state.platform, type = state.type) {
+                    viewModelDatabase.setGenreList(it)
+                }
+            }
+
+            "주간" -> {
+
+                getJsonFiles(
+                    platform = state.platform,
+                    type = state.type,
+                    root = "BEST_WEEK",
+                ) {
+                    viewModelDatabase.setJsonNameList(it)
+
+                    if (state.week.isEmpty()) {
+                        viewModelDatabase.setDate(week = it.get(0))
+                    }
+                }
+
+                if (state.jsonNameList.isNotEmpty()) {
+                    getJsonGenreWeekList(
+                        platform = state.platform,
+                        type = state.type,
+                        root = state.week
+                    ) { weekList, list ->
+                        viewModelDatabase.setGenreList(list)
+                    }
+                }
+
+            }
+
+            else -> {
+
+                getJsonFiles(
+                    platform = state.platform,
+                    type = state.type,
+                    root = "BEST_MONTH",
+                ) {
+                    viewModelDatabase.setJsonNameList(it)
+
+                    if (state.month.isEmpty()) {
+                        viewModelDatabase.setDate(month = it.get(0))
+                    }
+                }
+
+                if (state.jsonNameList.isNotEmpty()) {
+                    getJsonGenreMonthList(
+                        platform = state.platform,
+                        type = state.type,
+                        root = state.month
+                    ) { monthList, list ->
+                        viewModelDatabase.setGenreList(list)
+                    }
+                }
+            }
+        }
+    }
+
+    Spacer(modifier = Modifier.size(8.dp))
+
+    when (menuType) {
+        "주간" -> {
+
+            val (getDate, setDate) = remember { mutableStateOf("전체") }
+
+            Column(modifier = Modifier.background(color = colorF6F6F6)) {
+                LazyRow(
+                    modifier =  Modifier.padding(16.dp, 8.dp, 0.dp, 8.dp),
+                ) {
+
+                    itemsIndexed(weekListAll()) { index, item ->
+                        Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
+                            ScreenItemKeyword(
+                                getter = convertDateStringWeek(item),
+                                onClick = {
+                                    coroutineScope.launch {
+                                        viewModelDatabase.setDate(week = item)
+
+                                        listState.scrollToItem(index = 0)
+                                    }
+                                },
+                                title = convertDateStringWeek(item),
+                                getValue = convertDateStringWeek(state.week)
+                            )
+                        }
+                    }
+                }
+
+                if (getDate == "전체") {
+                    LazyColumn(
+                        modifier = Modifier
+                            .background(colorF6F6F6)
+                            .padding(16.dp, 0.dp, 16.dp, 0.dp)
+                    ) {
+
+                        itemsIndexed(state.genreList) { index, item ->
+                            ListGenreToday(
+                                title = item.title,
+                                value = item.value,
+                                index = index
+                            )
+                        }
+                    }
+                } else {
+
+                    if(state.genreWeekList[getWeekDate(getDate)].size > 0){
+                        LazyColumn(
+                            modifier = Modifier
+                                .background(colorF6F6F6)
+                        ) {
+
+                            itemsIndexed(state.genreWeekList[getWeekDate(getDate)]) { index, item ->
+                                ListGenreToday(
+                                    title = item.title,
+                                    value = item.value,
+                                    index = index
+                                )
+                            }
+                        }
+                    } else {
+                        ScreenEmpty(str = "데이터가 없습니다")
+                    }
+                }
+            }
+        }
+        else -> {
+            val (getDate, setDate) = remember { mutableStateOf("전체") }
+
+            val arrayList = ArrayList<String>()
+            arrayList.add("전체")
+
+            var count = 0
+
+            for(item in state.genreWeekList){
+                count += 1
+                arrayList.add("${count}일")
+            }
+
+            Column(modifier = Modifier.background(color = colorF6F6F6)) {
+                LazyRow(
+                    modifier =  Modifier.padding(16.dp, 8.dp, 0.dp, 8.dp),
+                ) {
+                    itemsIndexed(arrayList) { index, item ->
+                        Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
+                            ScreenItemKeyword(
+                                getter = convertDateStringMonth(item),
+                                onClick = {
+                                    coroutineScope.launch {
+                                        viewModelDatabase.setDate(month = item)
+
+                                        listState.scrollToItem(index = 0)
+                                    }
+                                },
+                                title = item,
+                                getValue = item
+                            )
+                        }
+                    }
+
+                    item { Spacer(modifier = Modifier.size(60.dp)) }
+                }
+
+                if (getDate == "전체") {
+                    LazyColumn(
+                        modifier = Modifier
+                            .background(colorF6F6F6)
+                    ) {
+
+                        item{
+                            Button(
+                                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                                onClick = {  },
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                shape = RoundedCornerShape(20.dp),
+                                content = {
+
+                                    Column {
+
+                                        Text(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            text = "전체 리스트는 장르 누적 순위로 표시됩니다.",
+                                            color = color8E8E8E,
+                                            fontSize = 16.sp,
+                                        )
+
+                                        Text(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            text = "각 일별 순위는 1위부터 5위까지 표시됩니다. 일별 탭에서 모든 순위를 확인 할 수 있습니다.",
+                                            color = color8E8E8E,
+                                            fontSize = 16.sp,
+                                        )
+
+                                    }
+                                }
+                            )
+                        }
+
+                        item { ItemTabletTitle(str = "${DBDate.month()}월 전체", isTopPadding = false) }
+
+                        itemsIndexed(state.genreList) { index, item ->
+                            ListGenreToday(
+                                title = item.title,
+                                value = item.value,
+                                index = index
+                            )
+                        }
+
+                        itemsIndexed(state.genreWeekList) { index, item ->
+
+                            if(item.size > 0){
+
+                                ItemTabletTitle(str = "${DBDate.month()}월 ${index + 1}일")
+
+                                item.forEachIndexed{ innerIndex, innnerItem ->
+
+                                    if(innerIndex < 5){
+                                        ListGenreToday(
+                                            title = innnerItem.title,
+                                            value = innnerItem.value,
+                                            index = index
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        item { Spacer(modifier = Modifier.size(60.dp)) }
+                    }
+                } else {
+
+                    if(state.genreWeekList[getDate.replace("일","").toInt() - 1].size > 0){
+                        LazyColumn(
+                            modifier = Modifier
+                                .background(colorF6F6F6)
+                        ) {
+
+                            itemsIndexed(state.genreWeekList[getDate.replace("일","").toInt() - 1]) { index, item ->
+                                ListGenreToday(
+                                    title = item.title,
+                                    value = item.value,
+                                    index = index
+                                )
+                            }
+
+                            item { Spacer(modifier = Modifier.size(60.dp)) }
+                        }
+                    } else {
+                        ScreenEmpty(str = "데이터가 없습니다")
+                    }
+                }
+            }
         }
     }
 }

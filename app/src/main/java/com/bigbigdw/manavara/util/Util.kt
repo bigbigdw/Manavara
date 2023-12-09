@@ -304,8 +304,8 @@ fun calculateTimeDifference(updateTime: Date, storeTime: Date): Long {
     return differenceInMillis
 }
 
-fun deleteJson(context: Context, platform : String, type : String){
-    val filePath = File(context.filesDir, "${platform}_TODAY_${type}.json")
+fun deleteJson(context: Context, platform : String, type : String, jsonName : String){
+    val filePath = File(context.filesDir, "${jsonName}_${type}_${platform}.json")
     filePath.delete()
 }
 

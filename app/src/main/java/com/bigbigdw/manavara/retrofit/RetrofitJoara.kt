@@ -47,7 +47,7 @@ class RetrofitJoara {
         apiJoara.getEventDetail(map).enqueue(baseCallback(dataListener))
     }
 
-    fun getJoaraEvent(map: MutableMap<String?, Any>, dataListener: Any) {
+    fun getJoaraEvent(map: MutableMap<String?, Any>, dataListener: RetrofitDataListener<JoaraEventResult>) {
         apiJoara.getJoaraEvent(map).enqueue(baseCallback(dataListener))
     }
 
