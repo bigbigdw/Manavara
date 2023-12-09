@@ -9,25 +9,25 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.lifecycle.lifecycleScope
 import com.bigbigdw.manavara.dataBase.screen.ScreenAnalyzeDetail
-import com.bigbigdw.manavara.dataBase.viewModels.ViewModelAnalyzeDetail
+import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDataBaseDetail
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class ActivityAnalyzeDetail : ComponentActivity() {
+class ActivityDataBaseDetail : ComponentActivity() {
 
     private var title: String = ""
     private var json: String = ""
     private var platform: String = ""
     private var type: String = ""
     private var mode: String = ""
-    private val viewModelAnalyzeDetail: ViewModelAnalyzeDetail by viewModels()
+    private val viewModelDataBaseDetail: ViewModelDataBaseDetail by viewModels()
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModelAnalyzeDetail.sideEffects
-            .onEach { Toast.makeText(this@ActivityAnalyzeDetail, it, Toast.LENGTH_SHORT).show() }
+        viewModelDataBaseDetail.sideEffects
+            .onEach { Toast.makeText(this@ActivityDataBaseDetail, it, Toast.LENGTH_SHORT).show() }
             .launchIn(lifecycleScope)
 
         title = intent.getStringExtra("TITLE") ?: ""
@@ -40,7 +40,7 @@ class ActivityAnalyzeDetail : ComponentActivity() {
 
             val widthSizeClass = calculateWindowSizeClass(this).widthSizeClass
 
-            viewModelAnalyzeDetail.setInit(
+            viewModelDataBaseDetail.setInit(
                 platform = platform,
                 type = type,
                 json = json,
@@ -49,7 +49,7 @@ class ActivityAnalyzeDetail : ComponentActivity() {
             )
 
             ScreenAnalyzeDetail(
-                viewModelAnalyzeDetail = viewModelAnalyzeDetail,
+                viewModelDataBaseDetail = viewModelDataBaseDetail,
                 widthSizeClass = widthSizeClass,
             )
         }

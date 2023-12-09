@@ -1,6 +1,7 @@
 package com.bigbigdw.manavara.dataBase.screen
 
 import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,7 +39,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bigbigdw.manavara.dataBase.ActivityAnalyzeDetail
+import com.bigbigdw.manavara.dataBase.ActivityDataBaseDetail
 import com.bigbigdw.manavara.dataBase.getGenreDay
 import com.bigbigdw.manavara.dataBase.getJsonFiles
 import com.bigbigdw.manavara.dataBase.getJsonGenreMonthList
@@ -150,7 +151,6 @@ fun ScreenItemGenreWeek(
         if (mode == "KEYWORD") {
             itemsIndexed(keywordList) { index, item ->
                 val wordCount = item.value.split("\\s+".toRegex()).count { it.isNotEmpty() }
-
                 ListGenreToday(
                     title = item.key,
                     value = wordCount.toString(),
@@ -401,7 +401,7 @@ fun ScreenGenreDetail(
                     shape = RoundedCornerShape(25.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                     onClick = {
-                        val intent = Intent(context, ActivityAnalyzeDetail::class.java)
+                        val intent = Intent(context, ActivityDataBaseDetail::class.java)
                         intent.putExtra(
                             "TITLE",
                             "${changePlatformNameKor(state.platform)} ${convertDateStringMonth(item)} 장르"
@@ -643,65 +643,26 @@ fun GenreDetailJson(
 ) {
 
     val state = viewModelDatabase.state.collectAsState().value
-    val coroutineScope = rememberCoroutineScope()
-    val listState = rememberLazyListState()
 
     LaunchedEffect(menuType, state.platform, state.type) {
+
         when (menuType) {
-            "투데이" -> {
-                getGenreDay(platform = state.platform, type = state.type) {
-                    viewModelDatabase.setGenreList(it)
-                }
-            }
 
             "주간" -> {
-
-                getJsonFiles(
+                getJsonGenreWeekList(
                     platform = state.platform,
                     type = state.type,
-                    root = "BEST_WEEK",
-                ) {
-                    viewModelDatabase.setJsonNameList(it)
-
-                    if (state.week.isEmpty()) {
-                        viewModelDatabase.setDate(week = it.get(0))
-                    }
+                ) { genreWeekList, genreList ->
+                    viewModelDatabase.setGenreWeekList(genreWeekList = genreWeekList, genreList = genreList)
                 }
-
-                if (state.jsonNameList.isNotEmpty()) {
-                    getJsonGenreWeekList(
-                        platform = state.platform,
-                        type = state.type,
-                        root = state.week
-                    ) { weekList, list ->
-                        viewModelDatabase.setGenreList(list)
-                    }
-                }
-
             }
 
             else -> {
-
-                getJsonFiles(
+                getJsonGenreMonthList(
                     platform = state.platform,
                     type = state.type,
-                    root = "BEST_MONTH",
-                ) {
-                    viewModelDatabase.setJsonNameList(it)
-
-                    if (state.month.isEmpty()) {
-                        viewModelDatabase.setDate(month = it.get(0))
-                    }
-                }
-
-                if (state.jsonNameList.isNotEmpty()) {
-                    getJsonGenreMonthList(
-                        platform = state.platform,
-                        type = state.type,
-                        root = state.month
-                    ) { monthList, list ->
-                        viewModelDatabase.setGenreList(list)
-                    }
+                ) { monthList, list ->
+                    viewModelDatabase.setGenreWeekList(genreWeekList = monthList, genreList = list)
                 }
             }
         }
@@ -722,16 +683,12 @@ fun GenreDetailJson(
                     itemsIndexed(weekListAll()) { index, item ->
                         Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
                             ScreenItemKeyword(
-                                getter = convertDateStringWeek(item),
+                                getter = getDate,
                                 onClick = {
-                                    coroutineScope.launch {
-                                        viewModelDatabase.setDate(week = item)
-
-                                        listState.scrollToItem(index = 0)
-                                    }
+                                    setDate(item)
                                 },
-                                title = convertDateStringWeek(item),
-                                getValue = convertDateStringWeek(state.week)
+                                title = item,
+                                getValue = item
                             )
                         }
                     }
@@ -758,6 +715,7 @@ fun GenreDetailJson(
                         LazyColumn(
                             modifier = Modifier
                                 .background(colorF6F6F6)
+                                .padding(16.dp, 0.dp, 16.dp, 0.dp)
                         ) {
 
                             itemsIndexed(state.genreWeekList[getWeekDate(getDate)]) { index, item ->
@@ -794,13 +752,9 @@ fun GenreDetailJson(
                     itemsIndexed(arrayList) { index, item ->
                         Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
                             ScreenItemKeyword(
-                                getter = convertDateStringMonth(item),
+                                getter = getDate,
                                 onClick = {
-                                    coroutineScope.launch {
-                                        viewModelDatabase.setDate(month = item)
-
-                                        listState.scrollToItem(index = 0)
-                                    }
+                                    setDate(item)
                                 },
                                 title = item,
                                 getValue = item

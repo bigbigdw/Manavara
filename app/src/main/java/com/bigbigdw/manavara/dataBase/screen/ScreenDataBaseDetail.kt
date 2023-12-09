@@ -14,10 +14,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
-import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalNavigationDrawer
@@ -27,7 +27,10 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,36 +44,68 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.dataBase.getJsonGenreMonthList
-import com.bigbigdw.manavara.dataBase.viewModels.ViewModelAnalyzeDetail
+import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDataBaseDetail
 import com.bigbigdw.manavara.best.getBookItemWeekTrophyDialog
 import com.bigbigdw.manavara.best.getBookMap
 import com.bigbigdw.manavara.best.models.ItemBookInfo
+import com.bigbigdw.manavara.best.screen.ItemBestDetailInfoAnalyze
 import com.bigbigdw.manavara.best.screen.ListBest
+import com.bigbigdw.manavara.dataBase.getGenreMap
+import com.bigbigdw.manavara.dataBase.getJsonFiles
+import com.bigbigdw.manavara.dataBase.getJsonGenreWeekList
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.util.colorList
+import com.bigbigdw.manavara.util.getWeekDate
 import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
+import com.bigbigdw.manavara.util.screen.ScreenEmpty
+import com.bigbigdw.manavara.util.screen.ScreenItemKeyword
+import com.bigbigdw.manavara.util.screen.TabletBorderLine
+import com.bigbigdw.manavara.util.screen.TabletContentWrap
+import com.bigbigdw.manavara.util.weekListAll
+import convertDateStringWeek
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenAnalyzeDetail(
-    viewModelAnalyzeDetail: ViewModelAnalyzeDetail,
+    viewModelDataBaseDetail: ViewModelDataBaseDetail,
     widthSizeClass: WindowWidthSizeClass,
 ) {
 
     val isExpandedScreen = widthSizeClass == WindowWidthSizeClass.Expanded
-    val state = viewModelAnalyzeDetail.state.collectAsState().value
+    val state = viewModelDataBaseDetail.state.collectAsState().value
     val context = LocalContext.current
 
     DisposableEffect(context) {
 
-        getBookMap(
+        getJsonFiles(
             platform = state.platform,
-            type = state.type
+            type = state.type,
+            root = "BEST_WEEK",
         ) {
-            viewModelAnalyzeDetail.setItemBookInfoMap(it)
+            viewModelDataBaseDetail.setJsonNameList(it)
 
+            viewModelDataBaseDetail.setScreen(
+                menu = "${convertDateStringWeek(it.get(0))} 장르",
+                key = it[0]
+            )
+        }
+
+        if (state.mode == "GENRE_BOOK") {
+            getBookMap(
+                platform = state.platform,
+                type = state.type
+            ) {
+                viewModelDataBaseDetail.setItemBookInfoMap(it)
+            }
+        } else {
+            getGenreMap(
+                platform = state.platform,
+                type = state.type,
+            ) { monthList ->
+                viewModelDataBaseDetail.setGenreMap(itemGenreMap = monthList)
+            }
         }
 
         getJsonGenreMonthList(
@@ -78,12 +113,7 @@ fun ScreenAnalyzeDetail(
             type = state.type,
             root = state.json
         ) { monthList, list ->
-            viewModelAnalyzeDetail.setGenreList(list)
-
-            if(state.menu.isEmpty()){
-
-                viewModelAnalyzeDetail.setScreen(menu = "${list.get(0).title} 작품 리스트", key = list.get(0).title)
-            }
+            viewModelDataBaseDetail.setGenreList(genreList = list, genreMonthList = monthList)
         }
 
         onDispose {}
@@ -93,7 +123,7 @@ fun ScreenAnalyzeDetail(
     if (isExpandedScreen) {
 
         ScreenTabletAnalyzeDetail(
-            viewModelAnalyzeDetail = viewModelAnalyzeDetail,
+            viewModelDataBaseDetail = viewModelDataBaseDetail,
         )
 
 //        BestDetailBackOnPressed(
@@ -109,7 +139,7 @@ fun ScreenAnalyzeDetail(
         ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
 
             ScreenAnalyzeDetailPropertyList(
-                viewModelAnalyzeDetail = viewModelAnalyzeDetail
+                viewModelDataBaseDetail = viewModelDataBaseDetail
             )
 
         }) {
@@ -134,7 +164,7 @@ fun ScreenAnalyzeDetail(
                 ) {
 
                     ScreenAnalyzeDetailPropertyList(
-                        viewModelAnalyzeDetail = viewModelAnalyzeDetail
+                        viewModelDataBaseDetail = viewModelDataBaseDetail
                     )
                 }
 
@@ -146,11 +176,11 @@ fun ScreenAnalyzeDetail(
 
 @Composable
 fun ScreenAnalyzeDetailPropertyList(
-    viewModelAnalyzeDetail: ViewModelAnalyzeDetail,
+    viewModelDataBaseDetail: ViewModelDataBaseDetail,
 ) {
 
     val coroutineScope = rememberCoroutineScope()
-    val state = viewModelAnalyzeDetail.state.collectAsState().value
+    val state = viewModelDataBaseDetail.state.collectAsState().value
 
     LazyColumn(
         modifier = Modifier
@@ -160,7 +190,7 @@ fun ScreenAnalyzeDetailPropertyList(
             .padding(8.dp, 0.dp)
             .semantics { contentDescription = "Overview Screen" },
     ) {
-        item {Spacer(modifier = Modifier.size(16.dp))}
+        item { Spacer(modifier = Modifier.size(16.dp)) }
 
         item {
             Text(
@@ -176,6 +206,29 @@ fun ScreenAnalyzeDetailPropertyList(
             Spacer(modifier = Modifier.size(16.dp))
         }
 
+        itemsIndexed(state.jsonNameList) { index, item ->
+            ItemMainSettingSingleTablet(
+                containerColor = colorList.get(index),
+                image = R.drawable.icon_genre_wht,
+                title = "${convertDateStringWeek(item)} 장르",
+                body = "${convertDateStringWeek(item)} 장르 일별로 보기",
+                current = "${convertDateStringWeek(item)} 장르",
+                onClick = {
+                    coroutineScope.launch {
+                        viewModelDataBaseDetail.setScreen(
+                            menu = "${convertDateStringWeek(item)} 장르",
+                            key = item
+                        )
+                    }
+                },
+                value = state.menu,
+            )
+        }
+
+        item {
+            TabletBorderLine()
+        }
+
         itemsIndexed(state.genreList) { index, item ->
             ItemMainSettingSingleTablet(
                 containerColor = colorList.get(index),
@@ -183,25 +236,25 @@ fun ScreenAnalyzeDetailPropertyList(
                 title = if (state.mode == "GENRE_BOOK") {
                     "${item.title} 작품 리스트"
                 } else {
-                    item.title
+                    "${item.title} 변동 현황"
                 },
                 body = if (state.mode == "GENRE_BOOK") {
                     "${state.title}이 포함된 작품 확인"
                 } else {
-                    item.title
+                    "${item.title}가 사용된 날짜 확인"
                 },
                 current = if (state.mode == "GENRE_BOOK") {
                     "${item.title} 작품 리스트"
                 } else {
-                    item.title
+                    "${item.title} 변동 현황"
                 },
                 onClick = {
                     coroutineScope.launch {
-                        viewModelAnalyzeDetail.setScreen(
+                        viewModelDataBaseDetail.setScreen(
                             menu = if (state.mode == "GENRE_BOOK") {
                                 "${item.title} 작품 리스트"
                             } else {
-                                item.title
+                                "${item.title} 변동 현황"
                             }, key = item.title
                         )
                     }
@@ -212,10 +265,9 @@ fun ScreenAnalyzeDetailPropertyList(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenTabletAnalyzeDetail(
-    viewModelAnalyzeDetail: ViewModelAnalyzeDetail
+    viewModelDataBaseDetail: ViewModelDataBaseDetail
 ) {
 
     Box(
@@ -226,27 +278,25 @@ fun ScreenTabletAnalyzeDetail(
 
         Row {
             ScreenAnalyzeDetailPropertyList(
-                viewModelAnalyzeDetail = viewModelAnalyzeDetail
+                viewModelDataBaseDetail = viewModelDataBaseDetail
             )
 
             Spacer(modifier = Modifier.size(16.dp))
 
             ScreenAnalyzeDetailItem(
-                viewModelAnalyzeDetail = viewModelAnalyzeDetail,
-                drawerState = null,
+                viewModelDataBaseDetail = viewModelDataBaseDetail,
             )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScreenAnalyzeDetailItem(
-    viewModelAnalyzeDetail: ViewModelAnalyzeDetail,
-    drawerState: DrawerState?,
+    viewModelDataBaseDetail: ViewModelDataBaseDetail,
 ) {
 
-    val state = viewModelAnalyzeDetail.state.collectAsState().value
+    val state = viewModelDataBaseDetail.state.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -281,16 +331,20 @@ fun ScreenAnalyzeDetailItem(
             ScreenGenreBooks(
                 modalSheetState = null,
                 setDialogOpen = null,
-                viewModelAnalyzeDetail = viewModelAnalyzeDetail
+                viewModelDataBaseDetail = viewModelDataBaseDetail
             )
 
-        } else if (state.menu.contains("변동 현황")) {
+        } else if (state.menu.contains("주차 장르")) {
 
-//        ScreenBestDBListNovel(
-//            drawerState = drawerState,
-//            viewModelAnalyze = viewModelAnalyze
-//        )
+            ScreenGenreStatusWeekly(
+                viewModelDataBaseDetail = viewModelDataBaseDetail
+            )
 
+        }else if (state.menu.contains("변동 현황")) {
+
+            ScreenGenreStatus(
+                viewModelDataBaseDetail = viewModelDataBaseDetail
+            )
         }
     }
 }
@@ -300,10 +354,10 @@ fun ScreenAnalyzeDetailItem(
 fun ScreenGenreBooks(
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
-    viewModelAnalyzeDetail: ViewModelAnalyzeDetail,
+    viewModelDataBaseDetail: ViewModelDataBaseDetail,
 ) {
 
-    val state = viewModelAnalyzeDetail.state.collectAsState().value
+    val state = viewModelDataBaseDetail.state.collectAsState().value
     val coroutineScope = rememberCoroutineScope()
 
     LazyColumn(
@@ -312,7 +366,7 @@ fun ScreenGenreBooks(
             .padding(16.dp, 0.dp, 16.dp, 0.dp)
     ) {
 
-        item {  Spacer(modifier = Modifier.size(16.dp)) }
+        item { Spacer(modifier = Modifier.size(16.dp)) }
 
         val filteredList = ArrayList<ItemBookInfo>()
 
@@ -334,14 +388,14 @@ fun ScreenGenreBooks(
                 index = index,
             ) {
                 coroutineScope.launch {
-                    viewModelAnalyzeDetail.setItemBookInfo(itemBookInfo = item)
+                    viewModelDataBaseDetail.setItemBookInfo(itemBookInfo = item)
 
                     getBookItemWeekTrophyDialog(
                         itemBookInfo = item,
                         type = state.type,
                         platform = state.platform
                     ) { itemBookInfo, itemBestInfoTrophyList ->
-                        viewModelAnalyzeDetail.setItemBestInfoTrophyList(
+                        viewModelDataBaseDetail.setItemBestInfoTrophyList(
                             itemBookInfo = itemBookInfo,
                             itemBestInfoTrophyList = itemBestInfoTrophyList
                         )
@@ -355,5 +409,124 @@ fun ScreenGenreBooks(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun ScreenGenreStatus(
+    viewModelDataBaseDetail: ViewModelDataBaseDetail,
+) {
+
+    val state = viewModelDataBaseDetail.state.collectAsState().value
+
+    LazyColumn(
+        modifier = Modifier
+            .background(colorF6F6F6)
+            .padding(16.dp, 0.dp, 16.dp, 0.dp)
+    ) {
+
+        item { Spacer(modifier = Modifier.size(16.dp)) }
+
+        val list = state.itemGenreMap[state.key] ?: ArrayList()
+
+        item{
+            TabletContentWrap {
+                list.forEachIndexed { index, item ->
+
+                    val year = item.date.substring(0, 4)
+                    val month = item.date.substring(4, 6)
+                    val day = item.date.substring(6, 8)
+
+                    ItemBestDetailInfoAnalyze(
+                        title = "${year}년 ${month}월 ${day}일",
+                        value = item.value,
+                        beforeValue = if (index == 0) {
+                            "-"
+                        } else {
+                            list[index - 1].value
+                        },
+                        type = "선호작 분석",
+                        isLast = index == list.size - 1
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ScreenGenreStatusWeekly(
+    viewModelDataBaseDetail: ViewModelDataBaseDetail,
+) {
+
+    val state = viewModelDataBaseDetail.state.collectAsState().value
+    val (getDate, setDate) = remember { mutableStateOf("전체") }
+
+    LaunchedEffect(state.key){
+        getJsonGenreWeekList(
+            platform = state.platform,
+            type = state.type,
+            root = state.key
+        ) { genreWeekList, genreList ->
+            viewModelDataBaseDetail.setGenreList(genreMonthList = genreWeekList, genreList = genreList)
+        }
+    }
+
+    LazyColumn(
+        modifier = Modifier
+            .background(colorF6F6F6)
+            .padding(16.dp, 0.dp, 16.dp, 0.dp)
+    ) {
+
+        item { Spacer(modifier = Modifier.size(8.dp)) }
+
+        item{
+            LazyRow(
+                modifier =  Modifier.padding(16.dp, 8.dp, 0.dp, 8.dp),
+            ) {
+
+                itemsIndexed(weekListAll()) { index, item ->
+                    Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
+                        ScreenItemKeyword(
+                            getter = getDate,
+                            onClick = {
+                                setDate(item)
+                            },
+                            title = item,
+                            getValue = item
+                        )
+                    }
+                }
+            }
+        }
+
+        if (getDate == "전체") {
+
+            itemsIndexed(state.genreList) { index, item ->
+                ListGenreToday(
+                    title = item.title,
+                    value = item.value,
+                    index = index
+                )
+            }
+
+        } else {
+
+            if(state.genreMonthList[getWeekDate(getDate)].size > 0){
+
+                itemsIndexed(state.genreMonthList[getWeekDate(getDate)]) { index, item ->
+                    ListGenreToday(
+                        title = item.title,
+                        value = item.value,
+                        index = index
+                    )
+                }
+
+            } else {
+                item { ScreenEmpty(str = "데이터가 없습니다") }
+            }
+        }
+
+
     }
 }

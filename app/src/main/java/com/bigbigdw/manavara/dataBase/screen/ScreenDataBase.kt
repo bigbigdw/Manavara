@@ -3,6 +3,7 @@ package com.bigbigdw.manavara.dataBase.screen
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
@@ -31,8 +32,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetState
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalNavigationDrawer
@@ -40,7 +39,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -668,11 +666,11 @@ fun ScreenDataBasePropertyList(
 fun ScreenDataBaseItem(
     viewModelDatabase: ViewModelDatabase,
     drawerState: DrawerState?,
-    modalSheetState: ModalBottomSheetState?,
-    setDialogOpen: ((Boolean) -> Unit)?,
 ) {
 
     val state = viewModelDatabase.state.collectAsState().value
+
+    Log.d("MENU", "state.menu == ${state.menu}")
 
     if (state.menu.contains("베스트 웹소설 DB")) {
 
@@ -695,26 +693,12 @@ fun ScreenDataBaseItem(
             drawerState = drawerState,
         )
 
-    } else if (state.menu.contains("투데이 장르 현황") || state.menu.contains("주차별 장르 현황") || state.menu.contains("월별 장르 현황")) {
+    } else if (state.menu.contains("투데이 장르 현황") || state.menu.contains("주차별 장르 현황") || state.menu.contains("월별 장르 현황") || state.menu.contains("주간 장르 현황") || state.menu.contains("월간 장르 현황")) {
 
         ScreenBestDataBaseList(
             viewModelDatabase = viewModelDatabase,
             drawerState = drawerState,
             itemList = genreListEng()
-        )
-
-    } else if (state.menu.contains("주간 장르 현황")) {
-
-        GenreDetailJson(
-            viewModelDatabase = viewModelDatabase,
-            menuType = "주간"
-        )
-
-    } else if (state.menu.contains("월간 장르 현황")) {
-
-        GenreDetailJson(
-            viewModelDatabase = viewModelDatabase,
-            menuType = "월간"
         )
 
     } else if (state.menu.contains("장르 리스트 작품") || state.menu.contains("장르 리스트 현황")) {
@@ -778,12 +762,6 @@ fun ScreenAnalyzeItemDetail(
             viewModelDatabase = viewModelDatabase
         )
 
-    } else if (state.menu.contains("베스트 웹툰 DB")) {
-        ScreenBookMap(
-            modalSheetState = modalSheetState,
-            setDialogOpen = setDialogOpen,
-            viewModelDatabase = viewModelDatabase
-        )
     } else if (state.menu.contains("주차별 웹소설 베스트")|| state.menu.contains("월별 웹소설 베스트")) {
         ScreenBestAnalyze(
             viewModelDatabase = viewModelDatabase,
@@ -811,23 +789,29 @@ fun ScreenAnalyzeItemDetail(
             },
         )
 
-    } else if (state.menu.contains("투데이 장르 현황")) {
+    } else if (state.menu.contains("투데이 장르 현황") || state.menu.contains("주차별 장르 현황") || state.menu.contains("월별 장르 현황")) {
         ScreenGenre(
-            menuType = "투데이",
+            menuType = if (state.menu.contains("투데이 장르 현황")) {
+                "투데이"
+            } else if(state.menu.contains("주차별 장르 현황")) {
+                "주간"
+            }else {
+                "월간"
+            },
             viewModelDatabase = viewModelDatabase
         )
 
-    } else if (state.menu.contains("주간 장르 현황")) {
-        ScreenGenre(
-            menuType = "주간",
-            viewModelDatabase = viewModelDatabase
+    } else if (state.menu.contains("주간 장르 현황") || state.menu.contains("월간 장르 현황")) {
+
+        GenreDetailJson(
+            viewModelDatabase = viewModelDatabase,
+            menuType = if(state.menu.contains("주간 장르 현황")){
+                "주간"
+            } else {
+                "월간"
+            }
         )
 
-    } else if (state.menu.contains("월간 장르 현황")) {
-        ScreenGenre(
-            menuType = "월간",
-            viewModelDatabase = viewModelDatabase
-        )
     } else if (state.menu.contains("투데이 키워드 현황")) {
 
         ScreenKeyword(
@@ -934,9 +918,7 @@ fun ScreenAnalyzeItems(
 
             ScreenDataBaseItem(
                 viewModelDatabase = viewModelDatabase,
-                drawerState = drawerState,
-                modalSheetState = modalSheetState,
-                setDialogOpen = setDialogOpen
+                drawerState = drawerState
             )
         }
     }
@@ -1327,7 +1309,7 @@ fun ScreenBestDataBaseList(
 
         item {Spacer(modifier = Modifier.size(16.dp))}
 
-        itemsIndexed(state.filteredList) {index, item ->
+        itemsIndexed(itemList) {index, item ->
             Box(modifier = Modifier.padding(8.dp)) {
                 TabletContentWrapBtn(
                     onClick = {
@@ -1335,8 +1317,8 @@ fun ScreenBestDataBaseList(
 
                             viewModelDatabase.setScreen(
                                 menu = state.menu,
-                                detail = "${changePlatformNameKor(item.title)} ${state.menu}",
-                                platform = item.title,
+                                detail = "${changePlatformNameKor(item)} ${state.menu}",
+                                platform = item,
                                 type = state.type
                             )
                             drawerState?.close()
@@ -1349,7 +1331,7 @@ fun ScreenBestDataBaseList(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Image(
-                                painter = painterResource(id = getPlatformLogoEng(item.title)),
+                                painter = painterResource(id = getPlatformLogoEng(item)),
                                 contentDescription = null,
                                 modifier = Modifier
                                     .width(20.dp)
@@ -1359,7 +1341,7 @@ fun ScreenBestDataBaseList(
                             Spacer(modifier = Modifier.size(8.dp))
 
                             Text(
-                                text = changePlatformNameKor(item.title),
+                                text = changePlatformNameKor(item),
                                 color = color000000,
                                 fontSize = 18.sp,
                             )

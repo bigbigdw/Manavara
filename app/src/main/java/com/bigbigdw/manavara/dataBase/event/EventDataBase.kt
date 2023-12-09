@@ -5,66 +5,66 @@ import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.models.ItemGenre
 import com.bigbigdw.manavara.best.models.ItemKeyword
 
-sealed interface EventDB{
-    object Loaded: EventDB
+sealed interface EventDataBase{
+    object Loaded: EventDataBase
 
     class SetItemBookInfoMap(
         var itemBookInfoMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
-    ) : EventDB
+    ) : EventDataBase
 
     class SetItemBookInfo(
         val itemBookInfo : ItemBookInfo = ItemBookInfo(),
-    ) : EventDB
+    ) : EventDataBase
 
     class SetItemBestInfoTrophyList(
         val itemBestInfoTrophyList : ArrayList<ItemBestInfo> = ArrayList(),
         val itemBookInfo : ItemBookInfo = ItemBookInfo()
-    ) : EventDB
+    ) : EventDataBase
 
     class SetJsonNameList(
         val jsonNameList : List<String> = arrayListOf(),
-    ) : EventDB
+    ) : EventDataBase
 
     class SetScreen(
         val menu: String = "",
         val platform: String = "",
         val detail: String = "",
         val type: String = "",
-    ) : EventDB
+    ) : EventDataBase
 
     class SetKeywordDay(
         val keywordDay : ArrayList<ItemKeyword> = ArrayList()
-    ) : EventDB
+    ) : EventDataBase
 
     class SetKeywordWeek(
         val keywordDay : ArrayList<ItemKeyword> = ArrayList(),
         val keywordDayList : ArrayList<ArrayList<ItemKeyword>> = ArrayList()
-    ) : EventDB
+    ) : EventDataBase
 
     class SetWeekTrophyList(
         var weekTrophyList: ArrayList<ItemBestInfo> = ArrayList(),
-    ) : EventDB
+    ) : EventDataBase
 
     class SetFilteredList(
         val filteredList: ArrayList<ItemBookInfo> = ArrayList()
-    ) : EventDB
+    ) : EventDataBase
 
     class SetDate(
         val week: String = "",
         val month: String = "",
-    ) : EventDB
+    ) : EventDataBase
 
     class SetGenreList(
         var genreList : ArrayList<ItemGenre> = ArrayList()
-    ) : EventDB
+    ) : EventDataBase
 
     class SetGenreWeekList(
         var genreWeekList :  ArrayList<ArrayList<ItemGenre>> = ArrayList(),
         var genreList : ArrayList<ItemGenre> = ArrayList(),
-    ) : EventDB
+    ) : EventDataBase
 }
 
-data class StateDB(
+data class StateDataBase(
     val Loaded: Boolean = false,
     var itemBookInfoMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
     val itemBestInfoTrophyList : ArrayList<ItemBestInfo> = ArrayList(),

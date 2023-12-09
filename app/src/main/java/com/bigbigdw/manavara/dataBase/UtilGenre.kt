@@ -1,5 +1,7 @@
 package com.bigbigdw.manavara.dataBase
 
+import android.util.Log
+import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.models.ItemGenre
 import com.bigbigdw.manavara.util.DBDate
 import com.google.firebase.database.DataSnapshot
@@ -404,5 +406,51 @@ fun getGenreDayMonth(
         }
 
         override fun onCancelled(databaseError: DatabaseError) {}
+    })
+}
+
+fun getGenreMap(
+    platform: String,
+    type: String,
+    callbacks: (MutableMap<String, ArrayList<ItemGenre>>) -> Unit
+) {
+
+    val mRootRef =
+        FirebaseDatabase.getInstance().reference.child("GENRE").child(type).child(platform)
+
+    mRootRef.addListenerForSingleValueEvent(object :
+        ValueEventListener {
+        override fun onDataChange(dataSnapshot: DataSnapshot) {
+            if (dataSnapshot.exists()) {
+
+                val itemMap = mutableMapOf<String, ArrayList<ItemGenre>>()
+
+                Log.d("getGenreMap", "dataSnapshot.childrenCount == ${dataSnapshot.childrenCount}")
+
+                for (genre in dataSnapshot.children) {
+
+                    val itemMapArray = ArrayList<ItemGenre>()
+
+                    for (item in genre.children) {
+
+                        val result = item.getValue(ItemGenre::class.java)
+
+                        if (result != null) {
+                            itemMapArray.add(result)
+                        }
+                    }
+
+                    if (genre != null) {
+                        itemMap[genre.key ?: ""] = itemMapArray
+                    }
+                }
+
+                callbacks.invoke(itemMap)
+            }
+        }
+
+        override fun onCancelled(databaseError: DatabaseError) {
+            Log.d("FAIL", "databaseError == $databaseError")
+        }
     })
 }
