@@ -62,9 +62,11 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.ActivityBestDetail
+import com.bigbigdw.manavara.best.gotoUrl
 import com.bigbigdw.manavara.best.models.ItemBestDetailInfo
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
+import com.bigbigdw.manavara.best.setBestDetailInfo
 import com.bigbigdw.manavara.best.viewModels.ViewModelBestDetail
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color02BC77
@@ -104,11 +106,14 @@ fun ScreenBestDetail(
     val context = LocalContext.current
 
     LaunchedEffect(bookCode) {
-        viewModelBestDetail.setBestDetailInfo(
+
+        setBestDetailInfo(
             platform = platform,
             bookCode = bookCode,
             context = context
-        )
+        ){
+            viewModelBestDetail.setBestDetailInfo(it)
+        }
     }
 
     val (getMenu, setMenu) = remember { mutableStateOf("") }
@@ -181,7 +186,7 @@ fun ScreenBestDetail(
                             colors = ButtonDefaults.buttonColors(containerColor = color20459E),
                             shape = RoundedCornerShape(0.dp),
                             onClick = {
-                                viewModelBestDetail.gotoUrl(
+                               gotoUrl(
                                     platform = platform,
                                     bookCode = bookCode,
                                     context = context
@@ -636,7 +641,7 @@ fun ScreenItemBestDetailCard(
             Button(
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                 onClick = {
-                    viewModelBestDetail.gotoUrl(
+                    gotoUrl(
                         platform = platform,
                         bookCode = bookCode,
                         context = context

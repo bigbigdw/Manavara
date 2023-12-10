@@ -284,11 +284,21 @@ fun ScreenDataBasePropertyList(
         ItemMainSettingSingleTablet(
             containerColor = color5372DE,
             image = R.drawable.icon_novel_wht,
-            title = "웹소설 신규 작품",
-            body = "------",
-            current = "",
-            onClick = { },
-            value = "작품 검색",
+            title = "신규 작품",
+            body = "최근에 등록된 작품 확인",
+            current = state.menu,
+            onClick = {
+                coroutineScope.launch {
+                    viewModelDatabase.setScreen(
+                        detail = "",
+                        menu = "신규 작품",
+                        type = "NOVEL",
+                        platform = "JOARA"
+                    )
+                    drawerState?.close()
+                }
+            },
+            value = "신규 작품"
         )
 
         TabletBorderLine()
@@ -607,20 +617,20 @@ fun ScreenDataBasePropertyList(
         ItemMainSettingSingleTablet(
             containerColor = color2EA259,
             image = R.drawable.icon_search_wht,
-            title = "웹소설 DB 검색",
-            body = "웹소설 DB 검색",
+            title = "마나바라 DB 검색",
+            body = "마나바라 DB 검색",
             current = state.menu,
             onClick = {
                 coroutineScope.launch {
                     viewModelDatabase.setScreen(
                         detail = "",
-                        menu = "웹소설 DB 검색",
+                        menu = "마나바라 DB에 저장된 작품 검색",
                         type = "NOVEL",
                         platform = "JOARA"
                     )
                 }
             },
-            value = "웹소설 DB 검색",
+            value = "마나바라 DB 검색",
         )
 
         ItemMainSettingSingleTablet(
@@ -646,7 +656,7 @@ fun ScreenDataBasePropertyList(
             containerColor = colorFFAC59,
             image = R.drawable.icon_search_wht,
             title = "북코드 검색",
-            body = "플랫폼과 무관하게 작품 검색 진행",
+            body = "북코드로 작품 찾기",
             current = "",
             onClick = {
                 coroutineScope.launch {
@@ -736,7 +746,7 @@ fun ScreenDataBaseItem(
             itemList = keywordListEng()
         )
 
-    } else if (state.menu.contains("웹소설 DB 검색")) {
+    } else if (state.menu.contains("마나바라 DB 검색")) {
 
         ScreenSearchDataBase(
             viewModelDatabase = viewModelDatabase,
@@ -755,9 +765,7 @@ fun ScreenDataBaseItem(
     } else if (state.menu.contains("북코드 검색")) {
 
         ScreenSearchDataBaseDetail(
-            viewModelDatabase = viewModelDatabase,
-            modalSheetState = modalSheetState,
-            setDialogOpen = setDialogOpen
+            viewModelDatabase = viewModelDatabase
         )
 
     }

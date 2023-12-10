@@ -64,8 +64,11 @@ import com.bigbigdw.manavara.best.getBestMonthTrophy
 import com.bigbigdw.manavara.best.getBestWeekTrophy
 import com.bigbigdw.manavara.best.getBookItemWeekTrophyDialog
 import com.bigbigdw.manavara.best.getBookMap
+import com.bigbigdw.manavara.best.gotoUrl
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.screen.ListBest
+import com.bigbigdw.manavara.best.screen.ScreenBestDetailInfo
+import com.bigbigdw.manavara.best.setBestDetailInfo
 import com.bigbigdw.manavara.dataBase.getJsonFiles
 import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDatabase
 import com.bigbigdw.manavara.ui.theme.color000000
@@ -78,7 +81,6 @@ import com.bigbigdw.manavara.util.changePlatformNameKor
 import com.bigbigdw.manavara.util.comicListEng
 import com.bigbigdw.manavara.util.getPlatformDataKeyComic
 import com.bigbigdw.manavara.util.getPlatformDataKeyNovel
-import com.bigbigdw.manavara.util.getPlatformLogo
 import com.bigbigdw.manavara.util.getPlatformLogoEng
 import com.bigbigdw.manavara.util.novelListEng
 import com.bigbigdw.manavara.util.screen.ScreenEmpty
@@ -944,36 +946,24 @@ fun ScreenSearchDataBase(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenSearchDataBaseDetail(
     viewModelDatabase: ViewModelDatabase,
-    modalSheetState: ModalBottomSheetState?,
-    setDialogOpen: ((Boolean) -> Unit)?,
 ) {
 
     val state = viewModelDatabase.state.collectAsState().value
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
-    LaunchedEffect(state.platform){
-        getBookMap(
+    LaunchedEffect(state.searchQuery) {
+        setBestDetailInfo(
             platform = state.platform,
-            type = state.type
-        ) {
-            viewModelDatabase.setSearch(itemBookInfoMap = it, filteredList = ArrayList())
+            bookCode = state.searchQuery,
+            context = context
+        ){
+            viewModelDatabase.setBestDetailInfo(it)
         }
-    }
-
-    LaunchedEffect(state.searchQuery, state.itemBookInfoMap){
-        val result = ArrayList<ItemBookInfo>()
-
-        for (item in state.itemBookInfoMap) {
-            if (item.value.title.contains(state.searchQuery)) {
-                result.add(item.value)
-            }
-        }
-
-        viewModelDatabase.setFilteredList(result)
     }
 
     Spacer(modifier = Modifier.size(8.dp))
@@ -990,7 +980,7 @@ fun ScreenSearchDataBaseDetail(
                 onValueChange = {
                     viewModelDatabase.setSearchQuery(it)
                 },
-                label = { Text("검색어 입력", color = color898989) },
+                label = { Text("북코드 입력 ex) 1724803", color = color898989) },
                 singleLine = true,
                 colors = TextFieldDefaults.textFieldColors(
                     containerColor = Color(0),
@@ -1032,49 +1022,128 @@ fun ScreenSearchDataBaseDetail(
         }
 
         item {
-            Spacer(modifier = Modifier.size(4.dp))
+            Spacer(modifier = Modifier.size(16.dp))
         }
 
-        if(state.filteredList.isEmpty()){
+        if(state.searchQuery.isEmpty()){
             item {
                 Box(modifier = Modifier.fillMaxSize()) {
                     ScreenEmpty(str = "데이터가 없습니다")
                 }
             }
         } else {
-            itemsIndexed(state.filteredList) { index, item ->
-
-                Box(modifier = Modifier
-                    .padding(16.dp, 8.dp, 16.dp, 8.dp)
-                    .wrapContentSize()){
-                    ListSearch(
-                        item = item,
-                        platform = state.platform,
-                        index = index,
-                    ) {
-                        coroutineScope.launch {
-                            viewModelDatabase.setItemBookInfo(itemBookInfo = item)
-
-                            getBookItemWeekTrophyDialog(
-                                itemBookInfo = item,
-                                type = state.type,
-                                platform = state.platform
-                            ) { itemBookInfo, itemBestInfoTrophyList ->
-                                viewModelDatabase.setItemBestInfoTrophyList(
-                                    itemBookInfo = itemBookInfo,
-                                    itemBestInfoTrophyList = itemBestInfoTrophyList
-                                )
-                            }
-
-                            modalSheetState?.show()
-
-                            if (setDialogOpen != null) {
-                                setDialogOpen(true)
-                            }
-                        }
-                    }
-                }
+            item {
+                ScreenItemSearchBookCodeCard(
+                    viewModelDatabase = viewModelDatabase
+                )
             }
         }
+    }
+}
+
+@Composable
+fun ScreenItemSearchBookCodeCard(
+    viewModelDatabase: ViewModelDatabase
+) {
+
+    val context = LocalContext.current
+    val state = viewModelDatabase.state.collectAsState().value
+
+    Column(
+        modifier = Modifier
+            .wrapContentHeight()
+            .fillMaxWidth()
+    ) {
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Card(
+                shape = RoundedCornerShape(10.dp),
+                elevation = CardDefaults.cardElevation(2.dp)
+            ) {
+                AsyncImage(
+                    model = state.itemBestDetailInfo.bookImg,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .requiredWidth(140.dp)
+                        .requiredHeight(200.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.size(12.dp))
+
+            Text(
+                modifier = Modifier.padding(16.dp, 0.dp),
+                text = state.itemBestDetailInfo.title,
+                color = color20459E,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+        }
+
+        Spacer(modifier = Modifier.size(16.dp))
+
+        Button(
+            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+            onClick = {
+
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(44.dp),
+            shape = RoundedCornerShape(50.dp),
+            content = {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "PICK 하기",
+                        color = color000000,
+                        fontSize = 18.sp,
+                    )
+                }
+            }
+        )
+
+        Spacer(modifier = Modifier.size(16.dp))
+
+        Button(
+            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+            onClick = {
+                gotoUrl(
+                    platform = state.platform,
+                    bookCode = state.itemBestDetailInfo.bookCode,
+                    context = context
+                )
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(44.dp),
+            shape = RoundedCornerShape(50.dp),
+            content = {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "작품 보러가기",
+                        color = color000000,
+                        fontSize = 18.sp,
+                    )
+                }
+            }
+        )
+
+        ScreenBestDetailInfo(item = state.itemBestDetailInfo)
+
+        Spacer(modifier = Modifier.size(32.dp))
     }
 }

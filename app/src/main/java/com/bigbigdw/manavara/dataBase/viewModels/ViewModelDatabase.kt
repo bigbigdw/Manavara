@@ -2,6 +2,8 @@ package com.bigbigdw.manavara.dataBase.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bigbigdw.manavara.best.event.EventBestDetail
+import com.bigbigdw.manavara.best.models.ItemBestDetailInfo
 import com.bigbigdw.manavara.dataBase.event.EventDataBase
 import com.bigbigdw.manavara.dataBase.event.StateDataBase
 import com.bigbigdw.manavara.best.models.ItemBestInfo
@@ -90,9 +92,21 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
                 current.copy(filteredList = event.filteredList, itemBookInfoMap = event.itemBookInfoMap)
             }
 
+            is EventDataBase.SetItemBestDetailInfo -> {
+                current.copy(itemBestDetailInfo = event.itemBestDetailInfo)
+            }
+
             else -> {
                 current.copy(Loaded = false)
             }
+        }
+    }
+
+    fun setBestDetailInfo(itemBestDetailInfo: ItemBestDetailInfo) {
+        viewModelScope.launch {
+            events.send(
+                EventDataBase.SetItemBestDetailInfo(itemBestDetailInfo = itemBestDetailInfo)
+            )
         }
     }
 

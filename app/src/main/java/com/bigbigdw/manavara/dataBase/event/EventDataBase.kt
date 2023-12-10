@@ -1,5 +1,7 @@
 package com.bigbigdw.manavara.dataBase.event
 
+import com.bigbigdw.manavara.best.event.EventBestDetail
+import com.bigbigdw.manavara.best.models.ItemBestDetailInfo
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.models.ItemKeyword
@@ -70,6 +72,10 @@ sealed interface EventDataBase{
         var itemBookInfoMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
         val filteredList: ArrayList<ItemBookInfo> = ArrayList(),
     ) : EventDataBase
+
+    class SetItemBestDetailInfo(
+        val itemBestDetailInfo : ItemBestDetailInfo = ItemBestDetailInfo()
+    ) : EventDataBase
 }
 
 data class StateDataBase(
@@ -92,4 +98,5 @@ data class StateDataBase(
     val keywordDay : ArrayList<ItemKeyword> = ArrayList(),
     val keywordDayList : ArrayList<ArrayList<ItemKeyword>> = ArrayList(),
     val searchQuery: String = "",
+    val itemBestDetailInfo : ItemBestDetailInfo = ItemBestDetailInfo()
 )
