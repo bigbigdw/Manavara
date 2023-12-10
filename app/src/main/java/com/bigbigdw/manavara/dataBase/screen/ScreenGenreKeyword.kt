@@ -745,7 +745,13 @@ fun GenreDetailJson(
                             itemsIndexed(state.genreWeekList[getWeekDate(getDate)]) { index, item ->
                                 ListGenreToday(
                                     title = item.key,
-                                    value = item.value,
+                                    value = if(type == "GENRE"){
+                                        item.value
+                                    } else{
+                                        val wordCount = item.value.split("\\s+".toRegex()).count { it.isNotEmpty() }
+
+                                        wordCount.toString()
+                                    },
                                     index = index
                                 )
                             }
@@ -793,6 +799,7 @@ fun GenreDetailJson(
                     LazyColumn(
                         modifier = Modifier
                             .background(colorF6F6F6)
+                            .padding(16.dp, 0.dp, 16.dp, 0.dp)
                     ) {
 
                         item{
@@ -862,12 +869,19 @@ fun GenreDetailJson(
                         LazyColumn(
                             modifier = Modifier
                                 .background(colorF6F6F6)
+                                .padding(16.dp, 0.dp, 16.dp, 0.dp)
                         ) {
 
                             itemsIndexed(state.genreWeekList[getDate.replace("일","").toInt() - 1]) { index, item ->
                                 ListGenreToday(
                                     title = item.key,
-                                    value = item.value,
+                                    value = if(type == "GENRE"){
+                                        item.value
+                                    } else{
+                                        val wordCount = item.value.split("\\s+".toRegex()).count { it.isNotEmpty() }
+
+                                        wordCount.toString()
+                                    },
                                     index = index
                                 )
                             }

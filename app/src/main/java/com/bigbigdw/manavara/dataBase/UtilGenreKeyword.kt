@@ -105,9 +105,17 @@ fun getJsonGenreWeekList(
                     }
                 }
 
-                val cmpAsc: java.util.Comparator<ItemKeyword> =
-                    Comparator { o1, o2 -> o2.value.toInt().compareTo(o1.value.toInt()) }
-                Collections.sort(itemList, cmpAsc)
+                if(dataType == "GENRE"){
+                    val cmpAsc: java.util.Comparator<ItemKeyword> =
+                        Comparator { o1, o2 -> o2.value.toInt().compareTo(o1.value.toInt()) }
+                    Collections.sort(itemList, cmpAsc)
+                } else {
+
+                    val cmpAsc: java.util.Comparator<ItemKeyword> =
+                        Comparator { o1, o2 -> o2.value.split("\\s+".toRegex()).count { it.isNotEmpty() }
+                            .compareTo(o1.value.split("\\s+".toRegex()).count { it.isNotEmpty() }) }
+                    Collections.sort(itemList, cmpAsc)
+                }
 
                 weekJsonList.add(itemList)
             } catch (e: Exception) {
@@ -211,9 +219,17 @@ fun getJsonGenreMonthList(
                     }
                 }
 
-                val cmpAsc: java.util.Comparator<ItemKeyword> =
-                    Comparator { o1, o2 -> o2.value.toInt().compareTo(o1.value.toInt()) }
-                Collections.sort(itemList, cmpAsc)
+                if(dataType == "GENRE"){
+                    val cmpAsc: java.util.Comparator<ItemKeyword> =
+                        Comparator { o1, o2 -> o2.value.toInt().compareTo(o1.value.toInt()) }
+                    Collections.sort(itemList, cmpAsc)
+                } else {
+
+                    val cmpAsc: java.util.Comparator<ItemKeyword> =
+                        Comparator { o1, o2 -> o2.value.split("\\s+".toRegex()).count { it.isNotEmpty() }
+                            .compareTo(o1.value.split("\\s+".toRegex()).count { it.isNotEmpty() }) }
+                    Collections.sort(itemList, cmpAsc)
+                }
 
                 weekJsonList.add(itemList)
             } catch (e: Exception) {
