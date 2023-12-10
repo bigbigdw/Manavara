@@ -451,9 +451,7 @@ fun ListBest(
                     .padding(24.dp, 4.dp)
             ) {
 
-                Spacer(modifier = Modifier.size(4.dp))
-
-                Spacer(modifier = Modifier.size(4.dp))
+                Spacer(modifier = Modifier.size(8.dp))
 
                 Column(modifier = Modifier.fillMaxWidth()) {
 

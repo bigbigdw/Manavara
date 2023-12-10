@@ -61,6 +61,15 @@ sealed interface EventDataBase{
         var genreWeekList :  ArrayList<ArrayList<ItemKeyword>> = ArrayList(),
         var genreList : ArrayList<ItemKeyword> = ArrayList(),
     ) : EventDataBase
+
+    class SetSearchQuery(
+        val searchQuery: String = "",
+    ) : EventDataBase
+
+    class SetSearch(
+        var itemBookInfoMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
+        val filteredList: ArrayList<ItemBookInfo> = ArrayList(),
+    ) : EventDataBase
 }
 
 data class StateDataBase(
@@ -82,4 +91,5 @@ data class StateDataBase(
     var genreWeekList :  ArrayList<ArrayList<ItemKeyword>> = ArrayList(),
     val keywordDay : ArrayList<ItemKeyword> = ArrayList(),
     val keywordDayList : ArrayList<ArrayList<ItemKeyword>> = ArrayList(),
+    val searchQuery: String = "",
 )

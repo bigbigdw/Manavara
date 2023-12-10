@@ -82,9 +82,29 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
                 current.copy(keywordDay = event.keywordDay, keywordDayList = event.keywordDayList)
             }
 
+            is EventDataBase.SetSearchQuery -> {
+                current.copy(searchQuery = event.searchQuery)
+            }
+
+            is EventDataBase.SetSearch -> {
+                current.copy(filteredList = event.filteredList, itemBookInfoMap = event.itemBookInfoMap)
+            }
+
             else -> {
                 current.copy(Loaded = false)
             }
+        }
+    }
+
+    fun setSearch(filteredList: ArrayList<ItemBookInfo>, itemBookInfoMap: MutableMap<String, ItemBookInfo>){
+        viewModelScope.launch {
+            events.send(EventDataBase.SetSearch(filteredList = filteredList, itemBookInfoMap = itemBookInfoMap))
+        }
+    }
+
+    fun setSearchQuery(searchQuery: String){
+        viewModelScope.launch {
+            events.send(EventDataBase.SetSearchQuery(searchQuery = searchQuery))
         }
     }
 
@@ -136,7 +156,7 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setFilteredList(){
+    fun setFilteredListTrophy(){
 
         val filteredList: ArrayList<ItemBookInfo> = ArrayList()
 
@@ -152,6 +172,12 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
         }
 
 
+        viewModelScope.launch {
+            events.send(EventDataBase.SetFilteredList(filteredList = filteredList))
+        }
+    }
+
+    fun setFilteredList(filteredList: ArrayList<ItemBookInfo>){
         viewModelScope.launch {
             events.send(EventDataBase.SetFilteredList(filteredList = filteredList))
         }

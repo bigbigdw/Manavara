@@ -41,7 +41,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bigbigdw.manavara.R
-import com.bigbigdw.manavara.dataBase.screen.ScreenAnalyzeTopbar
+import com.bigbigdw.manavara.dataBase.screen.ScreenDataBaseTopbar
 import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDatabase
 import com.bigbigdw.manavara.ui.theme.color21C2EC
 import com.bigbigdw.manavara.ui.theme.color31C3AE
@@ -139,7 +139,7 @@ fun ScreenManavara(
                 }) {
                     Scaffold(
                         topBar = {
-                            ScreenAnalyzeTopbar {
+                            ScreenDataBaseTopbar {
                                 coroutineScope.launch {
                                     drawerState.open()
                                 }

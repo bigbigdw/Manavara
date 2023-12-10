@@ -1,31 +1,18 @@
 package com.bigbigdw.manavara.dataBase.screen
 
-import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Intent
-import android.util.Log
 import android.widget.Toast
-import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -40,20 +27,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -62,15 +44,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDatabase
 import com.bigbigdw.manavara.best.ActivityBestDetail
-import com.bigbigdw.manavara.best.getBestMonthTrophy
-import com.bigbigdw.manavara.best.getBestWeekTrophy
-import com.bigbigdw.manavara.best.getBookItemWeekTrophyDialog
-import com.bigbigdw.manavara.best.getBookMap
-import com.bigbigdw.manavara.best.screen.ListBest
 import com.bigbigdw.manavara.best.screen.ScreenDialogBest
-import com.bigbigdw.manavara.dataBase.getJsonFiles
-import com.bigbigdw.manavara.ui.theme.color000000
-import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color21C2EC
 import com.bigbigdw.manavara.ui.theme.color2EA259
 import com.bigbigdw.manavara.ui.theme.color31C3AE
@@ -93,25 +67,11 @@ import com.bigbigdw.manavara.ui.theme.colorF17FA0
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorFDC24E
 import com.bigbigdw.manavara.ui.theme.colorFFAC59
-import com.bigbigdw.manavara.util.DataStoreManager
-import com.bigbigdw.manavara.util.changePlatformNameKor
-import com.bigbigdw.manavara.util.comicListEng
 import com.bigbigdw.manavara.util.genreListEng
-import com.bigbigdw.manavara.util.getPlatformDataKeyComic
-import com.bigbigdw.manavara.util.getPlatformDataKeyNovel
-import com.bigbigdw.manavara.util.getPlatformLogoEng
 import com.bigbigdw.manavara.util.keywordListEng
-import com.bigbigdw.manavara.util.novelListEng
 import com.bigbigdw.manavara.util.screen.AlertTwoBtn
 import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
-import com.bigbigdw.manavara.util.screen.ScreenEmpty
-import com.bigbigdw.manavara.util.screen.ScreenItemKeyword
 import com.bigbigdw.manavara.util.screen.TabletBorderLine
-import com.bigbigdw.manavara.util.screen.TabletContentWrapBtn
-import com.bigbigdw.manavara.util.screen.spannableString
-import convertDateStringMonth
-import convertDateStringWeek
-import getBookCount
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -194,7 +154,7 @@ fun ScreenDataBase(
                         .background(color = colorF6F6F6)
                 )
 
-                ScreenAnalyzeItems(
+                ScreenDataBaseItems(
                     viewModelDatabase = viewModelDatabase,
                     drawerState = drawerState,
                     modalSheetState = modalSheetState,
@@ -217,7 +177,7 @@ fun ScreenDataBase(
                 }) {
                     Scaffold(
                         topBar = {
-                            ScreenAnalyzeTopbar {
+                            ScreenDataBaseTopbar {
                                 coroutineScope.launch {
                                     drawerState.open()
                                 }
@@ -231,7 +191,7 @@ fun ScreenDataBase(
                                 .background(color = colorF6F6F6)
                                 .fillMaxSize()
                         ) {
-                            ScreenAnalyzeItems(
+                            ScreenDataBaseItems(
                                 viewModelDatabase = viewModelDatabase,
                                 drawerState = drawerState,
                                 modalSheetState = modalSheetState,
@@ -652,7 +612,12 @@ fun ScreenDataBasePropertyList(
             current = state.menu,
             onClick = {
                 coroutineScope.launch {
-                    viewModelDatabase.setScreen(detail = "", menu = "주차별 웹소설 베스트")
+                    viewModelDatabase.setScreen(
+                        detail = "",
+                        menu = "웹소설 DB 검색",
+                        type = "NOVEL",
+                        platform = "JOARA"
+                    )
                 }
             },
             value = "웹소설 DB 검색",
@@ -664,7 +629,16 @@ fun ScreenDataBasePropertyList(
             title = "작품 검색",
             body = "플랫폼과 무관하게 작품 검색 진행",
             current = "",
-            onClick = { },
+            onClick = {
+                coroutineScope.launch {
+                    viewModelDatabase.setScreen(
+                        detail = "",
+                        menu = "작품 검색",
+                        type = "NOVEL",
+                        platform = "JOARA"
+                    )
+                }
+            },
             value = "작품 검색",
         )
 
@@ -674,7 +648,16 @@ fun ScreenDataBasePropertyList(
             title = "북코드 검색",
             body = "플랫폼과 무관하게 작품 검색 진행",
             current = "",
-            onClick = { },
+            onClick = {
+                coroutineScope.launch {
+                    viewModelDatabase.setScreen(
+                        detail = "",
+                        menu = "북코드 검색",
+                        type = "NOVEL",
+                        platform = "JOARA"
+                    )
+                }
+            },
             value = "북코드 검색",
         )
 
@@ -686,20 +669,22 @@ fun ScreenDataBasePropertyList(
 fun ScreenDataBaseItem(
     viewModelDatabase: ViewModelDatabase,
     drawerState: DrawerState?,
+    modalSheetState: ModalBottomSheetState?,
+    setDialogOpen: ((Boolean) -> Unit)?,
 ) {
 
     val state = viewModelDatabase.state.collectAsState().value
 
     if (state.menu.contains("베스트 웹소설 DB")) {
 
-        ScreenBestDBListNovel(
+        ScreenBestDataBaseList(
             drawerState = drawerState,
             viewModelDatabase = viewModelDatabase
         )
 
     } else if (state.menu.contains("베스트 웹툰 DB")) {
 
-        ScreenBestDBListNovel(
+        ScreenBestDataBaseList(
             drawerState = drawerState,
             viewModelDatabase = viewModelDatabase
         )
@@ -749,6 +734,30 @@ fun ScreenDataBaseItem(
             viewModelDatabase = viewModelDatabase,
             drawerState = drawerState,
             itemList = keywordListEng()
+        )
+
+    } else if (state.menu.contains("웹소설 DB 검색")) {
+
+        ScreenSearchDataBase(
+            viewModelDatabase = viewModelDatabase,
+            modalSheetState = modalSheetState,
+            setDialogOpen = setDialogOpen
+        )
+
+    } else if (state.menu.contains("작품 검색")) {
+
+        ScreenSearchDataBase(
+            viewModelDatabase = viewModelDatabase,
+            modalSheetState = modalSheetState,
+            setDialogOpen = setDialogOpen
+        )
+
+    } else if (state.menu.contains("북코드 검색")) {
+
+        ScreenSearchDataBaseDetail(
+            viewModelDatabase = viewModelDatabase,
+            modalSheetState = modalSheetState,
+            setDialogOpen = setDialogOpen
         )
 
     }
@@ -866,516 +875,5 @@ fun ScreenAnalyzeItemDetail(
             },
         )
 
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
-@SuppressLint("MutableCollectionMutableState")
-@Composable
-fun ScreenAnalyzeItems(
-    viewModelDatabase: ViewModelDatabase,
-    drawerState: DrawerState?,
-    modalSheetState: ModalBottomSheetState?,
-    setDialogOpen: ((Boolean) -> Unit)?
-) {
-
-    val state = viewModelDatabase.state.collectAsState().value
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(color = colorF6F6F6)
-    ) {
-
-        Spacer(modifier = Modifier.size(16.dp))
-
-        if (state.detail.isNotEmpty()) {
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    painter = painterResource(id = R.drawable.icon_arrow_left),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(30.dp)
-                        .height(30.dp)
-                )
-
-                Text(
-                    modifier = Modifier
-                        .padding(16.dp, 0.dp, 0.dp, 0.dp),
-                    text = state.detail,
-                    fontSize = 24.sp,
-                    color = color000000,
-                    fontWeight = FontWeight(weight = 700)
-                )
-            }
-
-
-        } else if (state.menu.isNotEmpty()) {
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    painter = painterResource(id = R.drawable.icon_arrow_left),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(30.dp)
-                        .height(30.dp)
-                )
-
-                Text(
-                    modifier = Modifier
-                        .padding(16.dp, 0.dp, 0.dp, 0.dp),
-                    text = state.menu,
-                    fontSize = 24.sp,
-                    color = color000000,
-                    fontWeight = FontWeight(weight = 700)
-                )
-            }
-        }
-
-        if (state.detail.isNotEmpty()) {
-
-            ScreenAnalyzeItemDetail(
-                viewModelDatabase = viewModelDatabase,
-                drawerState = drawerState,
-                modalSheetState = modalSheetState,
-                setDialogOpen = setDialogOpen
-            )
-        } else {
-
-            ScreenDataBaseItem(
-                viewModelDatabase = viewModelDatabase,
-                drawerState = drawerState
-            )
-        }
-    }
-}
-
-@Composable
-fun ScreenAnalyzeTopbar(onClick: () -> Unit) {
-
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .background(color = Color.White)
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-
-        Box(
-            modifier = Modifier.weight(1f)
-        ) {
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable { onClick() }) {
-                Image(
-                    painter = painterResource(id = R.drawable.icon_drawer),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(22.dp)
-                        .height(22.dp)
-                )
-
-                Spacer(
-                    modifier = Modifier.size(8.dp)
-                )
-
-                Text(
-                    text = "마나바라",
-                    fontSize = 20.sp,
-                    textAlign = TextAlign.Left,
-                    color = color000000,
-                    fontWeight = FontWeight.Bold
-                )
-
-            }
-
-        }
-
-
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ScreenBestDBListNovel(
-    drawerState: DrawerState?,
-    viewModelDatabase: ViewModelDatabase
-) {
-    val context = LocalContext.current
-    val dataStore = DataStoreManager(context)
-    val coroutineScope = rememberCoroutineScope()
-    val state = viewModelDatabase.state.collectAsState().value
-
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colorF6F6F6),
-    ) {
-
-        item { Spacer(modifier = Modifier.size(8.dp)) }
-
-        val itemList = if (state.type == "NOVEL") novelListEng() else comicListEng()
-
-        itemsIndexed(itemList) { index, item ->
-            Box(modifier = Modifier.padding(8.dp)) {
-                TabletContentWrapBtn(
-                    onClick = {
-                        coroutineScope.launch {
-
-                            viewModelDatabase.setScreen(
-                                menu = state.menu,
-                                detail = "${changePlatformNameKor(item)} ${state.menu}",
-                                platform = item,
-                                type = state.type
-                            )
-                            drawerState?.close()
-                        }
-                    },
-                    content = {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Start,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Image(
-                                painter = painterResource(id = getPlatformLogoEng(item)),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .width(20.dp)
-                                    .height(20.dp)
-                            )
-
-                            Spacer(modifier = Modifier.size(8.dp))
-
-                            getBookCount(context = context, type = state.type, platform = item)
-
-                            Text(
-                                text = spannableString(
-                                    textFront = "${changePlatformNameKor(item)} : ",
-                                    color = color000000,
-                                    textEnd = "${
-                                        dataStore.getDataStoreString(
-                                            if (state.type == "NOVEL") getPlatformDataKeyNovel(item) else getPlatformDataKeyComic(
-                                                item
-                                            )
-                                        ).collectAsState(initial = "").value ?: "0"
-                                    } 작품"
-                                ),
-                                color = color20459E,
-                                fontSize = 18.sp,
-                            )
-                        }
-                    }
-                )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-fun ScreenBookMap(
-    modalSheetState: ModalBottomSheetState?,
-    setDialogOpen: ((Boolean) -> Unit)?,
-    viewModelDatabase: ViewModelDatabase
-) {
-
-    val state = viewModelDatabase.state.collectAsState().value
-    val coroutineScope = rememberCoroutineScope()
-
-    getBookMap(
-        platform = state.platform,
-        type = state.type
-    ) {
-        viewModelDatabase.setItemBookInfoMap(it)
-    }
-
-    LazyColumn(
-        modifier = Modifier
-            .background(colorF6F6F6)
-            .padding(16.dp, 0.dp, 16.dp, 0.dp)
-    ) {
-
-        item { Spacer(modifier = Modifier.size(16.dp)) }
-
-        itemsIndexed(ArrayList(state.itemBookInfoMap.values)) { index, item ->
-            ListBest(
-                item = item,
-                type = "MONTH",
-                index = index,
-            ) {
-                coroutineScope.launch {
-                    viewModelDatabase.setItemBookInfo(itemBookInfo = item)
-
-                    getBookItemWeekTrophyDialog(
-                        itemBookInfo = item,
-                        type = state.type,
-                        platform = state.platform
-                    ) { itemBookInfo, itemBestInfoTrophyList ->
-                        viewModelDatabase.setItemBestInfoTrophyList(
-                            itemBookInfo = itemBookInfo,
-                            itemBestInfoTrophyList = itemBestInfoTrophyList
-                        )
-                    }
-
-                    modalSheetState?.show()
-
-                    if (setDialogOpen != null) {
-                        setDialogOpen(true)
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun BestAnalyzeBackOnPressed(
-    viewModelDatabase: ViewModelDatabase,
-) {
-    val context = LocalContext.current
-    var backPressedState by remember { mutableStateOf(true) }
-    var backPressedTime = 0L
-    val coroutineScope = rememberCoroutineScope()
-
-    val state = viewModelDatabase.state.collectAsState().value
-
-    BackHandler(enabled = true) {
-
-        if (state.detail.isNotEmpty()) {
-            coroutineScope.launch {
-                viewModelDatabase.setScreen(detail = "", menu = state.menu)
-            }
-        } else {
-            if (System.currentTimeMillis() - backPressedTime <= 400L) {
-                // 앱 종료
-                (context as Activity).finish()
-            } else {
-                backPressedState = true
-                Toast.makeText(context, "한 번 더 누르시면 앱이 종료됩니다.", Toast.LENGTH_SHORT).show()
-            }
-            backPressedTime = System.currentTimeMillis()
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-fun ScreenBestAnalyze(
-    viewModelDatabase: ViewModelDatabase,
-    root: String,
-    modalSheetState: ModalBottomSheetState?,
-    setDialogOpen: ((Boolean) -> Unit)?,
-) {
-
-    val state = viewModelDatabase.state.collectAsState().value
-    val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
-
-    getJsonFiles(
-        platform = state.platform,
-        type = state.type,
-        root = root,
-    ) {
-        viewModelDatabase.setJsonNameList(it)
-
-        if (root == "WEEK") {
-            if (state.week.isEmpty()) {
-                viewModelDatabase.setDate(week = it.get(0))
-            }
-        } else {
-            if (state.month.isEmpty()) {
-                viewModelDatabase.setDate(month = it.get(0))
-            }
-        }
-    }
-
-    if (state.jsonNameList.isNotEmpty()) {
-
-        if (root == "WEEK") {
-            getBestWeekTrophy(
-                platform = state.platform,
-                type = state.type,
-                root = state.week
-            ) {
-                viewModelDatabase.setWeekTrophyList(it)
-            }
-        } else {
-            getBestMonthTrophy(
-                platform = state.platform,
-                type = state.type,
-                root = state.month
-            ) {
-                viewModelDatabase.setWeekTrophyList(it)
-            }
-        }
-
-        getBookMap(
-            platform = state.platform,
-            type = state.type
-        ) {
-            viewModelDatabase.setItemBookInfoMap(it)
-        }
-
-        viewModelDatabase.setFilteredList()
-    }
-
-    LazyColumn(
-        modifier = Modifier
-            .background(colorF6F6F6)
-    ) {
-
-        item {
-            LazyRow(
-                modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 8.dp),
-            ) {
-                itemsIndexed(state.jsonNameList) { index, item ->
-                    Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
-                        ScreenItemKeyword(
-                            getter = if (root == "WEEK") {
-                                convertDateStringWeek(item)
-                            } else {
-                                convertDateStringMonth(item)
-                            },
-                            onClick = {
-                                coroutineScope.launch {
-                                    if (root == "WEEK") {
-                                        viewModelDatabase.setDate(week = item)
-                                    } else {
-                                        viewModelDatabase.setDate(month = item)
-                                    }
-
-                                    listState.scrollToItem(index = 0)
-                                }
-                            },
-                            title = if (root == "WEEK") {
-                                convertDateStringWeek(item)
-                            } else {
-                                convertDateStringMonth(item)
-                            },
-                            getValue = if (root == "WEEK") {
-                                convertDateStringWeek(state.week)
-                            } else {
-                                convertDateStringMonth(state.month)
-                            }
-                        )
-                    }
-                }
-            }
-        }
-
-        item {
-            Spacer(modifier = Modifier.size(4.dp))
-        }
-
-        item {
-            Spacer(modifier = Modifier.size(4.dp))
-        }
-
-        if (state.jsonNameList.isNotEmpty()) {
-            itemsIndexed(state.filteredList) { index, item ->
-
-                Box(
-                    modifier = Modifier
-                        .background(colorF6F6F6)
-                        .padding(16.dp, 0.dp, 16.dp, 0.dp)
-                ) {
-                    ListBest(
-                        item = item,
-                        type = root,
-                        index = index
-                    ) {
-                        coroutineScope.launch {
-                            viewModelDatabase.setItemBookInfo(itemBookInfo = item)
-
-                            getBookItemWeekTrophyDialog(
-                                itemBookInfo = item,
-                                type = state.type,
-                                platform = state.platform
-                            ) { itemBookInfo, itemBestInfoTrophyList ->
-                                viewModelDatabase.setItemBestInfoTrophyList(
-                                    itemBookInfo = itemBookInfo,
-                                    itemBestInfoTrophyList = itemBestInfoTrophyList
-                                )
-                            }
-
-                            modalSheetState?.show()
-
-                            if (setDialogOpen != null) {
-                                setDialogOpen(true)
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            item { ScreenEmpty(str = "데이터가 없습니다") }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ScreenBestDataBaseList(
-    drawerState: DrawerState?,
-    viewModelDatabase: ViewModelDatabase,
-    itemList: List<String> = novelListEng()
-) {
-
-    val coroutineScope = rememberCoroutineScope()
-    val state = viewModelDatabase.state.collectAsState().value
-
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(colorF6F6F6),
-    ) {
-
-        item { Spacer(modifier = Modifier.size(16.dp)) }
-
-        itemsIndexed(itemList) { index, item ->
-            Box(modifier = Modifier.padding(8.dp)) {
-                TabletContentWrapBtn(
-                    onClick = {
-                        coroutineScope.launch {
-
-                            viewModelDatabase.setScreen(
-                                menu = state.menu,
-                                detail = "${changePlatformNameKor(item)} ${state.menu}",
-                                platform = item,
-                                type = state.type
-                            )
-                            drawerState?.close()
-                        }
-                    },
-                    content = {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Start,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Image(
-                                painter = painterResource(id = getPlatformLogoEng(item)),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .width(20.dp)
-                                    .height(20.dp)
-                            )
-
-                            Spacer(modifier = Modifier.size(8.dp))
-
-                            Text(
-                                text = changePlatformNameKor(item),
-                                color = color000000,
-                                fontSize = 18.sp,
-                            )
-                        }
-                    }
-                )
-            }
-        }
     }
 }
