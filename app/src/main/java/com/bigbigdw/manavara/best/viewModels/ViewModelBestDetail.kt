@@ -1,9 +1,6 @@
 package com.bigbigdw.manavara.best.viewModels
 
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bigbigdw.manavara.best.event.EventBestDetail
@@ -13,19 +10,15 @@ import com.bigbigdw.manavara.best.models.ItemBestDetailInfo
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.retrofit.Param
-import com.bigbigdw.manavara.retrofit.result.BestToksodaDetailResult
 import com.bigbigdw.manavara.retrofit.result.BestToksodaSearchResult
 import com.bigbigdw.manavara.retrofit.result.JoaraBestDetailCommentsResult
-import com.bigbigdw.manavara.retrofit.result.JoaraBestDetailResult
 import com.bigbigdw.manavara.retrofit.result.JoaraBestListResult
 import com.bigbigdw.manavara.retrofit.result.KakaoStageBestBookCommentResult
-import com.bigbigdw.manavara.retrofit.result.KakaoStageBestBookResult
-import com.bigbigdw.manavara.retrofit.result.OnestoreBookDetail
 import com.bigbigdw.manavara.retrofit.result.OnestoreBookDetailComment
 import com.bigbigdw.manavara.retrofit.RetrofitDataListener
 import com.bigbigdw.manavara.retrofit.RetrofitJoara
 import com.bigbigdw.manavara.retrofit.RetrofitKaKao
-import com.bigbigdw.manavara.retrofit.RetrofitOnestore
+import com.bigbigdw.manavara.retrofit.RetrofitOnestory
 import com.bigbigdw.manavara.retrofit.RetrofitToksoda
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -260,7 +253,7 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
 
     private fun getCommentsOneStory(bookCode: String) {
 
-        val apiOnestory = RetrofitOnestore()
+        val apiOnestory = RetrofitOnestory()
         val param: MutableMap<String?, Any> = HashMap()
 
         param["channelId"] = bookCode

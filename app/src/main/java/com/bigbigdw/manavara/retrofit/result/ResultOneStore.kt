@@ -117,7 +117,7 @@ class OnestoreBookDetailCommentContentsList {
     var regDate: String = ""
 }
 
-class BestMoonpiaResult {
+class BestMunpiaResult {
     @SerializedName("api")
     @Expose
     val api: BestMoonpiaContents? = null

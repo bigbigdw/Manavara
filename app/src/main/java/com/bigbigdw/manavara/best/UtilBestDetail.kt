@@ -3,26 +3,17 @@ package com.bigbigdw.manavara.best
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import androidx.lifecycle.viewModelScope
-import com.bigbigdw.manavara.best.event.EventBestDetail
 import com.bigbigdw.manavara.best.models.ItemBestDetailInfo
-import com.bigbigdw.manavara.best.models.ItemBestInfo
-import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.retrofit.Param
 import com.bigbigdw.manavara.retrofit.RetrofitDataListener
 import com.bigbigdw.manavara.retrofit.RetrofitJoara
 import com.bigbigdw.manavara.retrofit.RetrofitKaKao
-import com.bigbigdw.manavara.retrofit.RetrofitOnestore
+import com.bigbigdw.manavara.retrofit.RetrofitOnestory
 import com.bigbigdw.manavara.retrofit.RetrofitToksoda
 import com.bigbigdw.manavara.retrofit.result.BestToksodaDetailResult
 import com.bigbigdw.manavara.retrofit.result.JoaraBestDetailResult
 import com.bigbigdw.manavara.retrofit.result.KakaoStageBestBookResult
 import com.bigbigdw.manavara.retrofit.result.OnestoreBookDetail
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
-import kotlinx.coroutines.launch
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 
@@ -333,7 +324,7 @@ private fun setLayoutOneStory(
     callbacks: (ItemBestDetailInfo) -> Unit
 ) {
 
-    val apiOnestory = RetrofitOnestore()
+    val apiOnestory = RetrofitOnestory()
     val param: MutableMap<String?, Any> = HashMap()
 
     param["channelId"] = bookCode
