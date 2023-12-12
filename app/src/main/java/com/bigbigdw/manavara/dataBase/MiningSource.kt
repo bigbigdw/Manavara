@@ -2,7 +2,6 @@ package com.bigbigdw.manavara.dataBase
 
 import android.content.Context
 import android.util.Log
-import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.retrofit.RetrofitDataListener
 import com.bigbigdw.manavara.retrofit.RetrofitJoara
@@ -16,7 +15,6 @@ import com.bigbigdw.manavara.retrofit.result.BestResultKakaoStageNovel
 import com.bigbigdw.manavara.retrofit.result.BestToksodaResult
 import com.bigbigdw.manavara.retrofit.result.JoaraBestListResult
 import com.bigbigdw.manavara.retrofit.result.OneStoreBookResult
-import com.bigbigdw.manavara.util.DBDate.dateMMDD
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
@@ -24,7 +22,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 
-object MiningSource {
+
 
     private fun getItemAPI(mContext: Context?): MutableMap<String?, Any> {
 
@@ -129,11 +127,10 @@ object MiningSource {
         }
     }
 
-    fun miningJoara(
+    fun bookListJoara(
         context: Context,
-        mining: String,
         platform: String,
-        callBack: (ArrayList<ItemBookInfo>) -> Unit,
+        callbacks: (ArrayList<ItemBookInfo>) -> Unit,
     ){
         try {
             val bookList = ArrayList<ItemBookInfo>()
@@ -142,11 +139,17 @@ object MiningSource {
 
             param["page"] = 1
             param["best"] = "today"
-            param["store"] = mining
+            param["store"] = if(platform == "JOARA"){
+                ""
+            } else if(platform == "JOARA_NOBLESS"){
+                "nobless"
+            } else{
+                "premium"
+            }
             param["category"] = "0"
             param["offset"] = "100"
 
-            apiJoara.getJoaraBookBest(
+            apiJoara.getJoaraBookList(
                 param,
                 object : RetrofitDataListener<JoaraBestListResult> {
                     override fun onSuccess(data: JoaraBestListResult) {
@@ -174,7 +177,7 @@ object MiningSource {
                                 bookList.add(item)
                             }
 
-                            callBack.invoke(bookList)
+                            callbacks.invoke(bookList)
                         }
                     }
                 })
@@ -183,11 +186,11 @@ object MiningSource {
         }
     }
 
-    fun miningNaver(
+    fun bookListNaver(
         platform: String,
         mining: String,
         platformType: String,
-        callBack: (ArrayList<ItemBookInfo>) -> Unit,
+        callbacks: (ArrayList<ItemBookInfo>) -> Unit,
     ){
 
         runBlocking {
@@ -223,7 +226,7 @@ object MiningSource {
 
                         }
 
-                        callBack.invoke(bookList)
+                        callbacks.invoke(bookList)
                     }catch (e : Exception){
                         Log.d("DO_MINING", "miningNaver $e")
                     }
@@ -613,4 +616,3 @@ object MiningSource {
             Log.d("DO_MINING", "RIDI")
         }
     }
-}

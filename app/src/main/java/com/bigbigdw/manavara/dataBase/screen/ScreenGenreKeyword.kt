@@ -20,6 +20,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -38,12 +40,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bigbigdw.manavara.best.getBookItemWeekTrophy
 import com.bigbigdw.manavara.dataBase.ActivityDataBaseDetail
 import com.bigbigdw.manavara.dataBase.getJsonFiles
 import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDatabase
 import com.bigbigdw.manavara.best.models.ItemKeyword
+import com.bigbigdw.manavara.best.screen.ListBestToday
 import com.bigbigdw.manavara.dataBase.getGenreKeywordJson
 import com.bigbigdw.manavara.dataBase.getGenreListWeekJson
+import com.bigbigdw.manavara.dataBase.setBookNewInfo
 import com.bigbigdw.manavara.ui.theme.color1CE3EE
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
@@ -51,6 +56,7 @@ import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.util.DBDate
 import com.bigbigdw.manavara.util.changePlatformNameKor
 import com.bigbigdw.manavara.util.getWeekDate
+import com.bigbigdw.manavara.util.novelListEng
 import com.bigbigdw.manavara.util.screen.ItemTabletTitle
 import com.bigbigdw.manavara.util.screen.ScreenEmpty
 import com.bigbigdw.manavara.util.screen.ScreenItemKeyword
@@ -76,11 +82,10 @@ fun ScreenItemKeywordToday(
 
         if (mode == "KEYWORD") {
             itemsIndexed(keywordList) { index, item ->
-                val wordCount = item.value.split("\\s+".toRegex()).count { it.isNotEmpty() }
 
                 ListGenreToday(
                     title = item.key,
-                    value = wordCount.toString(),
+                    value = item.value,
                     index = index
                 )
             }
@@ -839,6 +844,96 @@ fun GenreDetailJson(
                         }
                     } else {
                         ScreenEmpty(str = "데이터가 없습니다")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun ScreenBookList(
+    modalSheetState: ModalBottomSheetState?,
+    setDialogOpen: ((Boolean) -> Unit)?,
+    viewModelDatabase: ViewModelDatabase,
+) {
+
+    val state = viewModelDatabase.state.collectAsState().value
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(state.platform, state.type){
+        setBookNewInfo(
+            platform = state.platform,
+            context = context
+        ) {
+            viewModelDatabase.setFilteredList(it)
+        }
+    }
+
+    LazyColumn(
+        modifier = Modifier
+            .background(colorF6F6F6)
+            .padding(16.dp, 0.dp, 16.dp, 0.dp)
+            .fillMaxSize(),
+    ) {
+
+        item {
+            Spacer(modifier = Modifier.size(8.dp))
+        }
+
+        item {
+            LazyRow(
+                modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 0.dp),
+            ) {
+                itemsIndexed(novelListEng()) { index, item ->
+                    Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
+                        ScreenItemKeyword(
+                            getter = item,
+                            onClick = {
+                                coroutineScope.launch {
+                                    viewModelDatabase.setScreen(
+                                        platform = item,
+                                        type = state.type,
+                                        menu = state.menu,
+                                    )
+                                }
+                            },
+                            title = changePlatformNameKor(item),
+                            getValue = state.platform
+                        )
+                    }
+                }
+            }
+        }
+
+        item {
+            Spacer(modifier = Modifier.size(4.dp))
+        }
+
+        itemsIndexed(state.filteredList) { index, item ->
+            ListBestToday(
+                itemBookInfo = item,
+                index = index,
+            ){
+
+                getBookItemWeekTrophy(
+                    bookCode = item.bookCode,
+                    platform = state.platform,
+                    type = state.type
+                ){
+                    viewModelDatabase.setItemBestInfoTrophyList(
+                        itemBestInfoTrophyList = it,
+                        itemBookInfo = item
+                    )
+                }
+
+                coroutineScope.launch {
+                    modalSheetState?.show()
+
+                    if (setDialogOpen != null) {
+                        setDialogOpen(true)
                     }
                 }
             }

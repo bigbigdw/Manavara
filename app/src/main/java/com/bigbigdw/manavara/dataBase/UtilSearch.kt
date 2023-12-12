@@ -1,4 +1,4 @@
-package com.bigbigdw.manavara.manavara
+package com.bigbigdw.manavara.dataBase
 
 import android.content.Context
 import com.bigbigdw.manavara.best.models.ItemBookInfo
@@ -10,13 +10,48 @@ import com.bigbigdw.manavara.retrofit.RetrofitToksoda
 import com.bigbigdw.manavara.retrofit.result.BestToksodaSearchResult
 import com.bigbigdw.manavara.retrofit.result.JoaraSearchResult
 import com.bigbigdw.manavara.retrofit.result.KakaoStageSearchResult
-import com.bigbigdw.manavara.util.DBDate
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 import java.util.ArrayList
-import java.util.Collections
 import java.util.HashMap
+
+fun setBookNewInfo(platform: String, context: Context, callbacks: (ArrayList<ItemBookInfo>) -> Unit) {
+
+    when (platform) {
+        "JOARA", "JOARA_NOBLESS", "JOARA_PREMIUM" -> {
+            bookListJoara(context = context, platform = platform, callbacks = callbacks)
+        }
+
+        "NAVER_WEBNOVEL_FREE", "NAVER_WEBNOVEL_PAY", "NAVER_BEST", "NAVER_CHALLENGE" -> {
+            bookListNaver(platform = platform, mining = "", platformType = "", callbacks = callbacks)
+        }
+
+//        "NAVER_SERIES" -> {
+//            setLayoutNaverSeries(bookCode = bookCode, platform = platform, callbacks = callbacks)
+//        }
+//
+//        "RIDI_FANTAGY", "RIDI_ROMANCE", "RIDI_ROFAN" -> {
+//            setLayoutRidi(bookCode = bookCode, platform = platform, callbacks = callbacks)
+//        }
+//
+//        "KAKAO_STAGE" -> {
+//            setLayoutKakaoStage(bookCode = bookCode, platform = platform, callbacks = callbacks)
+//        }
+//
+//        "ONESTORY_FANTAGY", "ONESTORY_ROMANCE", "ONESTORY_PASS_FANTAGY", "ONESTORY_PASS_ROMANCE" -> {
+//            setLayoutOneStory(bookCode = bookCode, platform = platform, callbacks = callbacks)
+//        }
+//
+//        "MUNPIA_PAY", "MUNPIA_FREE" -> {
+//            setLayoutMunpia(bookCode = bookCode, platform = platform, callbacks = callbacks)
+//        }
+//
+//        "TOKSODA", "TOKSODA_FREE", -> {
+//            setLayoutToksoda(bookCode = bookCode, platform = platform, callbacks = callbacks)
+//        }
+    }
+}
 
 fun searchJoara(page: Int, text: String, context : Context) {
     val apiJoara = RetrofitJoara()

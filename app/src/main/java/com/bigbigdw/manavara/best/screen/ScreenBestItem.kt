@@ -70,9 +70,7 @@ import com.bigbigdw.manavara.ui.theme.color8F8F8F
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorFF2366
 import com.bigbigdw.manavara.util.geMonthDate
-import com.bigbigdw.manavara.best.getBestMonthListStorage
 import com.bigbigdw.manavara.best.getBestMonthTrophy
-import com.bigbigdw.manavara.best.getBestWeekListStorage
 import com.bigbigdw.manavara.best.getBestWeekTrophy
 import com.bigbigdw.manavara.best.getBookItemWeekTrophy
 import com.bigbigdw.manavara.best.getBookItemWeekTrophyDialog
@@ -97,6 +95,7 @@ fun ScreenTodayBest(
 
     val state = viewModelBest.state.collectAsState().value
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(state.platform, state.type){
         getBookMap(
@@ -115,41 +114,49 @@ fun ScreenTodayBest(
         }
     }
 
-    Column(modifier = Modifier.background(color = colorF6F6F6)) {
+    LazyColumn(
+        state = listState,
+        modifier = Modifier
+            .background(colorF6F6F6)
+            .padding(16.dp, 0.dp, 16.dp, 0.dp)
+            .fillMaxSize(),
+    ) {
 
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .background(colorF6F6F6)
-                .padding(16.dp, 0.dp, 16.dp, 0.dp)
-                .fillMaxSize(),
-        ) {
+        itemsIndexed(state.itemBookInfoList) { index, item ->
+            ListBestToday(
+                itemBookInfo = item,
+                index = index,
+            ){
 
-            itemsIndexed(state.itemBookInfoList) { index, item ->
-                ListBestToday(
-                    itemBookInfo = item,
-                    index = index,
-                    modalSheetState = modalSheetState,
-                    setDialogOpen = setDialogOpen,
-                    viewModelBest = viewModelBest
-                )
+                getBookItemWeekTrophy(
+                    bookCode = item.bookCode,
+                    platform = state.platform,
+                    type = state.type
+                ){
+                    viewModelBest.setItemBestInfoTrophyList(
+                        itemBestInfoTrophyList = it,
+                        itemBookInfo = item
+                    )
+                }
+
+                coroutineScope.launch {
+                    modalSheetState?.show()
+
+                    if (setDialogOpen != null) {
+                        setDialogOpen(true)
+                    }
+                }
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ListBestToday(
     itemBookInfo: ItemBookInfo,
     index: Int,
-    modalSheetState: ModalBottomSheetState?,
-    setDialogOpen: ((Boolean) -> Unit)?,
-    viewModelBest: ViewModelBest,
+    onClick: () -> Unit
 ) {
-
-    val coroutineScope = rememberCoroutineScope()
-    val state = viewModelBest.state.collectAsState().value
 
     Row(
         Modifier
@@ -177,22 +184,7 @@ fun ListBestToday(
             shape = RoundedCornerShape(25.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color.White),
             onClick = {
-
-                getBookItemWeekTrophy(
-                    bookCode = itemBookInfo.bookCode,
-                    platform = state.platform,
-                    type = state.type
-                ){
-                    viewModelBest.setItemBestInfoTrophyList(itemBestInfoTrophyList = it, itemBookInfo = itemBookInfo)
-                }
-
-                coroutineScope.launch {
-                    modalSheetState?.show()
-
-                    if (setDialogOpen != null) {
-                        setDialogOpen(true)
-                    }
-                }
+                onClick()
             },
             contentPadding = PaddingValues(
                 start = 0.dp,
@@ -408,10 +400,27 @@ fun ScreenTodayWeek(
                         ListBestToday(
                             itemBookInfo = item,
                             index = index,
-                            modalSheetState = modalSheetState,
-                            setDialogOpen = setDialogOpen,
-                            viewModelBest = viewModelBest,
-                        )
+                        ){
+
+                            getBookItemWeekTrophy(
+                                bookCode = item.bookCode,
+                                platform = state.platform,
+                                type = state.type
+                            ){
+                                viewModelBest.setItemBestInfoTrophyList(
+                                    itemBestInfoTrophyList = it,
+                                    itemBookInfo = item
+                                )
+                            }
+
+                            coroutineScope.launch {
+                                modalSheetState?.show()
+
+                                if (setDialogOpen != null) {
+                                    setDialogOpen(true)
+                                }
+                            }
+                        }
                     }
                 } else {
                     item { ScreenEmpty(str = "데이터가 없습니다") }

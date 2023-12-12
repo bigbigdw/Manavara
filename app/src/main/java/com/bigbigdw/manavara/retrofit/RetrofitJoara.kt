@@ -23,6 +23,10 @@ class RetrofitJoara {
         apiJoara.getBookDetailRecom(map).enqueue(baseCallback(dataListener))
     }
 
+    fun getJoaraBookList(map: MutableMap<String?, Any>, dataListener: RetrofitDataListener<JoaraBestListResult>) {
+        apiJoara.getJoaraBookList(map).enqueue(baseCallback(dataListener))
+    }
+
     fun getJoaraBookBest(map: MutableMap<String?, Any>, dataListener: RetrofitDataListener<JoaraBestListResult>) {
         apiJoara.getJoaraBookBest(map).enqueue(baseCallback(dataListener))
     }

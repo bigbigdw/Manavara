@@ -794,6 +794,14 @@ fun ScreenDataBaseItem(
             viewModelDatabase = viewModelDatabase
         )
 
+    }else if (state.menu.contains("신규 작품")) {
+
+        ScreenBookList(
+            viewModelDatabase = viewModelDatabase,
+            modalSheetState = modalSheetState,
+            setDialogOpen = setDialogOpen,
+        )
+
     }
 }
 
