@@ -18,12 +18,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material3.Card
@@ -106,16 +104,13 @@ fun ScreenMain(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val listState = rememberLazyListState()
 
     if (isExpandedScreen) {
 
         ScreenMainTablet(
             currentRoute = currentRoute,
             navController = navController,
-            viewModelMain = viewModelMain,
             isExpandedScreen = isExpandedScreen,
-            listState = listState,
             drawerState = drawerState,
         )
         BackOnPressed()
@@ -126,8 +121,6 @@ fun ScreenMain(
             navController = navController,
             currentRoute = currentRoute,
             isExpandedScreen = isExpandedScreen,
-            drawerState = drawerState,
-            listState = listState,
         )
     }
 }
@@ -137,9 +130,7 @@ fun ScreenMain(
 fun ScreenMainTablet(
     currentRoute: String?,
     navController: NavHostController,
-    viewModelMain: ViewModelMain,
     isExpandedScreen: Boolean,
-    listState: LazyListState,
     drawerState: DrawerState,
 ) {
 
@@ -149,21 +140,17 @@ fun ScreenMainTablet(
         NavigationGraph(
             navController = navController,
             isExpandedScreen = isExpandedScreen,
-            listState = listState,
-            drawerState = drawerState,
             currentRoute = currentRoute
         )
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenMainMobile(
     navController: NavHostController,
     currentRoute: String?,
     isExpandedScreen: Boolean,
-    drawerState: DrawerState,
-    listState: LazyListState,
 ) {
 
     Scaffold(
@@ -178,8 +165,6 @@ fun ScreenMainMobile(
             NavigationGraph(
                 navController = navController,
                 isExpandedScreen = isExpandedScreen,
-                listState = listState,
-                drawerState = drawerState,
                 currentRoute = currentRoute,
             )
         }
@@ -241,13 +226,10 @@ fun BottomNavScreen(navController: NavHostController, currentRoute: String?) {
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun NavigationGraph(
     navController: NavHostController,
     isExpandedScreen: Boolean,
-    listState: LazyListState,
-    drawerState: DrawerState,
     currentRoute: String?,
 ) {
 
@@ -259,8 +241,6 @@ fun NavigationGraph(
 
             ScreenBest(
                 isExpandedScreen = isExpandedScreen,
-                listState = listState,
-                drawerState = drawerState,
                 currentRoute = currentRoute
             )
 
@@ -269,8 +249,6 @@ fun NavigationGraph(
 
             ScreenBest(
                 isExpandedScreen = isExpandedScreen,
-                listState = listState,
-                drawerState = drawerState,
                 currentRoute = currentRoute
             )
 
@@ -279,8 +257,6 @@ fun NavigationGraph(
 
             ScreenDataBase(
                 isExpandedScreen = isExpandedScreen,
-                modalSheetState = null,
-                drawerState = drawerState,
                 currentRoute = currentRoute
             )
 
@@ -289,8 +265,6 @@ fun NavigationGraph(
 
             ScreenDataBase(
                 isExpandedScreen = isExpandedScreen,
-                modalSheetState = null,
-                drawerState = drawerState,
                 currentRoute = currentRoute
             )
 
@@ -298,10 +272,7 @@ fun NavigationGraph(
         composable(ScreemBottomItem.MANAVARA.screenRoute) {
 
             ScreenManavara(
-                isExpandedScreen = isExpandedScreen,
-                modalSheetState = null,
-                drawerState = drawerState,
-                currentRoute = currentRoute
+                isExpandedScreen = isExpandedScreen
             )
 
         }
@@ -489,21 +460,6 @@ fun init(context: Context) {
                                     context = context,
                                     platform = platform,
                                     type = "NOVEL",
-                                    jsonName = "BEST_TODAY"
-                                )
-
-                                deleteJson(
-                                    context = context,
-                                    platform = platform,
-                                    type = "NOVEL",
-                                    jsonName = "BEST_WEEK"
-                                )
-
-                                deleteJson(
-                                    context = context,
-                                    platform = platform,
-                                    type = "NOVEL",
-                                    jsonName = "BEST_MONTH"
                                 )
                             }
                         }

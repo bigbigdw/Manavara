@@ -51,7 +51,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.ActivityBestDetail
-import com.bigbigdw.manavara.dataBase.getJsonGenreMonthList
 import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDataBaseDetail
 import com.bigbigdw.manavara.best.getBookItemWeekTrophyDialog
 import com.bigbigdw.manavara.best.getBookMap
@@ -60,9 +59,9 @@ import com.bigbigdw.manavara.best.models.ItemKeyword
 import com.bigbigdw.manavara.best.screen.ItemBestDetailInfoAnalyze
 import com.bigbigdw.manavara.best.screen.ListBest
 import com.bigbigdw.manavara.best.screen.ScreenDialogBest
+import com.bigbigdw.manavara.dataBase.getGenreListWeekJson
 import com.bigbigdw.manavara.dataBase.getGenreMap
 import com.bigbigdw.manavara.dataBase.getJsonFiles
-import com.bigbigdw.manavara.dataBase.getJsonGenreWeekList
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.util.colorList
@@ -157,10 +156,13 @@ fun ScreenAnalyzeDetail(
         }
 
         if (state.mode == "GENRE_BOOK" || state.mode == "GENRE_STATUS") {
-            getJsonGenreMonthList(
+            getGenreListWeekJson(
+                context = context,
                 platform = state.platform,
                 type = state.type,
-                root = state.json
+                dayType = "MONTH",
+                dataType = "GENRE",
+                root = state.key
             ) { monthList, list ->
                 viewModelDataBaseDetail.setGenreList(genreList = list, genreMonthList = monthList)
 
@@ -172,11 +174,13 @@ fun ScreenAnalyzeDetail(
                 }
             }
         } else if (state.mode == "KEYWORD_BOOK" || state.mode == "KEYWORD_STATUS") {
-            getJsonGenreMonthList(
+            getGenreListWeekJson(
+                context = context,
                 platform = state.platform,
                 type = state.type,
-                root = state.json,
-                dataType = "KEYWORD"
+                dayType = "MONTH",
+                dataType = "KEYWORD",
+                root = state.key
             ) { monthList, list ->
                 viewModelDataBaseDetail.setGenreList(genreList = list, genreMonthList = monthList)
 
@@ -700,13 +704,17 @@ fun ScreenGenreStatusWeekly(
 
     val state = viewModelDataBaseDetail.state.collectAsState().value
     val (getDate, setDate) = remember { mutableStateOf("전체") }
+    val context = LocalContext.current
 
     LaunchedEffect(state.key) {
 
         if(state.mode.contains("GENRE")){
-            getJsonGenreWeekList(
+            getGenreListWeekJson(
+                context = context,
                 platform = state.platform,
                 type = state.type,
+                dayType = "WEEK",
+                dataType = "GENRE",
                 root = state.key
             ) { genreWeekList, genreList ->
                 viewModelDataBaseDetail.setGenreList(
@@ -715,11 +723,13 @@ fun ScreenGenreStatusWeekly(
                 )
             }
         } else {
-            getJsonGenreWeekList(
+            getGenreListWeekJson(
+                context = context,
                 platform = state.platform,
                 type = state.type,
-                root = state.key,
-                dataType = "KEYWORD"
+                dayType = "WEEK",
+                dataType = "KEYWORD",
+                root = state.key
             ) { genreWeekList, genreList ->
                 viewModelDataBaseDetail.setGenreList(
                     genreMonthList = genreWeekList,

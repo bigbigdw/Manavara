@@ -26,7 +26,7 @@ fun getBestListTodayJson(
     callbacks: (ArrayList<ItemBookInfo>) -> Unit
 ) {
 
-    val filePath = File(context.filesDir, "BEST_TODAY_${type}_${platform}.json").absolutePath
+    val filePath = File(context.filesDir, "BEST_DAY_${type}_${platform}.json").absolutePath
 
     try {
         val jsonString = File(filePath).readText(Charset.forName("UTF-8"))
@@ -42,8 +42,6 @@ fun getBestListTodayJson(
 
         callbacks.invoke(todayJsonList)
     } catch (exception: Exception) {
-
-        Log.d("STORAGE", "ERROR =$exception")
 
         if (checkUpdate) {
             callbacks.invoke(ArrayList())
@@ -68,7 +66,7 @@ fun getBestListTodayStorage(
         val storageRef = storage.reference
         val todayFileRef =
             storageRef.child("${platform}/${type}/BEST_DAY/${DBDate.dateMMDD()}.json")
-        val todayFile = File(context.filesDir, "BEST_TODAY_${type}_${platform}.json")
+        val todayFile = File(context.filesDir, "BEST_DAY_${type}_${platform}.json")
 
         todayFileRef.getFile(todayFile).addOnSuccessListener { bytes ->
             val jsonString = todayFile.readText(Charset.forName("UTF-8"))

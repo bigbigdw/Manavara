@@ -19,11 +19,15 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetState
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -80,8 +84,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun ScreenDataBase(
     isExpandedScreen: Boolean,
-    modalSheetState: ModalBottomSheetState? = null,
-    drawerState: DrawerState,
     currentRoute: String?,
 ) {
 
@@ -91,6 +93,13 @@ fun ScreenDataBase(
         checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
     val viewModelDatabase: ViewModelDatabase = viewModel(viewModelStoreOwner = viewModelStoreOwner)
     val state = viewModelDatabase.state.collectAsState().value
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+
+    val modalSheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        confirmValueChange = { it != ModalBottomSheetValue.HalfExpanded },
+        skipHalfExpanded = false
+    )
 
     BestAnalyzeBackOnPressed(viewModelDatabase = viewModelDatabase)
 
@@ -158,14 +167,12 @@ fun ScreenDataBase(
                     viewModelDatabase = viewModelDatabase,
                     drawerState = drawerState,
                     modalSheetState = modalSheetState,
-                    setDialogOpen = setDialogOpen
+                    setDialogOpen = setDialogOpen,
+                    isExpandedScreen = isExpandedScreen
                 )
 
             } else {
-
-                if (modalSheetState != null) {
-                    BestAnalyzeBackOnPressed(viewModelDatabase = viewModelDatabase)
-                }
+                BestAnalyzeBackOnPressed(viewModelDatabase = viewModelDatabase)
 
                 ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
 
@@ -177,7 +184,7 @@ fun ScreenDataBase(
                 }) {
                     Scaffold(
                         topBar = {
-                            ScreenDataBaseTopbar {
+                            ScreenDataBaseTopbar(viewModelDatabase = viewModelDatabase) {
                                 coroutineScope.launch {
                                     drawerState.open()
                                 }
@@ -195,34 +202,33 @@ fun ScreenDataBase(
                                 viewModelDatabase = viewModelDatabase,
                                 drawerState = drawerState,
                                 modalSheetState = modalSheetState,
-                                setDialogOpen = null
+                                setDialogOpen = null,
+                                isExpandedScreen = isExpandedScreen,
                             )
                         }
                     }
 
-                    if (modalSheetState != null) {
-                        ModalBottomSheetLayout(
-                            sheetState = modalSheetState,
-                            sheetElevation = 50.dp,
-                            sheetShape = RoundedCornerShape(
-                                topStart = 25.dp,
-                                topEnd = 25.dp
-                            ),
-                            sheetContent = {
-                                Spacer(modifier = Modifier.size(4.dp))
+                    ModalBottomSheetLayout(
+                        sheetState = modalSheetState,
+                        sheetElevation = 50.dp,
+                        sheetShape = RoundedCornerShape(
+                            topStart = 25.dp,
+                            topEnd = 25.dp
+                        ),
+                        sheetContent = {
+                            Spacer(modifier = Modifier.size(4.dp))
 
-                                if (currentRoute != null) {
-                                    ScreenDialogBest(
-                                        item = state.itemBookInfo,
-                                        trophy = state.itemBestInfoTrophyList,
-                                        isExpandedScreen = isExpandedScreen,
-                                        currentRoute = currentRoute,
-                                        modalSheetState = modalSheetState
-                                    )
-                                }
-                            },
-                        ) {}
-                    }
+                            if (currentRoute != null) {
+                                ScreenDialogBest(
+                                    item = state.itemBookInfo,
+                                    trophy = state.itemBestInfoTrophyList,
+                                    isExpandedScreen = isExpandedScreen,
+                                    currentRoute = currentRoute,
+                                    modalSheetState = modalSheetState
+                                )
+                            }
+                        },
+                    ) {}
                 }
 
             }
@@ -337,6 +343,7 @@ fun ScreenDataBasePropertyList(
                         type = "NOVEL",
                         platform = "JOARA"
                     )
+                    drawerState?.close()
                 }
             },
             value = "월별 웹소설 베스트"
@@ -358,6 +365,7 @@ fun ScreenDataBasePropertyList(
                         type = "NOVEL",
                         platform = "JOARA"
                     )
+                    drawerState?.close()
                 }
             },
             value = "투데이 장르 현황"
@@ -377,6 +385,7 @@ fun ScreenDataBasePropertyList(
                         type = "NOVEL",
                         platform = "JOARA"
                     )
+                    drawerState?.close()
                 }
             },
             value = "주간 장르 현황"
@@ -396,6 +405,7 @@ fun ScreenDataBasePropertyList(
                         type = "NOVEL",
                         platform = "JOARA"
                     )
+                    drawerState?.close()
                 }
             },
             value = "월간 장르 현황"
@@ -415,6 +425,7 @@ fun ScreenDataBasePropertyList(
                         type = "NOVEL",
                         platform = "JOARA"
                     )
+                    drawerState?.close()
                 }
             },
             value = "주차별 장르 현황"
@@ -434,6 +445,7 @@ fun ScreenDataBasePropertyList(
                         type = "NOVEL",
                         platform = "JOARA"
                     )
+                    drawerState?.close()
                 }
             },
             value = "월별 장르 현황"
@@ -453,6 +465,7 @@ fun ScreenDataBasePropertyList(
                         type = "NOVEL",
                         platform = "JOARA"
                     )
+                    drawerState?.close()
                 }
             },
             value = "장르 리스트 작품"
@@ -472,6 +485,7 @@ fun ScreenDataBasePropertyList(
                         type = "NOVEL",
                         platform = "JOARA"
                     )
+                    drawerState?.close()
                 }
             },
             value = "장르 리스트 현황"
@@ -493,6 +507,7 @@ fun ScreenDataBasePropertyList(
                         type = "NOVEL",
                         platform = "JOARA"
                     )
+                    drawerState?.close()
                 }
             },
             value = "투데이 키워드 현황"
@@ -512,6 +527,7 @@ fun ScreenDataBasePropertyList(
                         type = "NOVEL",
                         platform = "JOARA"
                     )
+                    drawerState?.close()
                 }
             },
             value = "주간 키워드 현황"
@@ -531,6 +547,7 @@ fun ScreenDataBasePropertyList(
                         type = "NOVEL",
                         platform = "JOARA"
                     )
+                    drawerState?.close()
                 }
             },
             value = "월간 키워드 현황"
@@ -550,6 +567,7 @@ fun ScreenDataBasePropertyList(
                         type = "NOVEL",
                         platform = "JOARA"
                     )
+                    drawerState?.close()
                 }
             },
             value = "주차별 키워드 현황"
@@ -569,6 +587,7 @@ fun ScreenDataBasePropertyList(
                         type = "NOVEL",
                         platform = "JOARA"
                     )
+                    drawerState?.close()
                 }
             },
             value = "월별 키워드 현황"
@@ -588,6 +607,7 @@ fun ScreenDataBasePropertyList(
                         type = "NOVEL",
                         platform = "JOARA"
                     )
+                    drawerState?.close()
                 }
             },
             value = "키워드 리스트 작품"
@@ -607,6 +627,7 @@ fun ScreenDataBasePropertyList(
                         type = "NOVEL",
                         platform = "JOARA"
                     )
+                    drawerState?.close()
                 }
             },
             value = "키워드 리스트 현황"
@@ -628,6 +649,7 @@ fun ScreenDataBasePropertyList(
                         type = "NOVEL",
                         platform = "JOARA"
                     )
+                    drawerState?.close()
                 }
             },
             value = "마나바라 DB 검색",
@@ -647,6 +669,7 @@ fun ScreenDataBasePropertyList(
                         type = "NOVEL",
                         platform = "JOARA"
                     )
+                    drawerState?.close()
                 }
             },
             value = "작품 검색",
@@ -666,6 +689,7 @@ fun ScreenDataBasePropertyList(
                         type = "NOVEL",
                         platform = "JOARA"
                     )
+                    drawerState?.close()
                 }
             },
             value = "북코드 검색",
@@ -775,7 +799,6 @@ fun ScreenDataBaseItem(
 @Composable
 fun ScreenAnalyzeItemDetail(
     viewModelDatabase: ViewModelDatabase,
-    drawerState: DrawerState?,
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?
 ) {

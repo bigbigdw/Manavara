@@ -114,17 +114,17 @@ fun searchNaver(text: String, platform: String) {
         val searchItems = ArrayList<ItemBookInfo>()
 
         when (platform) {
-            "Naver" -> {
+            "NAVER" -> {
                 doc =
                     Jsoup.connect("https://novel.naver.com/search?keyword=${text}&section=webnovel&target=novel")
                         .post()
             }
-            "Naver_Today" -> {
+            "NAVER_TODAY" -> {
                 doc =
                     Jsoup.connect("https://novel.naver.com/search?keyword=${text}&section=best&target=novel")
                         .post()
             }
-            "Naver_Challenge" -> {
+            "NAVER_CHALLENGE" -> {
                 doc =
                     Jsoup.connect("https://novel.naver.com/search?keyword=${text}&section=challenge&target=novel")
                         .post()
@@ -174,7 +174,7 @@ fun searchMunpia(text: String) {
                     cntFavorite = items.select(".info span").next().get(0)?.text() ?: "",
                     cntRecom = items.select(".info span").next().get(1)?.text() ?: "",
                     cntChapter = items.select(".info span").next().get(2)?.text() ?: "",
-                    type = "JOARA",
+                    type = "MUNPIA",
                 )
             )
         }
@@ -222,7 +222,7 @@ fun searchToksoda(text: String, page : Int) {
                                     cntChapter = it[i].INQR_CNT,
                                     cntTotalComment = it[i].INQR_CNT,
                                     genre = it[i].INTRST_CNT,
-                                    type = "JOARA",
+                                    type = "TOKSODA",
                                 )
                             )
                         }

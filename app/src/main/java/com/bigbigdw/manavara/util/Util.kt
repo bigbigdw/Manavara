@@ -296,9 +296,18 @@ fun calculateTimeDifference(updateTime: Date, storeTime: Date): Long {
     return differenceInMillis
 }
 
-fun deleteJson(context: Context, platform : String, type : String, jsonName : String){
-    val filePath = File(context.filesDir, "${jsonName}_${type}_${platform}.json")
-    filePath.delete()
+fun deleteJson(context: Context, platform : String, type : String){
+    File(context.filesDir, "BEST_DAY_${type}_${platform}.json").delete()
+    File(context.filesDir, "BEST_WEEK_${type}_${platform}.json").delete()
+    File(context.filesDir, "BEST_MONTH_${type}_${platform}.json").delete()
+
+    File(context.filesDir, "GENRE_DAY_${type}_${platform}.json").delete()
+    File(context.filesDir, "GENRE_WEEK_${type}_${platform}.json").delete()
+    File(context.filesDir, "GENRE_MONTH_${type}_${platform}.json").delete()
+
+    File(context.filesDir, "KEYWORD_DAY_${type}_${platform}.json").delete()
+    File(context.filesDir, "KEYWORD_WEEK_${type}_${platform}.json").delete()
+    File(context.filesDir, "KEYWORD_MONTH_${type}_${platform}.json").delete()
 }
 
 fun convertDateStringWeek(inputDateString: String): String {

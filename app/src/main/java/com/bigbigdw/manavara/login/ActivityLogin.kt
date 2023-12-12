@@ -1,6 +1,7 @@
 package com.bigbigdw.manavara.login
 
 import android.app.Activity
+import android.content.Intent
 import android.content.IntentSender
 import android.os.Bundle
 import android.util.Log
@@ -18,6 +19,7 @@ import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.util.screen.BackOnPressed
 import com.bigbigdw.manavara.login.screen.ScreenLogin
 import com.bigbigdw.manavara.login.viewModels.ViewModelLogin
+import com.bigbigdw.manavara.main.ActivityMain
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
@@ -96,6 +98,10 @@ class ActivityLogin : ComponentActivity() {
             }
             .addOnFailureListener(this) { e ->
                 Log.d("ActivityLogin", e.localizedMessage)
+
+                val intent = Intent(this@ActivityLogin, ActivityMain::class.java)
+                startActivity(intent)
+                finish()
             }
     }
 }

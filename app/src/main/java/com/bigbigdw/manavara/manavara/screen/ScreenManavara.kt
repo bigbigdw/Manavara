@@ -16,14 +16,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
-import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -62,18 +62,22 @@ import kotlinx.coroutines.launch
 @Composable
 fun ScreenManavara(
     isExpandedScreen: Boolean,
-    modalSheetState: ModalBottomSheetState? = null,
-    drawerState: DrawerState,
-    currentRoute: String?,
 ) {
 
     val context = LocalContext.current
-
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val viewModelStoreOwner =
         checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
     val viewModelDatabase: ViewModelDatabase = viewModel(viewModelStoreOwner = viewModelStoreOwner)
     val state = viewModelDatabase.state.collectAsState().value
     val coroutineScope = rememberCoroutineScope()
+
+    val modalSheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        confirmValueChange = { it != ModalBottomSheetValue.HalfExpanded },
+        skipHalfExpanded = false
+    )
+
 
     Box(
         modifier = Modifier
@@ -124,12 +128,6 @@ fun ScreenManavara(
 
             } else {
 
-                val modalSheetState = rememberModalBottomSheetState(
-                    initialValue = ModalBottomSheetValue.Hidden,
-                    confirmValueChange = { it != ModalBottomSheetValue.HalfExpanded },
-                    skipHalfExpanded = false
-                )
-
                 ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
 
                     ScreenManavaraPropertyList(
@@ -139,7 +137,7 @@ fun ScreenManavara(
                 }) {
                     Scaffold(
                         topBar = {
-                            ScreenDataBaseTopbar {
+                            ScreenDataBaseTopbar(viewModelDatabase = viewModelDatabase) {
                                 coroutineScope.launch {
                                     drawerState.open()
                                 }

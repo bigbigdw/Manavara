@@ -39,14 +39,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bigbigdw.manavara.dataBase.ActivityDataBaseDetail
-import com.bigbigdw.manavara.dataBase.getGenreDay
 import com.bigbigdw.manavara.dataBase.getJsonFiles
-import com.bigbigdw.manavara.dataBase.getJsonGenreMonthList
-import com.bigbigdw.manavara.dataBase.getJsonGenreWeekList
 import com.bigbigdw.manavara.dataBase.getJsonKeywordList
 import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDatabase
 import com.bigbigdw.manavara.best.models.ItemKeyword
-import com.bigbigdw.manavara.dataBase.getJsonGenreList
+import com.bigbigdw.manavara.dataBase.getGenreKeywordJson
+import com.bigbigdw.manavara.dataBase.getGenreListWeekJson
 import com.bigbigdw.manavara.ui.theme.color1CE3EE
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
@@ -245,6 +243,7 @@ fun ScreenKeyword(
 
     val state = viewModelDatabase.state.collectAsState().value
     val listState = rememberLazyListState()
+    val context = LocalContext.current
 
     LaunchedEffect(state.platform, state.type, state.jsonNameList, state.week, state.month) {
         when (menuType) {
@@ -269,9 +268,12 @@ fun ScreenKeyword(
                 }
 
                 if (state.jsonNameList.isNotEmpty()) {
-                    getJsonGenreWeekList(
+                    getGenreListWeekJson(
+                        context = context,
                         platform = state.platform,
                         type = state.type,
+                        dayType = "WEEK",
+                        dataType = "KEYWORD",
                         root = state.week
                     ) { weekList, list ->
                         viewModelDatabase.setKeywordWeek(keywordDay = list)
@@ -295,9 +297,12 @@ fun ScreenKeyword(
                 }
 
                 if (state.jsonNameList.isNotEmpty()) {
-                    getJsonGenreMonthList(
+                    getGenreListWeekJson(
+                        context = context,
                         platform = state.platform,
                         type = state.type,
+                        dayType = "MONTH",
+                        dataType = "KEYWORD",
                         root = state.month
                     ) { monthList, list ->
                         viewModelDatabase.setKeywordWeek(list)
@@ -544,21 +549,31 @@ fun ScreenGenre(
 
     val state = viewModelDatabase.state.collectAsState().value
     val listState = rememberLazyListState()
+    val context = LocalContext.current
 
     LaunchedEffect(state.platform, state.type, state.jsonNameList, state.week, state.month) {
         when (menuType) {
             "투데이" -> {
-                getJsonGenreList(platform = state.platform, type = state.type) {
+                getGenreKeywordJson(
+                    context = context,
+                    platform = state.platform,
+                    type = state.type,
+                    dataType = "GENRE"
+                ) {
                     viewModelDatabase.setGenreList(it)
                 }
             }
 
-            "주간" -> {
+            else -> {
 
                 getJsonFiles(
                     platform = state.platform,
                     type = state.type,
-                    root = "BEST_WEEK",
+                    root = if (menuType == "주간") {
+                        "BEST_WEEK"
+                    } else {
+                        "BEST_MONTH"
+                    },
                 ) {
                     viewModelDatabase.setJsonNameList(it)
 
@@ -568,40 +583,22 @@ fun ScreenGenre(
                 }
 
                 if (state.jsonNameList.isNotEmpty()) {
-                    getJsonGenreWeekList(
+                    getGenreListWeekJson(
                         platform = state.platform,
                         type = state.type,
                         root = state.week,
+                        dayType = if (menuType == "주간") {
+                            "WEEK"
+                        } else {
+                            "MONTH"
+                        },
+                        dataType = "GENRE",
+                        context = context
                     ) { weekList, list ->
                         viewModelDatabase.setGenreList(list)
                     }
                 }
 
-            }
-
-            else -> {
-
-                getJsonFiles(
-                    platform = state.platform,
-                    type = state.type,
-                    root = "BEST_MONTH",
-                ) {
-                    viewModelDatabase.setJsonNameList(it)
-
-                    if (state.month.isEmpty()) {
-                        viewModelDatabase.setDate(month = it.get(0))
-                    }
-                }
-
-                if (state.jsonNameList.isNotEmpty()) {
-                    getJsonGenreMonthList(
-                        platform = state.platform,
-                        type = state.type,
-                        root = state.month
-                    ) { monthList, list ->
-                        viewModelDatabase.setGenreList(list)
-                    }
-                }
             }
         }
     }
@@ -645,6 +642,7 @@ fun GenreDetailJson(
 ) {
 
     val state = viewModelDatabase.state.collectAsState().value
+    val context = LocalContext.current
 
     LaunchedEffect(menuType, state.platform, state.type) {
 
@@ -653,17 +651,22 @@ fun GenreDetailJson(
             "주간" -> {
 
                 if(type == "GENRE"){
-                    getJsonGenreWeekList(
+                    getGenreListWeekJson(
+                        context = context,
                         platform = state.platform,
                         type = state.type,
+                        dayType = "WEEK",
+                        dataType = type,
                     ) { genreWeekList, genreList ->
                         viewModelDatabase.setGenreWeekList(genreWeekList = genreWeekList, genreList = genreList)
                     }
                 } else {
-                    getJsonGenreWeekList(
+                    getGenreListWeekJson(
+                        context = context,
                         platform = state.platform,
                         type = state.type,
-                        dataType = "KEYWORD"
+                        dayType = "WEEK",
+                        dataType = type,
                     ) { genreWeekList, genreList ->
                         viewModelDatabase.setGenreWeekList(genreWeekList = genreWeekList, genreList = genreList)
                     }
@@ -672,17 +675,24 @@ fun GenreDetailJson(
 
             else -> {
                 if(type == "GENRE"){
-                    getJsonGenreMonthList(
+                    getGenreListWeekJson(
+                        context = context,
                         platform = state.platform,
                         type = state.type,
+                        dayType = "MONTH",
+                        dataType = "GENRE",
+                        root = state.month
                     ) { monthList, list ->
                         viewModelDatabase.setGenreWeekList(genreWeekList = monthList, genreList = list)
                     }
                 } else {
-                    getJsonGenreMonthList(
+                    getGenreListWeekJson(
+                        context = context,
                         platform = state.platform,
                         type = state.type,
-                        dataType = "KEYWORD"
+                        dayType = "MONTH",
+                        dataType = "KEYWORD",
+                        root = state.month
                     ) { monthList, list ->
                         viewModelDatabase.setGenreWeekList(genreWeekList = monthList, genreList = list)
                     }

@@ -99,7 +99,8 @@ fun ScreenDataBaseItems(
     viewModelDatabase: ViewModelDatabase,
     drawerState: DrawerState?,
     modalSheetState: ModalBottomSheetState?,
-    setDialogOpen: ((Boolean) -> Unit)?
+    setDialogOpen: ((Boolean) -> Unit)?,
+    isExpandedScreen: Boolean
 ) {
 
     val state = viewModelDatabase.state.collectAsState().value
@@ -110,49 +111,52 @@ fun ScreenDataBaseItems(
             .background(color = colorF6F6F6)
     ) {
 
-        Spacer(modifier = Modifier.size(16.dp))
+        if(isExpandedScreen){
 
-        if (state.detail.isNotEmpty()) {
+            Spacer(modifier = Modifier.size(16.dp))
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    painter = painterResource(id = R.drawable.icon_arrow_left),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(30.dp)
-                        .height(30.dp)
-                )
+            if (state.detail.isNotEmpty()) {
 
-                Text(
-                    modifier = Modifier
-                        .padding(16.dp, 0.dp, 0.dp, 0.dp),
-                    text = state.detail,
-                    fontSize = 24.sp,
-                    color = color000000,
-                    fontWeight = FontWeight(weight = 700)
-                )
-            }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Image(
+                        painter = painterResource(id = R.drawable.icon_arrow_left),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .width(30.dp)
+                            .height(30.dp)
+                    )
+
+                    Text(
+                        modifier = Modifier
+                            .padding(16.dp, 0.dp, 0.dp, 0.dp),
+                        text = state.detail,
+                        fontSize = 24.sp,
+                        color = color000000,
+                        fontWeight = FontWeight(weight = 700)
+                    )
+                }
 
 
-        } else if (state.menu.isNotEmpty()) {
+            } else if (state.menu.isNotEmpty()) {
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    painter = painterResource(id = R.drawable.icon_arrow_left),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(30.dp)
-                        .height(30.dp)
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Image(
+                        painter = painterResource(id = R.drawable.icon_arrow_left),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .width(30.dp)
+                            .height(30.dp)
+                    )
 
-                Text(
-                    modifier = Modifier
-                        .padding(16.dp, 0.dp, 0.dp, 0.dp),
-                    text = state.menu,
-                    fontSize = 24.sp,
-                    color = color000000,
-                    fontWeight = FontWeight(weight = 700)
-                )
+                    Text(
+                        modifier = Modifier
+                            .padding(16.dp, 0.dp, 0.dp, 0.dp),
+                        text = state.menu,
+                        fontSize = 24.sp,
+                        color = color000000,
+                        fontWeight = FontWeight(weight = 700)
+                    )
+                }
             }
         }
 
@@ -160,7 +164,6 @@ fun ScreenDataBaseItems(
 
             ScreenAnalyzeItemDetail(
                 viewModelDatabase = viewModelDatabase,
-                drawerState = drawerState,
                 modalSheetState = modalSheetState,
                 setDialogOpen = setDialogOpen
             )
@@ -177,7 +180,9 @@ fun ScreenDataBaseItems(
 }
 
 @Composable
-fun ScreenDataBaseTopbar(onClick: () -> Unit) {
+fun ScreenDataBaseTopbar(viewModelDatabase: ViewModelDatabase, onClick: () -> Unit) {
+
+    val state = viewModelDatabase.state.collectAsState().value
 
     Row(
         Modifier
@@ -208,7 +213,11 @@ fun ScreenDataBaseTopbar(onClick: () -> Unit) {
                 )
 
                 Text(
-                    text = "마나바라",
+                    text = if (state.detail.isNotEmpty()){
+                            state.detail
+                        } else {
+                        state.menu
+                    },
                     fontSize = 20.sp,
                     textAlign = TextAlign.Left,
                     color = color000000,
@@ -372,7 +381,7 @@ fun BestAnalyzeBackOnPressed(
 
         if (state.detail.isNotEmpty()) {
             coroutineScope.launch {
-                viewModelDatabase.setScreen(detail = "", menu = state.menu)
+                viewModelDatabase.setScreen(detail = "", menu = state.menu, platform = state.platform, type = state.type)
             }
         } else {
             if (System.currentTimeMillis() - backPressedTime <= 400L) {
