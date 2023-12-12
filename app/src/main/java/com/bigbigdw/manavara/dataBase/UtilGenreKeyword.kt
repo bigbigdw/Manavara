@@ -91,33 +91,9 @@ fun getGenreKeywordStorage(context : Context, dataType : String, platform: Strin
         callbacks.invoke(getGenreKeywordToday(jsonString))
     }.addOnFailureListener {
 
-        Log.d("HIHI", "FAIL")
-
         getGenreKeywordToday(platform = platform, type = type, dataType = dataType, dayType = "TODAY"){
             callbacks.invoke(it)
         }
-    }
-}
-
-fun getJsonKeywordList(platform: String, type: String, callback: (ArrayList<ItemKeyword>) -> Unit) {
-    val storage = Firebase.storage
-    val storageRef = storage.reference
-    val todayFileRef = storageRef.child("${platform}/${type}/KEYWORD_DAY/${DBDate.dateMMDD()}.json")
-
-    val todayFile = todayFileRef.getBytes(1024 * 1024)
-
-    todayFile.addOnSuccessListener { bytes ->
-        val jsonString = String(bytes, Charset.forName("UTF-8"))
-        val json = Json { ignoreUnknownKeys = true }
-        val itemList = json.decodeFromString<List<ItemKeyword>>(jsonString)
-
-        val jsonList = ArrayList<ItemKeyword>()
-
-        for (item in itemList) {
-            jsonList.add(item)
-        }
-
-        callback(jsonList)
     }
 }
 

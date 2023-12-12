@@ -40,7 +40,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bigbigdw.manavara.dataBase.ActivityDataBaseDetail
 import com.bigbigdw.manavara.dataBase.getJsonFiles
-import com.bigbigdw.manavara.dataBase.getJsonKeywordList
 import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDatabase
 import com.bigbigdw.manavara.best.models.ItemKeyword
 import com.bigbigdw.manavara.dataBase.getGenreKeywordJson
@@ -145,10 +144,10 @@ fun ScreenItemKeywordWeek(
 
         if (mode == "KEYWORD") {
             itemsIndexed(keywordList) { index, item ->
-                val wordCount = item.value.split("\\s+".toRegex()).count { it.isNotEmpty() }
+
                 ListGenreToday(
                     title = item.key,
-                    value = wordCount.toString(),
+                    value = item.value,
                     index = index
                 )
             }
@@ -213,11 +212,9 @@ fun ScreenItemKeywordMonth(
 
         if (mode == "KEYWORD") {
             itemsIndexed(keywordList) { index, item ->
-                val wordCount = item.value.split("\\s+".toRegex()).count { it.isNotEmpty() }
-
                 ListGenreToday(
                     title = item.key,
-                    value = wordCount.toString(),
+                    value = item.value,
                     index = index
                 )
             }
@@ -248,17 +245,26 @@ fun ScreenKeyword(
     LaunchedEffect(state.platform, state.type, state.jsonNameList, state.week, state.month) {
         when (menuType) {
             "투데이" -> {
-                getJsonKeywordList(platform = state.platform, type = state.type) {
+                getGenreKeywordJson(
+                    context = context,
+                    platform = state.platform,
+                    type = state.type,
+                    dataType = "KEYWORD"
+                ) {
                     viewModelDatabase.setKeywordDay(it)
                 }
             }
 
-            "주간" -> {
+            else -> {
 
                 getJsonFiles(
                     platform = state.platform,
                     type = state.type,
-                    root = "BEST_WEEK",
+                    root = if (menuType == "주간") {
+                        "BEST_WEEK"
+                    } else {
+                        "BEST_MONTH"
+                    },
                 ) {
                     viewModelDatabase.setJsonNameList(it)
 
@@ -269,45 +275,21 @@ fun ScreenKeyword(
 
                 if (state.jsonNameList.isNotEmpty()) {
                     getGenreListWeekJson(
-                        context = context,
                         platform = state.platform,
                         type = state.type,
-                        dayType = "WEEK",
+                        root = state.week,
+                        dayType = if (menuType == "주간") {
+                            "WEEK"
+                        } else {
+                            "MONTH"
+                        },
                         dataType = "KEYWORD",
-                        root = state.week
+                        context = context
                     ) { weekList, list ->
-                        viewModelDatabase.setKeywordWeek(keywordDay = list)
+                        viewModelDatabase.setKeywordDay(list)
                     }
                 }
 
-            }
-
-            else -> {
-
-                getJsonFiles(
-                    platform = state.platform,
-                    type = state.type,
-                    root = "BEST_MONTH",
-                ) {
-                    viewModelDatabase.setJsonNameList(it)
-
-                    if (state.month.isEmpty()) {
-                        viewModelDatabase.setDate(month = it.get(0))
-                    }
-                }
-
-                if (state.jsonNameList.isNotEmpty()) {
-                    getGenreListWeekJson(
-                        context = context,
-                        platform = state.platform,
-                        type = state.type,
-                        dayType = "MONTH",
-                        dataType = "KEYWORD",
-                        root = state.month
-                    ) { monthList, list ->
-                        viewModelDatabase.setKeywordWeek(list)
-                    }
-                }
             }
         }
     }
@@ -645,60 +627,18 @@ fun GenreDetailJson(
     val context = LocalContext.current
 
     LaunchedEffect(menuType, state.platform, state.type) {
-
-        when (menuType) {
-
-            "주간" -> {
-
-                if(type == "GENRE"){
-                    getGenreListWeekJson(
-                        context = context,
-                        platform = state.platform,
-                        type = state.type,
-                        dayType = "WEEK",
-                        dataType = type,
-                    ) { genreWeekList, genreList ->
-                        viewModelDatabase.setGenreWeekList(genreWeekList = genreWeekList, genreList = genreList)
-                    }
-                } else {
-                    getGenreListWeekJson(
-                        context = context,
-                        platform = state.platform,
-                        type = state.type,
-                        dayType = "WEEK",
-                        dataType = type,
-                    ) { genreWeekList, genreList ->
-                        viewModelDatabase.setGenreWeekList(genreWeekList = genreWeekList, genreList = genreList)
-                    }
-                }
-            }
-
-            else -> {
-                if(type == "GENRE"){
-                    getGenreListWeekJson(
-                        context = context,
-                        platform = state.platform,
-                        type = state.type,
-                        dayType = "MONTH",
-                        dataType = "GENRE",
-                        root = state.month
-                    ) { monthList, list ->
-                        viewModelDatabase.setGenreWeekList(genreWeekList = monthList, genreList = list)
-                    }
-                } else {
-                    getGenreListWeekJson(
-                        context = context,
-                        platform = state.platform,
-                        type = state.type,
-                        dayType = "MONTH",
-                        dataType = "KEYWORD",
-                        root = state.month
-                    ) { monthList, list ->
-                        viewModelDatabase.setGenreWeekList(genreWeekList = monthList, genreList = list)
-                    }
-                }
-
-            }
+        getGenreListWeekJson(
+            context = context,
+            platform = state.platform,
+            type = state.type,
+            dayType = if(menuType == "주간"){
+                "WEEK"
+            } else {
+                "MONTH"
+            },
+            dataType = type,
+        ) { genreWeekList, genreList ->
+            viewModelDatabase.setGenreWeekList(genreWeekList = genreWeekList, genreList = genreList)
         }
     }
 
@@ -759,7 +699,6 @@ fun GenreDetailJson(
                                         item.value
                                     } else{
                                         val wordCount = item.value.split("\\s+".toRegex()).count { it.isNotEmpty() }
-
                                         wordCount.toString()
                                     },
                                     index = index

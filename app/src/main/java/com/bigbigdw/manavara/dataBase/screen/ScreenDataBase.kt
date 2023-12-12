@@ -730,9 +730,11 @@ fun ScreenDataBaseItem(
             drawerState = drawerState,
         )
 
-    } else if (state.menu.contains("투데이 장르 현황") || state.menu.contains("주차별 장르 현황") || state.menu.contains(
-            "월별 장르 현황"
-        ) || state.menu.contains("주간 장르 현황") || state.menu.contains("월간 장르 현황")
+    } else if (state.menu.contains("투데이 장르 현황")
+        || state.menu.contains("주차별 장르 현황")
+        || state.menu.contains("월별 장르 현황")
+        || state.menu.contains("주간 장르 현황")
+        || state.menu.contains("월간 장르 현황")
     ) {
 
         ScreenBestDataBaseList(
@@ -795,7 +797,7 @@ fun ScreenDataBaseItem(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScreenAnalyzeItemDetail(
     viewModelDatabase: ViewModelDatabase,
