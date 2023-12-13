@@ -71,7 +71,6 @@ import com.bigbigdw.manavara.best.viewModels.ViewModelBestDetail
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color02BC77
 import com.bigbigdw.manavara.ui.theme.color1CE3EE
-import com.bigbigdw.manavara.ui.theme.color1E1E20
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color4AD7CF
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
@@ -149,13 +148,13 @@ fun ScreenBestDetail(
             Scaffold(
                 topBar = {
                     TopbarBestDetail(
-                        setter = setMenu,
-                        getter = getMenu,
                         setDrawer = {
                             coroutineScope.launch {
                                 drawerState.open()
                             }
-                        })
+                        },
+                        getter = getMenu
+                    )
                 },
                 bottomBar = {
                     Row(
@@ -856,54 +855,37 @@ fun DrawerBestDetail(
             .semantics { contentDescription = "Overview Screen" },
     ) {
 
-        Column {
-            Spacer(modifier = Modifier.size(16.dp))
+        Spacer(modifier = Modifier.size(16.dp))
 
-            Text(
-                modifier = Modifier.padding(16.dp, 0.dp, 0.dp, 0.dp),
-                text = "베스트 작품 상세",
-                fontSize = 24.sp,
-                color = Color.Black,
-                fontWeight = FontWeight(weight = 700)
-            )
+        Text(
+            modifier = Modifier.padding(16.dp, 0.dp, 0.dp, 0.dp),
+            text = "베스트 작품 상세",
+            fontSize = 24.sp,
+            color = Color.Black,
+            fontWeight = FontWeight(weight = 700)
+        )
 
-            Spacer(modifier = Modifier.size(16.dp))
+        Spacer(modifier = Modifier.size(16.dp))
 
-            ItemMainSettingSingleTablet(
-                containerColor = color4AD7CF,
-                image = R.drawable.icon_novel_wht,
-                title = "작품 정보",
-                body = "작품의 상세 정보 보기",
-                current = getter,
-                onClick = {
-                    coroutineScope.launch {
-                        setter("작품 정보")
-                        drawerState.close()
-                    }
-                },
-                value = "작품 상세",
-            )
+        ItemMainSettingSingleTablet(
+            containerColor = color4AD7CF,
+            image = R.drawable.icon_novel_wht,
+            title = "작품 정보",
+            body = "작품의 상세 정보 보기",
+            current = getter,
+            onClick = {
+                coroutineScope.launch {
+                    setter("작품 정보")
+                    drawerState.close()
+                }
+            },
+            value = "작품 상세",
+        )
 
-            item.tabInfo.forEachIndexed { index, title ->
+        item.tabInfo.forEachIndexed { index, title ->
 
-                if(title.contains("분석")){
-                    if(itemBestInfo.total != 0){
-                        ItemMainSettingSingleTablet(
-                            containerColor = colorList[index + 1],
-                            image = getBestDetailLogoMobile(menu = title),
-                            title = title,
-                            body = getBestDetailDescription(menu = title),
-                            current = getter,
-                            onClick = {
-                                coroutineScope.launch {
-                                    setter(title)
-                                    drawerState.close()
-                                }
-                            },
-                            value = title,
-                        )
-                    }
-                } else {
+            if(title.contains("분석")){
+                if(itemBestInfo.total != 0){
                     ItemMainSettingSingleTablet(
                         containerColor = colorList[index + 1],
                         image = getBestDetailLogoMobile(menu = title),
@@ -919,6 +901,21 @@ fun DrawerBestDetail(
                         value = title,
                     )
                 }
+            } else {
+                ItemMainSettingSingleTablet(
+                    containerColor = colorList[index + 1],
+                    image = getBestDetailLogoMobile(menu = title),
+                    title = title,
+                    body = getBestDetailDescription(menu = title),
+                    current = getter,
+                    onClick = {
+                        coroutineScope.launch {
+                            setter(title)
+                            drawerState.close()
+                        }
+                    },
+                    value = title,
+                )
             }
         }
 
@@ -926,7 +923,7 @@ fun DrawerBestDetail(
 }
 
 @Composable
-fun TopbarBestDetail(setDrawer: (Boolean) -> Unit, setter: (String) -> Unit, getter: String) {
+fun TopbarBestDetail(setDrawer: (Boolean) -> Unit, getter: String) {
     Row(
         Modifier
             .fillMaxWidth()

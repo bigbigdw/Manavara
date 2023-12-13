@@ -59,6 +59,7 @@ import com.bigbigdw.manavara.best.models.ItemKeyword
 import com.bigbigdw.manavara.best.screen.ItemBestDetailInfoAnalyze
 import com.bigbigdw.manavara.best.screen.ListBest
 import com.bigbigdw.manavara.best.screen.ScreenDialogBest
+import com.bigbigdw.manavara.best.screen.TopbarBestDetail
 import com.bigbigdw.manavara.dataBase.getGenreListWeekJson
 import com.bigbigdw.manavara.dataBase.getGenreMap
 import com.bigbigdw.manavara.dataBase.getJsonFiles
@@ -87,11 +88,12 @@ fun ScreenAnalyzeDetail(
     val state = viewModelDataBaseDetail.state.collectAsState().value
     val context = LocalContext.current
     val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(viewModelDataBaseDetail){
 
         when (state.mode) {
-            "GENRE_BOOK" -> {
+            "GENRE_BOOK", "KEYWORD_BOOK" -> {
 
                 getJsonFiles(
                     platform = state.platform,
@@ -104,7 +106,11 @@ fun ScreenAnalyzeDetail(
                         platform = state.platform,
                         type = state.type,
                         dayType = "MONTH",
-                        dataType = "GENRE",
+                        dataType = if (state.mode.contains("GENRE")) {
+                            "GENRE"
+                        } else {
+                            "KEYWORD"
+                        },
                         root = state.json
                     ) { genreKeywordMonthList, genreKeywordList ->
 
@@ -126,140 +132,53 @@ fun ScreenAnalyzeDetail(
                     }
                 }
             }
-            "GENRE_STATUS" -> {
-
-                getGenreListWeekJson(
-                    context = context,
-                    platform = state.platform,
-                    type = state.type,
-                    dayType = "MONTH",
-                    dataType = "GENRE",
-                    root = state.key
-                ) { monthList, list ->
-                    viewModelDataBaseDetail.setGenreList(genreList = list, genreMonthList = monthList)
-
-                    if(state.mode == "GENRE_BOOK"){
-                        viewModelDataBaseDetail.setScreen(
-                            menu = "${list[0].key} 작품 리스트",
-                            key = list[0].key
-                        )
-                    }
-                }
+            "GENRE_STATUS", "KEYWORD_STATUS" -> {
 
                 getJsonFiles(
                     platform = state.platform,
                     type = state.type,
                     root = "BEST_WEEK",
-                ) {
-                    viewModelDataBaseDetail.setJsonNameList(it)
+                ) { jsonNameList ->
 
-                    viewModelDataBaseDetail.setScreen(
-                        menu = if (state.mode.contains("GENRE")) {
-                            "${convertDateStringWeek(it.get(0))} 장르"
+                    getGenreListWeekJson(
+                        context = context,
+                        platform = state.platform,
+                        type = state.type,
+                        dayType = "MONTH",
+                        dataType = if (state.mode.contains("GENRE")) {
+                            "GENRE"
                         } else {
-                            "${convertDateStringWeek(it.get(0))} 키워드"
+                            "KEYWORD"
                         },
-                        key = it[0]
-                    )
-                }
+                        root = state.json
+                    ) { genreKeywordMonthList, genreKeywordList ->
 
-                getGenreMap(
-                    platform = state.platform,
-                    type = state.type,
-                    menuType = "GENRE"
-                ) { monthList ->
-                    viewModelDataBaseDetail.setGenreMap(ItemKeywordMap = monthList)
-                }
-            }
-            "KEYWORD_BOOK" -> {
+                        getGenreMap(
+                            platform = state.platform,
+                            type = state.type,
+                            menuType = if (state.mode.contains("GENRE")) {
+                                "GENRE"
+                            } else {
+                                "KEYWORD"
+                            },
+                        ) { itemGenreKeywordMap ->
 
-                getGenreListWeekJson(
-                    context = context,
-                    platform = state.platform,
-                    type = state.type,
-                    dayType = "MONTH",
-                    dataType = "KEYWORD",
-                    root = state.key
-                ) { monthList, list ->
-                    viewModelDataBaseDetail.setGenreList(genreList = list, genreMonthList = monthList)
-
-                    if(state.mode == "KEYWORD_BOOK"){
-                        viewModelDataBaseDetail.setScreen(
-                            menu = "${list[0].key} 작품 리스트",
-                            key = list[0].key
-                        )
+                            viewModelDataBaseDetail.setGenreStatus(
+                                jsonNameList = jsonNameList,
+                                genreKeywordList = genreKeywordList,
+                                genreKeywordMonthList = genreKeywordMonthList,
+                                itemGenreKeywordMap = itemGenreKeywordMap,
+                                menu = if (state.mode.contains("GENRE")) {
+                                    "${convertDateStringWeek(jsonNameList.get(0))} 장르"
+                                } else {
+                                    "${convertDateStringWeek(jsonNameList.get(0))} 키워드"
+                                },
+                                key = genreKeywordList[0].key
+                            )
+                        }
                     }
                 }
 
-                getJsonFiles(
-                    platform = state.platform,
-                    type = state.type,
-                    root = "BEST_WEEK",
-                ) {
-                    viewModelDataBaseDetail.setJsonNameList(it)
-
-                }
-
-                getBookMapJson(
-                    platform = state.platform,
-                    type = state.type,
-                    context = context
-                ) {
-                    viewModelDataBaseDetail.setItemBookInfoMap(it)
-                }
-
-                getGenreMap(
-                    platform = state.platform,
-                    type = state.type,
-                    menuType = "KEYWORD"
-                ) { monthList ->
-                    viewModelDataBaseDetail.setGenreMap(ItemKeywordMap = monthList)
-                }
-            }
-            "KEYWORD_STATUS" -> {
-
-                getGenreListWeekJson(
-                    context = context,
-                    platform = state.platform,
-                    type = state.type,
-                    dayType = "MONTH",
-                    dataType = "KEYWORD",
-                    root = state.key
-                ) { monthList, list ->
-                    viewModelDataBaseDetail.setGenreList(genreList = list, genreMonthList = monthList)
-
-                    if(state.mode == "KEYWORD_BOOK"){
-                        viewModelDataBaseDetail.setScreen(
-                            menu = "${list[0].key} 작품 리스트",
-                            key = list[0].key
-                        )
-                    }
-                }
-
-                getJsonFiles(
-                    platform = state.platform,
-                    type = state.type,
-                    root = "BEST_WEEK",
-                ) {
-                    viewModelDataBaseDetail.setJsonNameList(it)
-
-                    viewModelDataBaseDetail.setScreen(
-                        menu = if (state.mode.contains("GENRE")) {
-                            "${convertDateStringWeek(it.get(0))} 장르"
-                        } else {
-                            "${convertDateStringWeek(it.get(0))} 키워드"
-                        },
-                        key = it[0]
-                    )
-                }
-
-                getGenreMap(
-                    platform = state.platform,
-                    type = state.type,
-                    menuType = "KEYWORD"
-                ) { monthList ->
-                    viewModelDataBaseDetail.setGenreMap(ItemKeywordMap = monthList)
-                }
             }
         }
     }
@@ -301,13 +220,9 @@ fun ScreenAnalyzeDetail(
             viewModelDataBaseDetail = viewModelDataBaseDetail,
             setDialogOpen = setDialogOpen,
             modalSheetState = null,
-            listState = listState
+            listState = listState,
+            isExpandedScreen = isExpandedScreen
         )
-
-//        BestDetailBackOnPressed(
-//            getMenu = getMenu,
-//            setMenu = setMenu
-//        )
 
     } else {
 
@@ -321,22 +236,32 @@ fun ScreenAnalyzeDetail(
 
         ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
 
-            ScreenAnalyzeDetailPropertyList(
-                viewModelDataBaseDetail = viewModelDataBaseDetail,
-                listState = listState,
-            )
+            Column(
+                modifier = Modifier
+                    .width(330.dp)
+                    .fillMaxHeight()
+                    .background(color = colorF6F6F6)
+                    .padding(8.dp, 0.dp)
+                    .semantics { contentDescription = "Overview Screen" },
+            ) {
+                ScreenAnalyzeDetailPropertyList(
+                    viewModelDataBaseDetail = viewModelDataBaseDetail,
+                    listState = listState,
+                    isExpandedScreen = isExpandedScreen,
+                )
+            }
 
         }) {
             Scaffold(
                 topBar = {
-//                    TopbarBestDetail(
-//                        setter = setMenu,
-//                        getter = getMenu,
-//                        setDrawer = {
-//                            coroutineScope.launch {
-//                                drawerState.open()
-//                            }
-//                        })
+                    TopbarBestDetail(
+                        setDrawer = {
+                            coroutineScope.launch {
+                                drawerState.open()
+                            }
+                        },
+                        getter = state.menu
+                    )
                 }
             ) {
 
@@ -347,9 +272,12 @@ fun ScreenAnalyzeDetail(
                         .fillMaxSize()
                 ) {
 
-                    ScreenAnalyzeDetailPropertyList(
+                    ScreenTabletAnalyzeDetail(
                         viewModelDataBaseDetail = viewModelDataBaseDetail,
-                        listState = listState
+                        setDialogOpen = null,
+                        modalSheetState = modalSheetState,
+                        listState = listState,
+                        isExpandedScreen = isExpandedScreen
                     )
                 }
 
@@ -362,15 +290,21 @@ fun ScreenAnalyzeDetail(
 @Composable
 fun ScreenAnalyzeDetailPropertyList(
     viewModelDataBaseDetail: ViewModelDataBaseDetail,
-    listState: LazyListState
+    listState: LazyListState,
+    isExpandedScreen: Boolean
 ) {
 
     val coroutineScope = rememberCoroutineScope()
     val state = viewModelDataBaseDetail.state.collectAsState().value
 
+    val modifier = if(isExpandedScreen){
+        Modifier.width(400.dp)
+    } else {
+        Modifier.fillMaxWidth()
+    }
+
     LazyColumn(
-        modifier = Modifier
-            .width(400.dp)
+        modifier = modifier
             .fillMaxHeight()
             .background(color = colorF6F6F6)
             .padding(8.dp, 0.dp)
@@ -475,32 +409,35 @@ fun ScreenAnalyzeDetailPropertyList(
 @Composable
 fun ScreenTabletAnalyzeDetail(
     viewModelDataBaseDetail: ViewModelDataBaseDetail,
-    setDialogOpen: (Boolean) -> Unit,
+    setDialogOpen: ((Boolean) -> Unit)?,
     modalSheetState: ModalBottomSheetState?,
-    listState: LazyListState
+    listState: LazyListState,
+    isExpandedScreen: Boolean
 ) {
 
-    Box(
+    Row(
         modifier = Modifier
             .fillMaxSize()
             .background(color = colorF6F6F6)
-    ) {
+    )  {
 
-        Row {
+        if(isExpandedScreen){
             ScreenAnalyzeDetailPropertyList(
                 viewModelDataBaseDetail = viewModelDataBaseDetail,
-                listState = listState
+                listState = listState,
+                isExpandedScreen = isExpandedScreen
             )
 
             Spacer(modifier = Modifier.size(16.dp))
-
-            ScreenAnalyzeDetailItem(
-                viewModelDataBaseDetail = viewModelDataBaseDetail,
-                setDialogOpen = setDialogOpen,
-                modalSheetState = modalSheetState,
-                listState = listState
-            )
         }
+
+        ScreenAnalyzeDetailItem(
+            viewModelDataBaseDetail = viewModelDataBaseDetail,
+            setDialogOpen = setDialogOpen,
+            modalSheetState = modalSheetState,
+            listState = listState,
+            isExpandedScreen = isExpandedScreen
+        )
     }
 }
 
@@ -510,7 +447,8 @@ fun ScreenAnalyzeDetailItem(
     viewModelDataBaseDetail: ViewModelDataBaseDetail,
     setDialogOpen: ((Boolean) -> Unit)?,
     modalSheetState: ModalBottomSheetState?,
-    listState: LazyListState
+    listState: LazyListState,
+    isExpandedScreen : Boolean
 ) {
 
     val state = viewModelDataBaseDetail.state.collectAsState().value
@@ -522,25 +460,27 @@ fun ScreenAnalyzeDetailItem(
             .padding(0.dp, 0.dp, 16.dp, 0.dp)
     ) {
 
-        Spacer(modifier = Modifier.size(16.dp))
+        if(isExpandedScreen){
+            Spacer(modifier = Modifier.size(16.dp))
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter = painterResource(id = R.drawable.icon_arrow_left),
-                contentDescription = null,
-                modifier = Modifier
-                    .width(30.dp)
-                    .height(30.dp)
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(id = R.drawable.icon_arrow_left),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .width(30.dp)
+                        .height(30.dp)
+                )
 
-            Text(
-                modifier = Modifier
-                    .padding(16.dp, 0.dp, 0.dp, 0.dp),
-                text = state.menu,
-                fontSize = 24.sp,
-                color = color000000,
-                fontWeight = FontWeight(weight = 700)
-            )
+                Text(
+                    modifier = Modifier
+                        .padding(16.dp, 0.dp, 0.dp, 0.dp),
+                    text = state.menu,
+                    fontSize = 24.sp,
+                    color = color000000,
+                    fontWeight = FontWeight(weight = 700)
+                )
+            }
         }
 
         if (state.menu.contains("작품 리스트")) {
@@ -672,7 +612,17 @@ fun ScreenGenreBooks(
         }
     }
 
-    val filteredMap = state.itemBookInfoMap.filter { it.value.genre == state.key }
+    Log.d("HIHI", "filteredMap == $filteredList")
+
+
+    val filteredMap = state.itemBookInfoMap.filter {
+
+        Log.d("HIHI", "it.value.genre == ${it.value.genre}")
+        Log.d("HIHI", "state.key == ${state.key}")
+        Log.d("HIHI", "it == ${it.value.genre}")
+
+        it.value.genre == state.key
+    }
 
     LazyColumn(
         modifier = Modifier

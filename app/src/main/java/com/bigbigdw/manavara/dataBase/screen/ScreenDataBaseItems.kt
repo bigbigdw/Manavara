@@ -578,6 +578,7 @@ fun ScreenBestAnalyze(
 fun ScreenBestDataGenreKeywordList(
     drawerState: DrawerState?,
     viewModelDatabase: ViewModelDatabase,
+    isExpandedScreen : Boolean,
     itemList: List<String> = novelListEng()
 ) {
 
@@ -589,6 +590,20 @@ fun ScreenBestDataGenreKeywordList(
             .fillMaxWidth()
             .background(colorF6F6F6),
     ) {
+
+        if(!isExpandedScreen){
+            item{
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Spacer(modifier = Modifier.size(16.dp))
+
+                    MainHeader(image = R.drawable.logo_transparents, title = state.menuDesc)
+                }
+            }
+        }
 
         item { Spacer(modifier = Modifier.size(16.dp)) }
 

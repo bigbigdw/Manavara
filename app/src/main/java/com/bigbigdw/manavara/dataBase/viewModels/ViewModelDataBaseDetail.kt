@@ -91,6 +91,17 @@ class ViewModelDataBaseDetail @Inject constructor() : ViewModel() {
                 )
             }
 
+            is EventDataBaseDetail.SetGenreStatus -> {
+                current.copy(
+                    jsonNameList = event.jsonNameList,
+                    genreKeywordList = event.genreKeywordList,
+                    genreKeywordMonthList = event.genreKeywordMonthList,
+                    itemGenreKeywordMap = event.itemGenreKeywordMap,
+                    menu = event.menu,
+                    key = event.key
+                )
+            }
+
             else -> {
                 current.copy(Loaded = false)
             }
@@ -112,6 +123,28 @@ class ViewModelDataBaseDetail @Inject constructor() : ViewModel() {
                     genreKeywordList = genreKeywordList,
                     genreKeywordMonthList = genreKeywordMonthList,
                     itemBookInfoMap = itemBookInfoMap,
+                    menu = menu,
+                    key = key
+                )
+            )
+        }
+    }
+
+    fun setGenreStatus(
+        jsonNameList: List<String>,
+        genreKeywordList: ArrayList<ItemKeyword>,
+        genreKeywordMonthList: ArrayList<ArrayList<ItemKeyword>>,
+        itemGenreKeywordMap: MutableMap<String, ArrayList<ItemKeyword>>,
+        menu: String,
+        key: String
+    ) {
+        viewModelScope.launch {
+            events.send(
+                EventDataBaseDetail.SetGenreStatus(
+                    jsonNameList = jsonNameList,
+                    genreKeywordList = genreKeywordList,
+                    genreKeywordMonthList = genreKeywordMonthList,
+                    itemGenreKeywordMap = itemGenreKeywordMap,
                     menu = menu,
                     key = key
                 )

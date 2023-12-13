@@ -765,6 +765,7 @@ fun ScreenDataBaseItem(
         ScreenBestDataGenreKeywordList(
             viewModelDatabase = viewModelDatabase,
             drawerState = drawerState,
+            isExpandedScreen = isExpandedScreen,
             itemList = genreListEng()
         )
 
@@ -773,6 +774,7 @@ fun ScreenDataBaseItem(
         ScreenBestDataGenreKeywordList(
             viewModelDatabase = viewModelDatabase,
             drawerState = drawerState,
+            isExpandedScreen = isExpandedScreen,
             itemList = genreListEng()
         )
 
@@ -786,6 +788,7 @@ fun ScreenDataBaseItem(
         ScreenBestDataGenreKeywordList(
             viewModelDatabase = viewModelDatabase,
             drawerState = drawerState,
+            isExpandedScreen = isExpandedScreen,
             itemList = keywordListEng()
         )
 
@@ -794,6 +797,7 @@ fun ScreenDataBaseItem(
         ScreenBestDataGenreKeywordList(
             viewModelDatabase = viewModelDatabase,
             drawerState = drawerState,
+            isExpandedScreen = isExpandedScreen,
             itemList = keywordListEng()
         )
 

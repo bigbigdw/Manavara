@@ -54,6 +54,15 @@ sealed interface EventDataBaseDetail{
         val menu: String = "",
         val key: String = "",
     ) : EventDataBaseDetail
+
+    class SetGenreStatus(
+        val jsonNameList : List<String> = arrayListOf(),
+        var genreKeywordList : ArrayList<ItemKeyword> = ArrayList(),
+        val genreKeywordMonthList: ArrayList<ArrayList<ItemKeyword>> = ArrayList(),
+        var itemGenreKeywordMap: MutableMap<String, ArrayList<ItemKeyword>> = mutableMapOf(),
+        val menu: String = "",
+        val key: String = "",
+    ) : EventDataBaseDetail
 }
 
 data class StateDataBaseDetail(
