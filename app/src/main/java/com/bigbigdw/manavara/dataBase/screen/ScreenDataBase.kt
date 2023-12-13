@@ -279,6 +279,7 @@ fun ScreenDataBasePropertyList(
                     viewModelDatabase.setScreen(
                         detail = "",
                         menu = "베스트 웹소설 DB",
+                        menuDesc = "마나바라에 기록된 베스트 웹소설 리스트",
                         type = state.type
                     )
                     drawerState?.close()
@@ -298,6 +299,7 @@ fun ScreenDataBasePropertyList(
                     viewModelDatabase.setScreen(
                         detail = "",
                         menu = "신규 작품",
+                        menuDesc = "최근에 등록된 작품 확인",
                         type = "NOVEL",
                         platform = "JOARA"
                     )
@@ -320,6 +322,7 @@ fun ScreenDataBasePropertyList(
                     viewModelDatabase.setScreen(
                         detail = "",
                         menu = "주차별 웹소설 베스트",
+                        menuDesc = "주차별 웹소설 베스트 리스트",
                         type = "NOVEL",
                         platform = "JOARA"
                     )
@@ -340,6 +343,7 @@ fun ScreenDataBasePropertyList(
                     viewModelDatabase.setScreen(
                         detail = "",
                         menu = "월별 웹소설 베스트",
+                        menuDesc = "월별 웹소설 베스트 리스트",
                         type = "NOVEL",
                         platform = "JOARA"
                     )
@@ -362,6 +366,7 @@ fun ScreenDataBasePropertyList(
                     viewModelDatabase.setScreen(
                         detail = "",
                         menu = "투데이 장르 현황",
+                        menuDesc = "웹소설 플랫폼별 투데이 장르 리스트",
                         type = "NOVEL",
                         platform = "JOARA"
                     )
@@ -382,6 +387,7 @@ fun ScreenDataBasePropertyList(
                     viewModelDatabase.setScreen(
                         detail = "",
                         menu = "주간 장르 현황",
+                        menuDesc = "웹소설 주간 주차별 장르 리스트",
                         type = "NOVEL",
                         platform = "JOARA"
                     )
@@ -402,6 +408,7 @@ fun ScreenDataBasePropertyList(
                     viewModelDatabase.setScreen(
                         detail = "",
                         menu = "월간 장르 현황",
+                        menuDesc = "웹소설 플랫폼별 월간 장르 리스트",
                         type = "NOVEL",
                         platform = "JOARA"
                     )
@@ -422,6 +429,7 @@ fun ScreenDataBasePropertyList(
                     viewModelDatabase.setScreen(
                         detail = "",
                         menu = "주차별 장르 현황",
+                        menuDesc = "웹소설 플랫폼별 주차별 장르 리스트",
                         type = "NOVEL",
                         platform = "JOARA"
                     )
@@ -442,6 +450,7 @@ fun ScreenDataBasePropertyList(
                     viewModelDatabase.setScreen(
                         detail = "",
                         menu = "월별 장르 현황",
+                        menuDesc = "웹소설 플랫폼별 월별 장르 리스트",
                         type = "NOVEL",
                         platform = "JOARA"
                     )
@@ -462,6 +471,7 @@ fun ScreenDataBasePropertyList(
                     viewModelDatabase.setScreen(
                         detail = "",
                         menu = "장르 리스트 작품",
+                        menuDesc = "장르별 작품 리스트 보기",
                         type = "NOVEL",
                         platform = "JOARA"
                     )
@@ -482,6 +492,7 @@ fun ScreenDataBasePropertyList(
                     viewModelDatabase.setScreen(
                         detail = "",
                         menu = "장르 리스트 현황",
+                        menuDesc = "장르별 랭킹 변동 현황",
                         type = "NOVEL",
                         platform = "JOARA"
                     )
@@ -504,6 +515,7 @@ fun ScreenDataBasePropertyList(
                     viewModelDatabase.setScreen(
                         detail = "",
                         menu = "투데이 키워드 현황",
+                        menuDesc = "웹소설 주차별 투데이 키워드 현황",
                         type = "NOVEL",
                         platform = "JOARA"
                     )
@@ -524,6 +536,7 @@ fun ScreenDataBasePropertyList(
                     viewModelDatabase.setScreen(
                         detail = "",
                         menu = "주간 키워드 현황",
+                        menuDesc = "웹소설 주간 키워드 현황",
                         type = "NOVEL",
                         platform = "JOARA"
                     )
@@ -544,6 +557,7 @@ fun ScreenDataBasePropertyList(
                     viewModelDatabase.setScreen(
                         detail = "",
                         menu = "월간 키워드 현황",
+                        menuDesc = "웹소설 월간 키워드 현황",
                         type = "NOVEL",
                         platform = "JOARA"
                     )
@@ -564,6 +578,7 @@ fun ScreenDataBasePropertyList(
                     viewModelDatabase.setScreen(
                         detail = "",
                         menu = "주차별 키워드 현황",
+                        menuDesc = "웹소설 주차별 월별 키워드 현황",
                         type = "NOVEL",
                         platform = "JOARA"
                     )
@@ -584,6 +599,7 @@ fun ScreenDataBasePropertyList(
                     viewModelDatabase.setScreen(
                         detail = "",
                         menu = "월별 키워드 현황",
+                        menuDesc = "웹소설 플랫폼별 월별 키워드 현황",
                         type = "NOVEL",
                         platform = "JOARA"
                     )
@@ -604,6 +620,7 @@ fun ScreenDataBasePropertyList(
                     viewModelDatabase.setScreen(
                         detail = "",
                         menu = "키워드 리스트 작품",
+                        menuDesc = "웹소설 키워드 리스트 작품 보기",
                         type = "NOVEL",
                         platform = "JOARA"
                     )
@@ -624,6 +641,7 @@ fun ScreenDataBasePropertyList(
                     viewModelDatabase.setScreen(
                         detail = "",
                         menu = "키워드 리스트 현황",
+                        menuDesc = "웹소설 키워드 리스트 작품 보기",
                         type = "NOVEL",
                         platform = "JOARA"
                     )
@@ -645,7 +663,8 @@ fun ScreenDataBasePropertyList(
                 coroutineScope.launch {
                     viewModelDatabase.setScreen(
                         detail = "",
-                        menu = "마나바라 DB에 저장된 작품 검색",
+                        menu = "마나바라 DB 검색",
+                        menuDesc = "마나바라 DB에 저장된 작품 검색",
                         type = "NOVEL",
                         platform = "JOARA"
                     )
@@ -666,6 +685,7 @@ fun ScreenDataBasePropertyList(
                     viewModelDatabase.setScreen(
                         detail = "",
                         menu = "작품 검색",
+                        menuDesc = "플랫폼과 무관하게 작품 검색 진행",
                         type = "NOVEL",
                         platform = "JOARA"
                     )
@@ -686,6 +706,7 @@ fun ScreenDataBasePropertyList(
                     viewModelDatabase.setScreen(
                         detail = "",
                         menu = "북코드 검색",
+                        menuDesc = "북코드로 작품 찾기",
                         type = "NOVEL",
                         platform = "JOARA"
                     )
@@ -705,6 +726,7 @@ fun ScreenDataBaseItem(
     drawerState: DrawerState?,
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
+    isExpandedScreen : Boolean
 ) {
 
     val state = viewModelDatabase.state.collectAsState().value
@@ -713,14 +735,16 @@ fun ScreenDataBaseItem(
 
         ScreenBestDataBaseList(
             drawerState = drawerState,
-            viewModelDatabase = viewModelDatabase
+            viewModelDatabase = viewModelDatabase,
+            isExpandedScreen = isExpandedScreen
         )
 
     } else if (state.menu.contains("베스트 웹툰 DB")) {
 
         ScreenBestDataBaseList(
             drawerState = drawerState,
-            viewModelDatabase = viewModelDatabase
+            viewModelDatabase = viewModelDatabase,
+            isExpandedScreen = isExpandedScreen
         )
 
     } else if (state.menu.contains("주차별 웹소설 베스트") || state.menu.contains("월별 웹소설 베스트")) {
@@ -728,6 +752,7 @@ fun ScreenDataBaseItem(
         ScreenBestDataBaseList(
             viewModelDatabase = viewModelDatabase,
             drawerState = drawerState,
+            isExpandedScreen = isExpandedScreen
         )
 
     } else if (state.menu.contains("투데이 장르 현황")
@@ -737,7 +762,7 @@ fun ScreenDataBaseItem(
         || state.menu.contains("월간 장르 현황")
     ) {
 
-        ScreenBestDataBaseList(
+        ScreenBestDataGenreKeywordList(
             viewModelDatabase = viewModelDatabase,
             drawerState = drawerState,
             itemList = genreListEng()
@@ -745,7 +770,7 @@ fun ScreenDataBaseItem(
 
     } else if (state.menu.contains("장르 리스트 작품") || state.menu.contains("장르 리스트 현황")) {
 
-        ScreenBestDataBaseList(
+        ScreenBestDataGenreKeywordList(
             viewModelDatabase = viewModelDatabase,
             drawerState = drawerState,
             itemList = genreListEng()
@@ -758,7 +783,7 @@ fun ScreenDataBaseItem(
         || state.menu.contains("월간 키워드 현황")
     ) {
 
-        ScreenBestDataBaseList(
+        ScreenBestDataGenreKeywordList(
             viewModelDatabase = viewModelDatabase,
             drawerState = drawerState,
             itemList = keywordListEng()
@@ -766,7 +791,7 @@ fun ScreenDataBaseItem(
 
     } else if (state.menu.contains("키워드 리스트 작품") || state.menu.contains("키워드 리스트 현황")) {
 
-        ScreenBestDataBaseList(
+        ScreenBestDataGenreKeywordList(
             viewModelDatabase = viewModelDatabase,
             drawerState = drawerState,
             itemList = keywordListEng()

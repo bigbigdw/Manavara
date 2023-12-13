@@ -53,7 +53,7 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
             }
 
             is EventDataBase.SetScreen -> {
-                current.copy(menu = event.menu, platform = event.platform, detail = event.detail, type = event.type)
+                current.copy(menu = event.menu, platform = event.platform, detail = event.detail, type = event.type, menuDesc = event.menuDesc)
             }
 
             is EventDataBase.SetGenreList -> {
@@ -146,9 +146,9 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setScreen(menu: String = "", platform: String = "", detail: String = "", type: String = "" ){
+    fun setScreen(menu: String = "", platform: String = "", detail: String = "", type: String = "", menuDesc : String = ""){
         viewModelScope.launch {
-            events.send(EventDataBase.SetScreen(menu = menu, platform = platform, detail = detail, type = type))
+            events.send(EventDataBase.SetScreen(menu = menu, platform = platform, detail = detail, type = type, menuDesc = menuDesc))
         }
     }
 

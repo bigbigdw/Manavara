@@ -31,6 +31,7 @@ sealed interface EventDataBase{
         val platform: String = "",
         val detail: String = "",
         val type: String = "",
+        val menuDesc : String = "",
     ) : EventDataBase
 
     class SetKeywordDay(
@@ -88,6 +89,7 @@ data class StateDataBase(
     val platform: String = "",
     val detail: String = "",
     val type: String = "NOVEL",
+    val menuDesc : String = "마나바라에 기록된 베스트 웹소설 리스트",
     val weekList : ArrayList<ArrayList<ItemBookInfo>> = ArrayList(),
     var weekTrophyList: ArrayList<ItemBestInfo> = ArrayList(),
     val filteredList: ArrayList<ItemBookInfo> = ArrayList(),

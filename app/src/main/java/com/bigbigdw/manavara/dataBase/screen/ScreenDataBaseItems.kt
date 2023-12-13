@@ -83,6 +83,7 @@ import com.bigbigdw.manavara.util.getPlatformDataKeyComic
 import com.bigbigdw.manavara.util.getPlatformDataKeyNovel
 import com.bigbigdw.manavara.util.getPlatformLogoEng
 import com.bigbigdw.manavara.util.novelListEng
+import com.bigbigdw.manavara.util.screen.MainHeader
 import com.bigbigdw.manavara.util.screen.ScreenEmpty
 import com.bigbigdw.manavara.util.screen.ScreenItemKeyword
 import com.bigbigdw.manavara.util.screen.TabletContentWrapBtn
@@ -173,7 +174,8 @@ fun ScreenDataBaseItems(
                 viewModelDatabase = viewModelDatabase,
                 drawerState = drawerState,
                 modalSheetState = modalSheetState,
-                setDialogOpen = setDialogOpen
+                setDialogOpen = setDialogOpen,
+                isExpandedScreen = isExpandedScreen
             )
         }
     }
@@ -236,7 +238,8 @@ fun ScreenDataBaseTopbar(viewModelDatabase: ViewModelDatabase, onClick: () -> Un
 @Composable
 fun ScreenBestDataBaseList(
     drawerState: DrawerState?,
-    viewModelDatabase: ViewModelDatabase
+    viewModelDatabase: ViewModelDatabase,
+    isExpandedScreen : Boolean
 ) {
     val context = LocalContext.current
     val dataStore = DataStoreManager(context)
@@ -248,6 +251,20 @@ fun ScreenBestDataBaseList(
             .fillMaxSize()
             .background(colorF6F6F6),
     ) {
+
+        if(!isExpandedScreen){
+            item{
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Spacer(modifier = Modifier.size(16.dp))
+
+                    MainHeader(image = R.drawable.logo_transparents, title = state.menuDesc)
+                }
+            }
+        }
 
         item { Spacer(modifier = Modifier.size(8.dp)) }
 
@@ -263,7 +280,8 @@ fun ScreenBestDataBaseList(
                                 menu = state.menu,
                                 detail = "${changePlatformNameKor(item)} ${state.menu}",
                                 platform = item,
-                                type = state.type
+                                type = state.type,
+                                menuDesc = state.menuDesc
                             )
                             drawerState?.close()
                         }
@@ -381,7 +399,7 @@ fun BestAnalyzeBackOnPressed(
 
         if (state.detail.isNotEmpty()) {
             coroutineScope.launch {
-                viewModelDatabase.setScreen(detail = "", menu = state.menu, platform = state.platform, type = state.type)
+                viewModelDatabase.setScreen(detail = "", menu = state.menu, platform = state.platform, type = state.type, menuDesc = state.menuDesc)
             }
         } else {
             if (System.currentTimeMillis() - backPressedTime <= 400L) {
@@ -549,7 +567,7 @@ fun ScreenBestAnalyze(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScreenBestDataBaseList(
+fun ScreenBestDataGenreKeywordList(
     drawerState: DrawerState?,
     viewModelDatabase: ViewModelDatabase,
     itemList: List<String> = novelListEng()
@@ -576,7 +594,8 @@ fun ScreenBestDataBaseList(
                                 menu = state.menu,
                                 detail = "${changePlatformNameKor(item)} ${state.menu}",
                                 platform = item,
-                                type = state.type
+                                type = state.type,
+                                menuDesc = state.menuDesc
                             )
                             drawerState?.close()
                         }
@@ -896,6 +915,7 @@ fun ScreenSearchDataBase(
                                         platform = item,
                                         type = "NOVEL",
                                         menu = state.menu,
+                                        menuDesc = state.menuDesc
                                     )
                                 }
                             },
@@ -1019,6 +1039,7 @@ fun ScreenSearchDataBaseDetail(
                                         platform = item,
                                         type = "NOVEL",
                                         menu = state.menu,
+                                        menuDesc = state.menuDesc
                                     )
                                 }
                             },

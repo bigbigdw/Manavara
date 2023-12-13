@@ -75,6 +75,8 @@ import com.bigbigdw.manavara.best.getBestWeekTrophy
 import com.bigbigdw.manavara.best.getBookItemWeekTrophy
 import com.bigbigdw.manavara.best.getBookItemWeekTrophyDialog
 import com.bigbigdw.manavara.best.getBookMap
+import com.bigbigdw.manavara.best.getBookMapJson
+import com.bigbigdw.manavara.best.getBookMapStorage
 import com.bigbigdw.manavara.util.getWeekDate
 import com.bigbigdw.manavara.util.screen.ScreenEmpty
 import com.bigbigdw.manavara.util.screen.ScreenItemKeyword
@@ -98,20 +100,28 @@ fun ScreenTodayBest(
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(state.platform, state.type){
-        getBookMap(
-            platform = state.platform,
-            type = state.type
-        ) {
-            viewModelBest.setItemBookInfoMap(it)
-        }
+//        getBookMap(
+//            platform = state.platform,
+//            type = state.type
+//        ) {
+//            viewModelBest.setItemBookInfoMap(it)
+//        }
 
-        getBestListTodayJson(
+        getBookMapJson(
             platform = state.platform,
             type = state.type,
             context = context
-        ) {
-            viewModelBest.setItemBestInfoList(it)
+        ){
+            Log.d("HIHI", "it == $it")
         }
+
+//        getBestListTodayJson(
+//            platform = state.platform,
+//            type = state.type,
+//            context = context
+//        ) {
+//            viewModelBest.setItemBestInfoList(it)
+//        }
     }
 
     LazyColumn(

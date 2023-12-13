@@ -14,6 +14,7 @@ import com.google.firebase.storage.ktx.storage
 import convertItemBookJson
 import kotlinx.serialization.json.Json
 import org.json.JSONArray
+import org.json.JSONObject
 import java.io.File
 import java.nio.charset.Charset
 import java.util.Collections
@@ -139,14 +140,77 @@ private fun getBestList(
     })
 }
 
+fun getBookMapJson(
+    platform: String,
+    type: String,
+    context: Context,
+    callbacks: (ArrayList<ItemBookInfo>) -> Unit
+) {
+
+    try {
+        val filePath = File(context.filesDir, "BOOK_${type}_${platform}.json").absolutePath
+        val jsonString = File(filePath).readText(Charset.forName("UTF-8"))
+
+        val jsonObject = JSONObject(jsonString)
+        val itemList = ArrayList<ItemBookInfo>()
+
+        for (key in jsonObject.keys()) {
+            val value = jsonObject.getString(key)
+            val item = convertItemBookJson(JSONObject(value))
+            itemList.add(item)
+        }
+
+        Log.d("HIHI", "itemList == $itemList")
+
+        callbacks.invoke(itemList)
+    } catch (e: Exception) {
+        getBookMapStorage(
+            platform = platform,
+            type = type,
+            context = context
+        ) {
+            callbacks.invoke(it)
+        }
+    }
+}
+
+fun getBookMapStorage(
+    platform: String,
+    type: String,
+    context: Context,
+    callbacks: (ArrayList<ItemBookInfo>) -> Unit
+) {
+
+    val storage = Firebase.storage
+    val storageRef = storage.reference
+    val bookRef =
+        storageRef.child("${platform}/${type}/BOOK/${platform}.json")
+    val bookFile = File(context.filesDir, "BOOK_${type}_${platform}.json")
+
+    bookRef.getFile(bookFile).addOnSuccessListener {
+        val jsonString = bookFile.readText(Charset.forName("UTF-8")).trimIndent()
+        val jsonObject = JSONObject(jsonString)
+        val itemList = ArrayList<ItemBookInfo>()
+
+        for (key in jsonObject.keys()) {
+            val value = jsonObject.getString(key)
+            val item = convertItemBookJson(JSONObject(value))
+            itemList.add(item)
+        }
+
+        callbacks.invoke(itemList)
+    }.addOnFailureListener {
+        Log.d("HIHI", "FAIL == $it")
+    }
+}
+
 fun getBookMap(
     platform: String,
     type: String,
     callbacks: (MutableMap<String, ItemBookInfo>) -> Unit
 ) {
 
-    val mRootRef =
-        FirebaseDatabase.getInstance().reference.child("BOOK").child(type).child(platform)
+    val mRootRef = FirebaseDatabase.getInstance().reference.child("BOOK").child(type).child(platform)
 
     mRootRef.addListenerForSingleValueEvent(object :
         ValueEventListener {
