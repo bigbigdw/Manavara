@@ -75,6 +75,7 @@ fun convertItemBookJson(jsonObject: JSONObject): ItemBookInfo {
         cntFavorite = jsonObject.optString("cntFavorite"),
         cntRecom = jsonObject.optString("cntRecom"),
         cntTotalComment = jsonObject.optString("cntTotalComment"),
+        genre = jsonObject.optString("genre"),
         cntChapter = jsonObject.optString("cntChapter"),
         point = jsonObject.optInt("point"),
         number = jsonObject.optInt("number"),

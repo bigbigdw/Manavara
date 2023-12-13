@@ -47,10 +47,11 @@ sealed interface EventDataBaseDetail{
     ) : EventDataBaseDetail
 
     class SetGenreBook(
-        val jsonNameList : List<String> = arrayListOf(),
-        var genreKeywordList : ArrayList<ItemKeyword> = ArrayList(),
+        val jsonNameList: List<String> = arrayListOf(),
+        var genreKeywordList: ArrayList<ItemKeyword> = ArrayList(),
         val genreKeywordMonthList: ArrayList<ArrayList<ItemKeyword>> = ArrayList(),
         var itemBookInfoMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
+        var itemGenreKeywordMap: MutableMap<String, ArrayList<ItemKeyword>> = mutableMapOf(),
         val menu: String = "",
         val key: String = "",
     ) : EventDataBaseDetail

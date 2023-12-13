@@ -21,10 +21,13 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalNavigationDrawer
@@ -71,6 +74,7 @@ import com.bigbigdw.manavara.util.screen.AlertTwoBtn
 import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
 import com.bigbigdw.manavara.util.screen.ScreenEmpty
 import com.bigbigdw.manavara.util.screen.ScreenItemKeyword
+import com.bigbigdw.manavara.util.screen.ScreenTest
 import com.bigbigdw.manavara.util.screen.TabletBorderLine
 import com.bigbigdw.manavara.util.screen.TabletContentWrap
 import com.bigbigdw.manavara.util.weekListAll
@@ -120,14 +124,38 @@ fun ScreenAnalyzeDetail(
                             context = context
                         ) { itemBookInfoMap ->
 
-                            viewModelDataBaseDetail.setGenreBook(
-                                jsonNameList = jsonNameList,
-                                genreKeywordList = genreKeywordList,
-                                genreKeywordMonthList = genreKeywordMonthList,
-                                itemBookInfoMap = itemBookInfoMap,
-                                menu = "${genreKeywordList[0].key} 작품 리스트",
-                                key = genreKeywordList[0].key
-                            )
+                            if(state.mode == "GENRE_BOOK"){
+                                viewModelDataBaseDetail.setGenreBook(
+                                    jsonNameList = jsonNameList,
+                                    genreKeywordList = genreKeywordList,
+                                    genreKeywordMonthList = genreKeywordMonthList,
+                                    itemBookInfoMap = itemBookInfoMap,
+                                    menu = "${genreKeywordList[0].key} 작품 리스트",
+                                    key = genreKeywordList[0].key,
+                                    itemGenreKeywordMap =  mutableMapOf()
+                                )
+                            } else {
+                                getGenreMap(
+                                    platform = state.platform,
+                                    type = state.type,
+                                    menuType = if (state.mode.contains("GENRE")) {
+                                        "GENRE"
+                                    } else {
+                                        "KEYWORD"
+                                    },
+                                ) { itemGenreKeywordMap ->
+
+                                    viewModelDataBaseDetail.setGenreBook(
+                                        jsonNameList = jsonNameList,
+                                        genreKeywordList = genreKeywordList,
+                                        itemGenreKeywordMap = itemGenreKeywordMap,
+                                        genreKeywordMonthList = genreKeywordMonthList,
+                                        itemBookInfoMap = itemBookInfoMap,
+                                        menu = "${genreKeywordList[0].key} 작품 리스트",
+                                        key = genreKeywordList[0].key
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -221,7 +249,8 @@ fun ScreenAnalyzeDetail(
             setDialogOpen = setDialogOpen,
             modalSheetState = null,
             listState = listState,
-            isExpandedScreen = isExpandedScreen
+            isExpandedScreen = isExpandedScreen,
+            drawerState = null
         )
 
     } else {
@@ -248,6 +277,7 @@ fun ScreenAnalyzeDetail(
                     viewModelDataBaseDetail = viewModelDataBaseDetail,
                     listState = listState,
                     isExpandedScreen = isExpandedScreen,
+                    drawerState = drawerState
                 )
             }
 
@@ -277,21 +307,44 @@ fun ScreenAnalyzeDetail(
                         setDialogOpen = null,
                         modalSheetState = modalSheetState,
                         listState = listState,
-                        isExpandedScreen = isExpandedScreen
+                        isExpandedScreen = isExpandedScreen,
+                        drawerState = drawerState
                     )
                 }
 
             }
+
+            ModalBottomSheetLayout(
+                sheetState = modalSheetState,
+                sheetElevation = 50.dp,
+                sheetShape = RoundedCornerShape(
+                    topStart = 25.dp,
+                    topEnd = 25.dp
+                ),
+                sheetContent = {
+                    Spacer(modifier = Modifier.size(4.dp))
+
+                    ScreenDialogBest(
+                        item = state.itemBookInfo,
+                        trophy = state.itemBestInfoTrophyList,
+                        isExpandedScreen = isExpandedScreen,
+                        currentRoute = state.type,
+                        modalSheetState = modalSheetState
+                    )
+                },
+            ) {}
         }
 
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenAnalyzeDetailPropertyList(
     viewModelDataBaseDetail: ViewModelDataBaseDetail,
     listState: LazyListState,
-    isExpandedScreen: Boolean
+    isExpandedScreen: Boolean,
+    drawerState: DrawerState?
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -397,6 +450,8 @@ fun ScreenAnalyzeDetailPropertyList(
                         )
 
                         listState.scrollToItem(index = 0)
+
+                        drawerState?.close()
                     }
                 },
                 value = state.menu,
@@ -405,14 +460,15 @@ fun ScreenAnalyzeDetailPropertyList(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenTabletAnalyzeDetail(
     viewModelDataBaseDetail: ViewModelDataBaseDetail,
     setDialogOpen: ((Boolean) -> Unit)?,
     modalSheetState: ModalBottomSheetState?,
     listState: LazyListState,
-    isExpandedScreen: Boolean
+    isExpandedScreen: Boolean,
+    drawerState: DrawerState?
 ) {
 
     Row(
@@ -425,7 +481,8 @@ fun ScreenTabletAnalyzeDetail(
             ScreenAnalyzeDetailPropertyList(
                 viewModelDataBaseDetail = viewModelDataBaseDetail,
                 listState = listState,
-                isExpandedScreen = isExpandedScreen
+                isExpandedScreen = isExpandedScreen,
+                drawerState = drawerState
             )
 
             Spacer(modifier = Modifier.size(16.dp))
@@ -529,20 +586,17 @@ fun ScreenKeywordBooks(
     val filteredList = ArrayList<ItemBookInfo>()
     val coroutineScope = rememberCoroutineScope()
 
-    if(state.itemGenreKeywordMap.isNotEmpty() && state.itemBookInfoMap.isNotEmpty()){
+    if(state.itemGenreKeywordMap[state.key] != null){
 
-        if(state.itemGenreKeywordMap[state.key] != null){
+        val keyword = state.itemGenreKeywordMap[state.key]?.get(0) ?: ItemKeyword()
 
-            val keyword = state.itemGenreKeywordMap[state.key]?.get(0) ?: ItemKeyword()
+        val titleList = keyword.value.split(", ")
 
-            val titleList = keyword.value.split(", ")
+        for(item in titleList){
+            val bookItem = state.itemBookInfoMap[item]
 
-            for(item in titleList){
-                val bookItem = state.itemBookInfoMap[item]
-
-                if (bookItem != null) {
-                    filteredList.add(bookItem)
-                }
+            if (bookItem != null) {
+                filteredList.add(bookItem)
             }
         }
     }
@@ -564,6 +618,8 @@ fun ScreenKeywordBooks(
             ) {
                 coroutineScope.launch {
 
+                    modalSheetState?.show()
+
                     getBookItemWeekTrophy(
                         bookCode = item.bookCode,
                         type = state.type,
@@ -581,7 +637,6 @@ fun ScreenKeywordBooks(
                         setDialogOpen(true)
                     }
 
-                    modalSheetState?.show()
                 }
             }
         }
@@ -616,10 +671,6 @@ fun ScreenGenreBooks(
 
 
     val filteredMap = state.itemBookInfoMap.filter {
-
-        Log.d("HIHI", "it.value.genre == ${it.value.genre}")
-        Log.d("HIHI", "state.key == ${state.key}")
-        Log.d("HIHI", "it == ${it.value.genre}")
 
         it.value.genre == state.key
     }

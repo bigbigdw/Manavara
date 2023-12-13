@@ -86,6 +86,7 @@ class ViewModelDataBaseDetail @Inject constructor() : ViewModel() {
                     genreKeywordList = event.genreKeywordList,
                     genreKeywordMonthList = event.genreKeywordMonthList,
                     itemBookInfoMap = event.itemBookInfoMap,
+                    itemGenreKeywordMap = event.itemGenreKeywordMap,
                     menu = event.menu,
                     key = event.key
                 )
@@ -112,9 +113,10 @@ class ViewModelDataBaseDetail @Inject constructor() : ViewModel() {
         jsonNameList: List<String>,
         genreKeywordList: ArrayList<ItemKeyword>,
         genreKeywordMonthList: ArrayList<ArrayList<ItemKeyword>>,
-        itemBookInfoMap:  MutableMap<String, ItemBookInfo>,
+        itemBookInfoMap: MutableMap<String, ItemBookInfo>,
+        itemGenreKeywordMap: MutableMap<String, ArrayList<ItemKeyword>>,
         menu: String,
-        key: String
+        key: String,
     ) {
         viewModelScope.launch {
             events.send(
@@ -122,6 +124,7 @@ class ViewModelDataBaseDetail @Inject constructor() : ViewModel() {
                     jsonNameList = jsonNameList,
                     genreKeywordList = genreKeywordList,
                     genreKeywordMonthList = genreKeywordMonthList,
+                    itemGenreKeywordMap = itemGenreKeywordMap,
                     itemBookInfoMap = itemBookInfoMap,
                     menu = menu,
                     key = key
