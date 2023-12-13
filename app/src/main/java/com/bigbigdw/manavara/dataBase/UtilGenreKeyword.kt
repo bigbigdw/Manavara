@@ -117,7 +117,7 @@ fun getGenreListWeekJson(
         dayType = dayType,
         context = context,
         platform = platform,
-        type = type
+        type = type,
     ).absolutePath
 
     try {
@@ -184,6 +184,9 @@ fun getJsonGenreWeekList(
             callbacks.invoke(weekJsonList, arrayList)
         }
     }.addOnFailureListener {
+
+        Log.d("GENRE", "getJsonGenreWeekList == $it")
+
         getGenreKeywordRealtimeDB(platform = platform, type = type, dataType = dataType, dayType ){ weekJsonList, arrayList ->
             callbacks.invoke(weekJsonList, arrayList)
         }

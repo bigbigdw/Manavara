@@ -45,6 +45,15 @@ sealed interface EventDataBaseDetail{
     class SetGenreMap(
         var ItemKeywordMap: MutableMap<String, ArrayList<ItemKeyword>> = mutableMapOf(),
     ) : EventDataBaseDetail
+
+    class SetGenreBook(
+        val jsonNameList : List<String> = arrayListOf(),
+        var genreKeywordList : ArrayList<ItemKeyword> = ArrayList(),
+        val genreKeywordMonthList: ArrayList<ArrayList<ItemKeyword>> = ArrayList(),
+        var itemBookInfoMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
+        val menu: String = "",
+        val key: String = "",
+    ) : EventDataBaseDetail
 }
 
 data class StateDataBaseDetail(
@@ -56,11 +65,11 @@ data class StateDataBaseDetail(
     val json: String = "",
     val key: String = "",
     val mode: String = "",
-    var genreList : ArrayList<ItemKeyword> = ArrayList(),
+    var genreKeywordList : ArrayList<ItemKeyword> = ArrayList(),
     var itemBookInfoMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
     val itemBookInfo : ItemBookInfo = ItemBookInfo(),
     val itemBestInfoTrophyList : ArrayList<ItemBestInfo> = ArrayList(),
-    val genreMonthList: ArrayList<ArrayList<ItemKeyword>> = ArrayList(),
-    var itemKeywordMap: MutableMap<String, ArrayList<ItemKeyword>> = mutableMapOf(),
+    val genreKeywordMonthList: ArrayList<ArrayList<ItemKeyword>> = ArrayList(),
+    var itemGenreKeywordMap: MutableMap<String, ArrayList<ItemKeyword>> = mutableMapOf(),
     val jsonNameList : List<String> = arrayListOf(),
 )

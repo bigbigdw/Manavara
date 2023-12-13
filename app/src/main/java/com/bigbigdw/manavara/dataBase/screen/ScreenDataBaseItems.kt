@@ -60,10 +60,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.bigbigdw.manavara.R
-import com.bigbigdw.manavara.best.getBestMonthTrophy
-import com.bigbigdw.manavara.best.getBestWeekTrophy
-import com.bigbigdw.manavara.best.getBookItemWeekTrophyDialog
-import com.bigbigdw.manavara.best.getBookMap
+import com.bigbigdw.manavara.best.getBookItemWeekTrophy
+import com.bigbigdw.manavara.best.getTrophyWeekMonthJson
+import com.bigbigdw.manavara.best.getBookMapJson
 import com.bigbigdw.manavara.best.gotoUrl
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.screen.ListBest
@@ -337,10 +336,12 @@ fun ScreenBookMap(
 
     val state = viewModelDatabase.state.collectAsState().value
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
-    getBookMap(
+    getBookMapJson(
         platform = state.platform,
-        type = state.type
+        type = state.type,
+        context = context
     ) {
         viewModelDatabase.setItemBookInfoMap(it)
     }
@@ -360,17 +361,18 @@ fun ScreenBookMap(
                 index = index,
             ) {
                 coroutineScope.launch {
-                    viewModelDatabase.setItemBookInfo(itemBookInfo = item)
 
-                    getBookItemWeekTrophyDialog(
-                        itemBookInfo = item,
+                    getBookItemWeekTrophy(
+                        bookCode = item.bookCode,
                         type = state.type,
                         platform = state.platform
-                    ) { itemBookInfo, itemBestInfoTrophyList ->
+                    ) { itemBestInfoTrophyList ->
+
                         viewModelDatabase.setItemBestInfoTrophyList(
-                            itemBookInfo = itemBookInfo,
+                            itemBookInfo = item,
                             itemBestInfoTrophyList = itemBestInfoTrophyList
                         )
+
                     }
 
                     modalSheetState?.show()
@@ -426,6 +428,7 @@ fun ScreenBestAnalyze(
     val state = viewModelDatabase.state.collectAsState().value
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     getJsonFiles(
         platform = state.platform,
@@ -448,26 +451,30 @@ fun ScreenBestAnalyze(
     if (state.jsonNameList.isNotEmpty()) {
 
         if (root == "BEST_WEEK") {
-            getBestWeekTrophy(
+            getTrophyWeekMonthJson(
                 platform = state.platform,
                 type = state.type,
-                root = state.week
+                root = state.week,
+                dayType = "WEEK",
+                context = context
             ) {
                 viewModelDatabase.setWeekTrophyList(it)
             }
         } else {
-            getBestMonthTrophy(
+            getTrophyWeekMonthJson(
                 platform = state.platform,
                 type = state.type,
-                root = state.month
-            ) {
-                viewModelDatabase.setWeekTrophyList(it)
+                dayType = "MONTH",
+                context = context
+            ) { weekTrophyList ->
+                viewModelDatabase.setWeekTrophyList(weekTrophyList)
             }
         }
 
-        getBookMap(
+        getBookMapJson(
             platform = state.platform,
-            type = state.type
+            type = state.type,
+            context = context
         ) {
             viewModelDatabase.setItemBookInfoMap(it)
         }
@@ -537,17 +544,18 @@ fun ScreenBestAnalyze(
                         index = index
                     ) {
                         coroutineScope.launch {
-                            viewModelDatabase.setItemBookInfo(itemBookInfo = item)
 
-                            getBookItemWeekTrophyDialog(
-                                itemBookInfo = item,
+                            getBookItemWeekTrophy(
+                                bookCode = item.bookCode,
                                 type = state.type,
                                 platform = state.platform
-                            ) { itemBookInfo, itemBestInfoTrophyList ->
+                            ) { itemBestInfoTrophyList ->
+
                                 viewModelDatabase.setItemBestInfoTrophyList(
-                                    itemBookInfo = itemBookInfo,
+                                    itemBookInfo = item,
                                     itemBestInfoTrophyList = itemBestInfoTrophyList
                                 )
+
                             }
 
                             modalSheetState?.show()
@@ -846,29 +854,25 @@ fun ScreenSearchDataBase(
 
     val state = viewModelDatabase.state.collectAsState().value
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
-    LaunchedEffect(state.platform){
-        getBookMap(
+    LaunchedEffect(state.platform, state.searchQuery, state.itemBookInfoMap){
+        getBookMapJson(
             platform = state.platform,
-            type = state.type
+            type = state.type,
+            context = context
         ) {
 
-            val list = state.filteredList.map { it } as ArrayList
+            val result = ArrayList<ItemBookInfo>()
 
-            viewModelDatabase.setSearch(itemBookInfoMap = it, filteredList = list)
-        }
-    }
-
-    LaunchedEffect(state.searchQuery, state.itemBookInfoMap){
-        val result = ArrayList<ItemBookInfo>()
-
-        for (item in state.itemBookInfoMap) {
-            if (item.value.title.contains(state.searchQuery)) {
-                result.add(item.value)
+            for (item in it) {
+                if (item.value.title.contains(state.searchQuery)) {
+                    result.add(item.value)
+                }
             }
-        }
 
-        viewModelDatabase.setFilteredList(result)
+            viewModelDatabase.setSearch(itemBookInfoMap = it, filteredList = result)
+        }
     }
 
     Spacer(modifier = Modifier.size(8.dp))
@@ -949,19 +953,19 @@ fun ScreenSearchDataBase(
                         index = index,
                     ) {
                         coroutineScope.launch {
-                            viewModelDatabase.setItemBookInfo(itemBookInfo = item)
 
-                            getBookItemWeekTrophyDialog(
-                                itemBookInfo = item,
+                            getBookItemWeekTrophy(
+                                bookCode = item.bookCode,
                                 type = state.type,
                                 platform = state.platform
-                            ) { itemBookInfo, itemBestInfoTrophyList ->
+                            ) { itemBestInfoTrophyList ->
+
                                 viewModelDatabase.setItemBestInfoTrophyList(
-                                    itemBookInfo = itemBookInfo,
+                                    itemBookInfo = item,
                                     itemBestInfoTrophyList = itemBestInfoTrophyList
                                 )
-                            }
 
+                            }
                             modalSheetState?.show()
 
                             if (setDialogOpen != null) {

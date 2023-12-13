@@ -11,6 +11,7 @@ sealed interface EventBest{
 
     class SetItemBestInfoList(
         var itemBookInfoList: ArrayList<ItemBookInfo> = ArrayList(),
+        var itemBookInfoMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
     ) : EventBest
 
     class SetItemBookInfoList(
@@ -25,16 +26,10 @@ sealed interface EventBest{
         var itemBookInfoMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
     ) : EventBest
 
-    class SetWeekList(
-        val weekList : ArrayList<ArrayList<ItemBookInfo>> = ArrayList(),
-    ) : EventBest
-
-    class SetMonthList(
-        val monthList : ArrayList<ArrayList<ItemBookInfo>> = ArrayList(),
-    ) : EventBest
-
-    class SetMonthTrophyList(
-        var monthTrophyList: ArrayList<ItemBestInfo> = ArrayList(),
+    class SetWeekMonthList(
+        val weekMonthList : ArrayList<ArrayList<ItemBookInfo>> = ArrayList(),
+        var itemBookInfoMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
+        var weekMonthTrophyList: ArrayList<ItemBestInfo> = ArrayList(),
     ) : EventBest
 
     class SetGenreDay(
@@ -68,11 +63,9 @@ data class StateBest(
     val userInfo: UserInfo = UserInfo(),
     var itemBookInfoList: ArrayList<ItemBookInfo> = ArrayList(),
     var itemBestInfoList: MutableMap<String, ItemBookInfo> = mutableMapOf(),
-    var weekTrophyList: ArrayList<ItemBestInfo> = ArrayList(),
+    var weekMonthTrophyList: ArrayList<ItemBestInfo> = ArrayList(),
     var itemBookInfoMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
-    val weekList : ArrayList<ArrayList<ItemBookInfo>> = ArrayList(),
-    val monthList : ArrayList<ArrayList<ItemBookInfo>> = ArrayList(),
-    var monthTrophyList: ArrayList<ItemBestInfo> = ArrayList(),
+    val weekMonthList : ArrayList<ArrayList<ItemBookInfo>> = ArrayList(),
     val genreDay : ArrayList<ItemKeyword> = ArrayList(),
     val genreDayList : ArrayList<ArrayList<ItemKeyword>> = ArrayList(),
     val itemBookInfo : ItemBookInfo = ItemBookInfo(),

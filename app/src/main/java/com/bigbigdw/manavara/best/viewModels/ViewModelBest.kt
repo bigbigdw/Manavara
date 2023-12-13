@@ -1,20 +1,11 @@
 package com.bigbigdw.manavara.best.viewModels
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bigbigdw.manavara.best.event.EventBest
 import com.bigbigdw.manavara.best.event.StateBest
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
-import com.bigbigdw.manavara.util.DBDate
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.ktx.storage
-import convertItemBookJson
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -22,11 +13,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
-import org.json.JSONArray
-import java.io.File
-import java.nio.charset.Charset
-import java.util.Collections
 import javax.inject.Inject
 
 class ViewModelBest @Inject constructor() : ViewModel() {
@@ -48,7 +34,7 @@ class ViewModelBest @Inject constructor() : ViewModel() {
             }
 
             is EventBest.SetItemBestInfoList -> {
-                current.copy(itemBookInfoList = event.itemBookInfoList)
+                current.copy(itemBookInfoList = event.itemBookInfoList, itemBookInfoMap = event.itemBookInfoMap)
             }
 
             is EventBest.SetItemBookInfoList -> {
@@ -56,23 +42,15 @@ class ViewModelBest @Inject constructor() : ViewModel() {
             }
 
             is EventBest.SetWeekTrophyList -> {
-                current.copy(weekTrophyList = event.weekTrophyList)
+                current.copy(weekMonthTrophyList = event.weekTrophyList)
             }
 
             is EventBest.SetItemBookInfoMap -> {
                 current.copy(itemBookInfoMap = event.itemBookInfoMap)
             }
 
-            is EventBest.SetWeekList -> {
-                current.copy(weekList = event.weekList)
-            }
-
-            is EventBest.SetMonthList -> {
-                current.copy(monthList = event.monthList)
-            }
-
-            is EventBest.SetMonthTrophyList -> {
-                current.copy(monthTrophyList = event.monthTrophyList)
+            is EventBest.SetWeekMonthList -> {
+                current.copy(weekMonthList = event.weekMonthList, itemBookInfoMap = event.itemBookInfoMap, weekMonthTrophyList = event.weekMonthTrophyList)
             }
 
             is EventBest.SetGenreDay -> {
@@ -128,15 +106,9 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setItemBestInfoList(todayJsonList: ArrayList<ItemBookInfo>){
+    fun setItemBestInfoList(itemBookInfoList: ArrayList<ItemBookInfo>, itemBookInfoMap: MutableMap<String, ItemBookInfo>){
         viewModelScope.launch {
-            events.send(EventBest.SetItemBestInfoList(itemBookInfoList = todayJsonList))
-        }
-    }
-
-    fun setItemBookInfoMap(itemBookInfoMap: MutableMap<String, ItemBookInfo>){
-        viewModelScope.launch {
-            events.send(EventBest.SetItemBookInfoMap(itemBookInfoMap = itemBookInfoMap))
+            events.send(EventBest.SetItemBestInfoList(itemBookInfoList = itemBookInfoList, itemBookInfoMap = itemBookInfoMap))
         }
     }
 
@@ -146,27 +118,19 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setWeekList(weekList: ArrayList<ArrayList<ItemBookInfo>>){
+    fun setWeekList(
+        weekList: ArrayList<ArrayList<ItemBookInfo>>,
+        itemBookInfoMap: MutableMap<String, ItemBookInfo>,
+        weekTrophyList: ArrayList<ItemBestInfo>
+    ) {
         viewModelScope.launch {
-            events.send(EventBest.SetWeekList(weekList = weekList))
-        }
-    }
-
-    fun setWeekTrophyList(weekTrophyList: ArrayList<ItemBestInfo>){
-        viewModelScope.launch {
-            events.send(EventBest.SetWeekTrophyList(weekTrophyList = weekTrophyList))
-        }
-    }
-
-    fun setMonthList(monthList: ArrayList<ArrayList<ItemBookInfo>>){
-        viewModelScope.launch {
-            events.send(EventBest.SetMonthList(monthList = monthList))
-        }
-    }
-
-    fun setMonthTrophyList(monthTrophyList: ArrayList<ItemBestInfo>){
-        viewModelScope.launch {
-            events.send(EventBest.SetMonthTrophyList(monthTrophyList = monthTrophyList))
+            events.send(
+                EventBest.SetWeekMonthList(
+                    weekMonthList = weekList,
+                    itemBookInfoMap = itemBookInfoMap,
+                    weekMonthTrophyList = weekTrophyList
+                )
+            )
         }
     }
 

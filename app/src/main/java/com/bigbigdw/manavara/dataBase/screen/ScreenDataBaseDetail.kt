@@ -51,9 +51,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.ActivityBestDetail
+import com.bigbigdw.manavara.best.getBookItemWeekTrophy
 import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDataBaseDetail
-import com.bigbigdw.manavara.best.getBookItemWeekTrophyDialog
-import com.bigbigdw.manavara.best.getBookMap
+import com.bigbigdw.manavara.best.getBookMapJson
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.models.ItemKeyword
 import com.bigbigdw.manavara.best.screen.ItemBestDetailInfoAnalyze
@@ -89,37 +89,80 @@ fun ScreenAnalyzeDetail(
     val listState = rememberLazyListState()
 
     LaunchedEffect(viewModelDataBaseDetail){
-        Log.d("ScreenAnalyzeDetail", "MODE state.mode == ${state.mode}")
-
-        getJsonFiles(
-            platform = state.platform,
-            type = state.type,
-            root = "BEST_WEEK",
-        ) {
-            viewModelDataBaseDetail.setJsonNameList(it)
-
-            if(state.mode == "GENRE_STATUS" || state.mode == "KEYWORD_STATUS"){
-                viewModelDataBaseDetail.setScreen(
-                    menu = if (state.mode.contains("GENRE")) {
-                        "${convertDateStringWeek(it.get(0))} 장르"
-                    } else {
-                        "${convertDateStringWeek(it.get(0))} 키워드"
-                    },
-                    key = it[0]
-                )
-            }
-        }
 
         when (state.mode) {
             "GENRE_BOOK" -> {
-                getBookMap(
+
+                getJsonFiles(
                     platform = state.platform,
-                    type = state.type
-                ) {
-                    viewModelDataBaseDetail.setItemBookInfoMap(it)
+                    type = state.type,
+                    root = "BEST_WEEK",
+                ) { jsonNameList ->
+
+                    getGenreListWeekJson(
+                        context = context,
+                        platform = state.platform,
+                        type = state.type,
+                        dayType = "MONTH",
+                        dataType = "GENRE",
+                        root = state.json
+                    ) { genreKeywordMonthList, genreKeywordList ->
+
+                        getBookMapJson(
+                            platform = state.platform,
+                            type = state.type,
+                            context = context
+                        ) { itemBookInfoMap ->
+
+                            viewModelDataBaseDetail.setGenreBook(
+                                jsonNameList = jsonNameList,
+                                genreKeywordList = genreKeywordList,
+                                genreKeywordMonthList = genreKeywordMonthList,
+                                itemBookInfoMap = itemBookInfoMap,
+                                menu = "${genreKeywordList[0].key} 작품 리스트",
+                                key = genreKeywordList[0].key
+                            )
+                        }
+                    }
                 }
             }
             "GENRE_STATUS" -> {
+
+                getGenreListWeekJson(
+                    context = context,
+                    platform = state.platform,
+                    type = state.type,
+                    dayType = "MONTH",
+                    dataType = "GENRE",
+                    root = state.key
+                ) { monthList, list ->
+                    viewModelDataBaseDetail.setGenreList(genreList = list, genreMonthList = monthList)
+
+                    if(state.mode == "GENRE_BOOK"){
+                        viewModelDataBaseDetail.setScreen(
+                            menu = "${list[0].key} 작품 리스트",
+                            key = list[0].key
+                        )
+                    }
+                }
+
+                getJsonFiles(
+                    platform = state.platform,
+                    type = state.type,
+                    root = "BEST_WEEK",
+                ) {
+                    viewModelDataBaseDetail.setJsonNameList(it)
+
+                    viewModelDataBaseDetail.setScreen(
+                        menu = if (state.mode.contains("GENRE")) {
+                            "${convertDateStringWeek(it.get(0))} 장르"
+                        } else {
+                            "${convertDateStringWeek(it.get(0))} 키워드"
+                        },
+                        key = it[0]
+                    )
+                }
+
                 getGenreMap(
                     platform = state.platform,
                     type = state.type,
@@ -129,9 +172,38 @@ fun ScreenAnalyzeDetail(
                 }
             }
             "KEYWORD_BOOK" -> {
-                getBookMap(
+
+                getGenreListWeekJson(
+                    context = context,
                     platform = state.platform,
-                    type = state.type
+                    type = state.type,
+                    dayType = "MONTH",
+                    dataType = "KEYWORD",
+                    root = state.key
+                ) { monthList, list ->
+                    viewModelDataBaseDetail.setGenreList(genreList = list, genreMonthList = monthList)
+
+                    if(state.mode == "KEYWORD_BOOK"){
+                        viewModelDataBaseDetail.setScreen(
+                            menu = "${list[0].key} 작품 리스트",
+                            key = list[0].key
+                        )
+                    }
+                }
+
+                getJsonFiles(
+                    platform = state.platform,
+                    type = state.type,
+                    root = "BEST_WEEK",
+                ) {
+                    viewModelDataBaseDetail.setJsonNameList(it)
+
+                }
+
+                getBookMapJson(
+                    platform = state.platform,
+                    type = state.type,
+                    context = context
                 ) {
                     viewModelDataBaseDetail.setItemBookInfoMap(it)
                 }
@@ -145,50 +217,48 @@ fun ScreenAnalyzeDetail(
                 }
             }
             "KEYWORD_STATUS" -> {
+
+                getGenreListWeekJson(
+                    context = context,
+                    platform = state.platform,
+                    type = state.type,
+                    dayType = "MONTH",
+                    dataType = "KEYWORD",
+                    root = state.key
+                ) { monthList, list ->
+                    viewModelDataBaseDetail.setGenreList(genreList = list, genreMonthList = monthList)
+
+                    if(state.mode == "KEYWORD_BOOK"){
+                        viewModelDataBaseDetail.setScreen(
+                            menu = "${list[0].key} 작품 리스트",
+                            key = list[0].key
+                        )
+                    }
+                }
+
+                getJsonFiles(
+                    platform = state.platform,
+                    type = state.type,
+                    root = "BEST_WEEK",
+                ) {
+                    viewModelDataBaseDetail.setJsonNameList(it)
+
+                    viewModelDataBaseDetail.setScreen(
+                        menu = if (state.mode.contains("GENRE")) {
+                            "${convertDateStringWeek(it.get(0))} 장르"
+                        } else {
+                            "${convertDateStringWeek(it.get(0))} 키워드"
+                        },
+                        key = it[0]
+                    )
+                }
+
                 getGenreMap(
                     platform = state.platform,
                     type = state.type,
                     menuType = "KEYWORD"
                 ) { monthList ->
                     viewModelDataBaseDetail.setGenreMap(ItemKeywordMap = monthList)
-                }
-            }
-        }
-
-        if (state.mode == "GENRE_BOOK" || state.mode == "GENRE_STATUS") {
-            getGenreListWeekJson(
-                context = context,
-                platform = state.platform,
-                type = state.type,
-                dayType = "MONTH",
-                dataType = "GENRE",
-                root = state.key
-            ) { monthList, list ->
-                viewModelDataBaseDetail.setGenreList(genreList = list, genreMonthList = monthList)
-
-                if(state.mode == "GENRE_BOOK"){
-                    viewModelDataBaseDetail.setScreen(
-                        menu = "${list[0].key} 작품 리스트",
-                        key = list[0].key
-                    )
-                }
-            }
-        } else if (state.mode == "KEYWORD_BOOK" || state.mode == "KEYWORD_STATUS") {
-            getGenreListWeekJson(
-                context = context,
-                platform = state.platform,
-                type = state.type,
-                dayType = "MONTH",
-                dataType = "KEYWORD",
-                root = state.key
-            ) { monthList, list ->
-                viewModelDataBaseDetail.setGenreList(genreList = list, genreMonthList = monthList)
-
-                if(state.mode == "KEYWORD_BOOK"){
-                    viewModelDataBaseDetail.setScreen(
-                        menu = "${list[0].key} 작품 리스트",
-                        key = list[0].key
-                    )
                 }
             }
         }
@@ -359,7 +429,7 @@ fun ScreenAnalyzeDetailPropertyList(
             }
         }
 
-        itemsIndexed(state.genreList) { index, item ->
+        itemsIndexed(state.genreKeywordList) { index, item ->
             ItemMainSettingSingleTablet(
                 containerColor = if (index == 0) {
                     colorList[0]
@@ -519,11 +589,11 @@ fun ScreenKeywordBooks(
     val filteredList = ArrayList<ItemBookInfo>()
     val coroutineScope = rememberCoroutineScope()
 
-    if(state.itemKeywordMap.isNotEmpty() && state.itemBookInfoMap.isNotEmpty()){
+    if(state.itemGenreKeywordMap.isNotEmpty() && state.itemBookInfoMap.isNotEmpty()){
 
-        if(state.itemKeywordMap[state.key] != null){
+        if(state.itemGenreKeywordMap[state.key] != null){
 
-            val keyword = state.itemKeywordMap[state.key]?.get(0) ?: ItemKeyword()
+            val keyword = state.itemGenreKeywordMap[state.key]?.get(0) ?: ItemKeyword()
 
             val titleList = keyword.value.split(", ")
 
@@ -553,17 +623,18 @@ fun ScreenKeywordBooks(
                 index = index,
             ) {
                 coroutineScope.launch {
-                    viewModelDataBaseDetail.setItemBookInfo(itemBookInfo = item)
 
-                    getBookItemWeekTrophyDialog(
-                        itemBookInfo = item,
+                    getBookItemWeekTrophy(
+                        bookCode = item.bookCode,
                         type = state.type,
                         platform = state.platform
-                    ) { itemBookInfo, itemBestInfoTrophyList ->
+                    ) { itemBestInfoTrophyList ->
+
                         viewModelDataBaseDetail.setItemBestInfoTrophyList(
-                            itemBookInfo = itemBookInfo,
+                            itemBookInfo = item,
                             itemBestInfoTrophyList = itemBestInfoTrophyList
                         )
+
                     }
 
                     if (setDialogOpen != null) {
@@ -619,17 +690,18 @@ fun ScreenGenreBooks(
                 index = index,
             ) {
                 coroutineScope.launch {
-                    viewModelDataBaseDetail.setItemBookInfo(itemBookInfo = item)
 
-                    getBookItemWeekTrophyDialog(
-                        itemBookInfo = item,
+                    getBookItemWeekTrophy(
+                        bookCode = item.bookCode,
                         type = state.type,
                         platform = state.platform
-                    ) { itemBookInfo, itemBestInfoTrophyList ->
+                    ) { itemBestInfoTrophyList ->
+
                         viewModelDataBaseDetail.setItemBestInfoTrophyList(
-                            itemBookInfo = itemBookInfo,
+                            itemBookInfo = item,
                             itemBestInfoTrophyList = itemBestInfoTrophyList
                         )
+
                     }
 
                     modalSheetState?.show()
@@ -658,7 +730,7 @@ fun ScreenGenreStatus(
 
         item { Spacer(modifier = Modifier.size(16.dp)) }
 
-        val list = state.itemKeywordMap[state.key] ?: ArrayList()
+        val list = state.itemGenreKeywordMap[state.key] ?: ArrayList()
 
         item {
             TabletContentWrap {
@@ -769,7 +841,7 @@ fun ScreenGenreStatusWeekly(
 
         if (getDate == "전체") {
 
-            itemsIndexed(state.genreList) { index, item ->
+            itemsIndexed(state.genreKeywordList) { index, item ->
                 ListGenreToday(
                     title = item.key,
                     value = item.value,
@@ -779,9 +851,9 @@ fun ScreenGenreStatusWeekly(
 
         } else {
 
-            if (state.genreMonthList[getWeekDate(getDate)].size > 0) {
+            if (state.genreKeywordMonthList[getWeekDate(getDate)].size > 0) {
 
-                itemsIndexed(state.genreMonthList[getWeekDate(getDate)]) { index, item ->
+                itemsIndexed(state.genreKeywordMonthList[getWeekDate(getDate)]) { index, item ->
                     ListGenreToday(
                         title = item.key,
                         value = item.value,

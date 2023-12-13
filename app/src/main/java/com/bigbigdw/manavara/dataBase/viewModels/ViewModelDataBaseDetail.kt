@@ -69,20 +69,53 @@ class ViewModelDataBaseDetail @Inject constructor() : ViewModel() {
             }
 
             is EventDataBaseDetail.SetGenreList -> {
-                current.copy(genreList = event.genreList, genreMonthList = event.genreMonthList)
+                current.copy(genreKeywordList = event.genreList, genreKeywordMonthList = event.genreMonthList)
             }
 
             is EventDataBaseDetail.SetGenreMap -> {
-                current.copy(itemKeywordMap = event.ItemKeywordMap)
+                current.copy(itemGenreKeywordMap = event.ItemKeywordMap)
             }
 
             is EventDataBaseDetail.SetJsonNameList -> {
                 current.copy(jsonNameList = event.jsonNameList)
             }
 
+            is EventDataBaseDetail.SetGenreBook -> {
+                current.copy(
+                    jsonNameList = event.jsonNameList,
+                    genreKeywordList = event.genreKeywordList,
+                    genreKeywordMonthList = event.genreKeywordMonthList,
+                    itemBookInfoMap = event.itemBookInfoMap,
+                    menu = event.menu,
+                    key = event.key
+                )
+            }
+
             else -> {
                 current.copy(Loaded = false)
             }
+        }
+    }
+
+    fun setGenreBook(
+        jsonNameList: List<String>,
+        genreKeywordList: ArrayList<ItemKeyword>,
+        genreKeywordMonthList: ArrayList<ArrayList<ItemKeyword>>,
+        itemBookInfoMap:  MutableMap<String, ItemBookInfo>,
+        menu: String,
+        key: String
+    ) {
+        viewModelScope.launch {
+            events.send(
+                EventDataBaseDetail.SetGenreBook(
+                    jsonNameList = jsonNameList,
+                    genreKeywordList = genreKeywordList,
+                    genreKeywordMonthList = genreKeywordMonthList,
+                    itemBookInfoMap = itemBookInfoMap,
+                    menu = menu,
+                    key = key
+                )
+            )
         }
     }
 

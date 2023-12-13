@@ -32,16 +32,10 @@ fun getBestListTodayJson(
     try {
         val jsonString = File(filePath).readText(Charset.forName("UTF-8"))
 
-        val json = Json { ignoreUnknownKeys = true }
-        val itemList = json.decodeFromString<List<ItemBookInfo>>(jsonString)
-
-        val todayJsonList = ArrayList<ItemBookInfo>()
-
-        for (item in itemList) {
-            todayJsonList.add(item)
+        getBestToday(jsonString){
+            callbacks.invoke(it)
         }
 
-        callbacks.invoke(todayJsonList)
     } catch (exception: Exception) {
 
         if (checkUpdate) {
@@ -71,20 +65,12 @@ fun getBestListTodayStorage(
 
         todayFileRef.getFile(todayFile).addOnSuccessListener { bytes ->
             val jsonString = todayFile.readText(Charset.forName("UTF-8"))
-            val json = Json { ignoreUnknownKeys = true }
-            val itemList = json.decodeFromString<List<ItemBookInfo>>(jsonString)
 
-            val todayJsonList = ArrayList<ItemBookInfo>()
-
-            for (item in itemList) {
-                todayJsonList.add(item)
+            getBestToday(jsonString){
+                callbacks.invoke(it)
             }
 
-            callbacks(todayJsonList)
-
         }.addOnFailureListener { exception ->
-
-            Log.d("STORAGE", "ERROR =$exception")
 
             if (checkUpdate) {
                 callbacks.invoke(ArrayList())
@@ -144,25 +130,17 @@ fun getBookMapJson(
     platform: String,
     type: String,
     context: Context,
-    callbacks: (ArrayList<ItemBookInfo>) -> Unit
+    callbacks: (MutableMap<String, ItemBookInfo>) -> Unit
 ) {
 
     try {
         val filePath = File(context.filesDir, "BOOK_${type}_${platform}.json").absolutePath
         val jsonString = File(filePath).readText(Charset.forName("UTF-8"))
 
-        val jsonObject = JSONObject(jsonString)
-        val itemList = ArrayList<ItemBookInfo>()
-
-        for (key in jsonObject.keys()) {
-            val value = jsonObject.getString(key)
-            val item = convertItemBookJson(JSONObject(value))
-            itemList.add(item)
+        getBookMap(jsonString){
+            callbacks.invoke(it)
         }
 
-        Log.d("HIHI", "itemList == $itemList")
-
-        callbacks.invoke(itemList)
     } catch (e: Exception) {
         getBookMapStorage(
             platform = platform,
@@ -178,7 +156,7 @@ fun getBookMapStorage(
     platform: String,
     type: String,
     context: Context,
-    callbacks: (ArrayList<ItemBookInfo>) -> Unit
+    callbacks: (MutableMap<String, ItemBookInfo>) -> Unit
 ) {
 
     val storage = Firebase.storage
@@ -189,51 +167,12 @@ fun getBookMapStorage(
 
     bookRef.getFile(bookFile).addOnSuccessListener {
         val jsonString = bookFile.readText(Charset.forName("UTF-8")).trimIndent()
-        val jsonObject = JSONObject(jsonString)
-        val itemList = ArrayList<ItemBookInfo>()
 
-        for (key in jsonObject.keys()) {
-            val value = jsonObject.getString(key)
-            val item = convertItemBookJson(JSONObject(value))
-            itemList.add(item)
+        getBookMap(jsonString){
+            callbacks.invoke(it)
         }
 
-        callbacks.invoke(itemList)
-    }.addOnFailureListener {
-        Log.d("HIHI", "FAIL == $it")
     }
-}
-
-fun getBookMap(
-    platform: String,
-    type: String,
-    callbacks: (MutableMap<String, ItemBookInfo>) -> Unit
-) {
-
-    val mRootRef = FirebaseDatabase.getInstance().reference.child("BOOK").child(type).child(platform)
-
-    mRootRef.addListenerForSingleValueEvent(object :
-        ValueEventListener {
-        override fun onDataChange(dataSnapshot: DataSnapshot) {
-            if (dataSnapshot.exists()) {
-
-                val itemMap = mutableMapOf<String, ItemBookInfo>()
-
-                for (item in dataSnapshot.children) {
-
-                    val book = item.getValue(ItemBookInfo::class.java)
-
-                    if (book != null) {
-                        itemMap[book.bookCode] = book
-                    }
-                }
-
-                callbacks.invoke(itemMap)
-            }
-        }
-
-        override fun onCancelled(databaseError: DatabaseError) {}
-    })
 }
 
 fun getBookItemWeekTrophy(
@@ -280,50 +219,6 @@ fun getBookItemWeekTrophy(
     })
 }
 
-fun getBookItemWeekTrophyDialog(
-    itemBookInfo: ItemBookInfo,
-    type: String,
-    platform: String,
-    callbacks: (itemBookInfo: ItemBookInfo, itemBestInfoTrophyList: ArrayList<ItemBestInfo>) -> Unit
-) {
-
-    val weekArray = ArrayList<ItemBestInfo>()
-
-    val mRootRef =
-        FirebaseDatabase.getInstance().reference.child("BEST").child(type).child(platform)
-            .child("TROPHY_WEEK").child(itemBookInfo.bookCode)
-
-    mRootRef.addListenerForSingleValueEvent(object :
-        ValueEventListener {
-        override fun onDataChange(dataSnapshot: DataSnapshot) {
-            if (dataSnapshot.exists()) {
-
-                for (i in 0..6) {
-                    weekArray.add(ItemBestInfo())
-                }
-
-                for (snapshot in dataSnapshot.children) {
-                    val key = snapshot.key
-                    val value = snapshot.value
-
-                    if (key != null && value != null) {
-
-                        val item = snapshot.getValue(ItemBestInfo::class.java)
-
-                        if (item != null) {
-                            weekArray[key.toInt()] = item
-                        }
-                    }
-                }
-
-                callbacks.invoke(itemBookInfo, weekArray)
-            }
-        }
-
-        override fun onCancelled(databaseError: DatabaseError) {}
-    })
-}
-
 fun getBestListWeekJson(
     context: Context,
     platform: String,
@@ -342,37 +237,11 @@ fun getBestListWeekJson(
     try {
         val jsonString = File(filePath).readText(Charset.forName("UTF-8"))
 
-        val jsonArray = JSONArray(jsonString)
-
-        val weekJsonList = ArrayList<ArrayList<ItemBookInfo>>()
-
-        for (i in 0 until jsonArray.length()) {
-
-            try {
-                val jsonArrayItem = jsonArray.getJSONArray(i)
-                val itemList = ArrayList<ItemBookInfo>()
-
-                for (j in 0 until jsonArrayItem.length()) {
-
-                    try {
-                        val jsonObject = jsonArrayItem.getJSONObject(j)
-                        itemList.add(convertItemBookJson(jsonObject))
-                    } catch (e: Exception) {
-                        itemList.add(ItemBookInfo())
-                    }
-                }
-
-                weekJsonList.add(itemList)
-            } catch (e: Exception) {
-                weekJsonList.add(ArrayList())
-            }
+        getBestWeekMonth(jsonString){
+            callbacks.invoke(it)
         }
 
-        callbacks.invoke(weekJsonList)
-
     } catch (exception: Exception) {
-
-        Log.d("STORAGE", "ERROR =$exception")
 
         if (checkUpdate) {
             callbacks.invoke(ArrayList())
@@ -406,64 +275,82 @@ fun getBestWeekListStorage(
     weekRef.getFile(weekFile).addOnSuccessListener {
         val jsonString = weekFile.readText(Charset.forName("UTF-8"))
 
-        val jsonArray = JSONArray(jsonString)
-
-        val weekJsonList = ArrayList<ArrayList<ItemBookInfo>>()
-
-        for (i in 0 until jsonArray.length()) {
-
-            try {
-                val jsonArrayItem = jsonArray.getJSONArray(i)
-                val itemList = ArrayList<ItemBookInfo>()
-
-                for (j in 0 until jsonArrayItem.length()) {
-
-                    try {
-                        val jsonObject = jsonArrayItem.getJSONObject(j)
-                        itemList.add(convertItemBookJson(jsonObject))
-                    } catch (e: Exception) {
-                        itemList.add(ItemBookInfo())
-                    }
-                }
-
-                weekJsonList.add(itemList)
-            } catch (e: Exception) {
-                weekJsonList.add(ArrayList())
-            }
+        getBestWeekMonth(jsonString){
+            callbacks.invoke(it)
         }
-
-        callbacks.invoke(weekJsonList)
     }
 }
 
-fun getBestWeekTrophy(
+fun getTrophyWeekMonthJson(
     platform: String,
     type: String,
-    root: String = "${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json",
+    dayType : String = "WEEK",
+    root: String = if (dayType == "WEEK") {
+        "${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json"
+    } else {
+        "${DBDate.year()}_${DBDate.month()}.json"
+    },
+    context : Context,
+    callbacks: (ArrayList<ItemBestInfo>) -> Unit
+) {
+
+    try {
+        val filePath = if(dayType == "WEEK"){
+            File(context.filesDir, "TROPHY_WEEK_${type}_${platform}.json").absolutePath
+        } else {
+            File(context.filesDir, "TROPHY_MONTH_${type}_${platform}.json").absolutePath
+        }
+        val jsonString = File(filePath).readText(Charset.forName("UTF-8"))
+
+        getTrophyWeek(jsonString){
+            callbacks.invoke(it)
+        }
+
+    } catch (e: Exception) {
+
+        getTrophyWeekMonthStorage(
+            platform = platform,
+            type = type,
+            context = context,
+            root = root,
+            dayType = dayType
+        ) {
+            callbacks.invoke(it)
+        }
+    }
+}
+
+fun getTrophyWeekMonthStorage(
+    platform: String,
+    type: String,
+    dayType: String = "WEEK",
+    root: String = if (dayType == "WEEK") {
+        "${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json"
+    } else {
+        "${DBDate.year()}_${DBDate.month()}.json"
+    },
+    context : Context,
     callbacks: (ArrayList<ItemBestInfo>) -> Unit
 ) {
 
     val storage = Firebase.storage
     val storageRef = storage.reference
-    val weekTrophyRef = storageRef.child("${platform}/${type}/TROPHY_WEEK/${root}")
-    val weekTrophyFile = weekTrophyRef.getBytes(1024 * 1024)
+    val weekTrophyRef = if(dayType == "WEEK"){
+        storageRef.child("${platform}/${type}/TROPHY_WEEK/${root}")
+    } else {
+        storageRef.child("${platform}/${type}/TROPHY_MONTH/${root}")
+    }
+    val weekTrophyFile = if(dayType == "WEEK"){
+        File(context.filesDir, "TROPHY_WEEK_${type}_${platform}.json")
+    } else {
+        File(context.filesDir, "TROPHY_MONTH_${type}_${platform}.json")
+    }
 
-    weekTrophyFile.addOnSuccessListener { bytes ->
-        val jsonString = String(bytes, Charset.forName("UTF-8"))
-        val json = Json { ignoreUnknownKeys = true }
-        val itemList = json.decodeFromString<List<ItemBestInfo>>(jsonString)
-
-        val cmpAsc: java.util.Comparator<ItemBestInfo> =
-            Comparator { o1, o2 -> o2.total.compareTo(o1.total) }
-        Collections.sort(itemList, cmpAsc)
-
-        val weekJsonList = ArrayList<ItemBestInfo>()
-
-        for (item in itemList) {
-            weekJsonList.add(item)
+    weekTrophyRef.getFile(weekTrophyFile).addOnSuccessListener { bytes ->
+        val jsonString = weekTrophyFile.readText(Charset.forName("UTF-8"))
+        getTrophyWeek(jsonString){
+            callbacks.invoke(it)
         }
-
-        callbacks.invoke(weekJsonList)
     }.addOnFailureListener {
         Log.d("getBestWeekTrophy", "FAIL $it")
     }
@@ -478,71 +365,15 @@ fun getBestMonthListStorage(
 
     val storage = Firebase.storage
     val storageRef = storage.reference
-    val monthRef =
-        storageRef.child("${platform}/${type}/BEST_MONTH/${DBDate.year()}_${DBDate.month()}.json")
+    val monthRef = storageRef.child("${platform}/${type}/BEST_MONTH/${DBDate.year()}_${DBDate.month()}.json")
     val monthFile = File(context.filesDir, "BEST_MONTH_${type}_${platform}.json")
 
     monthRef.getFile(monthFile).addOnSuccessListener {
         val jsonString = monthFile.readText(Charset.forName("UTF-8"))
-        val jsonArray = JSONArray(jsonString)
-        val monthJsonList = ArrayList<ArrayList<ItemBookInfo>>()
 
-        for (i in 0 until jsonArray.length()) {
-
-            try {
-                val jsonArrayItem = jsonArray.getJSONArray(i)
-                val itemList = ArrayList<ItemBookInfo>()
-
-                for (j in 0 until jsonArrayItem.length()) {
-
-                    try {
-                        val jsonObject = jsonArrayItem.getJSONObject(j)
-                        itemList.add(convertItemBookJson(jsonObject))
-                    } catch (e: Exception) {
-                        itemList.add(ItemBookInfo())
-                    }
-                }
-
-                monthJsonList.add(itemList)
-            } catch (e: Exception) {
-                monthJsonList.add(ArrayList())
-            }
+        getBestWeekMonth(jsonString){
+            callbacks.invoke(it)
         }
-
-        callbacks.invoke(monthJsonList)
-    }
-}
-
-fun getBestMonthTrophy(
-    platform: String,
-    type: String,
-    root: String = "${DBDate.year()}_${DBDate.month()}.json",
-    callbacks: (ArrayList<ItemBestInfo>) -> Unit
-) {
-
-    val storage = Firebase.storage
-    val storageRef = storage.reference
-    val monthTrophyRef = storageRef.child("${platform}/${type}/TROPHY_MONTH/${root}")
-    val monthTrophyFile = monthTrophyRef.getBytes(1024 * 1024)
-
-    monthTrophyFile.addOnSuccessListener { bytes ->
-        val jsonString = String(bytes, Charset.forName("UTF-8"))
-        val json = Json { ignoreUnknownKeys = true }
-        val itemList = json.decodeFromString<List<ItemBestInfo>>(jsonString)
-
-        val monthJsonList = ArrayList<ItemBestInfo>()
-
-        val cmpAsc: java.util.Comparator<ItemBestInfo> =
-            Comparator { o1, o2 -> o2.total.compareTo(o1.total) }
-        Collections.sort(itemList, cmpAsc)
-
-        for (item in itemList) {
-            monthJsonList.add(item)
-        }
-
-        callbacks.invoke(monthJsonList)
-    }.addOnFailureListener {
-        Log.d("HIHI", "FAIL == $it")
     }
 }
 
@@ -560,4 +391,78 @@ fun areListsEqual(list1: ArrayList<ItemBookInfo>, list2: ArrayList<ItemBookInfo>
     }
 
     return true
+}
+
+fun getBookMap(jsonString: String, callbacks: (MutableMap<String, ItemBookInfo>) -> Unit){
+    val jsonObject = JSONObject(jsonString)
+    val itemList = mutableMapOf<String, ItemBookInfo>()
+
+    for (key in jsonObject.keys()) {
+        val value = jsonObject.getString(key)
+        val item = convertItemBookJson(JSONObject(value))
+        itemList[item.bookCode] = item
+    }
+
+    callbacks.invoke(itemList)
+}
+
+fun getTrophyWeek(jsonString: String, callbacks: (ArrayList<ItemBestInfo>) -> Unit){
+    val json = Json { ignoreUnknownKeys = true }
+    val itemList = json.decodeFromString<List<ItemBestInfo>>(jsonString)
+
+    val cmpAsc: java.util.Comparator<ItemBestInfo> =
+        Comparator { o1, o2 -> o2.total.compareTo(o1.total) }
+    Collections.sort(itemList, cmpAsc)
+
+    val weekJsonList = ArrayList<ItemBestInfo>()
+
+    for (item in itemList) {
+        weekJsonList.add(item)
+    }
+
+    callbacks.invoke(weekJsonList)
+}
+
+fun getBestWeekMonth(jsonString : String, callbacks: (ArrayList<ArrayList<ItemBookInfo>>) -> Unit){
+    val jsonArray = JSONArray(jsonString)
+
+    val weekJsonList = ArrayList<ArrayList<ItemBookInfo>>()
+
+    for (i in 0 until jsonArray.length()) {
+
+        try {
+            val jsonArrayItem = jsonArray.getJSONArray(i)
+            val itemList = ArrayList<ItemBookInfo>()
+
+            for (j in 0 until jsonArrayItem.length()) {
+
+                try {
+                    val jsonObject = jsonArrayItem.getJSONObject(j)
+                    itemList.add(convertItemBookJson(jsonObject))
+                } catch (e: Exception) {
+                    itemList.add(ItemBookInfo())
+                }
+            }
+
+            weekJsonList.add(itemList)
+        } catch (e: Exception) {
+            weekJsonList.add(ArrayList())
+        }
+    }
+
+    callbacks.invoke(weekJsonList)
+}
+
+fun getBestToday(jsonString : String, callbacks: (ArrayList<ItemBookInfo>) -> Unit){
+
+    val json = Json { ignoreUnknownKeys = true }
+    val itemList = json.decodeFromString<List<ItemBookInfo>>(jsonString)
+
+    val todayJsonList = ArrayList<ItemBookInfo>()
+
+    for (item in itemList) {
+        todayJsonList.add(item)
+    }
+
+    callbacks.invoke(todayJsonList)
 }

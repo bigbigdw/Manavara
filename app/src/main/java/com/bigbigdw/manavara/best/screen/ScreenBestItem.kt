@@ -1,7 +1,6 @@
 package com.bigbigdw.manavara.best.screen
 
 import android.content.Intent
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -70,13 +69,9 @@ import com.bigbigdw.manavara.ui.theme.color8F8F8F
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorFF2366
 import com.bigbigdw.manavara.util.geMonthDate
-import com.bigbigdw.manavara.best.getBestMonthTrophy
-import com.bigbigdw.manavara.best.getBestWeekTrophy
+import com.bigbigdw.manavara.best.getTrophyWeekMonthJson
 import com.bigbigdw.manavara.best.getBookItemWeekTrophy
-import com.bigbigdw.manavara.best.getBookItemWeekTrophyDialog
-import com.bigbigdw.manavara.best.getBookMap
 import com.bigbigdw.manavara.best.getBookMapJson
-import com.bigbigdw.manavara.best.getBookMapStorage
 import com.bigbigdw.manavara.util.getWeekDate
 import com.bigbigdw.manavara.util.screen.ScreenEmpty
 import com.bigbigdw.manavara.util.screen.ScreenItemKeyword
@@ -100,28 +95,21 @@ fun ScreenTodayBest(
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(state.platform, state.type){
-//        getBookMap(
-//            platform = state.platform,
-//            type = state.type
-//        ) {
-//            viewModelBest.setItemBookInfoMap(it)
-//        }
 
         getBookMapJson(
             platform = state.platform,
             type = state.type,
             context = context
-        ){
-            Log.d("HIHI", "it == $it")
-        }
+        ){ itemBookInfoMap ->
 
-//        getBestListTodayJson(
-//            platform = state.platform,
-//            type = state.type,
-//            context = context
-//        ) {
-//            viewModelBest.setItemBestInfoList(it)
-//        }
+            getBestListTodayJson(
+                platform = state.platform,
+                type = state.type,
+                context = context
+            ) { itemBookInfoList ->
+                viewModelBest.setItemBestInfoList(itemBookInfoMap = itemBookInfoMap, itemBookInfoList = itemBookInfoList)
+            }
+        }
     }
 
     LazyColumn(
@@ -305,36 +293,40 @@ fun ScreenTodayWeek(
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    getBookMap(
-        platform = state.platform,
-        type = state.type
-    ) {
-        viewModelBest.setItemBookInfoMap(it)
-    }
-
-    getBestListWeekJson(
-        context = context,
+    getBookMapJson(
         platform = state.platform,
         type = state.type,
-    ) {
-        viewModelBest.setWeekList(it)
-    }
+        context = context
+    ) { itemBookInfoMap ->
 
-    getBestWeekTrophy(
-        platform = state.platform,
-        type = state.type
-    ) {
-        viewModelBest.setWeekTrophyList(it)
+        getBestListWeekJson(
+            context = context,
+            platform = state.platform,
+            type = state.type,
+        ) { weekList ->
+
+            getTrophyWeekMonthJson(
+                platform = state.platform,
+                type = state.type,
+                dayType = "WEEK",
+                context = context
+            ) { weekTrophyList ->
+
+                viewModelBest.setWeekList(
+                    weekTrophyList = weekTrophyList,
+                    weekList = weekList,
+                    itemBookInfoMap = itemBookInfoMap
+                )
+            }
+        }
     }
 
     val filteredList: ArrayList<ItemBookInfo> = ArrayList()
 
-    if(state.weekTrophyList.isNotEmpty() && state.itemBookInfoMap.isNotEmpty()){
-        for (trophyItem in state.weekTrophyList) {
+    if(state.weekMonthTrophyList.isNotEmpty() && state.itemBookInfoMap.isNotEmpty()){
+        for (trophyItem in state.weekMonthTrophyList) {
             val bookCode = trophyItem.bookCode
             val bookInfo = state.itemBookInfoMap[bookCode]
-
-            Log.d("WEEK-FILTER", "bookCode == ${bookCode} bookInfo == $bookInfo ")
 
             if (bookInfo != null) {
                 filteredList.add(bookInfo)
@@ -380,17 +372,18 @@ fun ScreenTodayWeek(
                         index = index
                     ){
                         coroutineScope.launch {
-                            viewModelBest.getBookItemInfo(itemBookInfo = item)
 
-                            getBookItemWeekTrophyDialog(
-                                itemBookInfo = item,
+                            getBookItemWeekTrophy(
+                                bookCode = item.bookCode,
                                 type = state.type,
                                 platform = state.platform
-                            ) { itemBookInfo, itemBestInfoTrophyList ->
+                            ) { itemBestInfoTrophyList ->
+
                                 viewModelBest.setItemBestInfoTrophyList(
-                                    itemBookInfo = itemBookInfo,
+                                    itemBookInfo = item,
                                     itemBestInfoTrophyList = itemBestInfoTrophyList
                                 )
+
                             }
 
                             modalSheetState?.show()
@@ -405,8 +398,8 @@ fun ScreenTodayWeek(
 
                 }
             } else {
-                if (state.weekList[getWeekDate(getDate)].size > 0) {
-                    itemsIndexed(state.weekList[getWeekDate(getDate)]) { index, item ->
+                if (state.weekMonthList[getWeekDate(getDate)].size > 0) {
+                    itemsIndexed(state.weekMonthList[getWeekDate(getDate)]) { index, item ->
                         ListBestToday(
                             itemBookInfo = item,
                             index = index,
@@ -512,7 +505,7 @@ fun ScreenTodayMonth(
 
     val state = viewModelBest.state.collectAsState().value
     val (getDate, setDate) = remember { mutableStateOf("전체") }
-    val monthList = state.monthList
+    val monthList = state.weekMonthList
     val arrayList = ArrayList<String>()
     val context = LocalContext.current
     val listState = rememberLazyListState()
@@ -527,33 +520,38 @@ fun ScreenTodayMonth(
         arrayList.add("${count}주차")
     }
 
-    getBookMap(
-        platform = state.platform,
-        type = state.type
-    ) {
-        viewModelBest.setItemBookInfoMap(it)
-    }
-
-    getBestListWeekJson(
+    getBookMapJson(
         platform = state.platform,
         type = state.type,
-        bestType = "MONTH",
         context = context
-    ){
-        viewModelBest.setMonthList(it)
-    }
+    ) { itemBookInfoMap ->
 
-    getBestMonthTrophy(
-        platform = state.platform,
-        type = state.type,
-    ){
-        viewModelBest.setMonthTrophyList(it)
+        getBestListWeekJson(
+            platform = state.platform,
+            type = state.type,
+            bestType = "MONTH",
+            context = context
+        ){ weekList ->
+            getTrophyWeekMonthJson(
+                platform = state.platform,
+                type = state.type,
+                dayType = "MONTH",
+                context = context
+            ) { weekTrophyList ->
+
+                viewModelBest.setWeekList(
+                    weekTrophyList = weekTrophyList,
+                    weekList = weekList,
+                    itemBookInfoMap = itemBookInfoMap
+                )
+            }
+        }
     }
 
     val filteredList: ArrayList<ItemBookInfo> = ArrayList()
 
-    if(state.monthTrophyList.isNotEmpty() && state.itemBookInfoMap.isNotEmpty()){
-        for (trophyItem in state.monthTrophyList) {
+    if(state.weekMonthTrophyList.isNotEmpty() && state.itemBookInfoMap.isNotEmpty()){
+        for (trophyItem in state.weekMonthTrophyList) {
             val bookCode = trophyItem.bookCode
             val bookInfo = state.itemBookInfoMap[bookCode]
 
@@ -601,17 +599,18 @@ fun ScreenTodayMonth(
                         index = index,
                     ){
                         coroutineScope.launch {
-                            viewModelBest.getBookItemInfo(itemBookInfo = item)
 
-                            getBookItemWeekTrophyDialog(
-                                itemBookInfo = item,
+                            getBookItemWeekTrophy(
+                                bookCode = item.bookCode,
                                 type = state.type,
                                 platform = state.platform
-                            ) { itemBookInfo, itemBestInfoTrophyList ->
+                            ) { itemBestInfoTrophyList ->
+
                                 viewModelBest.setItemBestInfoTrophyList(
-                                    itemBookInfo = itemBookInfo,
+                                    itemBookInfo = item,
                                     itemBestInfoTrophyList = itemBestInfoTrophyList
                                 )
+
                             }
 
                             modalSheetState?.show()
@@ -654,15 +653,17 @@ fun ScreenTodayMonth(
                             coroutineScope.launch {
                                 viewModelBest.getBookItemInfo(itemBookInfo = item)
 
-                                getBookItemWeekTrophyDialog(
-                                    itemBookInfo = item,
+                                getBookItemWeekTrophy(
+                                    bookCode = item.bookCode,
                                     type = state.type,
                                     platform = state.platform
-                                ) { itemBookInfo, itemBestInfoTrophyList ->
+                                ) { itemBestInfoTrophyList ->
+
                                     viewModelBest.setItemBestInfoTrophyList(
-                                        itemBookInfo = itemBookInfo,
+                                        itemBookInfo = item,
                                         itemBestInfoTrophyList = itemBestInfoTrophyList
                                     )
+
                                 }
 
                                 modalSheetState?.show()
