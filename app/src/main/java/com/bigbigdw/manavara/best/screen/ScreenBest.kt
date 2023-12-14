@@ -802,6 +802,7 @@ fun BestBottomDialog(
         trophy = itemBestInfoTrophyList,
         isExpandedScreen = isExpandedScreen,
         isPicked = state.isPicked,
+        needTrophyList = false,
         btnPickText = if (state.isPicked) {
             "작품 PICK 해제"
         } else {
