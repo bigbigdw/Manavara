@@ -73,7 +73,7 @@ class ViewModelMain @Inject constructor() : ViewModel() {
 
     //TODO: UID 받아오게 작업하기
     fun setIsPicked(platform: String, bookCode: String){
-        val state = state.value
+
         val mRootRef = FirebaseDatabase.getInstance().reference
             .child("USER")
             .child("A8uh2QkVQaV3Q3rE8SgBNKzV6VH2")

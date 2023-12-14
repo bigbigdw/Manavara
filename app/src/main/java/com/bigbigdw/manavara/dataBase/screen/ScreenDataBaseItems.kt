@@ -180,58 +180,7 @@ fun ScreenDataBaseItems(
     }
 }
 
-@Composable
-fun ScreenDataBaseTopbar(viewModelDatabase: ViewModelDatabase, onClick: () -> Unit) {
 
-    val state = viewModelDatabase.state.collectAsState().value
-
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .background(color = Color.White)
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-
-        Box(
-            modifier = Modifier.weight(1f)
-        ) {
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable { onClick() }) {
-                Image(
-                    painter = painterResource(id = R.drawable.icon_drawer),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(22.dp)
-                        .height(22.dp)
-                )
-
-                Spacer(
-                    modifier = Modifier.size(8.dp)
-                )
-
-                Text(
-                    text = if (state.detail.isNotEmpty()){
-                            state.detail
-                        } else {
-                        state.menu
-                    },
-                    fontSize = 20.sp,
-                    textAlign = TextAlign.Left,
-                    color = color000000,
-                    fontWeight = FontWeight.Bold
-                )
-
-            }
-
-        }
-
-
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

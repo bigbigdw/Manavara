@@ -3,6 +3,7 @@ package com.bigbigdw.manavara.util
 import androidx.compose.ui.graphics.Color
 import androidx.datastore.preferences.core.Preferences
 import com.bigbigdw.manavara.R
+import com.bigbigdw.manavara.main.models.MenuInfo
 import com.bigbigdw.manavara.ui.theme.color21C2EC
 import com.bigbigdw.manavara.ui.theme.color2EA259
 import com.bigbigdw.manavara.ui.theme.color31C3AE
@@ -992,3 +993,38 @@ fun getBestDetailDescription(menu: String) : String {
         }
     }
 }
+
+val menuListManavara = arrayListOf(
+    MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "나의 기록", body = "https://m.comic.naver.com/event/yearend/2023"),
+    MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "내가 분석한 작품", body = "내가 데이터를 모으고 있는 작품들 보기"),
+    MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "유저 옵션", body = "마나바라 유저 옵션"),
+    MenuInfo(needLine = true, image = R.drawable.ic_launcher, menu = "메세지함", body = "공지사항 및 알림 등 메세지 확인"),
+    MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "나의 PICK 보기", body = "내가 엄선한 작품들 보기"),
+    MenuInfo(needLine = true, image = R.drawable.ic_launcher, menu = "다른 PICK 보기", body = "다른 사람이 엄선한 작품들 보기"),
+    MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "이벤트", body = "플랫폼별 진행중인 이벤트 확인"),
+    MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "커뮤니티", body = "조아라 자유게시판 및 DC 커뮤니티 확인"),
+)
+
+val menuListDatabase = arrayListOf(
+    MenuInfo(needLine = false, image = R.drawable.icon_novel_wht, menu = "마나바라 베스트 웹소설 DB", body = "마나바라에 기록된 베스트 웹소설 리스트"),
+    MenuInfo(needLine = true, image = R.drawable.icon_novel_wht, menu = "신규 작품", body = "최근에 등록된 작품 확인"),
+    MenuInfo(needLine = false, image = R.drawable.icon_best_wht, menu = "주차별 웹소설 베스트", body = "주차별 웹소설 베스트 리스트"),
+    MenuInfo(needLine = true, image = R.drawable.icon_best_wht, menu = "월별 웹소설 베스트", body = "월별 웹소설 베스트 리스트"),
+    MenuInfo(needLine = false, image = R.drawable.icon_genre_wht, menu = "투데이 장르 현황", body = "웹소설 플랫폼별 투데이 장르 리스트"),
+    MenuInfo(needLine = false, image = R.drawable.icon_genre_wht, menu = "주간 장르 현황", body = "웹소설 주간 주차별 장르 리스트"),
+    MenuInfo(needLine = false, image = R.drawable.icon_genre_wht, menu = "월간 장르 현황", body = "웹소설 플랫폼별 월간 장르 리스트"),
+    MenuInfo(needLine = false, image = R.drawable.icon_genre_wht, menu = "주차별 장르 현황", body = "웹소설 플랫폼별 주차별 장르 리스트"),
+    MenuInfo(needLine = false, image = R.drawable.icon_genre_wht, menu = "월별 장르 현황", body = "웹소설 플랫폼별 월별 장르 리스트"),
+    MenuInfo(needLine = false, image = R.drawable.icon_genre_wht, menu = "장르 리스트 작품", body = "장르별 작품 리스트 보기"),
+    MenuInfo(needLine = true, image = R.drawable.icon_genre_wht, menu = "장르 리스트 현황", body = "장르별 랭킹 변동 현황"),
+    MenuInfo(needLine = false, image = R.drawable.icon_keyword_wht, menu = "투데이 키워드 현황", body = "웹소설 주차별 투데이 키워드 현황"),
+    MenuInfo(needLine = false, image = R.drawable.icon_keyword_wht, menu = "주간 키워드 현황", body = "웹소설 주간 키워드 현황"),
+    MenuInfo(needLine = false, image = R.drawable.icon_keyword_wht, menu = "월간 키워드 현황", body = "웹소설 월간 키워드 현황"),
+    MenuInfo(needLine = false, image = R.drawable.icon_keyword_wht, menu = "주차별 키워드 현황", body = "웹소설 주차별 월별 키워드 현황"),
+    MenuInfo(needLine = false, image = R.drawable.icon_keyword_wht, menu = "월별 키워드 현황", body = "웹소설 플랫폼별 월별 키워드 현황"),
+    MenuInfo(needLine = false, image = R.drawable.icon_keyword_wht, menu = "키워드 리스트 작품", body = "웹소설 키워드 리스트 작품 보기"),
+    MenuInfo(needLine = true, image = R.drawable.icon_keyword_wht, menu = "키워드 리스트 현황", body = "웹소설 키워드 리스트 작품 보기"),
+    MenuInfo(needLine = false, image = R.drawable.icon_search_wht, menu = "마나바라 DB 검색", body = "마나바라 DB에 저장된 작품 검색"),
+    MenuInfo(needLine = false, image = R.drawable.icon_search_wht, menu = "작품 검색", body = "플랫폼과 무관하게 작품 검색 진행"),
+    MenuInfo(needLine = false, image = R.drawable.icon_search_wht, menu = "북코드 검색", body = "북코드로 작품 찾기"),
+)

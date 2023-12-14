@@ -31,6 +31,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -55,14 +57,17 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bigbigdw.manavara.R
+import com.bigbigdw.manavara.main.models.MenuInfo
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color20459E
+import com.bigbigdw.manavara.ui.theme.color4AD7CF
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
 import com.bigbigdw.manavara.ui.theme.color8F8F8F
 import com.bigbigdw.manavara.ui.theme.colorE9E9E9
 import com.bigbigdw.manavara.ui.theme.colorEDE6FD
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorF7F7F7
+import com.bigbigdw.manavara.util.colorList
 import kotlinx.coroutines.launch
 
 @Composable
@@ -744,3 +749,74 @@ fun ScreenEmpty(str : String = "마나바라") {
     }
 }
 
+@Composable
+fun ScreenTopbar(detail: String, menu : String, onClick: () -> Unit) {
+
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .background(color = Color.White)
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+
+        Box(
+            modifier = Modifier.weight(1f)
+        ) {
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable { onClick() }) {
+                Image(
+                    painter = painterResource(id = R.drawable.icon_drawer),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .width(22.dp)
+                        .height(22.dp)
+                )
+
+                Spacer(
+                    modifier = Modifier.size(8.dp)
+                )
+
+                Text(
+                    text = detail.ifEmpty {
+                        menu
+                    },
+                    fontSize = 20.sp,
+                    textAlign = TextAlign.Left,
+                    color = color000000,
+                    fontWeight = FontWeight.Bold
+                )
+
+            }
+
+        }
+    }
+}
+
+@Composable
+fun ScreenMenuItem(
+    item: MenuInfo,
+    index: Int,
+    current: String,
+    onClick: () -> Unit
+) {
+
+    ItemMainSettingSingleTablet(
+        containerColor = colorList[index % colorList.size],
+        image = item.image,
+        title = item.menu,
+        body = item.body,
+        current = current,
+        value = item.menu,
+        onClick = {
+            onClick()
+        },
+    )
+
+    if(item.needLine){
+        TabletBorderLine()
+    }
+}

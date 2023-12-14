@@ -376,61 +376,6 @@ fun TableAppNavRail(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ScreenUser() {
-
-    val context = LocalContext.current
-    val (getFCM, setFCM) = remember { mutableStateOf(DataFCMBodyNotification()) }
-
-    Column {
-
-        ItemTabletTitle(str = "문의 사항 전송")
-
-        TabletContentWrap {
-            TextField(
-                value = getFCM.title,
-                onValueChange = {
-                    setFCM(getFCM.copy(title = it))
-                },
-                label = { androidx.compose.material3.Text("푸시 알림 제목", color = color898989) },
-                singleLine = true,
-                colors = TextFieldDefaults.textFieldColors(
-                    containerColor = Color(0),
-                    textColor = color000000
-                ),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.size(16.dp))
-
-            TextField(
-                value = getFCM.body,
-                onValueChange = {
-                    setFCM(getFCM.copy(body = it))
-                },
-                label = { androidx.compose.material3.Text("푸시 알림 내용", color = color898989) },
-                singleLine = true,
-                colors = TextFieldDefaults.textFieldColors(
-                    containerColor = Color(0),
-                    textColor = color000000
-                ),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Box(modifier = Modifier.padding(16.dp), contentAlignment = Alignment.Center) {
-                BtnMobile(
-                    func = { postFCMAlert(context = context, getFCM = getFCM) },
-                    btnText = "문의사항 등록"
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.size(60.dp))
-    }
-}
-
-
 fun init(context: Context) {
     for (platform in novelListEng()) {
         runBlocking {

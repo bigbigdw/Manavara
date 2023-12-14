@@ -46,7 +46,6 @@ import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.screen.BestBottomDialog
 import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDatabase
 import com.bigbigdw.manavara.best.screen.BestDialog
-import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.ui.theme.color21C2EC
 import com.bigbigdw.manavara.ui.theme.color2EA259
 import com.bigbigdw.manavara.ui.theme.color31C3AE
@@ -71,7 +70,11 @@ import com.bigbigdw.manavara.ui.theme.colorFDC24E
 import com.bigbigdw.manavara.ui.theme.colorFFAC59
 import com.bigbigdw.manavara.util.genreListEng
 import com.bigbigdw.manavara.util.keywordListEng
+import com.bigbigdw.manavara.util.menuListDatabase
+import com.bigbigdw.manavara.util.menuListManavara
 import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
+import com.bigbigdw.manavara.util.screen.ScreenMenuItem
+import com.bigbigdw.manavara.util.screen.ScreenTopbar
 import com.bigbigdw.manavara.util.screen.TabletBorderLine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -162,7 +165,7 @@ fun ScreenDataBase(
                 }) {
                     Scaffold(
                         topBar = {
-                            ScreenDataBaseTopbar(viewModelDatabase = viewModelDatabase) {
+                            ScreenTopbar(detail = state.detail, menu = state.menu) {
                                 coroutineScope.launch {
                                     drawerState.open()
                                 }
@@ -247,454 +250,24 @@ fun ScreenDataBasePropertyList(
 
         Spacer(modifier = Modifier.size(16.dp))
 
-        ItemMainSettingSingleTablet(
-            containerColor = color4AD7CF,
-            image = R.drawable.icon_novel_wht,
-            title = "마나바라 베스트 웹소설 DB",
-            body = "마나바라에 기록된 베스트 웹소설 리스트",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelDatabase.setScreen(
-                        detail = "",
-                        menu = "베스트 웹소설 DB",
-                        menuDesc = "마나바라에 기록된 베스트 웹소설 리스트",
-                        type = state.type
-                    )
-                    drawerState?.close()
+        menuListDatabase.forEachIndexed { index, item ->
+            ScreenMenuItem(
+                item = item,
+                index = index,
+                current = state.menu,
+                onClick ={
+                    coroutineScope.launch {
+                        viewModelDatabase.setScreen(
+                            menu = item.menu,
+                            detail = "",
+                            type = state.type,
+                            platform = ""
+                        )
+                        drawerState?.close()
+                    }
                 }
-            },
-            value = "베스트 웹소설 DB"
-        )
-
-        ItemMainSettingSingleTablet(
-            containerColor = color5372DE,
-            image = R.drawable.icon_novel_wht,
-            title = "신규 작품",
-            body = "최근에 등록된 작품 확인",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelDatabase.setScreen(
-                        detail = "",
-                        menu = "신규 작품",
-                        menuDesc = "최근에 등록된 작품 확인",
-                        type = "NOVEL",
-                        platform = "JOARA"
-                    )
-                    drawerState?.close()
-                }
-            },
-            value = "신규 작품"
-        )
-
-        TabletBorderLine()
-
-        ItemMainSettingSingleTablet(
-            containerColor = color998DF9,
-            image = R.drawable.icon_best_wht,
-            title = "주차별 웹소설 베스트",
-            body = "주차별 웹소설 베스트 리스트",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelDatabase.setScreen(
-                        detail = "",
-                        menu = "주차별 웹소설 베스트",
-                        menuDesc = "주차별 웹소설 베스트 리스트",
-                        type = "NOVEL",
-                        platform = "JOARA"
-                    )
-                    drawerState?.close()
-                }
-            },
-            value = "주차별 웹소설 베스트"
-        )
-
-        ItemMainSettingSingleTablet(
-            containerColor = colorEA927C,
-            image = R.drawable.icon_best_wht,
-            title = "월별 웹소설 베스트",
-            body = "월별 웹소설 베스트 리스트",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelDatabase.setScreen(
-                        detail = "",
-                        menu = "월별 웹소설 베스트",
-                        menuDesc = "월별 웹소설 베스트 리스트",
-                        type = "NOVEL",
-                        platform = "JOARA"
-                    )
-                    drawerState?.close()
-                }
-            },
-            value = "월별 웹소설 베스트"
-        )
-
-        TabletBorderLine()
-
-        ItemMainSettingSingleTablet(
-            containerColor = colorABD436,
-            image = R.drawable.icon_genre_wht,
-            title = "투데이 장르 현황",
-            body = "웹소설 플랫폼별 투데이 장르 리스트",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelDatabase.setScreen(
-                        detail = "",
-                        menu = "투데이 장르 현황",
-                        menuDesc = "웹소설 플랫폼별 투데이 장르 리스트",
-                        type = "NOVEL",
-                        platform = "JOARA"
-                    )
-                    drawerState?.close()
-                }
-            },
-            value = "투데이 장르 현황"
-        )
-
-        ItemMainSettingSingleTablet(
-            containerColor = colorF17FA0,
-            image = R.drawable.icon_genre_wht,
-            title = "주간 장르 현황",
-            body = "웹소설 주간 주차별 장르 리스트",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelDatabase.setScreen(
-                        detail = "",
-                        menu = "주간 장르 현황",
-                        menuDesc = "웹소설 주간 주차별 장르 리스트",
-                        type = "NOVEL",
-                        platform = "JOARA"
-                    )
-                    drawerState?.close()
-                }
-            },
-            value = "주간 장르 현황"
-        )
-
-        ItemMainSettingSingleTablet(
-            containerColor = color21C2EC,
-            image = R.drawable.icon_genre_wht,
-            title = "월간 장르 현황",
-            body = "웹소설 플랫폼별 월간 장르 리스트",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelDatabase.setScreen(
-                        detail = "",
-                        menu = "월간 장르 현황",
-                        menuDesc = "웹소설 플랫폼별 월간 장르 리스트",
-                        type = "NOVEL",
-                        platform = "JOARA"
-                    )
-                    drawerState?.close()
-                }
-            },
-            value = "월간 장르 현황"
-        )
-
-        ItemMainSettingSingleTablet(
-            containerColor = color31C3AE,
-            image = R.drawable.icon_genre_wht,
-            title = "주차별 장르 현황",
-            body = "웹소설 플랫폼별 주차별 장르 리스트",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelDatabase.setScreen(
-                        detail = "",
-                        menu = "주차별 장르 현황",
-                        menuDesc = "웹소설 플랫폼별 주차별 장르 리스트",
-                        type = "NOVEL",
-                        platform = "JOARA"
-                    )
-                    drawerState?.close()
-                }
-            },
-            value = "주차별 장르 현황"
-        )
-
-        ItemMainSettingSingleTablet(
-            containerColor = color7C81FF,
-            image = R.drawable.icon_genre_wht,
-            title = "월별 장르 현황",
-            body = "웹소설 플랫폼별 월별 장르 리스트",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelDatabase.setScreen(
-                        detail = "",
-                        menu = "월별 장르 현황",
-                        menuDesc = "웹소설 플랫폼별 월별 장르 리스트",
-                        type = "NOVEL",
-                        platform = "JOARA"
-                    )
-                    drawerState?.close()
-                }
-            },
-            value = "월별 장르 현황"
-        )
-
-        ItemMainSettingSingleTablet(
-            containerColor = color64C157,
-            image = R.drawable.icon_genre_wht,
-            title = "장르 리스트 작품",
-            body = "장르별 작품 리스트 보기",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelDatabase.setScreen(
-                        detail = "",
-                        menu = "장르 리스트 작품",
-                        menuDesc = "장르별 작품 리스트 보기",
-                        type = "NOVEL",
-                        platform = "JOARA"
-                    )
-                    drawerState?.close()
-                }
-            },
-            value = "장르 리스트 작품"
-        )
-
-        ItemMainSettingSingleTablet(
-            containerColor = colorF17666,
-            image = R.drawable.icon_genre_wht,
-            title = "장르 리스트 현황",
-            body = "장르별 랭킹 변동 현황",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelDatabase.setScreen(
-                        detail = "",
-                        menu = "장르 리스트 현황",
-                        menuDesc = "장르별 랭킹 변동 현황",
-                        type = "NOVEL",
-                        platform = "JOARA"
-                    )
-                    drawerState?.close()
-                }
-            },
-            value = "장르 리스트 현황"
-        )
-
-        TabletBorderLine()
-
-        ItemMainSettingSingleTablet(
-            containerColor = color536FD2,
-            image = R.drawable.icon_keyword_wht,
-            title = "투데이 키워드 현황",
-            body = "웹소설 주차별 투데이 키워드 현황",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelDatabase.setScreen(
-                        detail = "",
-                        menu = "투데이 키워드 현황",
-                        menuDesc = "웹소설 주차별 투데이 키워드 현황",
-                        type = "NOVEL",
-                        platform = "JOARA"
-                    )
-                    drawerState?.close()
-                }
-            },
-            value = "투데이 키워드 현황"
-        )
-
-        ItemMainSettingSingleTablet(
-            containerColor = color4996E8,
-            image = R.drawable.icon_keyword_wht,
-            title = "주간 키워드 현황",
-            body = "웹소설 주간 키워드 현황",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelDatabase.setScreen(
-                        detail = "",
-                        menu = "주간 키워드 현황",
-                        menuDesc = "웹소설 주간 키워드 현황",
-                        type = "NOVEL",
-                        platform = "JOARA"
-                    )
-                    drawerState?.close()
-                }
-            },
-            value = "주간 키워드 현황"
-        )
-
-        ItemMainSettingSingleTablet(
-            containerColor = colorFDC24E,
-            image = R.drawable.icon_keyword_wht,
-            title = "월간 키워드 현황",
-            body = "웹소설 월간 키워드 현황",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelDatabase.setScreen(
-                        detail = "",
-                        menu = "월간 키워드 현황",
-                        menuDesc = "웹소설 월간 키워드 현황",
-                        type = "NOVEL",
-                        platform = "JOARA"
-                    )
-                    drawerState?.close()
-                }
-            },
-            value = "월간 키워드 현황"
-        )
-
-        ItemMainSettingSingleTablet(
-            containerColor = color80BF78,
-            image = R.drawable.icon_keyword_wht,
-            title = "주차별 키워드 현황",
-            body = "웹소설 주차별 월별 키워드 현황",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelDatabase.setScreen(
-                        detail = "",
-                        menu = "주차별 키워드 현황",
-                        menuDesc = "웹소설 주차별 월별 키워드 현황",
-                        type = "NOVEL",
-                        platform = "JOARA"
-                    )
-                    drawerState?.close()
-                }
-            },
-            value = "주차별 키워드 현황"
-        )
-
-        ItemMainSettingSingleTablet(
-            containerColor = color91CEC7,
-            image = R.drawable.icon_keyword_wht,
-            title = "월별 키워드 현황",
-            body = "웹소설 플랫폼별 월별 키워드 현황",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelDatabase.setScreen(
-                        detail = "",
-                        menu = "월별 키워드 현황",
-                        menuDesc = "웹소설 플랫폼별 월별 키워드 현황",
-                        type = "NOVEL",
-                        platform = "JOARA"
-                    )
-                    drawerState?.close()
-                }
-            },
-            value = "월별 키워드 현황"
-        )
-
-        ItemMainSettingSingleTablet(
-            containerColor = color79B4F8,
-            image = R.drawable.icon_keyword_wht,
-            title = "키워드 리스트 작품",
-            body = "웹소설 키워드 리스트 작품 보기",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelDatabase.setScreen(
-                        detail = "",
-                        menu = "키워드 리스트 작품",
-                        menuDesc = "웹소설 키워드 리스트 작품 보기",
-                        type = "NOVEL",
-                        platform = "JOARA"
-                    )
-                    drawerState?.close()
-                }
-            },
-            value = "키워드 리스트 작품"
-        )
-
-        ItemMainSettingSingleTablet(
-            containerColor = color8AA6BD,
-            image = R.drawable.icon_keyword_wht,
-            title = "키워드 리스트 현황",
-            body = "웹소설 키워드 리스트 작품 보기",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelDatabase.setScreen(
-                        detail = "",
-                        menu = "키워드 리스트 현황",
-                        menuDesc = "웹소설 키워드 리스트 작품 보기",
-                        type = "NOVEL",
-                        platform = "JOARA"
-                    )
-                    drawerState?.close()
-                }
-            },
-            value = "키워드 리스트 현황"
-        )
-
-        TabletBorderLine()
-
-        ItemMainSettingSingleTablet(
-            containerColor = color2EA259,
-            image = R.drawable.icon_search_wht,
-            title = "마나바라 DB 검색",
-            body = "마나바라 DB 검색",
-            current = state.menu,
-            onClick = {
-                coroutineScope.launch {
-                    viewModelDatabase.setScreen(
-                        detail = "",
-                        menu = "마나바라 DB 검색",
-                        menuDesc = "마나바라 DB에 저장된 작품 검색",
-                        type = "NOVEL",
-                        platform = "JOARA"
-                    )
-                    drawerState?.close()
-                }
-            },
-            value = "마나바라 DB 검색",
-        )
-
-        ItemMainSettingSingleTablet(
-            containerColor = color808CF8,
-            image = R.drawable.icon_search_wht,
-            title = "작품 검색",
-            body = "플랫폼과 무관하게 작품 검색 진행",
-            current = "",
-            onClick = {
-                coroutineScope.launch {
-                    viewModelDatabase.setScreen(
-                        detail = "",
-                        menu = "작품 검색",
-                        menuDesc = "플랫폼과 무관하게 작품 검색 진행",
-                        type = "NOVEL",
-                        platform = "JOARA"
-                    )
-                    drawerState?.close()
-                }
-            },
-            value = "작품 검색",
-        )
-
-        ItemMainSettingSingleTablet(
-            containerColor = colorFFAC59,
-            image = R.drawable.icon_search_wht,
-            title = "북코드 검색",
-            body = "북코드로 작품 찾기",
-            current = "",
-            onClick = {
-                coroutineScope.launch {
-                    viewModelDatabase.setScreen(
-                        detail = "",
-                        menu = "북코드 검색",
-                        menuDesc = "북코드로 작품 찾기",
-                        type = "NOVEL",
-                        platform = "JOARA"
-                    )
-                    drawerState?.close()
-                }
-            },
-            value = "북코드 검색",
-        )
-
+            )
+        }
     }
 }
 

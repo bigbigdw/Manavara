@@ -8,16 +8,19 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalNavigationDrawer
@@ -37,24 +40,25 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bigbigdw.manavara.R
-import com.bigbigdw.manavara.dataBase.screen.ScreenDataBaseTopbar
-import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDatabase
+import com.bigbigdw.manavara.best.screen.BestBottomDialog
+import com.bigbigdw.manavara.best.screen.BestDialog
+import com.bigbigdw.manavara.main.models.MenuInfo
+import com.bigbigdw.manavara.manavara.viewModels.ViewModelManavara
 import com.bigbigdw.manavara.ui.theme.color21C2EC
 import com.bigbigdw.manavara.ui.theme.color31C3AE
 import com.bigbigdw.manavara.ui.theme.color4AD7CF
 import com.bigbigdw.manavara.ui.theme.color5372DE
-import com.bigbigdw.manavara.ui.theme.color998DF9
-import com.bigbigdw.manavara.ui.theme.colorABD436
 import com.bigbigdw.manavara.ui.theme.colorEA927C
 import com.bigbigdw.manavara.ui.theme.colorF17FA0
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
-import com.bigbigdw.manavara.util.screen.AlertTwoBtn
+import com.bigbigdw.manavara.util.menuListManavara
 import com.bigbigdw.manavara.util.screen.BackOnPressedMobile
 import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
+import com.bigbigdw.manavara.util.screen.ScreenMenuItem
+import com.bigbigdw.manavara.util.screen.ScreenTopbar
 import com.bigbigdw.manavara.util.screen.TabletBorderLine
 import kotlinx.coroutines.launch
 
@@ -65,13 +69,13 @@ fun ScreenManavara(
 ) {
 
     val context = LocalContext.current
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val viewModelStoreOwner =
         checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
-    val viewModelDatabase: ViewModelDatabase = viewModel(viewModelStoreOwner = viewModelStoreOwner)
-    val state = viewModelDatabase.state.collectAsState().value
+    val viewModelManavara: ViewModelManavara = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+    val state = viewModelManavara.state.collectAsState().value
     val coroutineScope = rememberCoroutineScope()
 
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val modalSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
         confirmValueChange = { it != ModalBottomSheetValue.HalfExpanded },
@@ -91,31 +95,17 @@ fun ScreenManavara(
                 val (getDialogOpen, setDialogOpen) = remember { mutableStateOf(false) }
 
                 if(getDialogOpen){
-                    Dialog(
+                    BestDialog(
                         onDismissRequest = { setDialogOpen(false) },
-                    ) {
-                        AlertTwoBtn(
-                            onClickLeft = {  },
-                            onClickRight = { },
-                            btnLeft = "취소",
-                            btnRight = "확인",
-                            modifier = Modifier.requiredWidth(400.dp),
-                            contents = {
-                                if (modalSheetState != null) {
-//                                    ScreenDialogBest(
-//                                        item = viewModelAnalyze.state.collectAsState().value.itemBookInfo,
-//                                        trophy = viewModelAnalyze.state.collectAsState().value.itemBestInfoTrophyList,
-//                                        isExpandedScreen = isExpandedScreen,
-//                                        currentRoute = "NOVEL",
-//                                        modalSheetState = modalSheetState
-//                                    )
-                                }
-                            })
-                    }
+                        itemBestInfoTrophyList = state.itemBestInfoTrophyList,
+                        item = state.itemBookInfo,
+                        isExpandedScreen = isExpandedScreen
+                    )
                 }
 
                 ScreenManavaraPropertyList(
-                    viewModelDatabase = viewModelDatabase,
+                    viewModelManavara = viewModelManavara,
+                    drawerState = drawerState
                 )
 
                 Spacer(
@@ -125,19 +115,28 @@ fun ScreenManavara(
                         .background(color = colorF6F6F6)
                 )
 
+                ScreenManavaraItem(
+                    viewModelManavara = viewModelManavara,
+                    drawerState = drawerState,
+                    modalSheetState = modalSheetState,
+                    setDialogOpen = setDialogOpen,
+                    isExpandedScreen = isExpandedScreen
+                )
+
 
             } else {
 
                 ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
 
                     ScreenManavaraPropertyList(
-                        viewModelDatabase = viewModelDatabase,
+                        viewModelManavara = viewModelManavara,
+                        drawerState = drawerState
                     )
 
                 }) {
                     Scaffold(
                         topBar = {
-                            ScreenDataBaseTopbar(viewModelDatabase = viewModelDatabase) {
+                            ScreenTopbar(detail = state.detail, menu = state.menu) {
                                 coroutineScope.launch {
                                     drawerState.open()
                                 }
@@ -153,16 +152,13 @@ fun ScreenManavara(
                         ) {
                             Spacer(modifier = Modifier.size(8.dp))
 
-//                            ScreenAnalyzeItem(
-//                                viewModelAnalyze = viewModelAnalyze,
-//                                drawerState = drawerState,
-//                                menu = "",
-//                                setDetail = {},
-//                                setPlatform = {},
-//                                setType = {},
-//                                platform = platform,
-//                                type = type
-//                            )
+                            ScreenManavaraItem(
+                                viewModelManavara = viewModelManavara,
+                                drawerState = drawerState,
+                                modalSheetState = modalSheetState,
+                                setDialogOpen = null,
+                                isExpandedScreen = isExpandedScreen
+                            )
                         }
                     }
 
@@ -175,20 +171,15 @@ fun ScreenManavara(
                         ),
                         sheetContent = {
 
-//                            if(currentRoute == "NOVEL" || currentRoute == "COMIC"){
-//
-//                                Spacer(modifier = Modifier.size(4.dp))
-//
-//                                ScreenDialogBest(
-//                                    item = state.itemBookInfo,
-//                                    trophy = state.itemBestInfoTrophyList,
-//                                    isExpandedScreen = isExpandedScreen,
-//                                    currentRoute = currentRoute,
-//                                    modalSheetState = modalSheetState
-//                                )
-//                            } else {
-//                                ScreenTest()
-//                            }
+                            Spacer(modifier = Modifier.size(4.dp))
+
+                            BestBottomDialog(
+                                itemBestInfoTrophyList = state.itemBestInfoTrophyList,
+                                item = state.itemBookInfo,
+                                isExpandedScreen = isExpandedScreen,
+                                modalSheetState = modalSheetState,
+                                currentRoute = "NOVEL",
+                            )
                         },
                     ) {}
                 }
@@ -200,12 +191,15 @@ fun ScreenManavara(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenManavaraPropertyList(
-    viewModelDatabase: ViewModelDatabase,
+    viewModelManavara: ViewModelManavara,
+    drawerState: DrawerState?,
 ) {
 
-    val state = viewModelDatabase.state.collectAsState().value
+    val state = viewModelManavara.state.collectAsState().value
+    val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -216,104 +210,52 @@ fun ScreenManavaraPropertyList(
             .verticalScroll(rememberScrollState())
             .semantics { contentDescription = "Overview Screen" },
     ) {
+        Spacer(modifier = Modifier.size(16.dp))
 
-        Column {
-            Spacer(modifier = Modifier.size(16.dp))
+        Text(
+            modifier = Modifier.padding(16.dp, 0.dp, 0.dp, 0.dp),
+            text = "마나바라 스페셜",
+            fontSize = 24.sp,
+            color = Color.Black,
+            fontWeight = FontWeight(weight = 700)
+        )
 
-            Text(
-                modifier = Modifier.padding(16.dp, 0.dp, 0.dp, 0.dp),
-                text = "마나바라 스페셜",
-                fontSize = 24.sp,
-                color = Color.Black,
-                fontWeight = FontWeight(weight = 700)
-            )
-
-
-            ItemMainSettingSingleTablet(
-                containerColor = color4AD7CF,
-                image = R.drawable.ic_launcher,
-                title = "나의 기록",
-                body = "https://m.comic.naver.com/event/yearend/2023",
-                current = "state.menu",
-                onClick = {  },
-                value = "작품 검색",
-            )
-
-            ItemMainSettingSingleTablet(
-                containerColor = color5372DE,
-                image = R.drawable.ic_launcher,
-                title = "내가 분석한 작품",
-                body = "--------",
-                current = "state.menu",
-                onClick = {  },
-                value = "작품 검색",
-            )
-
-            ItemMainSettingSingleTablet(
-                containerColor = color998DF9,
-                image = R.drawable.ic_launcher,
-                title = "옵션",
-                body = "--------",
-                current = "state.menu",
-                onClick = {  },
-                value = "작품 검색",
-            )
-
-            ItemMainSettingSingleTablet(
-                containerColor = colorEA927C,
-                image = R.drawable.ic_launcher,
-                title = "메세지함",
-                body = "--------",
-                current = "",
-                onClick = {  },
-                value = "작품 검색",
-            )
-
-            TabletBorderLine()
-
-            ItemMainSettingSingleTablet(
-                containerColor = colorABD436,
-                image = R.drawable.ic_launcher,
-                title = "나의 PICK 보기",
-                body = "------",
-                current = "",
-                onClick = {  },
-                value = "작품 검색",
-            )
-
-            ItemMainSettingSingleTablet(
-                containerColor = colorF17FA0,
-                image = R.drawable.ic_launcher,
-                title = "다른 PICK 보기",
-                body = "------",
-                current = "",
-                onClick = {  },
-                value = "작품 검색",
-            )
-
-            TabletBorderLine()
-
-            ItemMainSettingSingleTablet(
-                containerColor = color21C2EC,
-                image = R.drawable.ic_launcher,
-                title = "이벤트",
-                body = "------",
-                current = "",
-                onClick = {  },
-                value = "작품 검색",
-            )
-
-            ItemMainSettingSingleTablet(
-                containerColor = color31C3AE,
-                image = R.drawable.ic_launcher,
-                title = "커뮤니티",
-                body = "------",
-                current = "",
-                onClick = {  },
-                value = "작품 검색",
+        menuListManavara.forEachIndexed { index, item ->
+            ScreenMenuItem(
+                item = item,
+                index = index,
+                current = state.menu,
+                onClick ={
+                    coroutineScope.launch {
+                        viewModelManavara.setScreen(
+                            menu = item.menu,
+                            detail = "",
+                            type = state.type
+                        )
+                        drawerState?.close()
+                    }
+                }
             )
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@Composable
+fun ScreenManavaraItem(
+    viewModelManavara: ViewModelManavara,
+    drawerState: DrawerState?,
+    modalSheetState: ModalBottomSheetState?,
+    setDialogOpen: ((Boolean) -> Unit)?,
+    isExpandedScreen : Boolean
+) {
+
+    val state = viewModelManavara.state.collectAsState().value
+
+    if (state.menu.contains("유저 옵션")) {
+        ScreenUser()
+    } else if (state.menu.contains("나의 PICK 보기")) {
+        ScreenMyPick(viewModelManavara)
+    }
+}
 

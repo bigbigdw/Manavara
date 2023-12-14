@@ -44,6 +44,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -68,7 +69,6 @@ import com.bigbigdw.manavara.best.ActivityBestDetail
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.viewModels.ViewModelBest
-import com.bigbigdw.manavara.main.screen.ScreenUser
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color1E4394
@@ -277,7 +277,6 @@ fun ScreenBestPropertyList(
     val coroutineScope = rememberCoroutineScope()
     val state = viewModelBest.state.collectAsState().value
 
-
     if (isExpandedScreen) {
         LazyColumn(
             modifier = Modifier
@@ -393,28 +392,6 @@ fun ScreenBestPropertyList(
 
             item { Spacer(modifier = Modifier.size(16.dp)) }
 
-            item {
-                ItemMainSettingSingleTablet(
-                    containerColor = color4AD7CF,
-                    image = R.drawable.ic_launcher,
-                    title = "유저 옵션",
-                    body = "마나바라 유저 옵션",
-                    current = state.bestType,
-                    value = "USER_OPTION",
-                    onClick = {
-                        coroutineScope.launch {
-                            viewModelBest.setBest(
-                                bestType = "USER_OPTION",
-                                platform = "USER_OPTION"
-                            )
-                            drawerState?.close()
-                        }
-                    },
-                )
-            }
-
-            item { TabletBorderLine() }
-
             itemsIndexed(
                 if (state.type == "NOVEL") {
                     novelListKor()
@@ -431,14 +408,7 @@ fun ScreenBestPropertyList(
                     onClick = {
                         coroutineScope.launch {
 
-                            if (state.bestType == "USER_OPTION") {
-                                viewModelBest.setBest(
-                                    platform = changePlatformNameEng(item),
-                                    bestType = "TODAY_BEST"
-                                )
-                            } else {
-                                viewModelBest.setBest(platform = changePlatformNameEng(item))
-                            }
+                            viewModelBest.setBest(platform = changePlatformNameEng(item))
 
                             listState.scrollToItem(index = 0)
                             drawerState?.close()
@@ -617,12 +587,6 @@ fun ScreenMainBestItemDetail(
             viewModelBest = viewModelBest
         )
 
-    } else if (state.bestType.contains("USER_OPTION")) {
-
-        Spacer(modifier = Modifier.size(16.dp))
-
-        ScreenUser()
-
     }
 }
 
@@ -658,12 +622,8 @@ fun ScreenBestTopbar(viewModelBest: ViewModelBest, onClick: () -> Unit) {
                     modifier = Modifier.size(8.dp)
                 )
 
-                androidx.compose.material.Text(
-                    text = if (state.bestType == "USER_OPTION") {
-                        "유저 옵션"
-                    } else {
-                        "${changePlatformNameKor(state.platform)} 베스트"
-                    },
+                Text(
+                    text = "${changePlatformNameKor(state.platform)} 베스트",
                     fontSize = 20.sp,
                     textAlign = TextAlign.Left,
                     color = color000000,
@@ -674,64 +634,62 @@ fun ScreenBestTopbar(viewModelBest: ViewModelBest, onClick: () -> Unit) {
 
         }
 
-        if (state.bestType != "USER_OPTION") {
-            androidx.compose.material.Text(
-                modifier = Modifier.clickable {
-                    viewModelBest.setBest(bestType = "TODAY_BEST")
-                },
-                text = "투데이",
-                fontSize = 18.sp,
-                textAlign = TextAlign.Left,
-                color = if (state.bestType.contains("TODAY_BEST")) {
-                    color1E4394
-                } else {
-                    color555b68
-                },
-                fontWeight = FontWeight.Bold
-            )
+        Text(
+            modifier = Modifier.clickable {
+                viewModelBest.setBest(bestType = "TODAY_BEST")
+            },
+            text = "투데이",
+            fontSize = 18.sp,
+            textAlign = TextAlign.Left,
+            color = if (state.bestType.contains("TODAY_BEST")) {
+                color1E4394
+            } else {
+                color555b68
+            },
+            fontWeight = FontWeight.Bold
+        )
 
-            Spacer(
-                modifier = Modifier
-                    .wrapContentWidth()
-                    .width(16.dp)
-            )
+        Spacer(
+            modifier = Modifier
+                .wrapContentWidth()
+                .width(16.dp)
+        )
 
-            androidx.compose.material.Text(
-                modifier = Modifier.clickable {
-                    viewModelBest.setBest(bestType = "WEEK_BEST")
-                },
-                text = "주간",
-                fontSize = 18.sp,
-                textAlign = TextAlign.Left,
-                color = if (state.bestType.contains("WEEK_BEST")) {
-                    color1E4394
-                } else {
-                    color555b68
-                },
-                fontWeight = FontWeight.Bold
-            )
+        Text(
+            modifier = Modifier.clickable {
+                viewModelBest.setBest(bestType = "WEEK_BEST")
+            },
+            text = "주간",
+            fontSize = 18.sp,
+            textAlign = TextAlign.Left,
+            color = if (state.bestType.contains("WEEK_BEST")) {
+                color1E4394
+            } else {
+                color555b68
+            },
+            fontWeight = FontWeight.Bold
+        )
 
-            Spacer(
-                modifier = Modifier
-                    .wrapContentWidth()
-                    .width(16.dp)
-            )
+        Spacer(
+            modifier = Modifier
+                .wrapContentWidth()
+                .width(16.dp)
+        )
 
-            androidx.compose.material.Text(
-                modifier = Modifier.clickable {
-                    viewModelBest.setBest(bestType = "MONTH_BEST")
-                },
-                text = "월간",
-                fontSize = 18.sp,
-                textAlign = TextAlign.Left,
-                color = if (state.bestType.contains("MONTH_BEST")) {
-                    color1E4394
-                } else {
-                    color555b68
-                },
-                fontWeight = FontWeight.Bold
-            )
-        }
+        Text(
+            modifier = Modifier.clickable {
+                viewModelBest.setBest(bestType = "MONTH_BEST")
+            },
+            text = "월간",
+            fontSize = 18.sp,
+            textAlign = TextAlign.Left,
+            color = if (state.bestType.contains("MONTH_BEST")) {
+                color1E4394
+            } else {
+                color555b68
+            },
+            fontWeight = FontWeight.Bold
+        )
     }
 }
 
@@ -750,7 +708,12 @@ fun BestDialog(
     val context = LocalContext.current
     val state = viewModelMain.state.collectAsState().value
 
-    viewModelMain.setIsPicked(platform = item.type, bookCode = item.bookCode)
+    LaunchedEffect(context){
+        viewModelMain.setIsPicked(
+            platform = item.type,
+            bookCode = item.bookCode
+        )
+    }
 
     Dialog(
         onDismissRequest = { onDismissRequest() },
@@ -821,10 +784,12 @@ fun BestBottomDialog(
     val context = LocalContext.current
     val state = viewModelMain.state.collectAsState().value
 
-    viewModelMain.setIsPicked(
-        platform = item.type,
-        bookCode = item.bookCode
-    )
+    LaunchedEffect(context){
+        viewModelMain.setIsPicked(
+            platform = item.type,
+            bookCode = item.bookCode
+        )
+    }
 
     ScreenDialogBest(
         item = item,

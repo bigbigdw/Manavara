@@ -1,7 +1,13 @@
 package com.bigbigdw.manavara.manavara
 
+import android.annotation.SuppressLint
+import android.content.ComponentCallbacks
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.viewModelScope
+import com.bigbigdw.manavara.best.models.ItemBookInfo
+import com.bigbigdw.manavara.main.event.EventMain
+import com.bigbigdw.manavara.manavara.models.CommunityBoard
 import com.bigbigdw.manavara.manavara.models.EventData
 import com.bigbigdw.manavara.retrofit.Param
 import com.bigbigdw.manavara.retrofit.RetrofitDataListener
@@ -9,9 +15,15 @@ import com.bigbigdw.manavara.retrofit.RetrofitJoara
 import com.bigbigdw.manavara.retrofit.RetrofitKaKao
 import com.bigbigdw.manavara.retrofit.RetrofitToksoda
 import com.bigbigdw.manavara.retrofit.result.BestBannerListResult
+import com.bigbigdw.manavara.retrofit.result.JoaraBoardResult
 import com.bigbigdw.manavara.retrofit.result.JoaraEventResult
 import com.bigbigdw.manavara.retrofit.result.KakaoStageEventList
 import com.bigbigdw.manavara.util.DBDate
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.launch
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
@@ -268,4 +280,113 @@ private fun getUrl(link :String ,platform: String): String {
         }
         else -> return ""
     }
+}
+
+private fun getBoardJoara(page : Int, context : Context) {
+    val apiJoara = RetrofitJoara()
+    val param = Param.getItemAPI(context)
+    val items = ArrayList<CommunityBoard>()
+
+    param["board"] = "free"
+    param["page"] = page
+
+    apiJoara.getBoardListJoa(
+        param,
+        object : RetrofitDataListener<JoaraBoardResult> {
+            override fun onSuccess(it: JoaraBoardResult) {
+
+                if (it.status == "1" && it.boards != null) {
+                    for (i in it.boards.indices) {
+                        val date = it.boards[i].created
+                        items.add(
+                            CommunityBoard(
+                                it.boards[i].title,
+                                it.boards[i].nid,
+                                date.substring(4, 6) + "." + date.substring(6, 8),
+                            )
+                        )
+
+                    }
+                }
+            }
+        })
+
+}
+
+//getBoard("https://gall.dcinside.com/mgallery/board/lists/?id=tgijjdd", "tgijjdd")
+//getBoard("https://gall.dcinside.com/mgallery/board/lists/?id=genrenovel", "genrenovel")
+//getBoard("https://gall.dcinside.com/mgallery/board/lists?id=lovestory", "lovestory")
+//getBoard("https://gall.dcinside.com/board/lists?id=fantasy_new2","fantasy_new2")
+
+@SuppressLint("SuspiciousIndentation")
+private fun getBoard(Url: String, ID : String) {
+
+    val items = ArrayList<CommunityBoard>()
+
+    Thread {
+        val doc: Document = Jsoup.connect("${Url}&s_type=search_subject_memo&s_keyword=.EC.A1.B0.EC.95.84.EB.9D.BC").post()
+        val DC: Elements = doc.select(".ub-content")
+
+        try {
+
+            for (i in DC.indices) {
+                val title = DC.select(".gall_tit")[i].text()
+                val date = DC.select(".gall_date")[i].text()
+                val link = "https://gall.dcinside.com/mgallery/board/view/?id=${ID}&no=${DC[i].absUrl("data-no").replace("https://gall.dcinside.com/mgallery/board/","").replace("https://gall.dcinside.com/board/","").replace("https://gall.dcinside.com/mgallery/board/lists/","").replace("lists/","")}"
+
+                if (doc.select(".gall_tit a")[i].absUrl("href").contains("https://gall.dcinside.com/mgallery/board/view/?id=")) {
+
+                    items.add(
+                        CommunityBoard(
+                            title,
+                            link,
+                            date,
+                        )
+                    )
+                }
+            }
+
+
+        } catch (e: IllegalStateException) {
+        }
+
+    }.start()
+}
+
+fun getPickList(root : String = "MY",callbacks: (ArrayList<String>, ArrayList<ItemBookInfo>) -> Unit){
+    val rootRef = FirebaseDatabase.getInstance().reference
+        .child("USER")
+        .child("A8uh2QkVQaV3Q3rE8SgBNKzV6VH2")
+        .child("PICK")
+        .child(root)
+
+    rootRef.addListenerForSingleValueEvent(object :
+        ValueEventListener {
+        override fun onDataChange(dataSnapshot: DataSnapshot) {
+            val pickCategory : ArrayList<String> = ArrayList()
+            val pickItemList : ArrayList<ItemBookInfo> = ArrayList()
+
+            if (dataSnapshot.exists()) {
+
+                pickCategory.add("전체")
+
+                for(category in dataSnapshot.children){
+                    pickCategory.add(category.key ?: "")
+
+                    for(pickItem in category.children){
+                        val item = pickItem.getValue(ItemBookInfo::class.java)
+
+                        if(item != null){
+                            pickItemList.add(item)
+                        }
+                    }
+                }
+
+            }
+
+            callbacks.invoke(pickCategory, pickItemList)
+        }
+
+        override fun onCancelled(databaseError: DatabaseError) {}
+    })
 }
