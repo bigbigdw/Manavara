@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.bigbigdw.manavara.best.getBookItemWeekTrophy
+import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.firebase.DataFCMBodyNotification
 import com.bigbigdw.manavara.manavara.getPickList
 import com.bigbigdw.manavara.manavara.viewModels.ViewModelManavara
@@ -54,7 +55,7 @@ fun ScreenUser() {
 
     LazyColumn {
 
-        item {ItemTabletTitle(str = "문의 사항 전송")}
+        item { ItemTabletTitle(str = "문의 사항 전송") }
 
         item{
             TabletContentWrap {
@@ -110,7 +111,6 @@ fun ScreenMyPick(
     setDialogOpen: ((Boolean) -> Unit)?
 ) {
 
-    val context = LocalContext.current
     val state = viewModelManavara.state.collectAsState().value
     val coroutineScope = rememberCoroutineScope()
 
@@ -161,7 +161,20 @@ fun ScreenMyPick(
                 }
             }
         } else {
-            itemsIndexed(state.pickItemList) { index, item ->
+            var filterdList = ArrayList<ItemBookInfo>()
+
+            if(state.platform == "전체"){
+                filterdList = state.pickItemList
+
+            } else {
+                for(item in state.pickItemList){
+                    if(item.type == state.platform){
+                        filterdList.add(item)
+                    }
+                }
+            }
+
+            itemsIndexed(filterdList) { index, item ->
 
                 Box(modifier = Modifier
                     .padding(16.dp, 8.dp, 16.dp, 8.dp)
@@ -171,20 +184,20 @@ fun ScreenMyPick(
                         item = item,
                         index = index,
                     ) {
-                        coroutineScope.launch {
 
+                        coroutineScope.launch {
                             getBookItemWeekTrophy(
                                 bookCode = item.bookCode,
-                                type = state.type,
-                                platform = state.platform
+                                type = "NOVEL",
+                                platform = item.type
                             ) { itemBestInfoTrophyList ->
 
                                 viewModelManavara.setItemBestInfoTrophyList(
                                     itemBookInfo = item,
                                     itemBestInfoTrophyList = itemBestInfoTrophyList
                                 )
-
                             }
+
                             modalSheetState?.show()
 
                             if (setDialogOpen != null) {

@@ -39,7 +39,7 @@ class ViewModelManavara @Inject constructor() : ViewModel() {
             }
 
             is EventManavara.SetPickList -> {
-                current.copy(pickCategory = event.pickCategory, pickItemList = event.pickItemList)
+                current.copy(pickCategory = event.pickCategory, pickItemList = event.pickItemList, platform = event.platform)
             }
 
             is EventManavara.SetItemBestInfoTrophyList -> {
@@ -66,7 +66,7 @@ class ViewModelManavara @Inject constructor() : ViewModel() {
 
     fun setPickList(pickCategory: ArrayList<String>, pickItemList: ArrayList<ItemBookInfo>){
         viewModelScope.launch {
-            events.send(EventManavara.SetPickList(pickCategory = pickCategory, pickItemList = pickItemList))
+            events.send(EventManavara.SetPickList(pickCategory = pickCategory, pickItemList = pickItemList, platform = "전체"))
         }
     }
 

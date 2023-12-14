@@ -1,5 +1,6 @@
 package com.bigbigdw.manavara.manavara.screen
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -162,26 +163,28 @@ fun ScreenManavara(
                         }
                     }
 
-                    ModalBottomSheetLayout(
-                        sheetState = modalSheetState,
-                        sheetElevation = 50.dp,
-                        sheetShape = RoundedCornerShape(
-                            topStart = 25.dp,
-                            topEnd = 25.dp
-                        ),
-                        sheetContent = {
+                    if(modalSheetState.isVisible){
+                        ModalBottomSheetLayout(
+                            sheetState = modalSheetState,
+                            sheetElevation = 50.dp,
+                            sheetShape = RoundedCornerShape(
+                                topStart = 25.dp,
+                                topEnd = 25.dp
+                            ),
+                            sheetContent = {
 
-                            Spacer(modifier = Modifier.size(4.dp))
+                                Spacer(modifier = Modifier.size(4.dp))
 
-                            BestBottomDialog(
-                                itemBestInfoTrophyList = state.itemBestInfoTrophyList,
-                                item = state.itemBookInfo,
-                                isExpandedScreen = isExpandedScreen,
-                                modalSheetState = modalSheetState,
-                                currentRoute = "NOVEL",
-                            )
-                        },
-                    ) {}
+                                BestBottomDialog(
+                                    itemBestInfoTrophyList = state.itemBestInfoTrophyList,
+                                    item = state.itemBookInfo,
+                                    isExpandedScreen = isExpandedScreen,
+                                    modalSheetState = modalSheetState,
+                                    currentRoute = "NOVEL",
+                                )
+                            },
+                        ) {}
+                    }
                 }
 
                 BackOnPressedMobile(modalSheetState = modalSheetState)

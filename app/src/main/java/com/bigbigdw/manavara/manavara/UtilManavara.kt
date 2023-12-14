@@ -6,6 +6,7 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.bigbigdw.manavara.best.models.ItemBookInfo
+import com.bigbigdw.manavara.best.models.ItemKeyword
 import com.bigbigdw.manavara.main.event.EventMain
 import com.bigbigdw.manavara.manavara.models.CommunityBoard
 import com.bigbigdw.manavara.manavara.models.EventData
@@ -29,6 +30,7 @@ import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 import java.net.URLDecoder
 import java.net.URLEncoder
+import java.util.Collections
 
 fun setEvent(platform : String, context : Context) {
 
@@ -384,6 +386,10 @@ fun getPickList(type : String, root : String = "MY", callbacks: (ArrayList<Strin
                 }
 
             }
+
+            val cmpAsc: java.util.Comparator<ItemBookInfo> =
+                Comparator { o1, o2 -> o1.title.compareTo(o2.title) }
+            Collections.sort(pickItemList, cmpAsc)
 
             callbacks.invoke(pickCategory, pickItemList)
         }

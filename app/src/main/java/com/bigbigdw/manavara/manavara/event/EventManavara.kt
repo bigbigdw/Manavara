@@ -20,6 +20,7 @@ sealed interface EventManavara{
     class SetPickList(
         val pickCategory : ArrayList<String> = ArrayList(),
         val pickItemList : ArrayList<ItemBookInfo> = ArrayList(),
+        val platform: String = "",
     ) : EventManavara
 
     class SetItemBestInfoTrophyList(

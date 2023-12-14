@@ -189,28 +189,30 @@ fun ScreenDataBase(
                         }
                     }
 
-                    ModalBottomSheetLayout(
-                        sheetState = modalSheetState,
-                        sheetElevation = 50.dp,
-                        sheetShape = RoundedCornerShape(
-                            topStart = 25.dp,
-                            topEnd = 25.dp
-                        ),
-                        sheetContent = {
+                    if(modalSheetState.isVisible){
+                        ModalBottomSheetLayout(
+                            sheetState = modalSheetState,
+                            sheetElevation = 50.dp,
+                            sheetShape = RoundedCornerShape(
+                                topStart = 25.dp,
+                                topEnd = 25.dp
+                            ),
+                            sheetContent = {
 
-                            Spacer(modifier = Modifier.size(4.dp))
+                                Spacer(modifier = Modifier.size(4.dp))
 
-                            if (currentRoute != null) {
-                                BestBottomDialog(
-                                    itemBestInfoTrophyList = state.itemBestInfoTrophyList,
-                                    item = state.itemBookInfo,
-                                    isExpandedScreen = isExpandedScreen,
-                                    modalSheetState = modalSheetState,
-                                    currentRoute = currentRoute,
-                                )
-                            }
-                        },
-                    ) {}
+                                if (currentRoute != null) {
+                                    BestBottomDialog(
+                                        itemBestInfoTrophyList = state.itemBestInfoTrophyList,
+                                        item = state.itemBookInfo,
+                                        isExpandedScreen = isExpandedScreen,
+                                        modalSheetState = modalSheetState,
+                                        currentRoute = currentRoute,
+                                    )
+                                }
+                            },
+                        ) {}
+                    }
                 }
 
             }
