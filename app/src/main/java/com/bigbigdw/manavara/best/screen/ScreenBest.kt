@@ -230,31 +230,33 @@ fun ScreenBest(
                         }
                     }
 
-                    ModalBottomSheetLayout(
-                        sheetState = modalSheetState,
-                        sheetElevation = 50.dp,
-                        sheetShape = RoundedCornerShape(
-                            topStart = 25.dp,
-                            topEnd = 25.dp
-                        ),
-                        sheetContent = {
+                    if(modalSheetState.isVisible){
+                        ModalBottomSheetLayout(
+                            sheetState = modalSheetState,
+                            sheetElevation = 50.dp,
+                            sheetShape = RoundedCornerShape(
+                                topStart = 25.dp,
+                                topEnd = 25.dp
+                            ),
+                            sheetContent = {
 
-                            if (currentRoute == "NOVEL" || currentRoute == "COMIC") {
+                                if (currentRoute == "NOVEL" || currentRoute == "COMIC") {
 
-                                Spacer(modifier = Modifier.size(4.dp))
+                                    Spacer(modifier = Modifier.size(4.dp))
 
-                                BestBottomDialog(
-                                    itemBestInfoTrophyList = state.itemBestInfoTrophyList,
-                                    item = state.itemBookInfo,
-                                    isExpandedScreen = isExpandedScreen,
-                                    modalSheetState = modalSheetState,
-                                    currentRoute = currentRoute,
-                                )
-                            } else {
-                                ScreenTest()
-                            }
-                        },
-                    ) {}
+                                    BestBottomDialog(
+                                        itemBestInfoTrophyList = state.itemBestInfoTrophyList,
+                                        item = state.itemBookInfo,
+                                        isExpandedScreen = isExpandedScreen,
+                                        modalSheetState = modalSheetState,
+                                        currentRoute = currentRoute,
+                                    )
+                                } else {
+                                    ScreenTest()
+                                }
+                            },
+                        ) {}
+                    }
                 }
 
                 BackOnPressedMobile(modalSheetState = modalSheetState)
@@ -818,8 +820,6 @@ fun BestBottomDialog(
 
     val context = LocalContext.current
     val state = viewModelMain.state.collectAsState().value
-
-    viewModelMain.setIsPicked(platform = item.type, bookCode = item.bookCode)
 
     viewModelMain.setIsPicked(
         platform = item.type,

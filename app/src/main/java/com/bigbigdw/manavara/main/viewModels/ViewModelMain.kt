@@ -71,10 +71,16 @@ class ViewModelMain @Inject constructor() : ViewModel() {
         }
     }
 
+    //TODO: UID 받아오게 작업하기
     fun setIsPicked(platform: String, bookCode: String){
         val state = state.value
-        val mRootRef = FirebaseDatabase.getInstance().reference.child(state.userInfo.userUID).child("PICK").child(platform)
-                .child(bookCode)
+        val mRootRef = FirebaseDatabase.getInstance().reference
+            .child("USER")
+            .child("A8uh2QkVQaV3Q3rE8SgBNKzV6VH2")
+            .child("PICK")
+            .child("MY")
+            .child(platform)
+            .child(bookCode)
 
         mRootRef.addListenerForSingleValueEvent(object :
             ValueEventListener {
@@ -95,6 +101,8 @@ class ViewModelMain @Inject constructor() : ViewModel() {
         })
     }
 
+    //TODO: UID 받아오게 작업하기
+
     fun setPickBook(context : Context, platform: String, item: ItemBookInfo){
         val dataStore = DataStoreManager(context)
 
@@ -103,18 +111,19 @@ class ViewModelMain @Inject constructor() : ViewModel() {
             dataStore.getDataStoreString(UID).collect{
                 FirebaseDatabase.getInstance().reference
                     .child("USER")
-                    .child(it ?: "")
+                    .child("A8uh2QkVQaV3Q3rE8SgBNKzV6VH2")
                     .child("PICK")
                     .child("MY")
                     .child(platform)
                     .child(item.bookCode).setValue(item)
-            }
 
-            events.send(EventMain.SetIsPicked(true))
-            _sideEffects.send("${item.title} 이 PICK 되었습니다. 마나바라 -> PICK에서 확인 할 수 있습니다.")
+                events.send(EventMain.SetIsPicked(true))
+                _sideEffects.send("${item.title} 이 PICK 되었습니다. 마나바라 -> PICK에서 확인 할 수 있습니다.")
+            }
         }
     }
 
+    //TODO: UID 받아오게 작업하기
     fun setUnPickBook(context : Context, platform: String, item: ItemBookInfo){
         val currentUser :  FirebaseUser?
         val auth: FirebaseAuth = Firebase.auth
@@ -122,7 +131,7 @@ class ViewModelMain @Inject constructor() : ViewModel() {
 
         FirebaseDatabase.getInstance().reference
             .child("USER")
-            .child(currentUser?.uid ?: "")
+            .child("A8uh2QkVQaV3Q3rE8SgBNKzV6VH2")
             .child("PICK")
             .child("MY")
             .child(platform)
