@@ -21,6 +21,11 @@ sealed interface EventManavara{
         val pickCategory : ArrayList<String> = ArrayList(),
         val pickItemList : ArrayList<ItemBookInfo> = ArrayList(),
     ) : EventManavara
+
+    class SetItemBestInfoTrophyList(
+        val itemBestInfoTrophyList : ArrayList<ItemBestInfo> = ArrayList(),
+        val itemBookInfo : ItemBookInfo = ItemBookInfo()
+    ) : EventManavara
 }
 
 data class StateManavara(

@@ -59,6 +59,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.ActivityBestDetail
@@ -68,6 +70,7 @@ import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.setBestDetailInfo
 import com.bigbigdw.manavara.best.viewModels.ViewModelBestDetail
+import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color02BC77
 import com.bigbigdw.manavara.ui.theme.color1CE3EE
@@ -85,6 +88,7 @@ import com.bigbigdw.manavara.util.getBestDetailLogo
 import com.bigbigdw.manavara.util.getBestDetailLogoMobile
 import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
 import com.bigbigdw.manavara.util.screen.ItemTabletTitle
+import com.bigbigdw.manavara.util.screen.ScreenBookCardItem
 import com.bigbigdw.manavara.util.screen.ScreenEmpty
 import com.bigbigdw.manavara.util.screen.TabletContentWrap
 import getRandomColor
@@ -101,10 +105,20 @@ fun ScreenBestDetail(
 ) {
 
     val isExpandedScreen = widthSizeClass == WindowWidthSizeClass.Expanded
-
     val context = LocalContext.current
+    val viewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelMain: ViewModelMain = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+    val stateMain = viewModelMain.state.collectAsState().value
+    val stateDetail = viewModelBestDetail.state.collectAsState().value
 
     LaunchedEffect(bookCode) {
+
+        viewModelMain.setIsPicked(
+            type = "NOVEL",
+            platform = platform,
+            bookCode = bookCode,
+        )
 
         setBestDetailInfo(
             platform = platform,
@@ -164,18 +178,48 @@ fun ScreenBestDetail(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Button(
-                            colors = ButtonDefaults.buttonColors(containerColor = color8F8F8F),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (stateMain.isPicked) {
+                                    color4AD7CF
+                                } else {
+                                    color8F8F8F
+                                }
+                            ),
                             shape = RoundedCornerShape(0.dp),
-                            onClick = {  },
+                            onClick = {
+                                if (stateMain.isPicked) {
+                                    viewModelMain.setUnPickBook(
+                                        type = "NOVEL",
+                                        platform = platform,
+                                        item = stateDetail.itemBestInfo,
+                                        context = context
+                                    )
+                                } else {
+                                    viewModelMain.setPickBook(
+                                        type = "NOVEL",
+                                        platform = platform,
+                                        item = stateDetail.itemBestInfo,
+                                        context = context
+                                    )
+                                }
+                            },
                             modifier = Modifier
                                 .weight(1f)
                                 .height(48.dp),
 
                         ) {
                             Text(
-                                text = "취소",
+                                text = if (stateMain.isPicked) {
+                                    "작품 PICK 해제"
+                                } else {
+                                    "작품 PICK 하기"
+                                },
                                 textAlign = TextAlign.Center,
-                                color = Color.White,
+                                color = if (stateMain.isPicked) {
+                                    Color.Black
+                                } else {
+                                    Color.White
+                                },
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -215,6 +259,7 @@ fun ScreenBestDetail(
                 ) {
 
                     ScreenItemBestDetailMenu(
+                        viewModelMain = viewModelMain,
                         item = item,
                         viewModelBestDetail = viewModelBestDetail,
                         platform = platform,
@@ -238,7 +283,8 @@ fun ScreenBestDetail(
             type = type,
             getMenu = getMenu,
             setMenu = setMenu,
-            item = item
+            item = item,
+            viewModelMain = viewModelMain
         )
 
         BestDetailBackOnPressed(
@@ -250,6 +296,7 @@ fun ScreenBestDetail(
 
 @Composable
 fun ScreenTabletBestDetail(
+    viewModelMain : ViewModelMain,
     viewModelBestDetail: ViewModelBestDetail,
     isExpandedScreen: Boolean,
     platform: String,
@@ -274,7 +321,8 @@ fun ScreenTabletBestDetail(
                 bookCode = bookCode,
                 isExpandedScreen = isExpandedScreen,
                 getMenu = getMenu,
-                type = type
+                type = type,
+                viewModelMain = viewModelMain
             )
 
             Spacer(modifier = Modifier.size(16.dp))
@@ -303,6 +351,7 @@ fun ScreenTabletBestDetail(
 
 @Composable
 fun ScreenItemBestDetailMenu(
+    viewModelMain : ViewModelMain,
     item: ItemBestDetailInfo,
     viewModelBestDetail: ViewModelBestDetail,
     platform: String,
@@ -348,7 +397,8 @@ fun ScreenItemBestDetailMenu(
             bookCode = bookCode,
             type = type,
             isExpandedScreen = isExpandedScreen,
-            getMenu = getMenu
+            getMenu = getMenu,
+            viewModelMain = viewModelMain
         )
 
     }
@@ -561,6 +611,7 @@ fun ScreenBestItemDetailTabItem(
 @Composable
 fun ScreenItemBestDetailCard(
     item: ItemBestDetailInfo,
+    viewModelMain : ViewModelMain,
     viewModelBestDetail: ViewModelBestDetail,
     platform: String,
     bookCode: String,
@@ -570,6 +621,8 @@ fun ScreenItemBestDetailCard(
 ) {
 
     val context = LocalContext.current
+    val stateMain = viewModelMain.state.collectAsState().value
+    val stateDetail = viewModelBestDetail.state.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -612,14 +665,34 @@ fun ScreenItemBestDetailCard(
 
         if (isExpandedScreen) {
             Button(
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (stateMain.isPicked) {
+                        color4AD7CF
+                    } else {
+                        color8F8F8F
+                    }
+                ),
+                shape = RoundedCornerShape(50.dp),
                 onClick = {
-
+                    if (stateMain.isPicked) {
+                        viewModelMain.setUnPickBook(
+                            type = "NOVEL",
+                            platform = platform,
+                            item = stateDetail.itemBestInfo,
+                            context = context
+                        )
+                    } else {
+                        viewModelMain.setPickBook(
+                            type = "NOVEL",
+                            platform = platform,
+                            item = stateDetail.itemBestInfo,
+                            context = context
+                        )
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(44.dp),
-                shape = RoundedCornerShape(50.dp),
                 content = {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -627,8 +700,16 @@ fun ScreenItemBestDetailCard(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "PICK 하기",
-                            color = color000000,
+                            text = if (stateMain.isPicked) {
+                                "작품 PICK 해제"
+                            } else {
+                                "작품 PICK 하기"
+                            },
+                            color = if (stateMain.isPicked) {
+                                Color.Black
+                            } else {
+                                Color.White
+                            },
                             fontSize = 18.sp,
                         )
                     }
@@ -1117,13 +1198,11 @@ fun ScreenBestDetailOther(
                             .padding(24.dp, 4.dp)
                     ) {
 
-                        Spacer(modifier = Modifier.size(4.dp))
-
-                        Spacer(modifier = Modifier.size(4.dp))
+                        Spacer(modifier = Modifier.size(8.dp))
 
                         Column(modifier = Modifier.fillMaxWidth()) {
 
-                            ScreenItemBestCard(item = itemBookInfo, index = -1)
+                            ScreenBookCardItem(mode = "NUMBER", item = itemBookInfo, index = -1)
 
                             if (itemBookInfo.intro.isNotEmpty()) {
                                 Spacer(modifier = Modifier.size(16.dp))

@@ -2,7 +2,9 @@ package com.bigbigdw.manavara.manavara.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
+import com.bigbigdw.manavara.dataBase.event.EventDataBase
 import com.bigbigdw.manavara.manavara.event.EventManavara
 import com.bigbigdw.manavara.manavara.event.StateManavara
 import kotlinx.coroutines.channels.Channel
@@ -40,9 +42,19 @@ class ViewModelManavara @Inject constructor() : ViewModel() {
                 current.copy(pickCategory = event.pickCategory, pickItemList = event.pickItemList)
             }
 
+            is EventManavara.SetItemBestInfoTrophyList -> {
+                current.copy(itemBookInfo = event.itemBookInfo, itemBestInfoTrophyList = event.itemBestInfoTrophyList)
+            }
+
             else -> {
                 current.copy(Loaded = false)
             }
+        }
+    }
+
+    fun setItemBestInfoTrophyList(itemBookInfo: ItemBookInfo,  itemBestInfoTrophyList: ArrayList<ItemBestInfo>){
+        viewModelScope.launch {
+            events.send(EventManavara.SetItemBestInfoTrophyList(itemBookInfo = itemBookInfo, itemBestInfoTrophyList = itemBestInfoTrophyList))
         }
     }
 

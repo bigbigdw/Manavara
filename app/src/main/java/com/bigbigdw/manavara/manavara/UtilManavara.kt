@@ -353,12 +353,13 @@ private fun getBoard(Url: String, ID : String) {
     }.start()
 }
 
-fun getPickList(root : String = "MY",callbacks: (ArrayList<String>, ArrayList<ItemBookInfo>) -> Unit){
+fun getPickList(type : String, root : String = "MY", callbacks: (ArrayList<String>, ArrayList<ItemBookInfo>) -> Unit){
     val rootRef = FirebaseDatabase.getInstance().reference
         .child("USER")
         .child("A8uh2QkVQaV3Q3rE8SgBNKzV6VH2")
         .child("PICK")
         .child(root)
+        .child(type)
 
     rootRef.addListenerForSingleValueEvent(object :
         ValueEventListener {

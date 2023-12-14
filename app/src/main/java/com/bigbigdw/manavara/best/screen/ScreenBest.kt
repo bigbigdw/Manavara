@@ -76,6 +76,7 @@ import com.bigbigdw.manavara.ui.theme.color4AD7CF
 import com.bigbigdw.manavara.ui.theme.color5372DE
 import com.bigbigdw.manavara.ui.theme.color555b68
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
+import com.bigbigdw.manavara.ui.theme.color8F8F8F
 import com.bigbigdw.manavara.ui.theme.color998DF9
 import com.bigbigdw.manavara.ui.theme.colorE9E9E9
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
@@ -708,8 +709,9 @@ fun BestDialog(
     val context = LocalContext.current
     val state = viewModelMain.state.collectAsState().value
 
-    LaunchedEffect(context){
+    LaunchedEffect(item.bookCode){
         viewModelMain.setIsPicked(
+            type = "NOVEL",
             platform = item.type,
             bookCode = item.bookCode
         )
@@ -722,12 +724,14 @@ fun BestDialog(
             onClickLeft = {
                 if (state.isPicked) {
                     viewModelMain.setUnPickBook(
+                        type = "NOVEL",
                         platform = item.type,
                         item = item,
                         context = context
                     )
                 } else {
                     viewModelMain.setPickBook(
+                        type = "NOVEL",
                         platform = item.type,
                         item = item,
                         context = context
@@ -754,6 +758,7 @@ fun BestDialog(
                     item = item,
                     trophy = itemBestInfoTrophyList,
                     isExpandedScreen = isExpandedScreen,
+                    isPicked = state.isPicked,
                     btnPickText = if (state.isPicked) {
                         "작품 PICK 해제"
                     } else {
@@ -784,8 +789,9 @@ fun BestBottomDialog(
     val context = LocalContext.current
     val state = viewModelMain.state.collectAsState().value
 
-    LaunchedEffect(context){
+    LaunchedEffect(item.bookCode){
         viewModelMain.setIsPicked(
+            type = "NOVEL",
             platform = item.type,
             bookCode = item.bookCode
         )
@@ -795,6 +801,7 @@ fun BestBottomDialog(
         item = item,
         trophy = itemBestInfoTrophyList,
         isExpandedScreen = isExpandedScreen,
+        isPicked = state.isPicked,
         btnPickText = if (state.isPicked) {
             "작품 PICK 해제"
         } else {
@@ -803,12 +810,14 @@ fun BestBottomDialog(
         onClickLeft = {
             if (state.isPicked) {
                 viewModelMain.setUnPickBook(
+                    type = "NOVEL",
                     platform = item.type,
                     item = item,
                     context = context
                 )
             } else {
                 viewModelMain.setPickBook(
+                    type = "NOVEL",
                     platform = item.type,
                     item = item,
                     context = context

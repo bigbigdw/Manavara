@@ -70,7 +70,10 @@ import com.bigbigdw.manavara.util.geMonthDate
 import com.bigbigdw.manavara.best.getTrophyWeekMonthJson
 import com.bigbigdw.manavara.best.getBookItemWeekTrophy
 import com.bigbigdw.manavara.best.getBookMapJson
+import com.bigbigdw.manavara.ui.theme.color4AD7CF
 import com.bigbigdw.manavara.util.getWeekDate
+import com.bigbigdw.manavara.util.screen.ScreenBookCard
+import com.bigbigdw.manavara.util.screen.ScreenBookCardItem
 import com.bigbigdw.manavara.util.screen.ScreenEmpty
 import com.bigbigdw.manavara.util.screen.ScreenItemKeyword
 import com.bigbigdw.manavara.util.screen.spannableString
@@ -364,7 +367,7 @@ fun ScreenTodayWeek(
 
                 itemsIndexed(filteredList) { index, item ->
 
-                    ListBest(
+                    ScreenBookCard(
                         item = item,
                         type = "WEEK",
                         index = index
@@ -429,68 +432,6 @@ fun ScreenTodayWeek(
             }
         }
     }
-}
-
-@Composable
-fun ListBest(
-    item: ItemBookInfo,
-    type: String,
-    index: Int,
-    onClick: () -> Unit
-) {
-
-    val coroutineScope = rememberCoroutineScope()
-
-    Button(
-        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-        contentPadding = PaddingValues(
-            start = 0.dp,
-            top = 0.dp,
-            end = 0.dp,
-            bottom = 0.dp,
-        ),
-        shape = RoundedCornerShape(20.dp),
-        onClick = {
-            coroutineScope.launch {
-                onClick()
-            }
-        },
-        content = {
-            Column(
-                modifier = Modifier
-                    .padding(24.dp, 4.dp)
-            ) {
-
-                Spacer(modifier = Modifier.size(8.dp))
-
-                Column(modifier = Modifier.fillMaxWidth()) {
-
-                    ScreenItemBestCard(item = item, index = index)
-
-                    if (type == "MONTH") {
-                        Spacer(modifier = Modifier.size(8.dp))
-
-                        ScreenItemBestCount(item = item)
-                    }
-
-                    if(item.intro.isNotEmpty()){
-                        Spacer(modifier = Modifier.size(16.dp))
-
-                        Text(
-                            text = item.intro,
-                            color = color8E8E8E,
-                            fontSize = 16.sp,
-                        )
-                    } else {
-                        Spacer(modifier = Modifier.size(8.dp))
-                    }
-                }
-
-                Spacer(modifier = Modifier.size(4.dp))
-            }
-        })
-
-    Spacer(modifier = Modifier.size(16.dp))
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -591,7 +532,7 @@ fun ScreenTodayMonth(
             ) {
 
                 itemsIndexed(filteredList) { index, item ->
-                    ListBest(
+                    ScreenBookCard(
                         item = item,
                         type = "MONTH",
                         index = index,
@@ -643,7 +584,7 @@ fun ScreenTodayMonth(
                             )
                         }
 
-                        ListBest(
+                        ScreenBookCard(
                             item = item,
                             type = "WEEK",
                             index = index,
@@ -684,6 +625,7 @@ fun ScreenTodayMonth(
 @Composable
 fun ScreenDialogBest(
     item: ItemBookInfo,
+    isPicked : Boolean,
     trophy: ArrayList<ItemBestInfo>,
     isExpandedScreen: Boolean,
     needTrophyList: Boolean = true,
@@ -698,7 +640,7 @@ fun ScreenDialogBest(
             .padding(12.dp)
     ) {
 
-        ScreenItemBestCard(item = item, index = -1)
+        ScreenBookCardItem(mode = "NUMBER", item = item, index = -1)
 
         Spacer(modifier = Modifier.size(8.dp))
 
@@ -788,7 +730,13 @@ fun ScreenDialogBest(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Button(
-                colors = ButtonDefaults.buttonColors(containerColor = color8F8F8F),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isPicked) {
+                        color4AD7CF
+                    } else {
+                        color8F8F8F
+                    }
+                ),
 
                 onClick = { onClickLeft() },
                 modifier = Modifier
@@ -800,7 +748,11 @@ fun ScreenDialogBest(
                 Text(
                     text = btnPickText,
                     textAlign = TextAlign.Center,
-                    color = Color.White,
+                    color = if (isPicked) {
+                        Color.Black
+                    } else {
+                        Color.White
+                    },
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -823,158 +775,6 @@ fun ScreenDialogBest(
                     color = Color.White,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun ScreenItemBestCard(item: ItemBookInfo, index: Int){
-    Row(
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.Top,
-    ) {
-
-        Box{
-
-            Card(
-                modifier = Modifier.background(Color.White),
-                shape = RoundedCornerShape(10.dp),
-                elevation = CardDefaults.cardElevation(2.dp)
-            ) {
-
-                AsyncImage(
-                    model = item.bookImg,
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .requiredWidth(140.dp)
-                        .requiredHeight(200.dp)
-                )
-            }
-
-            if(index > -1){
-                Card(
-                    modifier = Modifier.padding(6.dp),
-                    colors = CardDefaults.cardColors(containerColor = color20459E),
-                    shape = RoundedCornerShape(50.dp, 50.dp, 50.dp, 50.dp),
-                    border = BorderStroke(width = 1.dp, color = Color.White)
-                ) {
-                    Box(modifier = Modifier.size(35.dp), contentAlignment = Alignment.Center) {
-                        Text(
-                            modifier = Modifier.padding(4.dp),
-                            text = "${index + 1}",
-                            color = Color.White,
-                            fontSize = 14.sp,
-                            textAlign = TextAlign.Center,
-                        )
-                    }
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.size(12.dp))
-
-        Column(modifier = Modifier.wrapContentHeight()) {
-            Text(
-                text = item.title,
-                color = color20459E,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            if (item.writer.isNotEmpty()) {
-                Text(
-                    text = item.writer,
-                    color = color000000,
-                    fontSize = 16.sp,
-                )
-            }
-
-            Spacer(modifier = Modifier.size(4.dp))
-
-            if (item.genre.isNotEmpty()) {
-                Text(
-                    text = spannableString(
-                        textFront = "장르 : ",
-                        color = color000000,
-                        textEnd = item.genre
-                    ),
-                    color = color8E8E8E,
-                    fontSize = 16.sp,
-                )
-            }
-
-            if (item.cntRecom.isNotEmpty()) {
-                Text(
-                    text = spannableString(
-                        textFront = "작품 추천 수 : ",
-                        color = color000000,
-                        textEnd = item.cntRecom
-                    ),
-                    color = color8E8E8E,
-                    fontSize = 16.sp,
-                )
-            }
-
-            if (item.cntChapter.isNotEmpty()) {
-                Text(
-                    text = spannableString(
-                        textFront = "총 편수 : ",
-                        color = color000000,
-                        textEnd = item.cntChapter
-                    ),
-                    color = color8E8E8E,
-                    fontSize = 16.sp,
-                )
-            }
-
-            if (item.cntFavorite.isNotEmpty()) {
-                Text(
-                    text = spannableString(
-                        textFront = "선호작 수 : ",
-                        color = color000000,
-                        textEnd = item.cntFavorite
-                    ),
-                    color = color8E8E8E,
-                    fontSize = 16.sp,
-                )
-            }
-
-            if (item.cntPageRead.isNotEmpty()) {
-                Text(
-                    text = spannableString(
-                        textFront = "조회 수 : ",
-                        color = color000000,
-                        textEnd = item.cntPageRead
-                    ),
-                    color = color8E8E8E,
-                    fontSize = 16.sp,
-                )
-            }
-
-            if (item.cntTotalComment.isNotEmpty()) {
-                Text(
-                    text = spannableString(
-                        textFront = "댓글 수 : ",
-                        color = color000000,
-                        textEnd = item.cntTotalComment
-                    ),
-                    color = color8E8E8E,
-                    fontSize = 16.sp,
-                )
-            }
-
-            if (item.bookCode.isNotEmpty()) {
-                Text(
-                    text = spannableString(
-                        textFront = "북코드 : ",
-                        color = color000000,
-                        textEnd = item.bookCode
-                    ),
-                    color = color8E8E8E,
-                    fontSize = 16.sp,
                 )
             }
         }

@@ -3,6 +3,7 @@ package com.bigbigdw.manavara.util.screen
 import android.app.Activity
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -17,6 +18,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -31,8 +34,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DrawerState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -56,11 +57,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.bigbigdw.manavara.R
+import com.bigbigdw.manavara.best.models.ItemBookInfo
+import com.bigbigdw.manavara.best.screen.ScreenItemBestCount
 import com.bigbigdw.manavara.main.models.MenuInfo
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color20459E
-import com.bigbigdw.manavara.ui.theme.color4AD7CF
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
 import com.bigbigdw.manavara.ui.theme.color8F8F8F
 import com.bigbigdw.manavara.ui.theme.colorE9E9E9
@@ -68,6 +71,7 @@ import com.bigbigdw.manavara.ui.theme.colorEDE6FD
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorF7F7F7
 import com.bigbigdw.manavara.util.colorList
+import com.bigbigdw.manavara.util.getPlatformLogoEng
 import kotlinx.coroutines.launch
 
 @Composable
@@ -223,61 +227,6 @@ fun BtnMobile(func: () -> Unit, btnText: String) {
             color = colorEDE6FD,
             fontSize = 16.sp,
         )
-    }
-}
-
-@Composable
-fun ItemMainTabletContent(
-    title: String,
-    value: String = "",
-    isLast: Boolean,
-    onClick: () -> Unit = {}
-) {
-
-    Column {
-        Button(
-            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-            contentPadding = PaddingValues(
-                start = 0.dp,
-                top = 6.dp,
-                end = 6.dp,
-                bottom = 0.dp,
-            ),
-            onClick = { onClick() },
-            content = {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    Text(
-                        text = title,
-                        fontSize = 18.sp,
-                        textAlign = TextAlign.Center,
-                        color = color000000,
-                        fontWeight = FontWeight(weight = 400)
-                    )
-                    Text(
-                        text = value,
-                        fontSize = 18.sp,
-                        textAlign = TextAlign.Center,
-                        color = color20459E,
-                    )
-                }
-            })
-
-        if (!isLast) {
-            Spacer(modifier = Modifier.size(2.dp))
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(color = colorE9E9E9)
-            )
-            Spacer(modifier = Modifier.size(2.dp))
-        }
     }
 }
 
@@ -818,5 +767,228 @@ fun ScreenMenuItem(
 
     if(item.needLine){
         TabletBorderLine()
+    }
+}
+
+@Composable
+fun ScreenBookCard(
+    mode : String = "NUMBER",
+    type: String = "WEEK",
+    item: ItemBookInfo,
+    index: Int,
+    onClick: () -> Unit
+) {
+
+    val coroutineScope = rememberCoroutineScope()
+
+    Button(
+        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+        contentPadding = PaddingValues(
+            start = 0.dp,
+            top = 0.dp,
+            end = 0.dp,
+            bottom = 0.dp,
+        ),
+        shape = RoundedCornerShape(20.dp),
+        onClick = {
+            coroutineScope.launch {
+                onClick()
+            }
+        },
+        content = {
+            Column(
+                modifier = Modifier
+                    .padding(24.dp, 4.dp)
+            ) {
+
+                Spacer(modifier = Modifier.size(8.dp))
+
+                Column(modifier = Modifier.fillMaxWidth()) {
+
+                    if (type == "MONTH") {
+                        Spacer(modifier = Modifier.size(8.dp))
+
+                        ScreenItemBestCount(item = item)
+                    }
+
+                    ScreenBookCardItem(mode = mode, item = item, index = index)
+
+                    if(item.intro.isNotEmpty()){
+                        Spacer(modifier = Modifier.size(16.dp))
+
+                        Text(
+                            text = item.intro,
+                            color = color8E8E8E,
+                            fontSize = 16.sp,
+                        )
+                    } else {
+                        Spacer(modifier = Modifier.size(8.dp))
+                    }
+                }
+            }
+        })
+
+    Spacer(modifier = Modifier.size(20.dp))
+}
+
+@Composable
+fun ScreenBookCardItem(mode : String, item: ItemBookInfo, index: Int){
+    Row(
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.Top,
+    ) {
+
+        Box{
+
+            Card(
+                modifier = Modifier.background(Color.White),
+                shape = RoundedCornerShape(10.dp),
+                elevation = CardDefaults.cardElevation(2.dp)
+            ) {
+
+                AsyncImage(
+                    model = item.bookImg,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .requiredWidth(140.dp)
+                        .requiredHeight(200.dp)
+                )
+            }
+
+            if(index > -1){
+                Card(
+                    modifier = Modifier.padding(6.dp),
+                    colors = CardDefaults.cardColors(containerColor = color20459E),
+                    shape = RoundedCornerShape(50.dp, 50.dp, 50.dp, 50.dp),
+                    border = BorderStroke(width = 1.dp, color = Color.White)
+                ) {
+                    Box(modifier = Modifier.size(35.dp), contentAlignment = Alignment.Center) {
+
+                        if(mode == "NUMBER"){
+                            Text(
+                                modifier = Modifier.padding(4.dp),
+                                text = "${index + 1}",
+                                color = Color.White,
+                                fontSize = 14.sp,
+                                textAlign = TextAlign.Center,
+                            )
+                        } else {
+                            AsyncImage(
+                                model = getPlatformLogoEng(item.type),
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.size(40.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.size(12.dp))
+
+        Column(modifier = Modifier.wrapContentHeight()) {
+            Text(
+                text = item.title,
+                color = color20459E,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            if (item.writer.isNotEmpty()) {
+                Text(
+                    text = item.writer,
+                    color = color000000,
+                    fontSize = 16.sp,
+                )
+            }
+
+            Spacer(modifier = Modifier.size(4.dp))
+
+            if (item.genre.isNotEmpty()) {
+                Text(
+                    text = spannableString(
+                        textFront = "장르 : ",
+                        color = color000000,
+                        textEnd = item.genre
+                    ),
+                    color = color8E8E8E,
+                    fontSize = 16.sp,
+                )
+            }
+
+            if (item.cntRecom.isNotEmpty()) {
+                Text(
+                    text = spannableString(
+                        textFront = "작품 추천 수 : ",
+                        color = color000000,
+                        textEnd = item.cntRecom
+                    ),
+                    color = color8E8E8E,
+                    fontSize = 16.sp,
+                )
+            }
+
+            if (item.cntChapter.isNotEmpty()) {
+                Text(
+                    text = spannableString(
+                        textFront = "총 편수 : ",
+                        color = color000000,
+                        textEnd = item.cntChapter
+                    ),
+                    color = color8E8E8E,
+                    fontSize = 16.sp,
+                )
+            }
+
+            if (item.cntFavorite.isNotEmpty()) {
+                Text(
+                    text = spannableString(
+                        textFront = "선호작 수 : ",
+                        color = color000000,
+                        textEnd = item.cntFavorite
+                    ),
+                    color = color8E8E8E,
+                    fontSize = 16.sp,
+                )
+            }
+
+            if (item.cntPageRead.isNotEmpty()) {
+                Text(
+                    text = spannableString(
+                        textFront = "조회 수 : ",
+                        color = color000000,
+                        textEnd = item.cntPageRead
+                    ),
+                    color = color8E8E8E,
+                    fontSize = 16.sp,
+                )
+            }
+
+            if (item.cntTotalComment.isNotEmpty()) {
+                Text(
+                    text = spannableString(
+                        textFront = "댓글 수 : ",
+                        color = color000000,
+                        textEnd = item.cntTotalComment
+                    ),
+                    color = color8E8E8E,
+                    fontSize = 16.sp,
+                )
+            }
+
+            if (item.bookCode.isNotEmpty()) {
+                Text(
+                    text = spannableString(
+                        textFront = "북코드 : ",
+                        color = color000000,
+                        textEnd = item.bookCode
+                    ),
+                    color = color8E8E8E,
+                    fontSize = 16.sp,
+                )
+            }
+        }
     }
 }

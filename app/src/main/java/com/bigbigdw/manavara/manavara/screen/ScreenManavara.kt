@@ -254,8 +254,12 @@ fun ScreenManavaraItem(
 
     if (state.menu.contains("유저 옵션")) {
         ScreenUser()
-    } else if (state.menu.contains("나의 PICK 보기")) {
-        ScreenMyPick(viewModelManavara)
+    } else if (state.menu.contains("PICK 보기")) {
+        ScreenMyPick(
+            viewModelManavara = viewModelManavara,
+            modalSheetState = modalSheetState,
+            setDialogOpen = setDialogOpen
+        )
     }
 }
 

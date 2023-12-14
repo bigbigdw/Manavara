@@ -72,13 +72,14 @@ class ViewModelMain @Inject constructor() : ViewModel() {
     }
 
     //TODO: UID 받아오게 작업하기
-    fun setIsPicked(platform: String, bookCode: String){
+    fun setIsPicked(type: String, platform: String, bookCode: String){
 
         val mRootRef = FirebaseDatabase.getInstance().reference
             .child("USER")
             .child("A8uh2QkVQaV3Q3rE8SgBNKzV6VH2")
             .child("PICK")
             .child("MY")
+            .child(type)
             .child(platform)
             .child(bookCode)
 
@@ -103,7 +104,7 @@ class ViewModelMain @Inject constructor() : ViewModel() {
 
     //TODO: UID 받아오게 작업하기
 
-    fun setPickBook(context : Context, platform: String, item: ItemBookInfo){
+    fun setPickBook(context : Context, platform: String, type : String, item: ItemBookInfo){
         val dataStore = DataStoreManager(context)
 
         viewModelScope.launch {
@@ -114,6 +115,7 @@ class ViewModelMain @Inject constructor() : ViewModel() {
                     .child("A8uh2QkVQaV3Q3rE8SgBNKzV6VH2")
                     .child("PICK")
                     .child("MY")
+                    .child(type)
                     .child(platform)
                     .child(item.bookCode).setValue(item)
 
@@ -124,7 +126,7 @@ class ViewModelMain @Inject constructor() : ViewModel() {
     }
 
     //TODO: UID 받아오게 작업하기
-    fun setUnPickBook(context : Context, platform: String, item: ItemBookInfo){
+    fun setUnPickBook(context : Context, platform: String, type : String, item: ItemBookInfo){
         val currentUser :  FirebaseUser?
         val auth: FirebaseAuth = Firebase.auth
         currentUser = auth.currentUser
@@ -134,6 +136,7 @@ class ViewModelMain @Inject constructor() : ViewModel() {
             .child("A8uh2QkVQaV3Q3rE8SgBNKzV6VH2")
             .child("PICK")
             .child("MY")
+            .child(type)
             .child(platform)
             .child(item.bookCode).removeValue()
 

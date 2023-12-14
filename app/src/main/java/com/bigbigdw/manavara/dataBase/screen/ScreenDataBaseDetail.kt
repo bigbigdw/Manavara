@@ -60,7 +60,6 @@ import com.bigbigdw.manavara.best.models.ItemKeyword
 import com.bigbigdw.manavara.best.screen.BestBottomDialog
 import com.bigbigdw.manavara.best.screen.BestDialog
 import com.bigbigdw.manavara.best.screen.ItemBestDetailInfoAnalyze
-import com.bigbigdw.manavara.best.screen.ListBest
 import com.bigbigdw.manavara.best.screen.TopbarBestDetail
 import com.bigbigdw.manavara.dataBase.getGenreListWeekJson
 import com.bigbigdw.manavara.dataBase.getGenreMap
@@ -71,6 +70,7 @@ import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.util.colorList
 import com.bigbigdw.manavara.util.getWeekDate
 import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
+import com.bigbigdw.manavara.util.screen.ScreenBookCard
 import com.bigbigdw.manavara.util.screen.ScreenEmpty
 import com.bigbigdw.manavara.util.screen.ScreenItemKeyword
 import com.bigbigdw.manavara.util.screen.TabletBorderLine
@@ -590,7 +590,7 @@ fun ScreenKeywordBooks(
         item { Spacer(modifier = Modifier.size(16.dp)) }
 
         itemsIndexed(filteredList) { index, item ->
-            ListBest(
+            ScreenBookCard(
                 item = item,
                 type = "MONTH",
                 index = index,
@@ -664,7 +664,7 @@ fun ScreenGenreBooks(
         item { Spacer(modifier = Modifier.size(16.dp)) }
 
         itemsIndexed(ArrayList(filteredMap.values)) { index, item ->
-            ListBest(
+            ScreenBookCard(
                 item = item,
                 type = "MONTH",
                 index = index,

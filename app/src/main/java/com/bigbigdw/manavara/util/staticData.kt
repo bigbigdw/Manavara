@@ -999,8 +999,10 @@ val menuListManavara = arrayListOf(
     MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "내가 분석한 작품", body = "내가 데이터를 모으고 있는 작품들 보기"),
     MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "유저 옵션", body = "마나바라 유저 옵션"),
     MenuInfo(needLine = true, image = R.drawable.ic_launcher, menu = "메세지함", body = "공지사항 및 알림 등 메세지 확인"),
-    MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "나의 PICK 보기", body = "내가 엄선한 작품들 보기"),
-    MenuInfo(needLine = true, image = R.drawable.ic_launcher, menu = "다른 PICK 보기", body = "다른 사람이 엄선한 작품들 보기"),
+    MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "나의 웹소설 PICK 보기", body = "내가 엄선한 웹소설 작품들 보기"),
+    MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "다른 웹소설 PICK 보기", body = "다른 사람이 엄선한 웹소설 작품들 보기"),
+    MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "나의 웹툰 PICK 보기", body = "내가 엄선한 웹툰 작품들 보기"),
+    MenuInfo(needLine = true, image = R.drawable.ic_launcher, menu = "다른 웹툰 PICK 보기", body = "다른 사람이 엄선한 웹툰 작품들 보기"),
     MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "이벤트", body = "플랫폼별 진행중인 이벤트 확인"),
     MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "커뮤니티", body = "조아라 자유게시판 및 DC 커뮤니티 확인"),
 )
