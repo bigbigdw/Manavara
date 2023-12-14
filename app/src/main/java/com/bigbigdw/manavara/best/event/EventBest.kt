@@ -73,5 +73,5 @@ data class StateBest(
     val platform : String = novelListEng()[0],
     val bestType : String = "TODAY_BEST",
     val type : String = "NOVEL",
-    val menu : String = "TODAY"
+    val menu : String = "TODAY",
 )

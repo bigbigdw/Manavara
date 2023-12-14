@@ -95,8 +95,8 @@ fun ScreenManavara(
                         onDismissRequest = { setDialogOpen(false) },
                     ) {
                         AlertTwoBtn(
-                            isShow = {  },
-                            onFetchClick = { },
+                            onClickLeft = {  },
+                            onClickRight = { },
                             btnLeft = "취소",
                             btnRight = "확인",
                             modifier = Modifier.requiredWidth(400.dp),

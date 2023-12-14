@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -38,7 +37,6 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,7 +58,6 @@ import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.dataBase.screen.ScreenDataBase
 import com.bigbigdw.manavara.best.screen.ScreenBest
 import com.bigbigdw.manavara.firebase.DataFCMBodyNotification
-import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.best.areListsEqual
 import com.bigbigdw.manavara.best.getBestListTodayJson
 import com.bigbigdw.manavara.best.getBestListTodayStorage
@@ -82,12 +79,10 @@ import postFCMAlert
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenMain(
-    viewModelMain: ViewModelMain,
     isExpandedScreen: Boolean
 ) {
 
     val context = LocalContext.current
-    val state = viewModelMain.state.collectAsState().value
 
     DisposableEffect(context){
 

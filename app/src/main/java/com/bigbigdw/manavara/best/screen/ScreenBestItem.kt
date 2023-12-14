@@ -1,6 +1,5 @@
 package com.bigbigdw.manavara.best.screen
 
-import android.content.Intent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -54,7 +53,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.bigbigdw.manavara.R
-import com.bigbigdw.manavara.best.ActivityBestDetail
 import com.bigbigdw.manavara.best.getBestListTodayJson
 import com.bigbigdw.manavara.best.getBestListWeekJson
 import com.bigbigdw.manavara.best.models.ItemBestInfo
@@ -683,18 +681,16 @@ fun ScreenTodayMonth(
 }
 
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScreenDialogBest(
     item: ItemBookInfo,
     trophy: ArrayList<ItemBestInfo>,
     isExpandedScreen: Boolean,
-    currentRoute: String,
-    modalSheetState: ModalBottomSheetState?
+    needTrophyList: Boolean = true,
+    btnPickText: String = "작품 PICK 하기",
+    onClickLeft: () -> Unit,
+    onClickRight: () -> Unit,
 ) {
-
-    val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -722,60 +718,62 @@ fun ScreenDialogBest(
         }
     }
 
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .padding(16.dp, 0.dp, 16.dp, 16.dp),
-    ) {
-        trophy.forEachIndexed { index, item ->
-            Box(
-                modifier = Modifier.weight(1f),
-                contentAlignment = Alignment.Center
-            ) {
-                Column {
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = weekListOneWord()[index],
-                        color = if (item.number > -1) {
-                            color1CE3EE
-                        } else {
-                            color8F8F8F
-                        },
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Center
-                    )
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(4.dp, 0.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Image(
-                            contentScale = ContentScale.FillWidth,
-                            painter = painterResource(
-                                id = if (item.number > -1) {
-                                    R.drawable.icon_trophy_fill_on
-                                } else {
-                                    R.drawable.icon_trophy_fill_off
-                                }
-                            ),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .width(28.dp)
-                                .height(28.dp)
-                        )
-                    }
-
-                    if(item.number > -1){
+    if(needTrophyList){
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(16.dp, 0.dp, 16.dp, 16.dp),
+        ) {
+            trophy.forEachIndexed { index, item ->
+                Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column {
                         Text(
                             modifier = Modifier.fillMaxWidth(),
-                            text = "${item.number + 1}등",
-                            color = color1CE3EE,
+                            text = weekListOneWord()[index],
+                            color = if (item.number > -1) {
+                                color1CE3EE
+                            } else {
+                                color8F8F8F
+                            },
                             fontSize = 16.sp,
-                            textAlign = TextAlign.Center,
-                            fontWeight = FontWeight.Bold
+                            textAlign = TextAlign.Center
                         )
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(4.dp, 0.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                contentScale = ContentScale.FillWidth,
+                                painter = painterResource(
+                                    id = if (item.number > -1) {
+                                        R.drawable.icon_trophy_fill_on
+                                    } else {
+                                        R.drawable.icon_trophy_fill_off
+                                    }
+                                ),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .width(28.dp)
+                                    .height(28.dp)
+                            )
+                        }
+
+                        if(item.number > -1){
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = "${item.number + 1}등",
+                                color = color1CE3EE,
+                                fontSize = 16.sp,
+                                textAlign = TextAlign.Center,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
             }
@@ -792,7 +790,7 @@ fun ScreenDialogBest(
             Button(
                 colors = ButtonDefaults.buttonColors(containerColor = color8F8F8F),
 
-                onClick = {  },
+                onClick = { onClickLeft() },
                 modifier = Modifier
                     .weight(1f)
                     .height(48.dp),
@@ -800,7 +798,7 @@ fun ScreenDialogBest(
 
             ) {
                 Text(
-                    text = "취소",
+                    text = btnPickText,
                     textAlign = TextAlign.Center,
                     color = Color.White,
                     fontSize = 16.sp,
@@ -811,14 +809,7 @@ fun ScreenDialogBest(
             Button(
                 colors = ButtonDefaults.buttonColors(containerColor = color20459E),
                 onClick = {
-                    coroutineScope.launch {
-                        val intent = Intent(context, ActivityBestDetail::class.java)
-                        intent.putExtra("BOOKCODE", item.bookCode)
-                        intent.putExtra("PLATFORM", item.type)
-                        intent.putExtra("TYPE", currentRoute)
-                        context.startActivity(intent)
-                        modalSheetState?.hide()
-                    }
+                    onClickRight()
                 },
                 modifier = Modifier
                     .weight(1f)

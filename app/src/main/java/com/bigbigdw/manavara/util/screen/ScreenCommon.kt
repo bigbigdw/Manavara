@@ -1,7 +1,6 @@
 package com.bigbigdw.manavara.util.screen
 
 import android.app.Activity
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
@@ -20,7 +19,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
@@ -280,8 +278,8 @@ fun ItemMainTabletContent(
 
 @Composable
 fun AlertTwoBtn(
-    isShow: () -> Unit,
-    onFetchClick: () -> Unit,
+    onClickLeft: () -> Unit,
+    onClickRight: () -> Unit,
     btnLeft: String,
     btnRight: String,
     contents: @Composable () -> Unit,
@@ -333,7 +331,7 @@ fun AlertTwoBtn(
                             Button(
                                 colors = ButtonDefaults.buttonColors(containerColor = color8F8F8F),
 
-                                onClick = { isShow() },
+                                onClick = { onClickLeft() },
                                 modifier = Modifier
                                     .weight(1f)
                                     .height(48.dp),
@@ -352,8 +350,7 @@ fun AlertTwoBtn(
                             Button(
                                 colors = ButtonDefaults.buttonColors(containerColor = color20459E),
                                 onClick = {
-                                    onFetchClick()
-                                    isShow()
+                                    onClickRight()
                                 },
                                 modifier = Modifier
                                     .weight(1f)

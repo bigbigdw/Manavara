@@ -1,6 +1,5 @@
 package com.bigbigdw.manavara.dataBase.screen
 
-import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -51,30 +49,30 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bigbigdw.manavara.R
-import com.bigbigdw.manavara.best.ActivityBestDetail
 import com.bigbigdw.manavara.best.getBookItemWeekTrophy
 import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDataBaseDetail
 import com.bigbigdw.manavara.best.getBookMapJson
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.models.ItemKeyword
+import com.bigbigdw.manavara.best.screen.BestBottomDialog
+import com.bigbigdw.manavara.best.screen.BestDialog
 import com.bigbigdw.manavara.best.screen.ItemBestDetailInfoAnalyze
 import com.bigbigdw.manavara.best.screen.ListBest
-import com.bigbigdw.manavara.best.screen.ScreenDialogBest
 import com.bigbigdw.manavara.best.screen.TopbarBestDetail
 import com.bigbigdw.manavara.dataBase.getGenreListWeekJson
 import com.bigbigdw.manavara.dataBase.getGenreMap
 import com.bigbigdw.manavara.dataBase.getJsonFiles
+import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.util.colorList
 import com.bigbigdw.manavara.util.getWeekDate
-import com.bigbigdw.manavara.util.screen.AlertTwoBtn
 import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
 import com.bigbigdw.manavara.util.screen.ScreenEmpty
 import com.bigbigdw.manavara.util.screen.ScreenItemKeyword
-import com.bigbigdw.manavara.util.screen.ScreenTest
 import com.bigbigdw.manavara.util.screen.TabletBorderLine
 import com.bigbigdw.manavara.util.screen.TabletContentWrap
 import com.bigbigdw.manavara.util.weekListAll
@@ -217,31 +215,12 @@ fun ScreenAnalyzeDetail(
         val (getDialogOpen, setDialogOpen) = remember { mutableStateOf(false) }
 
         if (getDialogOpen) {
-            Dialog(
+            BestDialog(
                 onDismissRequest = { setDialogOpen(false) },
-            ) {
-                AlertTwoBtn(isShow = { setDialogOpen(false) },
-                    onFetchClick = {
-                        val intent = Intent(context, ActivityBestDetail::class.java)
-                        intent.putExtra("BOOKCODE", state.itemBookInfo.bookCode)
-                        intent.putExtra("PLATFORM", state.itemBookInfo.type)
-                        intent.putExtra("TYPE", state.type)
-                        context.startActivity(intent)
-                    },
-                    btnLeft = "취소",
-                    btnRight = "작품 보러가기",
-                    modifier = Modifier.requiredWidth(400.dp),
-                    contents = {
-                        ScreenDialogBest(
-                            item = state.itemBookInfo,
-                            trophy = state.itemBestInfoTrophyList,
-                            isExpandedScreen = isExpandedScreen,
-                            currentRoute = state.type,
-                            modalSheetState = null
-                        )
-                    }
-                )
-            }
+                itemBestInfoTrophyList = state.itemBestInfoTrophyList,
+                item = state.itemBookInfo,
+                isExpandedScreen = isExpandedScreen
+            )
         }
 
         ScreenTabletAnalyzeDetail(
@@ -324,12 +303,12 @@ fun ScreenAnalyzeDetail(
                 sheetContent = {
                     Spacer(modifier = Modifier.size(4.dp))
 
-                    ScreenDialogBest(
+                    BestBottomDialog(
+                        itemBestInfoTrophyList = state.itemBestInfoTrophyList,
                         item = state.itemBookInfo,
-                        trophy = state.itemBestInfoTrophyList,
                         isExpandedScreen = isExpandedScreen,
-                        currentRoute = state.type,
-                        modalSheetState = modalSheetState
+                        modalSheetState = modalSheetState,
+                        currentRoute = "NOVEL",
                     )
                 },
             ) {}

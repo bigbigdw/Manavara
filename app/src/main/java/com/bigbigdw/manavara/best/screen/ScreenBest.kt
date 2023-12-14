@@ -65,8 +65,11 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.ActivityBestDetail
+import com.bigbigdw.manavara.best.models.ItemBestInfo
+import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.viewModels.ViewModelBest
 import com.bigbigdw.manavara.main.screen.ScreenUser
+import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color1E4394
 import com.bigbigdw.manavara.ui.theme.color4AD7CF
@@ -102,7 +105,8 @@ fun ScreenBest(
 ) {
 
     val context = LocalContext.current
-    val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
     val viewModelBest: ViewModelBest = viewModel(viewModelStoreOwner = viewModelStoreOwner)
     val coroutineScope = rememberCoroutineScope()
     val state = viewModelBest.state.collectAsState().value
@@ -116,7 +120,7 @@ fun ScreenBest(
             .onEach { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
             .launchIn(coroutineScope)
 
-        if(currentRoute == "NOVEL"){
+        if (currentRoute == "NOVEL") {
             if (state.type != "NOVEL") {
                 viewModelBest.setBest(
                     type = "NOVEL",
@@ -125,7 +129,7 @@ fun ScreenBest(
                     menu = changePlatformNameKor("JOARA")
                 )
             }
-        } else if(currentRoute == "COMIC"){
+        } else if (currentRoute == "COMIC") {
             if (state.type != "COMIC") {
                 viewModelBest.setBest(
                     type = "COMIC",
@@ -154,31 +158,13 @@ fun ScreenBest(
                 val (getDialogOpen, setDialogOpen) = remember { mutableStateOf(false) }
 
                 if (getDialogOpen) {
-                    Dialog(
+
+                    BestDialog(
                         onDismissRequest = { setDialogOpen(false) },
-                    ) {
-                        AlertTwoBtn(isShow = { setDialogOpen(false) },
-                            onFetchClick = {
-                                val intent = Intent(context, ActivityBestDetail::class.java)
-                                intent.putExtra("BOOKCODE", item.bookCode)
-                                intent.putExtra("PLATFORM", item.type)
-                                intent.putExtra("TYPE", state.type)
-                                context.startActivity(intent)
-                            },
-                            btnLeft = "취소",
-                            btnRight = "작품 보러가기",
-                            modifier = Modifier.requiredWidth(400.dp),
-                            contents = {
-                                ScreenDialogBest(
-                                    item = item,
-                                    trophy = viewModelBest.state.collectAsState().value.itemBestInfoTrophyList,
-                                    isExpandedScreen = isExpandedScreen,
-                                    currentRoute = state.type,
-                                    modalSheetState = null
-                                )
-                            }
-                        )
-                    }
+                        itemBestInfoTrophyList = state.itemBestInfoTrophyList,
+                        item = item,
+                        isExpandedScreen = isExpandedScreen
+                    )
                 }
 
                 ScreenBestPropertyList(
@@ -199,7 +185,7 @@ fun ScreenBest(
                     listState = listState,
                     setDialogOpen = setDialogOpen,
                     viewModelBest = viewModelBest,
-                    )
+                )
 
             } else {
 
@@ -253,16 +239,16 @@ fun ScreenBest(
                         ),
                         sheetContent = {
 
-                            if(currentRoute == "NOVEL" || currentRoute == "COMIC"){
+                            if (currentRoute == "NOVEL" || currentRoute == "COMIC") {
 
                                 Spacer(modifier = Modifier.size(4.dp))
 
-                                ScreenDialogBest(
+                                BestBottomDialog(
+                                    itemBestInfoTrophyList = state.itemBestInfoTrophyList,
                                     item = state.itemBookInfo,
-                                    trophy = state.itemBestInfoTrophyList,
                                     isExpandedScreen = isExpandedScreen,
+                                    modalSheetState = modalSheetState,
                                     currentRoute = currentRoute,
-                                    modalSheetState = modalSheetState
                                 )
                             } else {
                                 ScreenTest()
@@ -283,7 +269,7 @@ fun ScreenBestPropertyList(
     listState: LazyListState,
     isExpandedScreen: Boolean,
     drawerState: DrawerState?,
-    viewModelBest : ViewModelBest
+    viewModelBest: ViewModelBest
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -415,7 +401,10 @@ fun ScreenBestPropertyList(
                     value = "USER_OPTION",
                     onClick = {
                         coroutineScope.launch {
-                            viewModelBest.setBest(bestType = "USER_OPTION", platform = "USER_OPTION")
+                            viewModelBest.setBest(
+                                bestType = "USER_OPTION",
+                                platform = "USER_OPTION"
+                            )
                             drawerState?.close()
                         }
                     },
@@ -440,8 +429,11 @@ fun ScreenBestPropertyList(
                     onClick = {
                         coroutineScope.launch {
 
-                            if(state.bestType == "USER_OPTION"){
-                                viewModelBest.setBest(platform = changePlatformNameEng(item), bestType = "TODAY_BEST")
+                            if (state.bestType == "USER_OPTION") {
+                                viewModelBest.setBest(
+                                    platform = changePlatformNameEng(item),
+                                    bestType = "TODAY_BEST"
+                                )
                             } else {
                                 viewModelBest.setBest(platform = changePlatformNameEng(item))
                             }
@@ -633,7 +625,7 @@ fun ScreenMainBestItemDetail(
 }
 
 @Composable
-fun ScreenBestTopbar(viewModelBest : ViewModelBest, onClick: () -> Unit){
+fun ScreenBestTopbar(viewModelBest: ViewModelBest, onClick: () -> Unit) {
     val state = viewModelBest.state.collectAsState().value
 
     Row(
@@ -739,4 +731,133 @@ fun ScreenBestTopbar(viewModelBest : ViewModelBest, onClick: () -> Unit){
             )
         }
     }
+}
+
+@Composable
+fun BestDialog(
+    onDismissRequest: () -> Unit,
+    itemBestInfoTrophyList: ArrayList<ItemBestInfo>,
+    item: ItemBookInfo,
+    isExpandedScreen: Boolean
+) {
+
+    val viewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelMain: ViewModelMain = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+
+    val context = LocalContext.current
+    val state = viewModelMain.state.collectAsState().value
+
+    viewModelMain.setIsPicked(platform = item.type, bookCode = item.bookCode)
+
+    Dialog(
+        onDismissRequest = { onDismissRequest() },
+    ) {
+        AlertTwoBtn(
+            onClickLeft = {
+                if (state.isPicked) {
+                    viewModelMain.setUnPickBook(
+                        platform = item.type,
+                        item = item,
+                        context = context
+                    )
+                } else {
+                    viewModelMain.setPickBook(
+                        platform = item.type,
+                        item = item,
+                        context = context
+                    )
+                }
+            },
+            onClickRight = {
+                val intent = Intent(context, ActivityBestDetail::class.java)
+                intent.putExtra("BOOKCODE", item.bookCode)
+                intent.putExtra("PLATFORM", item.type)
+                intent.putExtra("TYPE", item.type)
+                context.startActivity(intent)
+                onDismissRequest()
+            },
+            btnLeft = if (state.isPicked) {
+                "작품 PICK 해제"
+            } else {
+                "작품 PICK 하기"
+            },
+            btnRight = "작품 보러가기",
+            modifier = Modifier.requiredWidth(400.dp),
+            contents = {
+                ScreenDialogBest(
+                    item = item,
+                    trophy = itemBestInfoTrophyList,
+                    isExpandedScreen = isExpandedScreen,
+                    btnPickText = if (state.isPicked) {
+                        "작품 PICK 해제"
+                    } else {
+                        "작품 PICK 하기"
+                    },
+                    onClickLeft = {}
+                ) {}
+            }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun BestBottomDialog(
+    itemBestInfoTrophyList: ArrayList<ItemBestInfo>,
+    item: ItemBookInfo,
+    isExpandedScreen: Boolean,
+    modalSheetState: ModalBottomSheetState,
+    currentRoute: String
+) {
+    val viewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelMain: ViewModelMain = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+
+    val coroutineScope = rememberCoroutineScope()
+
+    val context = LocalContext.current
+    val state = viewModelMain.state.collectAsState().value
+
+    viewModelMain.setIsPicked(platform = item.type, bookCode = item.bookCode)
+
+    viewModelMain.setIsPicked(
+        platform = item.type,
+        bookCode = item.bookCode
+    )
+
+    ScreenDialogBest(
+        item = item,
+        trophy = itemBestInfoTrophyList,
+        isExpandedScreen = isExpandedScreen,
+        btnPickText = if (state.isPicked) {
+            "작품 PICK 해제"
+        } else {
+            "작품 PICK 하기"
+        },
+        onClickLeft = {
+            if (state.isPicked) {
+                viewModelMain.setUnPickBook(
+                    platform = item.type,
+                    item = item,
+                    context = context
+                )
+            } else {
+                viewModelMain.setPickBook(
+                    platform = item.type,
+                    item = item,
+                    context = context
+                )
+            }
+        },
+        onClickRight = {
+            coroutineScope.launch {
+                val intent = Intent(context, ActivityBestDetail::class.java)
+                intent.putExtra("BOOKCODE", item.bookCode)
+                intent.putExtra("PLATFORM", item.type)
+                intent.putExtra("TYPE", currentRoute)
+                context.startActivity(intent)
+                modalSheetState.hide()
+            }
+        })
 }

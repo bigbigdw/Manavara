@@ -100,8 +100,8 @@ fun ScreenLogin(
             onDismissRequest = { viewModelLogin.setIsRegisterConfirm(false) },
         ) {
             AlertTwoBtn(
-                isShow = { viewModelLogin.setIsRegisterConfirm(false) },
-                onFetchClick = {
+                onClickLeft = { viewModelLogin.setIsRegisterConfirm(false) },
+                onClickRight = {
                     viewModelLogin.setIsRegisterConfirm(false)
                     viewModelLogin.finishRegister(activity = activity)
                 },
@@ -483,8 +483,8 @@ fun ScreenAfterSplash(
             onDismissRequest = { viewModelLogin.setIsRegisterConfirm(false) },
         ) {
             AlertTwoBtn(
-                isShow = { viewModelLogin.setIsRegisterConfirm(false) },
-                onFetchClick = {
+                onClickLeft = { viewModelLogin.setIsRegisterConfirm(false) },
+                onClickRight = {
                     viewModelLogin.setIsRegisterConfirm(false)
                     viewModelLogin.finishRegister(activity = activity)
                 },

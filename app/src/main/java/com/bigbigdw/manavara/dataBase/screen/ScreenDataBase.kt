@@ -1,6 +1,5 @@
 package com.bigbigdw.manavara.dataBase.screen
 
-import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -42,13 +40,13 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bigbigdw.manavara.R
+import com.bigbigdw.manavara.best.screen.BestBottomDialog
 import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDatabase
-import com.bigbigdw.manavara.best.ActivityBestDetail
-import com.bigbigdw.manavara.best.screen.ScreenDialogBest
+import com.bigbigdw.manavara.best.screen.BestDialog
+import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.ui.theme.color21C2EC
 import com.bigbigdw.manavara.ui.theme.color2EA259
 import com.bigbigdw.manavara.ui.theme.color31C3AE
@@ -73,7 +71,6 @@ import com.bigbigdw.manavara.ui.theme.colorFDC24E
 import com.bigbigdw.manavara.ui.theme.colorFFAC59
 import com.bigbigdw.manavara.util.genreListEng
 import com.bigbigdw.manavara.util.keywordListEng
-import com.bigbigdw.manavara.util.screen.AlertTwoBtn
 import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
 import com.bigbigdw.manavara.util.screen.TabletBorderLine
 import kotlinx.coroutines.flow.launchIn
@@ -124,31 +121,12 @@ fun ScreenDataBase(
                 val (getDialogOpen, setDialogOpen) = remember { mutableStateOf(false) }
 
                 if (getDialogOpen) {
-                    Dialog(
+                    BestDialog(
                         onDismissRequest = { setDialogOpen(false) },
-                    ) {
-                        AlertTwoBtn(isShow = { setDialogOpen(false) },
-                            onFetchClick = {
-                                val intent = Intent(context, ActivityBestDetail::class.java)
-                                intent.putExtra("BOOKCODE", state.itemBookInfo.bookCode)
-                                intent.putExtra("PLATFORM", state.itemBookInfo.type)
-                                intent.putExtra("TYPE", state.type)
-                                context.startActivity(intent)
-                            },
-                            btnLeft = "취소",
-                            btnRight = "작품 보러가기",
-                            modifier = Modifier.requiredWidth(400.dp),
-                            contents = {
-                                ScreenDialogBest(
-                                    item = state.itemBookInfo,
-                                    trophy = state.itemBestInfoTrophyList,
-                                    isExpandedScreen = isExpandedScreen,
-                                    currentRoute = state.type,
-                                    modalSheetState = null
-                                )
-                            }
-                        )
-                    }
+                        itemBestInfoTrophyList = state.itemBestInfoTrophyList,
+                        item = state.itemBookInfo,
+                        isExpandedScreen = isExpandedScreen
+                    )
                 }
 
                 ScreenDataBasePropertyList(
@@ -216,15 +194,16 @@ fun ScreenDataBase(
                             topEnd = 25.dp
                         ),
                         sheetContent = {
+
                             Spacer(modifier = Modifier.size(4.dp))
 
                             if (currentRoute != null) {
-                                ScreenDialogBest(
+                                BestBottomDialog(
+                                    itemBestInfoTrophyList = state.itemBestInfoTrophyList,
                                     item = state.itemBookInfo,
-                                    trophy = state.itemBestInfoTrophyList,
                                     isExpandedScreen = isExpandedScreen,
+                                    modalSheetState = modalSheetState,
                                     currentRoute = currentRoute,
-                                    modalSheetState = modalSheetState
                                 )
                             }
                         },
