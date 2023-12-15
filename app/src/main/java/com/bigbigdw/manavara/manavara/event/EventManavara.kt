@@ -31,6 +31,13 @@ sealed interface EventManavara{
         val itemBestInfoTrophyList : ArrayList<ItemBestInfo> = ArrayList(),
         val itemBookInfo : ItemBookInfo = ItemBookInfo()
     ) : EventManavara
+
+    class SetPickShareList(
+        val pickCategory : ArrayList<String> = ArrayList(),
+        val pickShareItemList : MutableMap<String, ArrayList<ItemBookInfo>> = mutableMapOf(),
+        val platform: String = "",
+    ) : EventManavara
+
 }
 
 data class StateManavara(
@@ -45,4 +52,5 @@ data class StateManavara(
 
     val pickCategory : ArrayList<String> = ArrayList(),
     val pickItemList : ArrayList<ItemBookInfo> = ArrayList(),
+    val pickShareItemList : MutableMap<String, ArrayList<ItemBookInfo>> = mutableMapOf()
 )

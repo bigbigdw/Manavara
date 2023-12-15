@@ -367,7 +367,9 @@ fun getPickList(type : String, root : String = "MY", callbacks: (ArrayList<Strin
 
             if (dataSnapshot.exists()) {
 
-                pickCategory.add("전체")
+                if(root == "MY"){
+                    pickCategory.add("전체")
+                }
 
                 for(category in dataSnapshot.children){
                     pickCategory.add(category.key ?: "")
@@ -383,9 +385,102 @@ fun getPickList(type : String, root : String = "MY", callbacks: (ArrayList<Strin
 
             }
 
+            if(root != "MY"){
+                pickCategory.add("리스트 만들기")
+            }
+
             val cmpAsc: java.util.Comparator<ItemBookInfo> =
                 Comparator { o1, o2 -> o1.title.compareTo(o2.title) }
             Collections.sort(pickItemList, cmpAsc)
+
+            callbacks.invoke(pickCategory, pickItemList)
+        }
+
+        override fun onCancelled(databaseError: DatabaseError) {}
+    })
+}
+
+fun setSharePickList(
+    listName: String,
+    type : String,
+    pickCategory: ArrayList<String>,
+    pickItemList: ArrayList<ItemBookInfo>,
+    initTitle: () -> Unit
+){
+
+    val filteredMap = mutableMapOf<String, ItemBookInfo>()
+    val pickItemListMap = mutableMapOf<String, ItemBookInfo>()
+
+    for(item in pickItemList){
+        pickItemListMap[item.bookCode] = item
+    }
+
+    for(bookCode in pickCategory){
+        val item = pickItemListMap[bookCode]
+        if(item != null){
+            filteredMap[bookCode] = item
+        }
+    }
+
+    FirebaseDatabase.getInstance().reference
+        .child("USER")
+        .child("A8uh2QkVQaV3Q3rE8SgBNKzV6VH2")
+        .child("PICK")
+        .child("SHARE")
+        .child(type)
+        .child(listName)
+        .setValue(filteredMap)
+
+    FirebaseDatabase.getInstance().reference
+        .child("PICK_SHARE")
+        .child(type)
+        .child(listName)
+        .setValue(filteredMap)
+
+    initTitle()
+}
+
+fun getPickShareList(
+    type: String,
+    callbacks: (ArrayList<String>, MutableMap<String, ArrayList<ItemBookInfo>>) -> Unit
+){
+    val rootRef = FirebaseDatabase.getInstance().reference
+        .child("USER")
+        .child("A8uh2QkVQaV3Q3rE8SgBNKzV6VH2")
+        .child("PICK")
+        .child("SHARE")
+        .child(type)
+
+    rootRef.addListenerForSingleValueEvent(object :
+        ValueEventListener {
+        override fun onDataChange(dataSnapshot: DataSnapshot) {
+            val pickCategory = ArrayList<String>()
+            val pickItemList = mutableMapOf<String, ArrayList<ItemBookInfo>>()
+
+            if (dataSnapshot.exists()) {
+
+                for(category in dataSnapshot.children){
+                    pickCategory.add(category.key ?: "")
+                    val itemList = ArrayList<ItemBookInfo>()
+
+                    for(pickItem in category.children){
+                        val item = pickItem.getValue(ItemBookInfo::class.java)
+
+                        if(item != null){
+                            itemList.add(item)
+                        }
+                    }
+
+                    val cmpAsc: java.util.Comparator<ItemBookInfo> =
+                        Comparator { o1, o2 -> o1.title.compareTo(o2.title) }
+                    Collections.sort(itemList, cmpAsc)
+
+                    pickItemList[category.key ?: ""] = itemList
+                }
+
+            }
+
+            pickCategory.add("리스트 만들기")
 
             callbacks.invoke(pickCategory, pickItemList)
         }

@@ -46,6 +46,10 @@ class ViewModelManavara @Inject constructor() : ViewModel() {
                 current.copy(itemBookInfo = event.itemBookInfo, itemBestInfoTrophyList = event.itemBestInfoTrophyList)
             }
 
+            is EventManavara.SetPickShareList -> {
+                current.copy(pickCategory = event.pickCategory, pickShareItemList = event.pickShareItemList, platform = event.platform)
+            }
+
             is EventManavara.SetPickItems -> {
                 current.copy(pickCategory = event.pickCategory)
             }
@@ -74,9 +78,15 @@ class ViewModelManavara @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setPickList(pickCategory: ArrayList<String>, pickItemList: ArrayList<ItemBookInfo>){
+    fun setPickList(pickCategory: ArrayList<String>, pickItemList: ArrayList<ItemBookInfo>, platform: String = "전체"){
         viewModelScope.launch {
-            events.send(EventManavara.SetPickList(pickCategory = pickCategory, pickItemList = pickItemList, platform = "전체"))
+            events.send(EventManavara.SetPickList(pickCategory = pickCategory, pickItemList = pickItemList, platform = platform))
+        }
+    }
+
+    fun setPickShareList(pickCategory: ArrayList<String>, pickShareItemList: MutableMap<String, ArrayList<ItemBookInfo>>, platform: String = "전체"){
+        viewModelScope.launch {
+            events.send(EventManavara.SetPickShareList(pickCategory = pickCategory, pickShareItemList = pickShareItemList, platform = platform))
         }
     }
 

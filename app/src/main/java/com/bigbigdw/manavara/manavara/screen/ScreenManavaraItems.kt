@@ -2,7 +2,6 @@ package com.bigbigdw.manavara.manavara.screen
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -39,16 +38,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.bigbigdw.manavara.best.getBookItemWeekTrophy
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.firebase.DataFCMBodyNotification
 import com.bigbigdw.manavara.manavara.getPickList
+import com.bigbigdw.manavara.manavara.getPickShareList
+import com.bigbigdw.manavara.manavara.setSharePickList
 import com.bigbigdw.manavara.manavara.viewModels.ViewModelManavara
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color898989
 import com.bigbigdw.manavara.ui.theme.colorEDE6FD
 import com.bigbigdw.manavara.util.changePlatformNameKor
+import com.bigbigdw.manavara.util.screen.AlertOneBtn
 import com.bigbigdw.manavara.util.screen.BtnMobile
 import com.bigbigdw.manavara.util.screen.ItemTabletTitle
 import com.bigbigdw.manavara.util.screen.ScreenBookCard
@@ -236,8 +239,8 @@ fun ScreenPickShare(
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(viewModelManavara){
-        getPickList(type = "NOVEL", root = "SHARE") { pickCategory, pickItemList ->
-            viewModelManavara.setPickList(pickCategory = pickCategory, pickItemList = pickItemList)
+        getPickShareList(type = "NOVEL") { pickCategory, pickShareItemList ->
+            viewModelManavara.setPickShareList(pickCategory = pickCategory, pickShareItemList = pickShareItemList, platform = pickCategory[0])
         }
     }
 
@@ -275,7 +278,7 @@ fun ScreenPickShare(
             Spacer(modifier = Modifier.size(4.dp))
         }
 
-        if(state.pickItemList.isEmpty()){
+        if(state.pickItemList.isEmpty() || state.platform == "리스트 만들기"){
             item {
                 Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
                     ScreenEmpty(str = "데이터가 없습니다.\n공유하실 작품 리스트를 추가해주세요.")
@@ -306,54 +309,45 @@ fun ScreenPickShare(
                 }
             }
         } else {
-            var filterdList = ArrayList<ItemBookInfo>()
 
-            if(state.platform == "전체"){
-                filterdList = state.pickItemList
+            val list = state.pickShareItemList[state.platform]
 
-            } else {
-                for(item in state.pickItemList){
-                    if(item.type == state.platform){
-                        filterdList.add(item)
-                    }
-                }
-            }
+            if(list != null){
+                itemsIndexed(ArrayList(list)) { index, item ->
 
-            itemsIndexed(filterdList) { index, item ->
+                    Box(modifier = Modifier
+                        .padding(16.dp, 8.dp, 16.dp, 8.dp)
+                        .wrapContentSize()){
+                        ScreenBookCard(
+                            mode = "PLATFORM",
+                            item = item,
+                            index = index,
+                        ) {
 
-                Box(modifier = Modifier
-                    .padding(16.dp, 8.dp, 16.dp, 8.dp)
-                    .wrapContentSize()){
-                    ScreenBookCard(
-                        mode = "PLATFORM",
-                        item = item,
-                        index = index,
-                    ) {
+                            coroutineScope.launch {
+                                getBookItemWeekTrophy(
+                                    bookCode = item.bookCode,
+                                    type = "NOVEL",
+                                    platform = item.type
+                                ) { itemBestInfoTrophyList ->
 
-                        coroutineScope.launch {
-                            getBookItemWeekTrophy(
-                                bookCode = item.bookCode,
-                                type = "NOVEL",
-                                platform = item.type
-                            ) { itemBestInfoTrophyList ->
+                                    viewModelManavara.setItemBestInfoTrophyList(
+                                        itemBookInfo = item,
+                                        itemBestInfoTrophyList = itemBestInfoTrophyList
+                                    )
+                                }
 
-                                viewModelManavara.setItemBestInfoTrophyList(
-                                    itemBookInfo = item,
-                                    itemBestInfoTrophyList = itemBestInfoTrophyList
-                                )
-                            }
+                                modalSheetState?.show()
 
-                            modalSheetState?.show()
-
-                            if (setDialogOpen != null) {
-                                setDialogOpen(true)
+                                if (setDialogOpen != null) {
+                                    setDialogOpen(true)
+                                }
                             }
                         }
                     }
                 }
             }
         }
-
     }
 }
 
@@ -368,40 +362,66 @@ fun ScreenMakeSharePick(
     val itemList = state.pickCategory
 
     LaunchedEffect(viewModelManavara){
-        getPickList(type = "NOVEL") { pickCategory, pickItemList ->
+        getPickList(type = "NOVEL") { _, pickItemList ->
             viewModelManavara.setPickList(pickCategory = ArrayList(), pickItemList = pickItemList)
         }
     }
 
+    val (getDialogOpen, setDialogOpen) = remember { mutableStateOf(false) }
+    val (getCategoryName, setCategoryName) = remember { mutableStateOf("") }
+
+    if(getDialogOpen){
+        Dialog(
+            onDismissRequest = { setDialogOpen(false) },
+        ) {
+            AlertOneBtn(
+                isShow = {
+                    setSharePickList(
+                        type = "NOVEL",
+                        initTitle = {setCategoryName("")},
+                        listName = getCategoryName,
+                        pickCategory = state.pickCategory,
+                        pickItemList = state.pickItemList
+                    )
+                    setDialogOpen(false)
+                },
+                btnText = "리스트 만들기",
+                contents = {
+                    TextField(
+                        value = getCategoryName,
+                        onValueChange = { setCategoryName(it) },
+                        label = { Text("리스트 이름을 입력해 주십시오", color = color898989) },
+                        singleLine = true,
+                        colors = TextFieldDefaults.textFieldColors(
+                            containerColor = Color(0),
+                            textColor = color000000
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.size(16.dp))
+                }
+            )
+        }
+    }
+
     Scaffold(modifier = Modifier
-        .padding(16.dp, 8.dp, 16.dp, 8.dp)
         .wrapContentSize(),
         bottomBar = {
             if(state.pickCategory.isNotEmpty()){
                 Button(
                     colors = ButtonDefaults.buttonColors(containerColor = color20459E),
-                    contentPadding = PaddingValues(
-                        start = 0.dp,
-                        top = 0.dp,
-                        end = 0.dp,
-                        bottom = 0.dp,
-                    ),
                     onClick = {
-//                        viewModelManavara.setScreen(
-//                            menu = state.menu,
-//                            platform = state.platform,
-//                            detail = "웹소설 PICK 공유 리스트 만들기",
-//                            type = state.type
-//                        )
+                        setDialogOpen(true)
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
-                    shape = RoundedCornerShape(50.dp)
+                    shape = RoundedCornerShape(0.dp)
 
                 ) {
                     Text(
-                        text = "공유 PICK 리스트 추가하기",
+                        text = "공유 리스트 생성하기",
                         textAlign = TextAlign.Center,
                         color = colorEDE6FD,
                         fontSize = 16.sp
@@ -416,7 +436,8 @@ fun ScreenMakeSharePick(
             }
 
             itemsIndexed(state.pickItemList) { index, item ->
-                Row {
+                Row(modifier = Modifier
+                    .padding(16.dp, 8.dp, 16.dp, 8.dp)) {
                     Checkbox(
                         checked = itemList.contains(item.bookCode),
                         onCheckedChange = { isChecked ->
