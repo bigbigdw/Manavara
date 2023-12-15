@@ -64,14 +64,11 @@ import com.bigbigdw.manavara.util.weekListAll
 import convertDateStringMonth
 import convertDateStringWeek
 import kotlinx.coroutines.launch
-import java.util.Collections
 
 
 @Composable
 fun ScreenItemKeywordToday(
-    genreList: ArrayList<ItemKeyword> = ArrayList(),
-    keywordList: ArrayList<ItemKeyword> = ArrayList(),
-    mode: String = "GENRE"
+    genreKeywordList: ArrayList<ItemKeyword> = ArrayList()
 ) {
 
     LazyColumn(
@@ -80,23 +77,13 @@ fun ScreenItemKeywordToday(
             .padding(16.dp, 0.dp, 16.dp, 0.dp)
     ) {
 
-        if (mode == "KEYWORD") {
-            itemsIndexed(keywordList) { index, item ->
+        itemsIndexed(genreKeywordList) { index, item ->
 
-                ListGenreToday(
-                    title = item.key,
-                    value = item.value,
-                    index = index
-                )
-            }
-        } else {
-            itemsIndexed(genreList) { index, item ->
-                ListGenreToday(
-                    title = item.key,
-                    value = item.value,
-                    index = index
-                )
-            }
+            ListGenreKeywordToday(
+                title = item.key,
+                value = item.value,
+                index = index
+            )
         }
 
         item { Spacer(modifier = Modifier.size(60.dp)) }
@@ -150,7 +137,7 @@ fun ScreenItemKeywordWeek(
         if (mode == "KEYWORD") {
             itemsIndexed(keywordList) { index, item ->
 
-                ListGenreToday(
+                ListGenreKeywordToday(
                     title = item.key,
                     value = item.value,
                     index = index
@@ -158,7 +145,7 @@ fun ScreenItemKeywordWeek(
             }
         } else {
             itemsIndexed(genreList) { index, item ->
-                ListGenreToday(
+                ListGenreKeywordToday(
                     title = item.key,
                     value = item.value,
                     index = index
@@ -217,7 +204,7 @@ fun ScreenItemKeywordMonth(
 
         if (mode == "KEYWORD") {
             itemsIndexed(keywordList) { index, item ->
-                ListGenreToday(
+                ListGenreKeywordToday(
                     title = item.key,
                     value = item.value,
                     index = index
@@ -225,7 +212,7 @@ fun ScreenItemKeywordMonth(
             }
         } else {
             itemsIndexed(genreList) { index, item ->
-                ListGenreToday(
+                ListGenreKeywordToday(
                     title = item.key,
                     value = item.value,
                     index = index
@@ -234,110 +221,6 @@ fun ScreenItemKeywordMonth(
         }
 
         item { Spacer(modifier = Modifier.size(60.dp)) }
-    }
-}
-
-@Composable
-fun ScreenKeyword(
-    menuType: String,
-    viewModelDatabase: ViewModelDatabase
-) {
-
-    val state = viewModelDatabase.state.collectAsState().value
-    val listState = rememberLazyListState()
-    val context = LocalContext.current
-
-    LaunchedEffect(state.platform, state.type, state.jsonNameList, state.week, state.month) {
-        when (menuType) {
-            "투데이" -> {
-                getGenreKeywordJson(
-                    context = context,
-                    platform = state.platform,
-                    type = state.type,
-                    dataType = "KEYWORD"
-                ) {
-                    viewModelDatabase.setKeywordDay(it)
-                }
-            }
-
-            else -> {
-
-                getJsonFiles(
-                    platform = state.platform,
-                    type = state.type,
-                    root = if (menuType == "주간") {
-                        "BEST_WEEK"
-                    } else {
-                        "BEST_MONTH"
-                    },
-                ) {
-                    viewModelDatabase.setJsonNameList(it)
-
-                    if (state.week.isEmpty()) {
-                        viewModelDatabase.setDate(week = it.get(0))
-                    }
-                }
-
-                if (state.jsonNameList.isNotEmpty()) {
-                    getGenreListWeekJson(
-                        platform = state.platform,
-                        type = state.type,
-                        root = state.week,
-                        dayType = if (menuType == "주간") {
-                            "WEEK"
-                        } else {
-                            "MONTH"
-                        },
-                        dataType = "KEYWORD",
-                        context = context
-                    ) { weekList, list ->
-                        viewModelDatabase.setKeywordDay(list)
-                    }
-                }
-
-            }
-        }
-    }
-
-    Spacer(modifier = Modifier.size(8.dp))
-
-    val cmpAsc: java.util.Comparator<ItemKeyword> =
-        Comparator { o1, o2 ->
-            (o2.value.split("\\s+".toRegex()).count { it.isNotEmpty() })
-                .compareTo(
-                    (o1.value.split("\\s+".toRegex()).count { it.isNotEmpty() })
-                )
-        }
-    Collections.sort(state.keywordDay, cmpAsc)
-
-    when (menuType) {
-        "투데이" -> {
-            ScreenItemKeywordToday(keywordList = state.keywordDay, mode = "KEYWORD")
-        }
-
-        "주간" -> {
-
-            ScreenItemKeywordWeek(
-                keywordList = state.keywordDay,
-                jsonNameList = state.jsonNameList,
-                mode = "KEYWORD",
-                listState = listState,
-                week = state.week,
-                viewModelDatabase = viewModelDatabase
-            )
-        }
-
-        else -> {
-
-            ScreenItemKeywordMonth(
-                keywordList = state.keywordDay,
-                jsonNameList = state.jsonNameList,
-                mode = "KEYWORD",
-                listState = listState,
-                month = state.month,
-                viewModelDatabase = viewModelDatabase
-            )
-        }
     }
 }
 
@@ -452,7 +335,7 @@ fun ScreenGenreDetail(
 
 
 @Composable
-fun ListGenreToday(
+fun ListGenreKeywordToday(
     title: String,
     value: String,
     index: Int,
@@ -529,9 +412,10 @@ fun ListGenreToday(
 }
 
 @Composable
-fun ScreenGenre(
+fun ScreenGenreKeyword(
     menuType: String,
-    viewModelDatabase: ViewModelDatabase
+    viewModelDatabase: ViewModelDatabase,
+    dataType : String
 ) {
 
     val state = viewModelDatabase.state.collectAsState().value
@@ -545,9 +429,9 @@ fun ScreenGenre(
                     context = context,
                     platform = state.platform,
                     type = state.type,
-                    dataType = "GENRE"
+                    dataType = dataType
                 ) {
-                    viewModelDatabase.setGenreList(it)
+                    viewModelDatabase.setGenreKeywordWeekList(it)
                 }
             }
 
@@ -579,10 +463,10 @@ fun ScreenGenre(
                         } else {
                             "MONTH"
                         },
-                        dataType = "GENRE",
+                        dataType = dataType,
                         context = context
                     ) { weekList, list ->
-                        viewModelDatabase.setGenreList(list)
+                        viewModelDatabase.setGenreKeywordWeekList(list)
                     }
                 }
 
@@ -594,13 +478,13 @@ fun ScreenGenre(
 
     when (menuType) {
         "투데이" -> {
-            ScreenItemKeywordToday(state.genreList)
+            ScreenItemKeywordToday(state.genreKeywordList)
         }
 
         "주간" -> {
 
             ScreenItemKeywordWeek(
-                genreList = state.genreList,
+                genreList = state.genreKeywordList,
                 jsonNameList = state.jsonNameList,
                 listState = listState,
                 week = state.week,
@@ -611,7 +495,7 @@ fun ScreenGenre(
         else -> {
 
             ScreenItemKeywordMonth(
-                genreList = state.genreList,
+                genreList = state.genreKeywordList,
                 jsonNameList = state.jsonNameList,
                 listState = listState,
                 month = state.month,
@@ -680,8 +564,8 @@ fun GenreDetailJson(
                             .padding(16.dp, 0.dp, 16.dp, 0.dp)
                     ) {
 
-                        itemsIndexed(state.genreList) { index, item ->
-                            ListGenreToday(
+                        itemsIndexed(state.genreKeywordList) { index, item ->
+                            ListGenreKeywordToday(
                                 title = item.key,
                                 value = item.value,
                                 index = index
@@ -690,15 +574,15 @@ fun GenreDetailJson(
                     }
                 } else {
 
-                    if(state.genreWeekList[getWeekDate(getDate)].size > 0){
+                    if(state.genreKeywordWeekList[getWeekDate(getDate)].size > 0){
                         LazyColumn(
                             modifier = Modifier
                                 .background(colorF6F6F6)
                                 .padding(16.dp, 0.dp, 16.dp, 0.dp)
                         ) {
 
-                            itemsIndexed(state.genreWeekList[getWeekDate(getDate)]) { index, item ->
-                                ListGenreToday(
+                            itemsIndexed(state.genreKeywordWeekList[getWeekDate(getDate)]) { index, item ->
+                                ListGenreKeywordToday(
                                     title = item.key,
                                     value = if(type == "GENRE"){
                                         item.value
@@ -724,7 +608,7 @@ fun GenreDetailJson(
 
             var count = 0
 
-            for(item in state.genreWeekList){
+            for(item in state.genreKeywordWeekList){
                 count += 1
                 arrayList.add("${count}일")
             }
@@ -788,15 +672,15 @@ fun GenreDetailJson(
 
                         item { ItemTabletTitle(str = "${DBDate.month()}월 전체", isTopPadding = false) }
 
-                        itemsIndexed(state.genreList) { index, item ->
-                            ListGenreToday(
+                        itemsIndexed(state.genreKeywordList) { index, item ->
+                            ListGenreKeywordToday(
                                 title = item.key,
                                 value = item.value,
                                 index = index
                             )
                         }
 
-                        itemsIndexed(state.genreWeekList) { index, item ->
+                        itemsIndexed(state.genreKeywordWeekList) { index, item ->
 
                             if(item.size > 0){
 
@@ -805,7 +689,7 @@ fun GenreDetailJson(
                                 item.forEachIndexed{ innerIndex, innnerItem ->
 
                                     if(innerIndex < 5){
-                                        ListGenreToday(
+                                        ListGenreKeywordToday(
                                             title = innnerItem.key,
                                             value = innnerItem.value,
                                             index = index
@@ -819,15 +703,15 @@ fun GenreDetailJson(
                     }
                 } else {
 
-                    if(state.genreWeekList[getDate.replace("일","").toInt() - 1].size > 0){
+                    if(state.genreKeywordWeekList[getDate.replace("일","").toInt() - 1].size > 0){
                         LazyColumn(
                             modifier = Modifier
                                 .background(colorF6F6F6)
                                 .padding(16.dp, 0.dp, 16.dp, 0.dp)
                         ) {
 
-                            itemsIndexed(state.genreWeekList[getDate.replace("일","").toInt() - 1]) { index, item ->
-                                ListGenreToday(
+                            itemsIndexed(state.genreKeywordWeekList[getDate.replace("일","").toInt() - 1]) { index, item ->
+                                ListGenreKeywordToday(
                                     title = item.key,
                                     value = if(type == "GENRE"){
                                         item.value

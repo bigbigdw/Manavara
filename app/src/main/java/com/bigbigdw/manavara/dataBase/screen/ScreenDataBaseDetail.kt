@@ -1,6 +1,5 @@
 package com.bigbigdw.manavara.dataBase.screen
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -49,8 +48,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.getBookItemWeekTrophy
 import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDataBaseDetail
@@ -64,7 +61,6 @@ import com.bigbigdw.manavara.best.screen.TopbarBestDetail
 import com.bigbigdw.manavara.dataBase.getGenreListWeekJson
 import com.bigbigdw.manavara.dataBase.getGenreMap
 import com.bigbigdw.manavara.dataBase.getJsonFiles
-import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.util.colorList
@@ -648,8 +644,6 @@ fun ScreenGenreBooks(
         }
     }
 
-    Log.d("HIHI", "filteredMap == $filteredList")
-
 
     val filteredMap = state.itemBookInfoMap.filter {
 
@@ -824,7 +818,7 @@ fun ScreenGenreStatusWeekly(
         if (getDate == "전체") {
 
             itemsIndexed(state.genreKeywordList) { index, item ->
-                ListGenreToday(
+                ListGenreKeywordToday(
                     title = item.key,
                     value = item.value,
                     index = index
@@ -836,7 +830,7 @@ fun ScreenGenreStatusWeekly(
             if (state.genreKeywordMonthList[getWeekDate(getDate)].size > 0) {
 
                 itemsIndexed(state.genreKeywordMonthList[getWeekDate(getDate)]) { index, item ->
-                    ListGenreToday(
+                    ListGenreKeywordToday(
                         title = item.key,
                         value = item.value,
                         index = index

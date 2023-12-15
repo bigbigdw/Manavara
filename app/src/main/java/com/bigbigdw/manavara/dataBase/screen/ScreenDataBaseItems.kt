@@ -64,6 +64,7 @@ import com.bigbigdw.manavara.best.gotoUrl
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.screen.ScreenBestDetailInfo
 import com.bigbigdw.manavara.best.setBestDetailInfo
+import com.bigbigdw.manavara.dataBase.getGenreKeywordJson
 import com.bigbigdw.manavara.dataBase.getJsonFiles
 import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDatabase
 import com.bigbigdw.manavara.ui.theme.color000000
@@ -515,6 +516,87 @@ fun ScreenBestAnalyze(
         } else {
             item { ScreenEmpty(str = "데이터가 없습니다") }
         }
+    }
+}
+
+@Composable
+fun ScreenGenreKeywordToday(
+    viewModelDatabase: ViewModelDatabase,
+    dataType: String,
+    itemList: List<String> = novelListEng()
+) {
+
+    val coroutineScope = rememberCoroutineScope()
+    val state = viewModelDatabase.state.collectAsState().value
+    val context = LocalContext.current
+
+    LaunchedEffect(state.platform, state.type, state.jsonNameList, state.week, state.month) {
+        getGenreKeywordJson(
+            context = context,
+            platform = state.platform.ifEmpty { "JOARA" },
+            type = state.type,
+            dataType = dataType
+        ) {
+            viewModelDatabase.setGenreKeywordList(genreKeywordList = it)
+        }
+    }
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp, 0.dp)
+            .background(colorF6F6F6),
+    ) {
+
+        item {
+            Spacer(modifier = Modifier.size(8.dp))
+        }
+
+        item {
+            LazyRow(
+                modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 0.dp),
+            ) {
+                itemsIndexed(itemList) { index, item ->
+                    Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
+                        ScreenItemKeyword(
+                            getter = item,
+                            onClick = {
+                                coroutineScope.launch {
+                                    viewModelDatabase.setScreen(
+                                        platform = item,
+                                        type = "NOVEL",
+                                        menu = state.menu,
+                                    )
+                                }
+                            },
+                            title = changePlatformNameKor(item),
+                            getValue = state.platform.ifEmpty { "JOARA" }
+                        )
+                    }
+                }
+            }
+        }
+
+        item {
+            Spacer(modifier = Modifier.size(4.dp))
+        }
+
+        itemsIndexed(state.genreKeywordList) { index, item ->
+
+            val value = if(dataType == "KEYWORD"){
+                (item.value.split("\\s+".toRegex()).count { it.isNotEmpty() }).toString()
+            } else {
+                item.value
+            }
+
+            ListGenreKeywordToday(
+                title = item.key,
+                value = value,
+                index = index,
+            )
+        }
+
+        item { Spacer(modifier = Modifier.size(60.dp)) }
     }
 }
 

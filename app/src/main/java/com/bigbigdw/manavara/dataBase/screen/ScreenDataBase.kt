@@ -42,40 +42,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.screen.BestBottomDialog
 import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDatabase
 import com.bigbigdw.manavara.best.screen.BestDialog
-import com.bigbigdw.manavara.ui.theme.color21C2EC
-import com.bigbigdw.manavara.ui.theme.color2EA259
-import com.bigbigdw.manavara.ui.theme.color31C3AE
-import com.bigbigdw.manavara.ui.theme.color4996E8
-import com.bigbigdw.manavara.ui.theme.color4AD7CF
-import com.bigbigdw.manavara.ui.theme.color536FD2
-import com.bigbigdw.manavara.ui.theme.color5372DE
-import com.bigbigdw.manavara.ui.theme.color64C157
-import com.bigbigdw.manavara.ui.theme.color79B4F8
-import com.bigbigdw.manavara.ui.theme.color7C81FF
-import com.bigbigdw.manavara.ui.theme.color808CF8
-import com.bigbigdw.manavara.ui.theme.color80BF78
-import com.bigbigdw.manavara.ui.theme.color8AA6BD
-import com.bigbigdw.manavara.ui.theme.color91CEC7
-import com.bigbigdw.manavara.ui.theme.color998DF9
-import com.bigbigdw.manavara.ui.theme.colorABD436
-import com.bigbigdw.manavara.ui.theme.colorEA927C
-import com.bigbigdw.manavara.ui.theme.colorF17666
-import com.bigbigdw.manavara.ui.theme.colorF17FA0
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
-import com.bigbigdw.manavara.ui.theme.colorFDC24E
-import com.bigbigdw.manavara.ui.theme.colorFFAC59
 import com.bigbigdw.manavara.util.genreListEng
 import com.bigbigdw.manavara.util.keywordListEng
 import com.bigbigdw.manavara.util.menuListDatabase
-import com.bigbigdw.manavara.util.menuListManavara
-import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
 import com.bigbigdw.manavara.util.screen.ScreenMenuItem
 import com.bigbigdw.manavara.util.screen.ScreenTopbar
-import com.bigbigdw.manavara.util.screen.TabletBorderLine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -310,6 +285,22 @@ fun ScreenDataBaseItem(
         )
 
     } else if (state.menu.contains("투데이 장르 현황")
+        || state.menu.contains("투데이 키워드 현황")
+    ) {
+
+        ScreenGenreKeywordToday(
+            viewModelDatabase = viewModelDatabase,
+            dataType = if(state.menu.contains("장르")){
+                "GENRE"
+            } else {
+                "KEYWORD"
+            }
+        )
+
+    } else if (state.menu.contains("주차별 키워드 현황")
+        || state.menu.contains("월별 키워드 현황")
+        || state.menu.contains("주간 키워드 현황")
+        || state.menu.contains("월간 키워드 현황")
         || state.menu.contains("주차별 장르 현황")
         || state.menu.contains("월별 장르 현황")
         || state.menu.contains("주간 장르 현황")
@@ -320,7 +311,11 @@ fun ScreenDataBaseItem(
             viewModelDatabase = viewModelDatabase,
             drawerState = drawerState,
             isExpandedScreen = isExpandedScreen,
-            itemList = genreListEng()
+            itemList = if(state.menu.contains("장르")){
+                genreListEng()
+            } else {
+                keywordListEng()
+            }
         )
 
     } else if (state.menu.contains("장르 리스트 작품") || state.menu.contains("장르 리스트 현황")) {
@@ -330,20 +325,6 @@ fun ScreenDataBaseItem(
             drawerState = drawerState,
             isExpandedScreen = isExpandedScreen,
             itemList = genreListEng()
-        )
-
-    } else if (state.menu.contains("투데이 키워드 현황")
-        || state.menu.contains("주차별 키워드 현황")
-        || state.menu.contains("월별 키워드 현황")
-        || state.menu.contains("주간 키워드 현황")
-        || state.menu.contains("월간 키워드 현황")
-    ) {
-
-        ScreenBestDataGenreKeywordList(
-            viewModelDatabase = viewModelDatabase,
-            drawerState = drawerState,
-            isExpandedScreen = isExpandedScreen,
-            itemList = keywordListEng()
         )
 
     } else if (state.menu.contains("키워드 리스트 작품") || state.menu.contains("키워드 리스트 현황")) {
@@ -435,14 +416,22 @@ fun ScreenAnalyzeItemDetail(
     } else if (state.menu.contains("투데이 장르 현황")
         || state.menu.contains("주차별 장르 현황")
         || state.menu.contains("월별 장르 현황")
+        || state.menu.contains("투데이 키워드 현황")
+        || state.menu.contains("주차별 키워드 현황")
+        || state.menu.contains("월별 키워드 현황")
     ) {
-        ScreenGenre(
-            menuType = if (state.menu.contains("투데이 장르 현황")) {
+        ScreenGenreKeyword(
+            menuType = if (state.menu.contains("투데이")) {
                 "투데이"
-            } else if (state.menu.contains("주차별 장르 현황")) {
+            } else if (state.menu.contains("주차별")) {
                 "주간"
             } else {
                 "월간"
+            },
+            dataType = if(state.menu.contains("장르")){
+                "GENRE"
+            } else {
+                "KEYWORD"
             },
             viewModelDatabase = viewModelDatabase
         )
@@ -456,21 +445,6 @@ fun ScreenAnalyzeItemDetail(
             } else {
                 "월간"
             }
-        )
-
-    } else if (state.menu.contains("투데이 키워드 현황")
-        || state.menu.contains("주차별 키워드 현황")
-        || state.menu.contains("월별 키워드 현황")) {
-
-        ScreenKeyword(
-            menuType = if (state.menu.contains("투데이 키워드 현황")) {
-                "투데이"
-            } else if (state.menu.contains("주차별 키워드 현황")) {
-                "주간"
-            } else {
-                "월간"
-            },
-            viewModelDatabase = viewModelDatabase,
         )
 
     } else if (state.menu.contains("주간 키워드 현황")

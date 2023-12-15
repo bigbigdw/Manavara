@@ -11,10 +11,10 @@ sealed interface EventManavara{
     object Loaded: EventManavara
 
     class SetScreen(
-        val menu: String = "",
-        val platform: String = "",
+        val menu: String = "나의 웹소설 PICK 보기",
+        val platform: String = "전체",
         val detail: String = "",
-        val type: String = "",
+        val type: String = "NOVEL",
     ) : EventManavara
 
     class SetPickList(
@@ -31,10 +31,10 @@ sealed interface EventManavara{
 
 data class StateManavara(
     val Loaded: Boolean = false,
-    val menu: String = "",
+    val menu: String = "나의 웹소설 PICK 보기",
     val platform: String = "",
     val detail: String = "",
-    val type: String = "",
+    val type: String = "NOVEL",
 
     val itemBestInfoTrophyList : ArrayList<ItemBestInfo> = ArrayList(),
     val itemBookInfo : ItemBookInfo = ItemBookInfo(),

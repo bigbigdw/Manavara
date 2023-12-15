@@ -805,13 +805,13 @@ fun ScreenBookCard(
 
                 Column(modifier = Modifier.fillMaxWidth()) {
 
+                    ScreenBookCardItem(mode = mode, item = item, index = index)
+
                     if (type == "MONTH") {
                         Spacer(modifier = Modifier.size(8.dp))
 
                         ScreenItemBestCount(item = item)
                     }
-
-                    ScreenBookCardItem(mode = mode, item = item, index = index)
 
                     if(item.intro.isNotEmpty()){
                         Spacer(modifier = Modifier.size(16.dp))

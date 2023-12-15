@@ -1,6 +1,5 @@
 package com.bigbigdw.manavara.dataBase.event
 
-import com.bigbigdw.manavara.best.event.EventBestDetail
 import com.bigbigdw.manavara.best.models.ItemBestDetailInfo
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
@@ -34,15 +33,6 @@ sealed interface EventDataBase{
         val menuDesc : String = "",
     ) : EventDataBase
 
-    class SetKeywordDay(
-        val keywordDay : ArrayList<ItemKeyword> = ArrayList()
-    ) : EventDataBase
-
-    class SetKeywordWeek(
-        val keywordDay : ArrayList<ItemKeyword> = ArrayList(),
-        val keywordDayList : ArrayList<ArrayList<ItemKeyword>> = ArrayList()
-    ) : EventDataBase
-
     class SetWeekTrophyList(
         var weekTrophyList: ArrayList<ItemBestInfo> = ArrayList(),
     ) : EventDataBase
@@ -56,13 +46,13 @@ sealed interface EventDataBase{
         val month: String = "",
     ) : EventDataBase
 
-    class SetGenreList(
-        var genreList : ArrayList<ItemKeyword> = ArrayList()
+    class SetGenreKeywordList(
+        var genreKeywordList : ArrayList<ItemKeyword> = ArrayList(),
     ) : EventDataBase
 
-    class SetGenreWeekList(
+    class SetGenreKeywordWeekList(
         var genreWeekList :  ArrayList<ArrayList<ItemKeyword>> = ArrayList(),
-        var genreList : ArrayList<ItemKeyword> = ArrayList(),
+        var genreKeywordList : ArrayList<ItemKeyword> = ArrayList(),
     ) : EventDataBase
 
     class SetSearchQuery(
@@ -95,10 +85,8 @@ data class StateDataBase(
     val filteredList: ArrayList<ItemBookInfo> = ArrayList(),
     val week: String = "",
     val month: String = "",
-    var genreList : ArrayList<ItemKeyword> = ArrayList(),
-    var genreWeekList :  ArrayList<ArrayList<ItemKeyword>> = ArrayList(),
-    val keywordDay : ArrayList<ItemKeyword> = ArrayList(),
-    val keywordDayList : ArrayList<ArrayList<ItemKeyword>> = ArrayList(),
+    var genreKeywordList : ArrayList<ItemKeyword> = ArrayList(),
+    var genreKeywordWeekList :  ArrayList<ArrayList<ItemKeyword>> = ArrayList(),
     val searchQuery: String = "",
     val itemBestDetailInfo : ItemBestDetailInfo = ItemBestDetailInfo()
 )

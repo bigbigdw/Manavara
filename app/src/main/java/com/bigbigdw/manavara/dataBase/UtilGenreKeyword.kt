@@ -91,6 +91,8 @@ fun getGenreKeywordStorage(context : Context, dataType : String, platform: Strin
         callbacks.invoke(getGenreKeywordToday(jsonString))
     }.addOnFailureListener {
 
+        Log.d("KEYWORD", "getGenreKeywordStorage == $it")
+
         getGenreKeywordToday(platform = platform, type = type, dataType = dataType, dayType = "TODAY"){
             callbacks.invoke(it)
         }

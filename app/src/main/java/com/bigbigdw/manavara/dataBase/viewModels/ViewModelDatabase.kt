@@ -2,7 +2,6 @@ package com.bigbigdw.manavara.dataBase.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bigbigdw.manavara.best.event.EventBestDetail
 import com.bigbigdw.manavara.best.models.ItemBestDetailInfo
 import com.bigbigdw.manavara.dataBase.event.EventDataBase
 import com.bigbigdw.manavara.dataBase.event.StateDataBase
@@ -56,12 +55,12 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
                 current.copy(menu = event.menu, platform = event.platform, detail = event.detail, type = event.type, menuDesc = event.menuDesc)
             }
 
-            is EventDataBase.SetGenreList -> {
-                current.copy(genreList = event.genreList)
+            is EventDataBase.SetGenreKeywordList -> {
+                current.copy(genreKeywordList = event.genreKeywordList)
             }
 
-            is EventDataBase.SetGenreWeekList -> {
-                current.copy(genreWeekList = event.genreWeekList, genreList = event.genreList)
+            is EventDataBase.SetGenreKeywordWeekList -> {
+                current.copy(genreKeywordWeekList = event.genreWeekList, genreKeywordList = event.genreKeywordList)
             }
 
             is EventDataBase.SetWeekTrophyList -> {
@@ -74,14 +73,6 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
 
             is EventDataBase.SetDate -> {
                 current.copy(week = event.week, month = event.month)
-            }
-
-            is EventDataBase.SetKeywordDay -> {
-                current.copy(keywordDay = event.keywordDay)
-            }
-
-            is EventDataBase.SetKeywordWeek -> {
-                current.copy(keywordDay = event.keywordDay, keywordDayList = event.keywordDayList)
             }
 
             is EventDataBase.SetSearchQuery -> {
@@ -99,6 +90,14 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
             else -> {
                 current.copy(Loaded = false)
             }
+        }
+    }
+
+    fun setGenreKeywordList(genreKeywordList: ArrayList<ItemKeyword>) {
+        viewModelScope.launch {
+            events.send(
+                EventDataBase.SetGenreKeywordList(genreKeywordList = genreKeywordList)
+            )
         }
     }
 
@@ -154,13 +153,13 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
 
     fun setGenreWeekList(genreWeekList: ArrayList<ArrayList<ItemKeyword>>, genreList: ArrayList<ItemKeyword>){
         viewModelScope.launch {
-            events.send(EventDataBase.SetGenreWeekList(genreWeekList = genreWeekList, genreList = genreList))
+            events.send(EventDataBase.SetGenreKeywordWeekList(genreWeekList = genreWeekList, genreKeywordList = genreList))
         }
     }
 
-    fun setGenreList(genreList: ArrayList<ItemKeyword>){
+    fun setGenreKeywordWeekList(genreList: ArrayList<ItemKeyword>){
         viewModelScope.launch {
-            events.send(EventDataBase.SetGenreWeekList(genreList = genreList))
+            events.send(EventDataBase.SetGenreKeywordWeekList(genreKeywordList = genreList))
         }
     }
 
@@ -200,18 +199,6 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
     fun setDate(week: String = "", month: String = ""){
         viewModelScope.launch {
             events.send(EventDataBase.SetDate(week = week, month = month))
-        }
-    }
-
-    fun setKeywordDay(keywordDay: ArrayList<ItemKeyword>){
-        viewModelScope.launch {
-            events.send(EventDataBase.SetKeywordDay(keywordDay = keywordDay))
-        }
-    }
-
-    fun setKeywordWeek(keywordDay: ArrayList<ItemKeyword>){
-        viewModelScope.launch {
-            events.send(EventDataBase.SetKeywordWeek(keywordDay = keywordDay))
         }
     }
 }
