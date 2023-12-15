@@ -247,17 +247,35 @@ fun ScreenManavaraItem(
     if (state.menu.contains("유저 옵션")) {
         ScreenUser()
     } else if (state.menu.contains("PICK 보기")) {
-        ScreenMyPick(
-            viewModelManavara = viewModelManavara,
-            modalSheetState = modalSheetState,
-            setDialogOpen = setDialogOpen
+
+        if(state.menu.contains("다른")){
+            ScreenPickShare(
+                viewModelManavara = viewModelManavara,
+                modalSheetState = modalSheetState,
+                setDialogOpen = setDialogOpen,
+                root = "PICK_SHARE"
+            )
+        } else {
+            ScreenMyPick(
+                viewModelManavara = viewModelManavara,
+                modalSheetState = modalSheetState,
+                setDialogOpen = setDialogOpen,
+                root = "MY"
+            )
+        }
+    } else if (state.menu.contains("만들기")) {
+        ScreenMakeSharePick(
+            viewModelManavara = viewModelManavara
         )
     } else if (state.menu.contains("공유")) {
         ScreenPickShare(
             viewModelManavara = viewModelManavara,
             modalSheetState = modalSheetState,
-            setDialogOpen = setDialogOpen
+            setDialogOpen = setDialogOpen,
+            root = "SHARE"
         )
+    } else if (state.menu.contains("PICK 작품들 보기")) {
+        ScreenUser()
     }
 }
 

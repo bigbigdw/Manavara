@@ -440,16 +440,23 @@ fun setSharePickList(
     initTitle()
 }
 
-fun getPickShareList(
+fun getUserPickShareList(
     type: String,
+    root : String,
     callbacks: (ArrayList<String>, MutableMap<String, ArrayList<ItemBookInfo>>) -> Unit
 ){
-    val rootRef = FirebaseDatabase.getInstance().reference
-        .child("USER")
-        .child("A8uh2QkVQaV3Q3rE8SgBNKzV6VH2")
-        .child("PICK")
-        .child("SHARE")
-        .child(type)
+    val rootRef = if(root == "SHARE"){
+        FirebaseDatabase.getInstance().reference
+            .child("USER")
+            .child("A8uh2QkVQaV3Q3rE8SgBNKzV6VH2")
+            .child("PICK")
+            .child("SHARE")
+            .child(type)
+    } else {
+        FirebaseDatabase.getInstance().reference
+            .child("PICK_SHARE")
+            .child(type)
+    }
 
     rootRef.addListenerForSingleValueEvent(object :
         ValueEventListener {
@@ -480,11 +487,50 @@ fun getPickShareList(
 
             }
 
-            pickCategory.add("리스트 만들기")
+            if(root == "SHARE"){
+                pickCategory.add("리스트 만들기")
+            }
 
             callbacks.invoke(pickCategory, pickItemList)
         }
 
         override fun onCancelled(databaseError: DatabaseError) {}
     })
+}
+
+fun editSharePickList(
+    type : String,
+    status : String,
+    uid : String = "A8uh2QkVQaV3Q3rE8SgBNKzV6VH2",
+    listName: String,
+    pickItemList: ArrayList<ItemBookInfo>?,
+){
+
+    if(status == "DELETE"){
+        FirebaseDatabase.getInstance().reference
+            .child("USER")
+            .child(uid)
+            .child("PICK")
+            .child("SHARE")
+            .child(type)
+            .child(listName)
+            .removeValue()
+    } else {
+        val pickItemListMap = mutableMapOf<String, ItemBookInfo>()
+
+        if (pickItemList != null) {
+            for(item in pickItemList){
+                pickItemListMap[item.bookCode] = item
+            }
+        }
+
+        FirebaseDatabase.getInstance().reference
+            .child("USER")
+            .child(uid)
+            .child("PICK")
+            .child("SHARE")
+            .child(type)
+            .child(listName)
+            .setValue(pickItemListMap)
+    }
 }
