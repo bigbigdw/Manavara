@@ -46,9 +46,19 @@ class ViewModelManavara @Inject constructor() : ViewModel() {
                 current.copy(itemBookInfo = event.itemBookInfo, itemBestInfoTrophyList = event.itemBestInfoTrophyList)
             }
 
+            is EventManavara.SetPickItems -> {
+                current.copy(pickCategory = event.pickCategory)
+            }
+
             else -> {
                 current.copy(Loaded = false)
             }
+        }
+    }
+
+    fun setPickItems(pickCategory: ArrayList<String>){
+        viewModelScope.launch {
+            events.send(EventManavara.SetPickItems(pickCategory = pickCategory))
         }
     }
 

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -657,6 +658,7 @@ fun ScreenEmpty(str : String = "마나바라") {
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .defaultMinSize(minHeight = 300.dp)
             .background(colorF6F6F6),
         contentAlignment = Alignment.Center
     ) {
@@ -776,6 +778,7 @@ fun ScreenBookCard(
     type: String = "WEEK",
     item: ItemBookInfo,
     index: Int,
+    needIntro : Boolean = true,
     onClick: () -> Unit
 ) {
 
@@ -813,7 +816,7 @@ fun ScreenBookCard(
                         ScreenItemBestCount(item = item)
                     }
 
-                    if(item.intro.isNotEmpty()){
+                    if(needIntro && item.intro.isNotEmpty()){
                         Spacer(modifier = Modifier.size(16.dp))
 
                         Text(

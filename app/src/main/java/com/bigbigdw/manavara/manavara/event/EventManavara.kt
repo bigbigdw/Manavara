@@ -17,6 +17,10 @@ sealed interface EventManavara{
         val type: String = "NOVEL",
     ) : EventManavara
 
+    class SetPickItems(
+        val pickCategory : ArrayList<String> = ArrayList(),
+    ) : EventManavara
+
     class SetPickList(
         val pickCategory : ArrayList<String> = ArrayList(),
         val pickItemList : ArrayList<ItemBookInfo> = ArrayList(),

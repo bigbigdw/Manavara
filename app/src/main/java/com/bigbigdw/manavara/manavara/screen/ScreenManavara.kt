@@ -1,6 +1,5 @@
 package com.bigbigdw.manavara.manavara.screen
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,8 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -43,24 +40,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.screen.BestBottomDialog
 import com.bigbigdw.manavara.best.screen.BestDialog
-import com.bigbigdw.manavara.main.models.MenuInfo
 import com.bigbigdw.manavara.manavara.viewModels.ViewModelManavara
-import com.bigbigdw.manavara.ui.theme.color21C2EC
-import com.bigbigdw.manavara.ui.theme.color31C3AE
-import com.bigbigdw.manavara.ui.theme.color4AD7CF
-import com.bigbigdw.manavara.ui.theme.color5372DE
-import com.bigbigdw.manavara.ui.theme.colorEA927C
-import com.bigbigdw.manavara.ui.theme.colorF17FA0
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.util.menuListManavara
 import com.bigbigdw.manavara.util.screen.BackOnPressedMobile
-import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
 import com.bigbigdw.manavara.util.screen.ScreenMenuItem
 import com.bigbigdw.manavara.util.screen.ScreenTopbar
-import com.bigbigdw.manavara.util.screen.TabletBorderLine
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
@@ -118,10 +105,8 @@ fun ScreenManavara(
 
                 ScreenManavaraItem(
                     viewModelManavara = viewModelManavara,
-                    drawerState = drawerState,
                     modalSheetState = modalSheetState,
-                    setDialogOpen = setDialogOpen,
-                    isExpandedScreen = isExpandedScreen
+                    setDialogOpen = setDialogOpen
                 )
 
 
@@ -153,13 +138,19 @@ fun ScreenManavara(
                         ) {
                             Spacer(modifier = Modifier.size(8.dp))
 
-                            ScreenManavaraItem(
-                                viewModelManavara = viewModelManavara,
-                                drawerState = drawerState,
-                                modalSheetState = modalSheetState,
-                                setDialogOpen = null,
-                                isExpandedScreen = isExpandedScreen
-                            )
+                            if(state.detail.isEmpty()){
+                                ScreenManavaraItem(
+                                    viewModelManavara = viewModelManavara,
+                                    modalSheetState = modalSheetState,
+                                    setDialogOpen = null
+                                )
+                            } else {
+                                ScreenManavaraItemDetail(
+                                    viewModelManavara = viewModelManavara,
+                                    modalSheetState = modalSheetState,
+                                    setDialogOpen = null
+                                )
+                            }
                         }
                     }
 
@@ -243,14 +234,12 @@ fun ScreenManavaraPropertyList(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScreenManavaraItem(
     viewModelManavara: ViewModelManavara,
-    drawerState: DrawerState?,
     modalSheetState: ModalBottomSheetState?,
-    setDialogOpen: ((Boolean) -> Unit)?,
-    isExpandedScreen : Boolean
+    setDialogOpen: ((Boolean) -> Unit)?
 ) {
 
     val state = viewModelManavara.state.collectAsState().value
@@ -263,6 +252,30 @@ fun ScreenManavaraItem(
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen
         )
+    } else if (state.menu.contains("공유")) {
+        ScreenPickShare(
+            viewModelManavara = viewModelManavara,
+            modalSheetState = modalSheetState,
+            setDialogOpen = setDialogOpen
+        )
     }
 }
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun ScreenManavaraItemDetail(
+    viewModelManavara: ViewModelManavara,
+    modalSheetState: ModalBottomSheetState?,
+    setDialogOpen: ((Boolean) -> Unit)?
+) {
+
+    val state = viewModelManavara.state.collectAsState().value
+
+    if (state.detail.contains("공유 리스트 만들기")) {
+        ScreenMakeSharePick(
+            viewModelManavara = viewModelManavara
+        )
+    }
+}
+
 

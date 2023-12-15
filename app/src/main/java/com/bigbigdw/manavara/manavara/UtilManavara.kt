@@ -1,13 +1,9 @@
 package com.bigbigdw.manavara.manavara
 
 import android.annotation.SuppressLint
-import android.content.ComponentCallbacks
 import android.content.Context
 import android.util.Log
-import androidx.lifecycle.viewModelScope
 import com.bigbigdw.manavara.best.models.ItemBookInfo
-import com.bigbigdw.manavara.best.models.ItemKeyword
-import com.bigbigdw.manavara.main.event.EventMain
 import com.bigbigdw.manavara.manavara.models.CommunityBoard
 import com.bigbigdw.manavara.manavara.models.EventData
 import com.bigbigdw.manavara.retrofit.Param
@@ -24,7 +20,6 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import kotlinx.coroutines.launch
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
@@ -355,6 +350,7 @@ private fun getBoard(Url: String, ID : String) {
     }.start()
 }
 
+//TODO : UID 받아오는 부분 처리
 fun getPickList(type : String, root : String = "MY", callbacks: (ArrayList<String>, ArrayList<ItemBookInfo>) -> Unit){
     val rootRef = FirebaseDatabase.getInstance().reference
         .child("USER")

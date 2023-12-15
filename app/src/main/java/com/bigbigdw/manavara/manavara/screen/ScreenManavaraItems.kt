@@ -2,18 +2,27 @@ package com.bigbigdw.manavara.manavara.screen
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Checkbox
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -27,16 +36,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.bigbigdw.manavara.best.getBookItemWeekTrophy
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.firebase.DataFCMBodyNotification
 import com.bigbigdw.manavara.manavara.getPickList
 import com.bigbigdw.manavara.manavara.viewModels.ViewModelManavara
 import com.bigbigdw.manavara.ui.theme.color000000
+import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color898989
+import com.bigbigdw.manavara.ui.theme.colorEDE6FD
 import com.bigbigdw.manavara.util.changePlatformNameKor
-import com.bigbigdw.manavara.util.novelListEng
 import com.bigbigdw.manavara.util.screen.BtnMobile
 import com.bigbigdw.manavara.util.screen.ItemTabletTitle
 import com.bigbigdw.manavara.util.screen.ScreenBookCard
@@ -209,5 +221,249 @@ fun ScreenMyPick(
             }
         }
 
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun ScreenPickShare(
+    viewModelManavara: ViewModelManavara,
+    modalSheetState: ModalBottomSheetState?,
+    setDialogOpen: ((Boolean) -> Unit)?
+) {
+
+    val state = viewModelManavara.state.collectAsState().value
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(viewModelManavara){
+        getPickList(type = "NOVEL", root = "SHARE") { pickCategory, pickItemList ->
+            viewModelManavara.setPickList(pickCategory = pickCategory, pickItemList = pickItemList)
+        }
+    }
+
+    LazyColumn {
+        item {
+            Spacer(modifier = Modifier.size(8.dp))
+        }
+
+        item {
+            LazyRow(
+                modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 0.dp),
+            ) {
+                itemsIndexed(state.pickCategory) { index, item ->
+                    Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
+                        ScreenItemKeyword(
+                            getter = item,
+                            onClick = {
+                                coroutineScope.launch {
+                                    viewModelManavara.setScreen(
+                                        platform = item,
+                                        type = "NOVEL",
+                                        menu = state.menu,
+                                    )
+                                }
+                            },
+                            title = changePlatformNameKor(item),
+                            getValue = state.platform
+                        )
+                    }
+                }
+            }
+        }
+
+        item {
+            Spacer(modifier = Modifier.size(4.dp))
+        }
+
+        if(state.pickItemList.isEmpty()){
+            item {
+                Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+                    ScreenEmpty(str = "데이터가 없습니다.\n공유하실 작품 리스트를 추가해주세요.")
+
+                    Button(
+                        colors = ButtonDefaults.buttonColors(containerColor = color20459E),
+                        onClick = {
+                            viewModelManavara.setScreen(
+                                menu = state.menu,
+                                platform = state.platform,
+                                detail = "웹소설 PICK 공유 리스트 만들기",
+                                type = state.type
+                            )
+                        },
+                        modifier = Modifier
+                            .width(260.dp)
+                            .height(56.dp),
+                        shape = RoundedCornerShape(50.dp)
+
+                    ) {
+                        Text(
+                            text = "공유 PICK 리스트 추가하기",
+                            textAlign = TextAlign.Center,
+                            color = colorEDE6FD,
+                            fontSize = 16.sp
+                        )
+                    }
+                }
+            }
+        } else {
+            var filterdList = ArrayList<ItemBookInfo>()
+
+            if(state.platform == "전체"){
+                filterdList = state.pickItemList
+
+            } else {
+                for(item in state.pickItemList){
+                    if(item.type == state.platform){
+                        filterdList.add(item)
+                    }
+                }
+            }
+
+            itemsIndexed(filterdList) { index, item ->
+
+                Box(modifier = Modifier
+                    .padding(16.dp, 8.dp, 16.dp, 8.dp)
+                    .wrapContentSize()){
+                    ScreenBookCard(
+                        mode = "PLATFORM",
+                        item = item,
+                        index = index,
+                    ) {
+
+                        coroutineScope.launch {
+                            getBookItemWeekTrophy(
+                                bookCode = item.bookCode,
+                                type = "NOVEL",
+                                platform = item.type
+                            ) { itemBestInfoTrophyList ->
+
+                                viewModelManavara.setItemBestInfoTrophyList(
+                                    itemBookInfo = item,
+                                    itemBestInfoTrophyList = itemBestInfoTrophyList
+                                )
+                            }
+
+                            modalSheetState?.show()
+
+                            if (setDialogOpen != null) {
+                                setDialogOpen(true)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ScreenMakeSharePick(
+    viewModelManavara: ViewModelManavara
+) {
+
+    val state = viewModelManavara.state.collectAsState().value
+    val coroutineScope = rememberCoroutineScope()
+    val itemList = state.pickCategory
+
+    LaunchedEffect(viewModelManavara){
+        getPickList(type = "NOVEL") { pickCategory, pickItemList ->
+            viewModelManavara.setPickList(pickCategory = ArrayList(), pickItemList = pickItemList)
+        }
+    }
+
+    Scaffold(modifier = Modifier
+        .padding(16.dp, 8.dp, 16.dp, 8.dp)
+        .wrapContentSize(),
+        bottomBar = {
+            if(state.pickCategory.isNotEmpty()){
+                Button(
+                    colors = ButtonDefaults.buttonColors(containerColor = color20459E),
+                    contentPadding = PaddingValues(
+                        start = 0.dp,
+                        top = 0.dp,
+                        end = 0.dp,
+                        bottom = 0.dp,
+                    ),
+                    onClick = {
+//                        viewModelManavara.setScreen(
+//                            menu = state.menu,
+//                            platform = state.platform,
+//                            detail = "웹소설 PICK 공유 리스트 만들기",
+//                            type = state.type
+//                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(50.dp)
+
+                ) {
+                    Text(
+                        text = "공유 PICK 리스트 추가하기",
+                        textAlign = TextAlign.Center,
+                        color = colorEDE6FD,
+                        fontSize = 16.sp
+                    )
+                }
+            }
+        }) {
+
+        LazyColumn(modifier = Modifier.padding(it)) {
+            item {
+                Spacer(modifier = Modifier.size(8.dp))
+            }
+
+            itemsIndexed(state.pickItemList) { index, item ->
+                Row {
+                    Checkbox(
+                        checked = itemList.contains(item.bookCode),
+                        onCheckedChange = { isChecked ->
+                            val updatedItemList = if (isChecked) {
+                                itemList + item.bookCode
+                            } else {
+                                itemList - item.bookCode
+                            }
+
+                            viewModelManavara.setPickItems(updatedItemList as ArrayList<String>)
+                        })
+
+                    ScreenBookCard(
+                        mode = "PLATFORM",
+                        item = item,
+                        index = index,
+                        needIntro = false
+                    ) {
+
+                        val updatedItemList = if (itemList.contains(item.bookCode)) {
+                            itemList - item.bookCode
+                        } else {
+                            itemList + item.bookCode
+                        }
+
+                        viewModelManavara.setPickItems(updatedItemList as ArrayList<String>)
+
+                        coroutineScope.launch {
+                            getBookItemWeekTrophy(
+                                bookCode = item.bookCode,
+                                type = "NOVEL",
+                                platform = item.type
+                            ) { itemBestInfoTrophyList ->
+
+                                viewModelManavara.setItemBestInfoTrophyList(
+                                    itemBookInfo = item,
+                                    itemBestInfoTrophyList = itemBestInfoTrophyList
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            item {
+                Spacer(modifier = Modifier.size(60.dp))
+            }
+        }
     }
 }
