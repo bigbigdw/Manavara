@@ -878,7 +878,7 @@ fun ScreenBookCardItem(mode : String, item: ItemBookInfo, index: Int){
                             )
                         } else {
                             AsyncImage(
-                                model = getPlatformLogoEng(item.type),
+                                model = getPlatformLogoEng(item.platform),
                                 contentDescription = null,
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier.size(40.dp)

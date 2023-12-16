@@ -367,7 +367,7 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
                                     cntRecom = data.bookLists[i].cntRecom,
                                     cntTotalComment = data.bookLists[i].cntTotalComment,
                                     genre = data.bookLists[i].category_ko_name,
-                                    type = platform
+                                    platform = platform
                                 )
                             )
                         }
@@ -411,7 +411,7 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
                                 cntRecom = books[i].select(".list_info").select(".score_area")
                                     .text(),
                                 cntFavorite = books[i].select(".list_info").select(".count").text(),
-                                type = platform
+                                platform = platform
                             )
                         )
                     }
@@ -464,7 +464,7 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
                                 .text(),
                             cntChapter = books[i].select(".book_metadata_wrapper")
                                 .select(".count_num").text(),
-                            type = platform
+                            platform = platform
                         )
                     )
                 }
@@ -515,7 +515,7 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
                                     bookCode = data.resultList[i].BARCODE,
                                     intro = data.resultList[i].INTRO,
                                     genre = data.resultList[i].LGCTGR_NM,
-                                    type = platform
+                                    platform = platform
                                 )
                             )
                         }
@@ -579,7 +579,7 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
                                     cntRecom = data.bookLists[i].cntRecom,
                                     cntTotalComment = data.bookLists[i].cntTotalComment,
                                     genre = data.bookLists[i].category_ko_name,
-                                    type = platform
+                                    platform = platform
                                 )
                             )
                         }
@@ -613,7 +613,7 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
                         bookImg = books[i].select("img").attr("src"),
                         bookCode = books[i].select("a").attr("href")
                             .replace("/best/list?novelId=", ""),
-                        type = platform
+                        platform = platform
                     )
                 )
             }

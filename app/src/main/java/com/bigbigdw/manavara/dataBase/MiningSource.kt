@@ -67,7 +67,7 @@ import org.jsoup.select.Elements
                                     cntRecom = naverSeries.select(".comic_cont .info .score_num")[i].text(),
                                     cntChapter = naverSeries[i].select(".comic_cont .info .ellipsis")[1]?.text() ?: "",
                                     intro = naverSeries.select(".comic_cont .dsc")[i].text(),
-                                    type = platform,
+                                    platform = platform,
                                 )
 
                                 bookList.add(item)
@@ -110,7 +110,7 @@ import org.jsoup.select.Elements
                                     cntRecom = naverSeries.select(".comic_cont .info .score_num")[i].text(),
                                     cntChapter = naverSeries[i].select(".comic_cont .info .ellipsis")[1]?.text() ?: "",
                                     intro = naverSeries.select(".comic_cont .dsc")[i].text(),
-                                    type = platform,
+                                    platform = platform,
                                 )
 
                                 bookList.add(item)
@@ -170,7 +170,7 @@ import org.jsoup.select.Elements
                                     cntPageRead = books[i].cntPageRead,
                                     cntFavorite = books[i].cntFavorite,
                                     intro = books[i].intro,
-                                    type = platform,
+                                    platform = platform,
                                     genre = books[i].category_ko_name
                                 )
 
@@ -219,7 +219,7 @@ import org.jsoup.select.Elements
                                 cntChapter = naverSeries[i].select(".info_group .count").first()!!.text(),
                                 cntPageRead = naverSeries[i].select(".info_group .count").next().first()!!.text(),
                                 cntFavorite = naverSeries.select(".meta_data_group .count")[i].text(),
-                                type = platform,
+                                platform = platform,
                             )
 
                             bookList.add(item)
@@ -284,7 +284,7 @@ import org.jsoup.select.Elements
                                         cntRecom = productList[i].avgScore,
                                         cntTotalComment = productList[i].commentCount,
                                         cntPageRead = productList[i].totalCount,
-                                        type = platform,
+                                        platform = platform,
                                     )
 
                                     bookList.add(item)
@@ -350,7 +350,7 @@ import org.jsoup.select.Elements
                                         cntRecom = productList[i].avgScore,
                                         cntTotalComment = productList[i].commentCount,
                                         cntPageRead = productList[i].totalCount,
-                                        type = platform,
+                                        platform = platform,
                                     )
 
                                     bookList.add(item)
@@ -404,7 +404,7 @@ import org.jsoup.select.Elements
                                 cntPageRead = novel.visitorCount,
                                 cntChapter =  "총 ${novel.publishedEpisodeCount}화",
                                 cntFavorite = novel.favoriteCount,
-                                type = platform,
+                                platform = platform,
                             )
 
                             bookList.add(item)
@@ -469,7 +469,7 @@ import org.jsoup.select.Elements
                                         cntRecom = it[i].nsrData?.hit!!,
                                         cntFavorite = it[i].nsrData?.number!!,
                                         cntChapter =  it[i].nsrData?.prefer!!,
-                                        type = platform,
+                                        platform = platform,
                                     )
 
                                     bookList.add(item)
@@ -526,7 +526,7 @@ import org.jsoup.select.Elements
                                     cntPageRead = it[i].inqrCnt,
                                     cntFavorite = it[i].goodAllCnt,
                                     cntChapter =  "총 ${it[i].whlEpsdCnt}화",
-                                    type = platform,
+                                    platform = platform,
                                 )
 
                                 bookList.add(item)
@@ -601,7 +601,7 @@ import org.jsoup.select.Elements
                                         },
                                         cntPageRead = ratingCount.toInt().toString(),
                                         cntChapter =  "총 ${jsonObject.optJSONObject("serial")?.optString("total") ?: ""}화",
-                                        type = platform,
+                                        platform = platform,
                                     )
 
                                     bookList.add(item)

@@ -76,7 +76,6 @@ import com.bigbigdw.manavara.ui.theme.color4AD7CF
 import com.bigbigdw.manavara.ui.theme.color5372DE
 import com.bigbigdw.manavara.ui.theme.color555b68
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
-import com.bigbigdw.manavara.ui.theme.color8F8F8F
 import com.bigbigdw.manavara.ui.theme.color998DF9
 import com.bigbigdw.manavara.ui.theme.colorE9E9E9
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
@@ -712,7 +711,7 @@ fun BestDialog(
     LaunchedEffect(item.bookCode){
         viewModelMain.setIsPicked(
             type = "NOVEL",
-            platform = item.type,
+            platform = item.platform,
             bookCode = item.bookCode
         )
     }
@@ -725,14 +724,14 @@ fun BestDialog(
                 if (state.isPicked) {
                     viewModelMain.setUnPickBook(
                         type = "NOVEL",
-                        platform = item.type,
+                        platform = item.platform,
                         item = item,
                         context = context
                     )
                 } else {
                     viewModelMain.setPickBook(
                         type = "NOVEL",
-                        platform = item.type,
+                        platform = item.platform,
                         item = item,
                         context = context
                     )
@@ -741,8 +740,8 @@ fun BestDialog(
             onClickRight = {
                 val intent = Intent(context, ActivityBestDetail::class.java)
                 intent.putExtra("BOOKCODE", item.bookCode)
-                intent.putExtra("PLATFORM", item.type)
-                intent.putExtra("TYPE", item.type)
+                intent.putExtra("PLATFORM", item.platform)
+                intent.putExtra("TYPE", item.platform)
                 context.startActivity(intent)
                 onDismissRequest()
             },
@@ -792,7 +791,7 @@ fun BestBottomDialog(
     LaunchedEffect(item.bookCode){
         viewModelMain.setIsPicked(
             type = "NOVEL",
-            platform = item.type,
+            platform = item.platform,
             bookCode = item.bookCode
         )
     }
@@ -812,14 +811,14 @@ fun BestBottomDialog(
             if (state.isPicked) {
                 viewModelMain.setUnPickBook(
                     type = "NOVEL",
-                    platform = item.type,
+                    platform = item.platform,
                     item = item,
                     context = context
                 )
             } else {
                 viewModelMain.setPickBook(
                     type = "NOVEL",
-                    platform = item.type,
+                    platform = item.platform,
                     item = item,
                     context = context
                 )
@@ -829,7 +828,7 @@ fun BestBottomDialog(
             coroutineScope.launch {
                 val intent = Intent(context, ActivityBestDetail::class.java)
                 intent.putExtra("BOOKCODE", item.bookCode)
-                intent.putExtra("PLATFORM", item.type)
+                intent.putExtra("PLATFORM", item.platform)
                 intent.putExtra("TYPE", currentRoute)
                 context.startActivity(intent)
                 modalSheetState.hide()

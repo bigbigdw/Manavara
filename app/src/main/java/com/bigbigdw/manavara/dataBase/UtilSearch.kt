@@ -95,7 +95,7 @@ fun searchJoara(page: Int, text: String, context : Context) {
                                 cntChapter = "총 ${books[i].cntChapter}화",
                                 cntTotalComment = books[i].cntTotalComment,
                                 genre = books[i].categoryKoName,
-                                type = "JOARA",
+                                platform = "JOARA",
                             )
                         )
                     }
@@ -135,7 +135,7 @@ fun searchKakaoStage(page: Int, text: String) {
                             cntFavorite = items.favoriteCount,
                             cntChapter =  "총 ${items.publishedEpisodeCount}화",
                             genre = items.subGenre.name,
-                            type = "KAKAO_STAGE",
+                            platform = "KAKAO_STAGE",
                         )
                     )
                 }
@@ -176,7 +176,7 @@ fun searchNaver(text: String, platform: String) {
                     bookImg = items.select("div img").attr("src"),
                     bookCode =  items.select("a").attr("href").replace("/webnovel/list?novelId=","").replace("/best/list?novelId=", "").replace("/challenge/list?novelId=", ""),
                     genre = items.select(".bullet_comp").text(),
-                    type = platform,
+                    platform = platform,
                 )
             )
         }
@@ -209,7 +209,7 @@ fun searchMunpia(text: String) {
                     cntFavorite = items.select(".info span").next().get(0)?.text() ?: "",
                     cntRecom = items.select(".info span").next().get(1)?.text() ?: "",
                     cntChapter = items.select(".info span").next().get(2)?.text() ?: "",
-                    type = "MUNPIA",
+                    platform = "MUNPIA",
                 )
             )
         }
@@ -257,7 +257,7 @@ fun searchToksoda(text: String, page : Int) {
                                     cntChapter = it[i].INQR_CNT,
                                     cntTotalComment = it[i].INQR_CNT,
                                     genre = it[i].INTRST_CNT,
-                                    type = "TOKSODA",
+                                    platform = "TOKSODA",
                                 )
                             )
                         }

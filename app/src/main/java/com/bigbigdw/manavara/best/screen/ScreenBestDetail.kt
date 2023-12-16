@@ -1188,7 +1188,7 @@ fun ScreenBestDetailOther(
                 onClick = {
                     val intent = Intent(context, ActivityBestDetail::class.java)
                     intent.putExtra("BOOKCODE", itemBookInfo.bookCode)
-                    intent.putExtra("PLATFORM", itemBookInfo.type)
+                    intent.putExtra("PLATFORM", itemBookInfo.platform)
                     intent.putExtra("TYPE", type)
                     context.startActivity(intent)
                 },

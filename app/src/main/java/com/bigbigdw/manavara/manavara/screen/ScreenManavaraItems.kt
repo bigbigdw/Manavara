@@ -190,7 +190,7 @@ fun ScreenMyPick(
 
             } else {
                 for (item in state.pickItemList) {
-                    if (item.type == state.platform) {
+                    if (item.platform == state.platform) {
                         filterdList.add(item)
                     }
                 }
@@ -213,7 +213,7 @@ fun ScreenMyPick(
                             getBookItemWeekTrophy(
                                 bookCode = item.bookCode,
                                 type = "NOVEL",
-                                platform = item.type
+                                platform = item.platform
                             ) { itemBestInfoTrophyList ->
 
                                 viewModelManavara.setItemBestInfoTrophyList(
@@ -372,7 +372,7 @@ fun ScreenPickShare(
                                     getBookItemWeekTrophy(
                                         bookCode = item.bookCode,
                                         type = "NOVEL",
-                                        platform = item.type
+                                        platform = item.platform
                                     ) { itemBestInfoTrophyList ->
 
                                         viewModelManavara.setItemBestInfoTrophyList(
@@ -520,7 +520,7 @@ fun ScreenMakeSharePick(
                             getBookItemWeekTrophy(
                                 bookCode = item.bookCode,
                                 type = "NOVEL",
-                                platform = item.type
+                                platform = item.platform
                             ) { itemBestInfoTrophyList ->
 
                                 viewModelManavara.setItemBestInfoTrophyList(
