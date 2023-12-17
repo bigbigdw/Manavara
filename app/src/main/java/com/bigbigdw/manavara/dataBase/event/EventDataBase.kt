@@ -30,7 +30,7 @@ sealed interface EventDataBase{
         val platform: String = "",
         val detail: String = "",
         val type: String = "",
-        val menuDesc : String = "",
+        val menuDesc: String = "",
     ) : EventDataBase
 
     class SetWeekTrophyList(
@@ -42,8 +42,9 @@ sealed interface EventDataBase{
     ) : EventDataBase
 
     class SetDate(
-        val week: String = "",
-        val month: String = "",
+        val date: String = "",
+        val dateType: String = "",
+        val jsonNameList : List<String> = arrayListOf(),
     ) : EventDataBase
 
     class SetGenreKeywordList(
@@ -75,18 +76,18 @@ data class StateDataBase(
     val itemBestInfoTrophyList : ArrayList<ItemBestInfo> = ArrayList(),
     val itemBookInfo : ItemBookInfo = ItemBookInfo(),
     val jsonNameList : List<String> = arrayListOf(),
-    val menu: String = "베스트 웹소설 DB",
+    val menu: String = "",
     val platform: String = "",
     val detail: String = "",
-    val type: String = "NOVEL",
-    val menuDesc : String = "마나바라에 기록된 베스트 웹소설 리스트",
+    val type: String = "",
+    val menuDesc : String = "",
     val weekList : ArrayList<ArrayList<ItemBookInfo>> = ArrayList(),
     var weekTrophyList: ArrayList<ItemBestInfo> = ArrayList(),
     val filteredList: ArrayList<ItemBookInfo> = ArrayList(),
-    val week: String = "",
-    val month: String = "",
+    val date: String = "",
     var genreKeywordList : ArrayList<ItemKeyword> = ArrayList(),
     var genreKeywordWeekList :  ArrayList<ArrayList<ItemKeyword>> = ArrayList(),
     val searchQuery: String = "",
-    val itemBestDetailInfo : ItemBestDetailInfo = ItemBestDetailInfo()
+    val itemBestDetailInfo : ItemBestDetailInfo = ItemBestDetailInfo(),
+    val dateType: String = "",
 )

@@ -36,6 +36,7 @@ import com.bigbigdw.manavara.ui.theme.colorONESTORY
 import com.bigbigdw.manavara.ui.theme.colorPREMIUM
 import com.bigbigdw.manavara.ui.theme.colorRIDI
 import com.bigbigdw.manavara.ui.theme.colorTOKSODA
+import kotlin.random.Random
 
 fun comicListKor(): List<String> {
     return listOf(
@@ -994,6 +995,12 @@ fun getBestDetailDescription(menu: String) : String {
     }
 }
 
+fun getRandomNovel(): String {
+    val novelList = novelListEng()
+    val randomIndex = Random.nextInt(novelList.size)
+    return novelList[randomIndex]
+}
+
 val menuListManavara = arrayListOf(
     MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "웹소설 PICK 작품들 보기", body = "내가 가지고 있는 모든 웹소설 작품 보기"),
     MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "나의 웹소설 PICK 보기", body = "내가 엄선한 웹소설 작품들 보기"),
@@ -1019,11 +1026,11 @@ val menuListManavara = arrayListOf(
 )
 
 val menuListDatabase = arrayListOf(
-    MenuInfo(needLine = false, image = R.drawable.icon_novel_wht, menu = "마나바라 베스트 웹소설 DB", body = "마나바라에 기록된 베스트 웹소설 리스트"),
+    MenuInfo(needLine = false, image = R.drawable.icon_novel_wht, menu = "마나바라 베스트 DB 웹소설", body = "마나바라에 기록된 베스트 웹소설 리스트"),
     MenuInfo(needLine = true, image = R.drawable.icon_novel_wht, menu = "신규 작품", body = "최근에 등록된 작품 확인"),
 
-    MenuInfo(needLine = false, image = R.drawable.icon_best_wht, menu = "주차별 웹소설 베스트", body = "주차별 웹소설 베스트 리스트"),
-    MenuInfo(needLine = true, image = R.drawable.icon_best_wht, menu = "월별 웹소설 베스트", body = "월별 웹소설 베스트 리스트"),
+    MenuInfo(needLine = false, image = R.drawable.icon_best_wht, menu = "웹소설 주차별 베스트", body = "주차별 웹소설 베스트 리스트"),
+    MenuInfo(needLine = true, image = R.drawable.icon_best_wht, menu = "웹소설 월별 베스트", body = "월별 웹소설 베스트 리스트"),
 
     MenuInfo(needLine = false, image = R.drawable.icon_genre_wht, menu = "투데이 장르 현황", body = "웹소설 플랫폼별 투데이 장르 리스트"),
     MenuInfo(needLine = false, image = R.drawable.icon_genre_wht, menu = "주간 장르 현황", body = "웹소설 주간 주차별 장르 리스트"),

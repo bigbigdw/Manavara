@@ -1,6 +1,8 @@
 package com.bigbigdw.manavara.dataBase.screen
 
+import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -22,19 +25,24 @@ import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -45,12 +53,25 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bigbigdw.manavara.best.screen.BestBottomDialog
 import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDatabase
 import com.bigbigdw.manavara.best.screen.BestDialog
+import com.bigbigdw.manavara.ui.theme.color4AD7CF
+import com.bigbigdw.manavara.ui.theme.color5372DE
+import com.bigbigdw.manavara.ui.theme.color998DF9
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
+import com.bigbigdw.manavara.util.changePlatformNameEng
+import com.bigbigdw.manavara.util.changePlatformNameKor
+import com.bigbigdw.manavara.util.colorList
+import com.bigbigdw.manavara.util.comicListEng
 import com.bigbigdw.manavara.util.genreListEng
+import com.bigbigdw.manavara.util.getPlatformColor
+import com.bigbigdw.manavara.util.getPlatformLogo
+import com.bigbigdw.manavara.util.getPlatformLogoEng
 import com.bigbigdw.manavara.util.keywordListEng
 import com.bigbigdw.manavara.util.menuListDatabase
+import com.bigbigdw.manavara.util.novelListEng
 import com.bigbigdw.manavara.util.screen.ScreenMenuItem
 import com.bigbigdw.manavara.util.screen.ScreenTopbar
+import convertDateStringMonth
+import convertDateStringWeek
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -78,35 +99,128 @@ fun ScreenDataBase(
 
     BestAnalyzeBackOnPressed(viewModelDatabase = viewModelDatabase)
 
-    DisposableEffect(context) {
-
+    LaunchedEffect(context){
         viewModelDatabase.sideEffects
             .onEach { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
             .launchIn(coroutineScope)
 
-        onDispose {}
+        val menuOption = if(currentRoute?.contains("NOVEL") == true){
+            "웹소설"
+        } else {
+            "웹툰"
+        }
+
+        val type = if(currentRoute?.contains("NOVEL") == true){
+            "NOVEL"
+        } else {
+            "COMIC"
+        }
+
+        viewModelDatabase.setScreen(
+            menu = "마나바라 베스트 DB ${menuOption}",
+            type = type,
+        )
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = colorF6F6F6)
-    ) {
+    if (isExpandedScreen) {
 
-        Row {
-            if (isExpandedScreen) {
+        val (getDialogOpen, setDialogOpen) = remember { mutableStateOf(false) }
+        val (getFab, setFab) = remember { mutableStateOf(false) }
 
-                val (getDialogOpen, setDialogOpen) = remember { mutableStateOf(false) }
+        if (getDialogOpen) {
+            BestDialog(
+                onDismissRequest = { setDialogOpen(false) },
+                itemBestInfoTrophyList = state.itemBestInfoTrophyList,
+                item = state.itemBookInfo,
+                isExpandedScreen = isExpandedScreen
+            )
+        }
 
-                if (getDialogOpen) {
-                    BestDialog(
-                        onDismissRequest = { setDialogOpen(false) },
-                        itemBestInfoTrophyList = state.itemBestInfoTrophyList,
-                        item = state.itemBookInfo,
-                        isExpandedScreen = isExpandedScreen
-                    )
+        Scaffold(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = Color.Red),
+            floatingActionButton = {
+                Column(modifier = Modifier, horizontalAlignment = Alignment.End) {
+
+                    if(state.menu.contains("주차별 베스트") || state.menu.contains("월별 베스트")){
+
+                    }
+
+                    if (getFab) {
+                        state.jsonNameList.forEachIndexed { index, item ->
+
+                            FloatingActionButton(
+                                onClick = {
+                                    setFab(false)
+                                    viewModelDatabase.setDate(
+                                        date = item,
+                                    )
+                                },
+                                containerColor = colorList[index % colorList.size],
+                            ) {
+                                Text(
+                                    modifier = Modifier.padding(8.dp, 0.dp),
+                                    text = if (state.dateType == "BEST_WEEK") {
+                                        convertDateStringWeek(item)
+                                    } else {
+                                        convertDateStringMonth(item)
+                                    },
+                                    color = Color.White,
+                                    fontWeight = FontWeight(weight = 700)
+                                )
+                            }
+                            if(index != state.jsonNameList.size - 1){
+                                Spacer(modifier = Modifier.size(8.dp))
+                            }
+
+                        }
+
+
+                    } else {
+                        FloatingActionButton(
+                            onClick = {
+                                setFab(true)
+                            },
+                            containerColor = when (state.detail) {
+                                "투데이 베스트" -> {
+                                    color4AD7CF
+                                }
+                                "주간 베스트" -> {
+                                    color5372DE
+                                }
+                                else -> {
+                                    color998DF9
+                                }
+                            },
+                        ) {
+                            Text(
+                                text = when (state.detail) {
+                                    "투데이 베스트" -> {
+                                        "투데이"
+                                    }
+                                    "주간 베스트" -> {
+                                        "주간"
+                                    }
+                                    else -> {
+                                        "월간"
+                                    }
+                                },
+                                color = Color.White,
+                                fontWeight = FontWeight(weight = 700)
+                            )
+                        }
+                    }
                 }
+            }, floatingActionButtonPosition = FabPosition.End
+        ) {
 
+            Row(
+                modifier = Modifier
+                    .padding(it)
+                    .fillMaxHeight()
+                    .background(color = colorF6F6F6)
+            ) {
                 ScreenDataBasePropertyList(
                     drawerState = drawerState,
                     viewModelDatabase = viewModelDatabase
@@ -115,8 +229,6 @@ fun ScreenDataBase(
                 Spacer(
                     modifier = Modifier
                         .width(16.dp)
-                        .fillMaxHeight()
-                        .background(color = colorF6F6F6)
                 )
 
                 ScreenDataBaseItems(
@@ -126,72 +238,72 @@ fun ScreenDataBase(
                     setDialogOpen = setDialogOpen,
                     isExpandedScreen = isExpandedScreen
                 )
-
-            } else {
-                BestAnalyzeBackOnPressed(viewModelDatabase = viewModelDatabase)
-
-                ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
-
-                    ScreenDataBasePropertyList(
-                        drawerState = drawerState,
-                        viewModelDatabase = viewModelDatabase
-                    )
-
-                }) {
-                    Scaffold(
-                        topBar = {
-                            ScreenTopbar(detail = state.detail, menu = state.menu) {
-                                coroutineScope.launch {
-                                    drawerState.open()
-                                }
-                            }
-                        },
-
-                        ) {
-                        Box(
-                            Modifier
-                                .padding(it)
-                                .background(color = colorF6F6F6)
-                                .fillMaxSize()
-                        ) {
-                            ScreenDataBaseItems(
-                                viewModelDatabase = viewModelDatabase,
-                                drawerState = drawerState,
-                                modalSheetState = modalSheetState,
-                                setDialogOpen = null,
-                                isExpandedScreen = isExpandedScreen,
-                            )
-                        }
-                    }
-
-                    if(modalSheetState.isVisible){
-                        ModalBottomSheetLayout(
-                            sheetState = modalSheetState,
-                            sheetElevation = 50.dp,
-                            sheetShape = RoundedCornerShape(
-                                topStart = 25.dp,
-                                topEnd = 25.dp
-                            ),
-                            sheetContent = {
-
-                                Spacer(modifier = Modifier.size(4.dp))
-
-                                if (currentRoute != null) {
-                                    BestBottomDialog(
-                                        itemBestInfoTrophyList = state.itemBestInfoTrophyList,
-                                        item = state.itemBookInfo,
-                                        isExpandedScreen = isExpandedScreen,
-                                        modalSheetState = modalSheetState,
-                                        currentRoute = currentRoute,
-                                    )
-                                }
-                            },
-                        ) {}
-                    }
-                }
-
             }
         }
+
+    } else {
+        BestAnalyzeBackOnPressed(viewModelDatabase = viewModelDatabase)
+
+        ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
+
+            ScreenDataBasePropertyList(
+                drawerState = drawerState,
+                viewModelDatabase = viewModelDatabase
+            )
+
+        }) {
+            Scaffold(
+                topBar = {
+                    ScreenTopbar(detail = state.detail, menu = state.menu) {
+                        coroutineScope.launch {
+                            drawerState.open()
+                        }
+                    }
+                },
+
+                ) {
+                Box(
+                    Modifier
+                        .padding(it)
+                        .background(color = colorF6F6F6)
+                        .fillMaxSize()
+                ) {
+                    ScreenDataBaseItems(
+                        viewModelDatabase = viewModelDatabase,
+                        drawerState = drawerState,
+                        modalSheetState = modalSheetState,
+                        setDialogOpen = null,
+                        isExpandedScreen = isExpandedScreen,
+                    )
+                }
+            }
+
+            if(modalSheetState.isVisible){
+                ModalBottomSheetLayout(
+                    sheetState = modalSheetState,
+                    sheetElevation = 50.dp,
+                    sheetShape = RoundedCornerShape(
+                        topStart = 25.dp,
+                        topEnd = 25.dp
+                    ),
+                    sheetContent = {
+
+                        Spacer(modifier = Modifier.size(4.dp))
+
+                        if (currentRoute != null) {
+                            BestBottomDialog(
+                                itemBestInfoTrophyList = state.itemBestInfoTrophyList,
+                                item = state.itemBookInfo,
+                                isExpandedScreen = isExpandedScreen,
+                                modalSheetState = modalSheetState,
+                                currentRoute = currentRoute,
+                            )
+                        }
+                    },
+                ) {}
+            }
+        }
+
     }
 }
 
@@ -236,9 +348,6 @@ fun ScreenDataBasePropertyList(
                     coroutineScope.launch {
                         viewModelDatabase.setScreen(
                             menu = item.menu,
-                            detail = "",
-                            type = state.type,
-                            platform = ""
                         )
                         drawerState?.close()
                     }
@@ -260,7 +369,9 @@ fun ScreenDataBaseItem(
 
     val state = viewModelDatabase.state.collectAsState().value
 
-    if (state.menu.contains("베스트 웹소설 DB")) {
+    Log.d("ScreenDataBaseItem", "state.menu == ${state.menu}")
+
+    if (state.menu.contains("마나바라 베스트 DB")) {
 
         ScreenBestDataBaseList(
             drawerState = drawerState,
@@ -268,20 +379,17 @@ fun ScreenDataBaseItem(
             isExpandedScreen = isExpandedScreen
         )
 
-    } else if (state.menu.contains("베스트 웹툰 DB")) {
+    } else if (state.menu.contains("주차별 베스트") || state.menu.contains("월별 베스트")) {
 
-        ScreenBestDataBaseList(
-            drawerState = drawerState,
-            viewModelDatabase = viewModelDatabase,
-            isExpandedScreen = isExpandedScreen
-        )
-
-    } else if (state.menu.contains("주차별 웹소설 베스트") || state.menu.contains("월별 웹소설 베스트")) {
-
-        ScreenBestDataBaseList(
+        ScreenBestDataGenreKeywordList(
             viewModelDatabase = viewModelDatabase,
             drawerState = drawerState,
-            isExpandedScreen = isExpandedScreen
+            isExpandedScreen = isExpandedScreen,
+            itemList = if (state.type == "NOVEL") {
+                novelListEng()
+            } else {
+                comicListEng()
+            }
         )
 
     } else if (state.menu.contains("투데이 장르 현황")
@@ -379,19 +487,21 @@ fun ScreenAnalyzeItemDetail(
 
     val state = viewModelDatabase.state.collectAsState().value
 
-    if (state.menu.contains("베스트 웹소설 DB")) {
+    Log.d("ScreenDataBaseItem", "state.menu == ${state.menu}")
+
+    if (state.menu.contains("마나바라 베스트 DB")) {
         ScreenBookMap(
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen,
             viewModelDatabase = viewModelDatabase
         )
 
-    } else if (state.menu.contains("주차별 웹소설 베스트") || state.menu.contains("월별 웹소설 베스트")) {
+    } else if (state.menu.contains("주차별 베스트") || state.menu.contains("월별 베스트")) {
         ScreenBestAnalyze(
             viewModelDatabase = viewModelDatabase,
-            root = if (state.menu.contains("주차별 웹소설 베스트")) {
+            root = if (state.menu.contains("주차별 베스트")) {
                 "BEST_WEEK"
-            } else if (state.menu.contains("월별 웹소설 베스트")) {
+            } else if (state.menu.contains("월별 베스트")) {
                 "BEST_MONTH"
             } else {
                 ""

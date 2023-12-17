@@ -4,7 +4,6 @@ import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.models.ItemKeyword
 import com.bigbigdw.manavara.main.models.UserInfo
-import com.bigbigdw.manavara.util.novelListEng
 
 sealed interface EventBest{
     object Loaded: EventBest
@@ -50,11 +49,11 @@ sealed interface EventBest{
         val itemBookInfo : ItemBookInfo = ItemBookInfo()
     ) : EventBest
 
-    class SetBest(
-        val platform : String = "",
-        val bestType : String = "",
-        val type : String = "",
-        val menu : String = "",
+    class SetScreen(
+        val menu: String = "",
+        val platform: String = "",
+        val detail: String = "",
+        val type: String = "",
     ) : EventBest
 }
 
@@ -70,8 +69,9 @@ data class StateBest(
     val genreDayList : ArrayList<ArrayList<ItemKeyword>> = ArrayList(),
     val itemBookInfo : ItemBookInfo = ItemBookInfo(),
     val itemBestInfoTrophyList : ArrayList<ItemBestInfo> = ArrayList(),
-    val platform : String = novelListEng()[0],
-    val bestType : String = "TODAY_BEST",
-    val type : String = "NOVEL",
-    val menu : String = "TODAY",
+
+    val detail : String = "",
+    val menu: String = "",
+    val platform: String = "",
+    val type: String = "",
 )

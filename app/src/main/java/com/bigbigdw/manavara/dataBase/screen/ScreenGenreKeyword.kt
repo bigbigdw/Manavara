@@ -95,9 +95,10 @@ fun ScreenItemKeywordWeek(
     genreList: ArrayList<ItemKeyword> = ArrayList(),
     keywordList: ArrayList<ItemKeyword> = ArrayList(),
     mode: String = "GENRE",
+    dateType : String = "WEEK",
     jsonNameList: List<String>,
     listState: LazyListState,
-    week: String,
+    date: String,
     viewModelDatabase: ViewModelDatabase
 ) {
 
@@ -116,16 +117,28 @@ fun ScreenItemKeywordWeek(
                 itemsIndexed(jsonNameList) { index, item ->
                     Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
                         ScreenItemKeyword(
-                            getter = convertDateStringWeek(item),
+                            getter = if (dateType == "WEEK") {
+                                convertDateStringWeek(item)
+                            } else {
+                                convertDateStringMonth(item)
+                            },
                             onClick = {
                                 coroutineScope.launch {
-                                    viewModelDatabase.setDate(week = item)
+                                    viewModelDatabase.setDate(date = item)
 
                                     listState.scrollToItem(index = 0)
                                 }
                             },
-                            title = convertDateStringWeek(item),
-                            getValue = convertDateStringWeek(week)
+                            title = if (dateType == "WEEK") {
+                                convertDateStringWeek(item)
+                            } else {
+                                convertDateStringMonth(item)
+                            },
+                            getValue = if (dateType == "WEEK") {
+                                convertDateStringWeek(date)
+                            } else {
+                                convertDateStringMonth(date)
+                            },
                         )
                     }
                 }
@@ -137,73 +150,6 @@ fun ScreenItemKeywordWeek(
         if (mode == "KEYWORD") {
             itemsIndexed(keywordList) { index, item ->
 
-                ListGenreKeywordToday(
-                    title = item.key,
-                    value = item.value,
-                    index = index
-                )
-            }
-        } else {
-            itemsIndexed(genreList) { index, item ->
-                ListGenreKeywordToday(
-                    title = item.key,
-                    value = item.value,
-                    index = index
-                )
-            }
-        }
-
-        item { Spacer(modifier = Modifier.size(60.dp)) }
-    }
-}
-
-@Composable
-fun ScreenItemKeywordMonth(
-    genreList: ArrayList<ItemKeyword> = ArrayList(),
-    keywordList: ArrayList<ItemKeyword> = ArrayList(),
-    mode: String = "GENRE",
-    jsonNameList: List<String>,
-    listState: LazyListState,
-    month: String,
-    viewModelDatabase: ViewModelDatabase
-) {
-
-    val coroutineScope = rememberCoroutineScope()
-
-    LazyColumn(
-        modifier = Modifier
-            .background(colorF6F6F6)
-            .padding(16.dp, 0.dp, 16.dp, 0.dp)
-    ) {
-
-        item {
-            LazyRow(
-                modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 8.dp),
-            ) {
-                itemsIndexed(jsonNameList) { index, item ->
-                    Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
-                        ScreenItemKeyword(
-                            getter = convertDateStringMonth(item),
-                            onClick = {
-                                coroutineScope.launch {
-                                    viewModelDatabase.setDate(month = item)
-
-                                    listState.scrollToItem(index = 0)
-                                }
-                            },
-                            title = convertDateStringMonth(item),
-                            getValue = convertDateStringMonth(month)
-                        )
-                    }
-                }
-            }
-        }
-
-        item { Spacer(modifier = Modifier.size(4.dp)) }
-
-
-        if (mode == "KEYWORD") {
-            itemsIndexed(keywordList) { index, item ->
                 ListGenreKeywordToday(
                     title = item.key,
                     value = item.value,
@@ -233,7 +179,7 @@ fun ScreenGenreDetail(
     val state = viewModelDatabase.state.collectAsState().value
     val context = LocalContext.current
 
-    LaunchedEffect(state.platform, state.type, state.jsonNameList, state.week, state.month) {
+    LaunchedEffect(state.platform, state.type, state.jsonNameList, state.date) {
         getJsonFiles(
             platform = state.platform,
             type = state.type,
@@ -241,8 +187,8 @@ fun ScreenGenreDetail(
         ) {
             viewModelDatabase.setJsonNameList(it)
 
-            if (state.month.isEmpty()) {
-                viewModelDatabase.setDate(month = it.get(0))
+            if (state.date.isEmpty()) {
+                viewModelDatabase.setDate(date = it.get(0))
             }
         }
 
@@ -422,7 +368,7 @@ fun ScreenGenreKeyword(
     val listState = rememberLazyListState()
     val context = LocalContext.current
 
-    LaunchedEffect(state.platform, state.type, state.jsonNameList, state.week, state.month) {
+    LaunchedEffect(state.platform, state.type, state.jsonNameList, state.date) {
         when (menuType) {
             "투데이" -> {
                 getGenreKeywordJson(
@@ -448,8 +394,8 @@ fun ScreenGenreKeyword(
                 ) {
                     viewModelDatabase.setJsonNameList(it)
 
-                    if (state.week.isEmpty()) {
-                        viewModelDatabase.setDate(week = it.get(0))
+                    if (state.date.isEmpty()) {
+                        viewModelDatabase.setDate(date = it.get(0))
                     }
                 }
 
@@ -457,7 +403,7 @@ fun ScreenGenreKeyword(
                     getGenreListWeekJson(
                         platform = state.platform,
                         type = state.type,
-                        root = state.week,
+                        root = state.date,
                         dayType = if (menuType == "주간") {
                             "WEEK"
                         } else {
@@ -481,26 +427,21 @@ fun ScreenGenreKeyword(
             ScreenItemKeywordToday(state.genreKeywordList)
         }
 
-        "주간" -> {
+        else -> {
 
             ScreenItemKeywordWeek(
                 genreList = state.genreKeywordList,
                 jsonNameList = state.jsonNameList,
                 listState = listState,
-                week = state.week,
-                viewModelDatabase = viewModelDatabase
+                date = state.date,
+                viewModelDatabase = viewModelDatabase,
+                dateType = if(menuType == "주간"){
+                    "WEEK"
+                } else {
+                    "MONTH"
+                }
             )
-        }
 
-        else -> {
-
-            ScreenItemKeywordMonth(
-                genreList = state.genreKeywordList,
-                jsonNameList = state.jsonNameList,
-                listState = listState,
-                month = state.month,
-                viewModelDatabase = viewModelDatabase
-            )
         }
     }
 }

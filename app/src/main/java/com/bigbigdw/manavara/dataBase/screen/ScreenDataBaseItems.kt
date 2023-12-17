@@ -2,6 +2,7 @@ package com.bigbigdw.manavara.dataBase.screen
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
@@ -381,15 +382,14 @@ fun ScreenBestAnalyze(
         type = state.type,
         root = root,
     ) {
+
+        Log.d("ScreenBestAnalyze", "getJsonFiles == ${it.size}")
+
         viewModelDatabase.setJsonNameList(it)
 
-        if (root == "BEST_WEEK") {
-            if (state.week.isEmpty()) {
-                viewModelDatabase.setDate(week = it.get(0))
-            }
-        } else {
-            if (state.month.isEmpty()) {
-                viewModelDatabase.setDate(month = it.get(0))
+        if(it.isNotEmpty()){
+            if (state.date.isEmpty()) {
+                viewModelDatabase.setDate(date = it.get(0), jsonNameList = it, dateType = root)
             }
         }
     }
@@ -400,7 +400,7 @@ fun ScreenBestAnalyze(
             getTrophyWeekMonthJson(
                 platform = state.platform,
                 type = state.type,
-                root = state.week,
+                root = state.date,
                 dayType = "WEEK",
                 context = context
             ) {
@@ -447,11 +447,7 @@ fun ScreenBestAnalyze(
                             },
                             onClick = {
                                 coroutineScope.launch {
-                                    if (root == "BEST_WEEK") {
-                                        viewModelDatabase.setDate(week = item)
-                                    } else {
-                                        viewModelDatabase.setDate(month = item)
-                                    }
+                                    viewModelDatabase.setDate(date = item)
 
                                     listState.scrollToItem(index = 0)
                                 }
@@ -462,9 +458,9 @@ fun ScreenBestAnalyze(
                                 convertDateStringMonth(item)
                             },
                             getValue = if (root == "BEST_WEEK") {
-                                convertDateStringWeek(state.week)
+                                convertDateStringWeek(state.date)
                             } else {
-                                convertDateStringMonth(state.month)
+                                convertDateStringMonth(state.date)
                             }
                         )
                     }
@@ -530,7 +526,7 @@ fun ScreenGenreKeywordToday(
     val state = viewModelDatabase.state.collectAsState().value
     val context = LocalContext.current
 
-    LaunchedEffect(state.platform, state.type, state.jsonNameList, state.week, state.month) {
+    LaunchedEffect(state.platform, state.type, state.jsonNameList, state.date) {
         getGenreKeywordJson(
             context = context,
             platform = state.platform.ifEmpty { "JOARA" },

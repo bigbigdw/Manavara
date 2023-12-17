@@ -72,7 +72,7 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
             }
 
             is EventDataBase.SetDate -> {
-                current.copy(week = event.week, month = event.month)
+                current.copy(date = event.date, jsonNameList = event.jsonNameList, dateType = event.dateType)
             }
 
             is EventDataBase.SetSearchQuery -> {
@@ -145,9 +145,23 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setScreen(menu: String = "", platform: String = "", detail: String = "", type: String = "", menuDesc : String = ""){
+    fun setScreen(
+        menu: String = state.value.menu,
+        platform: String = state.value.platform,
+        detail: String = state.value.detail,
+        type: String = state.value.type,
+        menuDesc: String = state.value.menuDesc,
+    ) {
         viewModelScope.launch {
-            events.send(EventDataBase.SetScreen(menu = menu, platform = platform, detail = detail, type = type, menuDesc = menuDesc))
+            events.send(
+                EventDataBase.SetScreen(
+                    menu = menu,
+                    platform = platform,
+                    detail = detail,
+                    type = type,
+                    menuDesc = menuDesc,
+                )
+            )
         }
     }
 
@@ -196,9 +210,13 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setDate(week: String = "", month: String = ""){
+    fun setDate(
+        date: String = "",
+        jsonNameList: List<String> = state.value.jsonNameList,
+        dateType : String = state.value.dateType
+    ) {
         viewModelScope.launch {
-            events.send(EventDataBase.SetDate(week = week, month = month))
+            events.send(EventDataBase.SetDate(date = date, jsonNameList = jsonNameList, dateType = dateType))
         }
     }
 }

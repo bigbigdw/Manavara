@@ -35,6 +35,7 @@ fun getJsonFiles(
         callbacks.invoke(fileList)
     }.addOnFailureListener {
         // Handle the error
+        Log.d("getJsonFiles", "getJsonFiles addOnFailureListener == $it")
     }
 }
 

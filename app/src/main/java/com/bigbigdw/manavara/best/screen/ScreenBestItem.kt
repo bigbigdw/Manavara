@@ -1,6 +1,6 @@
 package com.bigbigdw.manavara.best.screen
 
-import androidx.compose.foundation.BorderStroke
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeight
-import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -30,8 +28,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -55,6 +51,9 @@ import coil.compose.AsyncImage
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.getBestListTodayJson
 import com.bigbigdw.manavara.best.getBestListWeekJson
+import com.bigbigdw.manavara.best.getBookItemWeekTrophy
+import com.bigbigdw.manavara.best.getBookMapJson
+import com.bigbigdw.manavara.best.getTrophyWeekMonthJson
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.viewModels.ViewModelBest
@@ -62,15 +61,12 @@ import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color02BC77
 import com.bigbigdw.manavara.ui.theme.color1CE3EE
 import com.bigbigdw.manavara.ui.theme.color20459E
+import com.bigbigdw.manavara.ui.theme.color4AD7CF
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
 import com.bigbigdw.manavara.ui.theme.color8F8F8F
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorFF2366
 import com.bigbigdw.manavara.util.geMonthDate
-import com.bigbigdw.manavara.best.getTrophyWeekMonthJson
-import com.bigbigdw.manavara.best.getBookItemWeekTrophy
-import com.bigbigdw.manavara.best.getBookMapJson
-import com.bigbigdw.manavara.ui.theme.color4AD7CF
 import com.bigbigdw.manavara.util.getWeekDate
 import com.bigbigdw.manavara.util.screen.ScreenBookCard
 import com.bigbigdw.manavara.util.screen.ScreenBookCardItem
@@ -95,7 +91,11 @@ fun ScreenTodayBest(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(state.platform, state.type){
+    Log.d("ScreenTodayBest", "state.platform == ${state.platform}")
+
+    LaunchedEffect(state.platform){
+
+        Log.d("ScreenTodayBest", "LaunchedEffect state.platform == ${state.platform}")
 
         getBookMapJson(
             platform = state.platform,
@@ -103,11 +103,16 @@ fun ScreenTodayBest(
             context = context
         ){ itemBookInfoMap ->
 
+            Log.d("ScreenTodayBest", "itemBookInfoMap == ${itemBookInfoMap.size}")
+
             getBestListTodayJson(
+                context = context,
                 platform = state.platform,
-                type = state.type,
-                context = context
+                type = state.type
             ) { itemBookInfoList ->
+
+                Log.d("ScreenTodayBest", "itemBookInfoMap == ${itemBookInfoMap.size} itemBookInfoList == ${itemBookInfoList.size}")
+
                 viewModelBest.setItemBestInfoList(itemBookInfoMap = itemBookInfoMap, itemBookInfoList = itemBookInfoList)
             }
         }
@@ -120,6 +125,8 @@ fun ScreenTodayBest(
             .padding(16.dp, 0.dp, 16.dp, 0.dp)
             .fillMaxSize(),
     ) {
+
+        item { Spacer(modifier = Modifier.size(16.dp)) }
 
         itemsIndexed(state.itemBookInfoList) { index, item ->
             ListBestToday(
@@ -147,6 +154,8 @@ fun ScreenTodayBest(
                 }
             }
         }
+
+        item { Spacer(modifier = Modifier.size(60.dp)) }
     }
 }
 
@@ -335,100 +344,103 @@ fun ScreenTodayWeek(
         }
     }
 
-    Column(modifier = Modifier.background(color = colorF6F6F6)) {
+    LazyColumn(
+        modifier = Modifier
+            .background(colorF6F6F6)
+            .padding(16.dp, 0.dp, 16.dp, 0.dp)
+    ) {
 
-        LazyRow(
-            modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 8.dp),
-            state = listState,
-        ) {
-            itemsIndexed(weekListAll()) { index, item ->
-                Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
-                    ScreenItemKeyword(
-                        getter = getDate,
-                        onClick = {
-                            coroutineScope.launch {
-                                setDate(item)
-                                listState.scrollToItem(index = 0)
-                            }
-                        },
-                        title = item,
-                        getValue = item
-                    )
+        item { Spacer(modifier = Modifier.size(16.dp)) }
+
+        item {
+            LazyRow(
+                modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 8.dp).background(color = colorF6F6F6),
+                state = listState,
+            ) {
+
+                itemsIndexed(weekListAll()) { index, item ->
+                    Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
+                        ScreenItemKeyword(
+                            getter = getDate,
+                            onClick = {
+                                coroutineScope.launch {
+                                    setDate(item)
+                                    listState.scrollToItem(index = 0)
+                                }
+                            },
+                            title = item,
+                            getValue = item
+                        )
+                    }
                 }
             }
         }
 
-        LazyColumn(
-            modifier = Modifier
-                .background(colorF6F6F6)
-                .padding(16.dp, 0.dp, 16.dp, 0.dp)
-        ) {
-            if (getDate == "전체") {
+        if (getDate == "전체") {
 
-                itemsIndexed(filteredList) { index, item ->
+            itemsIndexed(filteredList) { index, item ->
 
-                    ScreenBookCard(
-                        item = item,
-                        type = "WEEK",
-                        index = index
+                ScreenBookCard(
+                    item = item,
+                    type = "WEEK",
+                    index = index
+                ){
+                    coroutineScope.launch {
+
+                        getBookItemWeekTrophy(
+                            bookCode = item.bookCode,
+                            type = state.type,
+                            platform = state.platform
+                        ) { itemBestInfoTrophyList ->
+
+                            viewModelBest.setItemBestInfoTrophyList(
+                                itemBookInfo = item,
+                                itemBestInfoTrophyList = itemBestInfoTrophyList
+                            )
+
+                        }
+
+                        modalSheetState?.show()
+
+                        if (setDialogOpen != null) {
+                            setDialogOpen(true)
+                        }
+
+                        listState.scrollToItem(index = 0)
+                    }
+                }
+
+            }
+        } else {
+            if (state.weekMonthList[getWeekDate(getDate)].size > 0) {
+                itemsIndexed(state.weekMonthList[getWeekDate(getDate)]) { index, item ->
+                    ListBestToday(
+                        itemBookInfo = item,
+                        index = index,
                     ){
+
+                        getBookItemWeekTrophy(
+                            bookCode = item.bookCode,
+                            platform = state.platform,
+                            type = state.type
+                        ){
+                            viewModelBest.setItemBestInfoTrophyList(
+                                itemBestInfoTrophyList = it,
+                                itemBookInfo = item
+                            )
+                        }
+
                         coroutineScope.launch {
-
-                            getBookItemWeekTrophy(
-                                bookCode = item.bookCode,
-                                type = state.type,
-                                platform = state.platform
-                            ) { itemBestInfoTrophyList ->
-
-                                viewModelBest.setItemBestInfoTrophyList(
-                                    itemBookInfo = item,
-                                    itemBestInfoTrophyList = itemBestInfoTrophyList
-                                )
-
-                            }
-
                             modalSheetState?.show()
 
                             if (setDialogOpen != null) {
                                 setDialogOpen(true)
                             }
-
-                            listState.scrollToItem(index = 0)
                         }
                     }
-
                 }
             } else {
-                if (state.weekMonthList[getWeekDate(getDate)].size > 0) {
-                    itemsIndexed(state.weekMonthList[getWeekDate(getDate)]) { index, item ->
-                        ListBestToday(
-                            itemBookInfo = item,
-                            index = index,
-                        ){
-
-                            getBookItemWeekTrophy(
-                                bookCode = item.bookCode,
-                                platform = state.platform,
-                                type = state.type
-                            ){
-                                viewModelBest.setItemBestInfoTrophyList(
-                                    itemBestInfoTrophyList = it,
-                                    itemBookInfo = item
-                                )
-                            }
-
-                            coroutineScope.launch {
-                                modalSheetState?.show()
-
-                                if (setDialogOpen != null) {
-                                    setDialogOpen(true)
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    item { ScreenEmpty(str = "데이터가 없습니다") }
-                }
+                item { ScreenEmpty(str = "데이터가 없습니다") }
             }
         }
     }
@@ -466,10 +478,10 @@ fun ScreenTodayMonth(
     ) { itemBookInfoMap ->
 
         getBestListWeekJson(
+            context = context,
             platform = state.platform,
             type = state.type,
-            bestType = "MONTH",
-            context = context
+            bestType = "MONTH"
         ){ weekList ->
             getTrophyWeekMonthJson(
                 platform = state.platform,

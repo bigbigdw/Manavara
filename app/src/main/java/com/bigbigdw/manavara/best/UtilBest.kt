@@ -23,7 +23,6 @@ fun getBestListTodayJson(
     context: Context,
     platform: String,
     type: String,
-    checkUpdate: Boolean = false,
     callbacks: (ArrayList<ItemBookInfo>) -> Unit
 ) {
 
@@ -38,12 +37,8 @@ fun getBestListTodayJson(
 
     } catch (exception: Exception) {
 
-        if (checkUpdate) {
-            callbacks.invoke(ArrayList())
-        } else {
-            getBestListTodayStorage(platform = platform, type = type, context = context) {
-                callbacks.invoke(it)
-            }
+        getBestListTodayStorage(platform = platform, type = type, context = context) {
+            callbacks.invoke(it)
         }
     }
 }
@@ -138,6 +133,7 @@ fun getBookMapJson(
         val jsonString = File(filePath).readText(Charset.forName("UTF-8"))
 
         getBookMap(jsonString){
+            Log.d("ScreenTodayBest", "getBookMap == ${it.size}")
             callbacks.invoke(it)
         }
 
@@ -147,6 +143,7 @@ fun getBookMapJson(
             type = type,
             context = context
         ) {
+            Log.d("ScreenTodayBest", "getBookMap Exception == ${it.size}")
             callbacks.invoke(it)
         }
     }
@@ -161,8 +158,7 @@ fun getBookMapStorage(
 
     val storage = Firebase.storage
     val storageRef = storage.reference
-    val bookRef =
-        storageRef.child("${platform}/${type}/BOOK/${platform}.json")
+    val bookRef = storageRef.child("${platform}/${type}/BOOK/${platform}.json")
     val bookFile = File(context.filesDir, "BOOK_${type}_${platform}.json")
 
     bookRef.getFile(bookFile).addOnSuccessListener {
@@ -172,7 +168,47 @@ fun getBookMapStorage(
             callbacks.invoke(it)
         }
 
+    }.addOnFailureListener {
+        getBookMapRealTimeDB(platform = platform, type = type) {
+            callbacks.invoke(it)
+        }
     }
+}
+
+fun getBookMapRealTimeDB(
+    platform: String,
+    type: String,
+    callbacks: (MutableMap<String, ItemBookInfo>) -> Unit
+) {
+
+    val mRootRef = FirebaseDatabase.getInstance().reference.child("BOOK").child(type).child(platform)
+    val itemList = mutableMapOf<String, ItemBookInfo>()
+
+    mRootRef.addListenerForSingleValueEvent(object :
+        ValueEventListener {
+        override fun onDataChange(dataSnapshot: DataSnapshot) {
+            if (dataSnapshot.exists()) {
+
+                for (snapshot in dataSnapshot.children) {
+                    val key = snapshot.key
+                    val value = snapshot.value
+
+                    if (key != null && value != null) {
+
+                        val item = snapshot.getValue(ItemBookInfo::class.java)
+
+                        if (item != null) {
+                            itemList[key] = item
+                        }
+                    }
+                }
+
+                callbacks.invoke(itemList)
+            }
+        }
+
+        override fun onCancelled(databaseError: DatabaseError) {}
+    })
 }
 
 fun getBookItemWeekTrophy(
@@ -223,8 +259,7 @@ fun getBestListWeekJson(
     context: Context,
     platform: String,
     type: String,
-    checkUpdate: Boolean = false,
-    bestType : String = "WEEK",
+    bestType: String = "WEEK",
     callbacks: (ArrayList<ArrayList<ItemBookInfo>>) -> Unit
 ) {
 
@@ -243,17 +278,15 @@ fun getBestListWeekJson(
 
     } catch (exception: Exception) {
 
-        if (checkUpdate) {
-            callbacks.invoke(ArrayList())
+        Log.d("getBestListWeekJson", "getBestListWeekJson exception == $exception")
+
+        if(bestType == "WEEK"){
+            getBestWeekListStorage(platform = platform, type = type, context = context) {
+                callbacks.invoke(it)
+            }
         } else {
-            if(bestType == "WEEK"){
-                getBestWeekListStorage(platform = platform, type = type, context = context) {
-                    callbacks.invoke(it)
-                }
-            } else {
-                getBestMonthListStorage(platform = platform, type = type, context = context) {
-                    callbacks.invoke(it)
-                }
+            getBestMonthListStorage(platform = platform, type = type, context = context) {
+                callbacks.invoke(it)
             }
         }
     }
@@ -268,8 +301,7 @@ fun getBestWeekListStorage(
 
     val storage = Firebase.storage
     val storageRef = storage.reference
-    val weekRef =
-        storageRef.child("${platform}/${type}/BEST_WEEK/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
+    val weekRef = storageRef.child("${platform}/${type}/BEST_WEEK/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
     val weekFile = File(context.filesDir, "BEST_WEEK_${type}_${platform}.json")
 
     weekRef.getFile(weekFile).addOnSuccessListener {
@@ -278,6 +310,8 @@ fun getBestWeekListStorage(
         getBestWeekMonth(jsonString){
             callbacks.invoke(it)
         }
+    }.addOnSuccessListener{
+
     }
 }
 

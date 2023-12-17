@@ -80,8 +80,8 @@ class ViewModelBest @Inject constructor() : ViewModel() {
                 )
             }
 
-            is EventBest.SetBest -> {
-                current.copy(platform = event.platform, bestType = event.bestType, type = event.type, menu = event.menu)
+            is EventBest.SetScreen -> {
+                current.copy(menu = event.menu, platform = event.platform, detail = event.detail, type = event.type)
             }
 
             else -> {
@@ -96,14 +96,14 @@ class ViewModelBest @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setBest(
+    fun setScreen(
         platform: String = state.value.platform,
         menu: String = state.value.menu,
-        bestType: String = state.value.bestType,
+        detail: String = state.value.detail,
         type: String = state.value.type
     ) {
         viewModelScope.launch {
-            events.send(EventBest.SetBest(platform = platform, menu = menu, bestType = bestType, type = type))
+            events.send(EventBest.SetScreen(platform = platform, menu = menu, detail = detail, type = type))
         }
     }
 
