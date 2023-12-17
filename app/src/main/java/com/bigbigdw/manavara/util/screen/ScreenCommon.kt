@@ -264,9 +264,7 @@ fun AlertTwoBtn(
                     shape = RoundedCornerShape(10.dp, 10.dp, 10.dp, 10.dp)
                 ) {
 
-                    Spacer(
-                        modifier = Modifier.size(40.dp)
-                    )
+                    Spacer(modifier = Modifier.size(40.dp))
 
                     Column(
                         modifier = Modifier
@@ -346,30 +344,24 @@ fun AlertTwoBtn(
 fun AlertOneBtn(
     isShow: () -> Unit,
     btnText: String,
-    contents: @Composable () -> Unit
+    contents: @Composable () -> Unit,
+    modifier: Modifier
 ) {
 
     Box(
-        modifier = Modifier
-            .clickable { isShow() },
         contentAlignment = Alignment.Center
     ) {
         Box(
-            modifier = Modifier
-                .width(260.dp),
+            modifier = modifier,
         ) {
             Column(
-                modifier = Modifier
-                    .width(260.dp)
-                    .wrapContentHeight(),
+                modifier = modifier.wrapContentHeight(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
                 Spacer(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(36.dp)
+                    modifier = Modifier.size(36.dp)
                 )
 
                 Card(
@@ -379,11 +371,7 @@ fun AlertOneBtn(
                     shape = RoundedCornerShape(10.dp, 10.dp, 10.dp, 10.dp)
                 ) {
 
-                    Spacer(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(72.dp)
-                    )
+                    Spacer(modifier = Modifier.size(40.dp))
 
                     Column(
                         modifier = Modifier
@@ -392,28 +380,24 @@ fun AlertOneBtn(
                         horizontalAlignment = Alignment.Start
                     ) {
 
-                        Spacer(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(48.dp)
-                        )
-
                         contents()
 
                         Button(
                             colors = ButtonDefaults.buttonColors(containerColor = color20459E),
-                            onClick = { isShow() },
+                            onClick = {
+                                isShow()
+                            },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(48.dp),
-                            shape = RoundedCornerShape(0.dp, 0.dp, 10.dp, 10.dp)
+                            shape = RoundedCornerShape(0.dp, 0.dp, 10.dp, 0.dp)
 
                         ) {
                             Text(
                                 text = btnText,
                                 textAlign = TextAlign.Center,
                                 color = Color.White,
-                                fontSize = 14.sp,
+                                fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         }
@@ -422,7 +406,7 @@ fun AlertOneBtn(
             }
 
             Column(
-                modifier = Modifier.width(260.dp),
+                modifier = modifier,
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {

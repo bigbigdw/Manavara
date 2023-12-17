@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
@@ -434,6 +435,7 @@ fun ScreenMakeSharePick(
                     )
                     setDialogOpen(false)
                 },
+                modifier = Modifier.Companion.requiredWidth(360.dp),
                 btnText = "리스트 만들기",
                 contents = {
                     TextField(
