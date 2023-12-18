@@ -38,8 +38,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -65,35 +63,20 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bigbigdw.manavara.best.screen.BestBottomDialog
 import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDatabase
 import com.bigbigdw.manavara.best.screen.BestDialog
-import com.bigbigdw.manavara.manavara.setSharePickList
-import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color20459E
-import com.bigbigdw.manavara.ui.theme.color4AD7CF
-import com.bigbigdw.manavara.ui.theme.color5372DE
-import com.bigbigdw.manavara.ui.theme.color898989
-import com.bigbigdw.manavara.ui.theme.color998DF9
-import com.bigbigdw.manavara.ui.theme.colorEDE6FD
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
-import com.bigbigdw.manavara.util.changePlatformNameEng
 import com.bigbigdw.manavara.util.changePlatformNameKor
-import com.bigbigdw.manavara.util.colorList
 import com.bigbigdw.manavara.util.comicListEng
 import com.bigbigdw.manavara.util.genreListEng
-import com.bigbigdw.manavara.util.getPlatformColor
 import com.bigbigdw.manavara.util.getPlatformColorEng
-import com.bigbigdw.manavara.util.getPlatformDescription
 import com.bigbigdw.manavara.util.getPlatformLogo
-import com.bigbigdw.manavara.util.getPlatformLogoEng
+import com.bigbigdw.manavara.util.getRandomPlatform
 import com.bigbigdw.manavara.util.keywordListEng
 import com.bigbigdw.manavara.util.menuListDatabase
 import com.bigbigdw.manavara.util.novelListEng
-import com.bigbigdw.manavara.util.novelListKor
 import com.bigbigdw.manavara.util.screen.AlertOneBtn
-import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
 import com.bigbigdw.manavara.util.screen.ScreenMenuItem
 import com.bigbigdw.manavara.util.screen.ScreenTopbar
-import convertDateStringMonth
-import convertDateStringWeek
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -112,6 +95,7 @@ fun ScreenDataBase(
     val viewModelDatabase: ViewModelDatabase = viewModel(viewModelStoreOwner = viewModelStoreOwner)
     val state = viewModelDatabase.state.collectAsState().value
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val (getPlatformDialogOpen, setPlatformDialogOpen) = remember { mutableStateOf(false) }
 
     val modalSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
@@ -119,27 +103,33 @@ fun ScreenDataBase(
         skipHalfExpanded = false
     )
 
+    val platformModalSheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        confirmValueChange = { it != ModalBottomSheetValue.HalfExpanded },
+        skipHalfExpanded = false
+    )
+
     BestAnalyzeBackOnPressed(viewModelDatabase = viewModelDatabase)
 
-    val menuOption = if(currentRoute?.contains("NOVEL") == true){
+    val menuOption = if (currentRoute?.contains("NOVEL") == true) {
         "웹소설"
     } else {
         "웹툰"
     }
 
-    val type = if(currentRoute?.contains("NOVEL") == true){
+    val type = if (currentRoute?.contains("NOVEL") == true) {
         "NOVEL"
     } else {
         "COMIC"
     }
 
-    val list = if(currentRoute?.contains("NOVEL") == true){
+    var list = if (currentRoute?.contains("NOVEL") == true) {
         novelListEng()
     } else {
         comicListEng()
     }
 
-    LaunchedEffect(context){
+    LaunchedEffect(context) {
         viewModelDatabase.sideEffects
             .onEach { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
             .launchIn(coroutineScope)
@@ -147,14 +137,13 @@ fun ScreenDataBase(
         viewModelDatabase.setScreen(
             menu = "마나바라 베스트 DB ${menuOption}",
             type = type,
-            platform = novelListEng()[0]
+            platform = getRandomPlatform(list)
         )
     }
 
     if (isExpandedScreen) {
 
         val (getDialogOpen, setDialogOpen) = remember { mutableStateOf(false) }
-        val (getPlatform, setPlatform) = remember { mutableStateOf(false) }
 
         if (getDialogOpen) {
             BestDialog(
@@ -167,112 +156,41 @@ fun ScreenDataBase(
 
         Scaffold(
             modifier = Modifier
-                .fillMaxSize()
-                .background(color = Color.Red),
+                .fillMaxSize(),
             floatingActionButton = {
-                if (getPlatform) {
-                    Dialog(
-                        onDismissRequest = { setPlatform(false) },
-                    ) {
-                        AlertOneBtn(
-                            isShow = {
-                                setPlatform(false)
-                            },
-                            btnText = "돌아가기",
-                            modifier = Modifier.Companion.requiredWidth(360.dp),
-                            contents = {
 
-                                Text(
-                                    modifier = Modifier.padding(0.dp, 16.dp).fillMaxWidth(),
-                                    text = "원하시는 플랫폼을 선택해 주세요.",
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight(weight = 700),
-                                    textAlign = TextAlign.Center
-                                )
+                if (!state.menu.contains("신규 작품") &&
+                    !state.menu.contains("투데이 장르 현황") &&
+                    !state.menu.contains("투데이 장르 현황")) {
+                    if (getPlatformDialogOpen) {
+                        Dialog(
+                            onDismissRequest = { setPlatformDialogOpen(false) },
+                        ) {
+                            AlertOneBtn(
+                                isShow = {
+                                    setPlatformDialogOpen(false)
+                                },
+                                btnText = "돌아가기",
+                                modifier = Modifier.Companion.requiredWidth(360.dp),
+                                contents = {
 
-                                LazyVerticalGrid(
-                                    modifier = Modifier.width(360.dp),
-                                    columns = GridCells.Fixed(4)
-                                ) {
-                                    itemsIndexed(list) { index, item ->
-
-                                        Button(
-                                            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                                            onClick = {
-                                                viewModelDatabase.setScreen(
-                                                    platform = item
-                                                )
-                                                setPlatform(false)
-                                            },
-                                            contentPadding = PaddingValues(4.dp, 8.dp),
-                                            shape = RoundedCornerShape(0.dp),
-                                        ) {
-                                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
-                                                Image(
-                                                    contentScale = ContentScale.FillWidth,
-                                                    painter = painterResource(
-                                                        id = getPlatformLogo(
-                                                            changePlatformNameKor(item)
-                                                        )
-                                                    ),
-                                                    contentDescription = null,
-                                                    modifier = Modifier
-                                                        .height(28.dp)
-                                                        .width(28.dp)
-                                                )
-
-                                                Spacer(modifier = Modifier.size(4.dp))
-
-                                                Text(
-                                                    text = changePlatformNameKor(item),
-                                                    color = Color.Black,
-                                                    fontWeight = FontWeight(weight = 700),
-                                                    textAlign = TextAlign.Center
-                                                )
-                                            }
-                                        }
-                                    }
+                                    ScreenChoosePlatform(
+                                        list = list,
+                                        isClose = { setPlatformDialogOpen(false) },
+                                        viewModelDatabase = viewModelDatabase,
+                                        modifier = Modifier.width(360.dp),
+                                        fontColor = Color.Black,
+                                        getValue = state.platform,
+                                    )
                                 }
-                            }
-                        )
+                            )
+                        }
                     }
 
-                }
-
-                FloatingActionButton(
-                    onClick = {
-                        setPlatform(true)
-                    },
-                    containerColor = getPlatformColorEng(state.platform),
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
-                        Spacer(modifier = Modifier.size(4.dp))
-
-                        Image(
-                            contentScale = ContentScale.FillWidth,
-                            painter = painterResource(
-                                id = getPlatformLogo(
-                                    changePlatformNameKor(state.platform)
-                                )
-                            ),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .height(28.dp)
-                                .width(28.dp)
-                        )
-
-                        Spacer(modifier = Modifier.size(4.dp))
-
-                        Text(
-                            modifier = Modifier.padding(8.dp, 0.dp, 8.dp, 4.dp),
-                            text = changePlatformNameKor(state.platform),
-                            color = Color.White,
-                            fontWeight = FontWeight(weight = 700),
-                            textAlign = TextAlign.Center
-                        )
-                    }
+                    ScreenChoosePlatformFab(
+                        isOpen = { setPlatformDialogOpen(true) },
+                        platform = state.platform
+                    )
                 }
 
             }, floatingActionButtonPosition = FabPosition.End
@@ -323,8 +241,25 @@ fun ScreenDataBase(
                         }
                     }
                 },
+                floatingActionButton = {
 
-                ) {
+                    if (!state.menu.contains("신규 작품") &&
+                        !state.menu.contains("투데이 장르 현황") &&
+                        !state.menu.contains("투데이 장르 현황")) {
+                        if (!platformModalSheetState.isVisible) {
+                            ScreenChoosePlatformFab(
+                                isOpen = {
+                                    coroutineScope.launch {
+                                        platformModalSheetState.show()
+                                    }
+                                },
+                                platform = state.platform
+                            )
+                        }
+                    }
+
+                }, floatingActionButtonPosition = FabPosition.End
+            ) {
                 Box(
                     Modifier
                         .padding(it)
@@ -341,7 +276,7 @@ fun ScreenDataBase(
                 }
             }
 
-            if(modalSheetState.isVisible){
+            if (modalSheetState.isVisible) {
                 ModalBottomSheetLayout(
                     sheetState = modalSheetState,
                     sheetElevation = 50.dp,
@@ -365,8 +300,47 @@ fun ScreenDataBase(
                     },
                 ) {}
             }
-        }
 
+            if (!state.menu.contains("신규 작품") &&
+                !state.menu.contains("투데이 장르 현황") &&
+                !state.menu.contains("투데이 장르 현황")) {
+                if (platformModalSheetState.isVisible) {
+                    ModalBottomSheetLayout(
+                        sheetState = platformModalSheetState,
+                        sheetElevation = 50.dp,
+                        sheetShape = RoundedCornerShape(
+                            topStart = 25.dp,
+                            topEnd = 25.dp
+                        ),
+                        sheetContent = {
+
+                            list = if (state.menu.contains("장르")) {
+                                genreListEng()
+                            } else if (state.menu.contains("키워드")) {
+                                keywordListEng()
+                            } else {
+                                list
+                            }
+
+                            ScreenChoosePlatform(
+                                list = list,
+                                isClose = {
+                                    coroutineScope.launch {
+                                        platformModalSheetState.hide()
+                                    }
+                                },
+                                viewModelDatabase = viewModelDatabase,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(color20459E),
+                                fontColor = Color.White,
+                                getValue = state.platform
+                            )
+                        },
+                    ) {}
+                }
+            }
+        }
     }
 }
 
@@ -407,7 +381,7 @@ fun ScreenDataBasePropertyList(
                 item = item,
                 index = index,
                 current = state.menu,
-                onClick ={
+                onClick = {
                     coroutineScope.launch {
                         viewModelDatabase.setScreen(
                             menu = item.menu,
@@ -420,14 +394,12 @@ fun ScreenDataBasePropertyList(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScreenDataBaseItem(
     viewModelDatabase: ViewModelDatabase,
-    drawerState: DrawerState?,
     modalSheetState: ModalBottomSheetState?,
-    setDialogOpen: ((Boolean) -> Unit)?,
-    isExpandedScreen : Boolean
+    setDialogOpen: ((Boolean) -> Unit)?
 ) {
 
     val state = viewModelDatabase.state.collectAsState().value
@@ -436,24 +408,13 @@ fun ScreenDataBaseItem(
 
     if (state.menu.contains("마나바라 베스트 DB")) {
 
-        ScreenBestDataBaseList(
-            drawerState = drawerState,
-            viewModelDatabase = viewModelDatabase,
-            isExpandedScreen = isExpandedScreen
+        ScreenBookMap(
+            modalSheetState = modalSheetState,
+            setDialogOpen = setDialogOpen,
+            viewModelDatabase = viewModelDatabase
         )
 
     } else if (state.menu.contains("주차별 베스트") || state.menu.contains("월별 베스트")) {
-
-//        ScreenBestDataGenreKeywordList(
-//            viewModelDatabase = viewModelDatabase,
-//            drawerState = drawerState,
-//            isExpandedScreen = isExpandedScreen,
-//            itemList = if (state.type == "NOVEL") {
-//                novelListEng()
-//            } else {
-//                comicListEng()
-//            }
-//        )
 
         ScreenBestAnalyze(
             viewModelDatabase = viewModelDatabase,
@@ -474,50 +435,75 @@ fun ScreenDataBaseItem(
 
         ScreenGenreKeywordToday(
             viewModelDatabase = viewModelDatabase,
-            dataType = if(state.menu.contains("장르")){
+            dataType = if (state.menu.contains("장르")) {
                 "GENRE"
             } else {
                 "KEYWORD"
             }
         )
 
-    } else if (state.menu.contains("주차별 키워드 현황")
-        || state.menu.contains("월별 키워드 현황")
-        || state.menu.contains("주간 키워드 현황")
-        || state.menu.contains("월간 키워드 현황")
-        || state.menu.contains("주차별 장르 현황")
-        || state.menu.contains("월별 장르 현황")
-        || state.menu.contains("주간 장르 현황")
-        || state.menu.contains("월간 장르 현황")
+    } else if (state.menu.contains("주간 장르 현황") ||
+        state.menu.contains("월간 장르 현황") ||
+        state.menu.contains("주간 키워드 현황") ||
+        state.menu.contains("월간 키워드 현황")
     ) {
 
-        ScreenBestDataGenreKeywordList(
+        GenreDetailJson(
             viewModelDatabase = viewModelDatabase,
-            drawerState = drawerState,
-            isExpandedScreen = isExpandedScreen,
-            itemList = if(state.menu.contains("장르")){
-                genreListEng()
+            menuType = if (state.menu.contains("주간 장르 현황")) {
+                "주간"
             } else {
-                keywordListEng()
+                "월간"
+            },
+            type = if (state.menu.contains("장르")) {
+                "GENRE"
+            } else {
+                "KEYWORD"
             }
         )
 
-    } else if (state.menu.contains("장르 리스트 작품") || state.menu.contains("장르 리스트 현황")) {
+    } else if (state.menu.contains("장르 리스트 작품") ||
+        state.menu.contains("장르 리스트 현황") ||
+        state.menu.contains("키워드 리스트 작품") ||
+        state.menu.contains("키워드 리스트 현황")
+    ) {
 
-        ScreenBestDataGenreKeywordList(
+        ScreenGenreDetail(
             viewModelDatabase = viewModelDatabase,
-            drawerState = drawerState,
-            isExpandedScreen = isExpandedScreen,
-            itemList = genreListEng()
+            mode = if (state.menu.contains("장르 리스트 작품")) {
+                "GENRE_BOOK"
+            } else if (state.menu.contains("장르 리스트 현황")) {
+                "GENRE_STATUS"
+            } else if (state.menu.contains("키워드 리스트 작품")) {
+                "KEYWORD_BOOK"
+            } else if (state.menu.contains("키워드 리스트 현황")) {
+                "KEYWORD_STATUS"
+            } else {
+                "KEYWORD_BOOK"
+            },
         )
 
-    } else if (state.menu.contains("키워드 리스트 작품") || state.menu.contains("키워드 리스트 현황")) {
-
-        ScreenBestDataGenreKeywordList(
-            viewModelDatabase = viewModelDatabase,
-            drawerState = drawerState,
-            isExpandedScreen = isExpandedScreen,
-            itemList = keywordListEng()
+    } else if (state.menu.contains("투데이 장르 현황")
+        || state.menu.contains("주차별 장르 현황")
+        || state.menu.contains("월별 장르 현황")
+        || state.menu.contains("투데이 키워드 현황")
+        || state.menu.contains("주차별 키워드 현황")
+        || state.menu.contains("월별 키워드 현황")
+    ) {
+        ScreenGenreKeyword(
+            menuType = if (state.menu.contains("투데이")) {
+                "투데이"
+            } else if (state.menu.contains("주차별")) {
+                "주간"
+            } else {
+                "월간"
+            },
+            dataType = if (state.menu.contains("장르")) {
+                "GENRE"
+            } else {
+                "KEYWORD"
+            },
+            viewModelDatabase = viewModelDatabase
         )
 
     } else if (state.menu.contains("마나바라 DB 검색")) {
@@ -542,122 +528,135 @@ fun ScreenDataBaseItem(
             viewModelDatabase = viewModelDatabase
         )
 
-    }else if (state.menu.contains("신규 작품")) {
+    } else if (state.menu.contains("신규 작품")) {
 
         ScreenBookList(
             viewModelDatabase = viewModelDatabase,
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen,
+            list = if (state.type == "NOVEL") {
+                novelListEng()
+            } else {
+                comicListEng()
+            }
         )
 
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+
 @Composable
-fun ScreenAnalyzeItemDetail(
-    viewModelDatabase: ViewModelDatabase,
-    modalSheetState: ModalBottomSheetState?,
-    setDialogOpen: ((Boolean) -> Unit)?
+fun ScreenChoosePlatform(
+    list: List<String>,
+    isClose: () -> Unit,
+    viewModelDatabase: ViewModelDatabase?,
+    modifier: Modifier,
+    fontColor: Color,
+    getValue: String
 ) {
 
-    val state = viewModelDatabase.state.collectAsState().value
-
-    Log.d("ScreenDataBaseItem", "state.menu == ${state.menu}")
-
-    if (state.menu.contains("마나바라 베스트 DB")) {
-        ScreenBookMap(
-            modalSheetState = modalSheetState,
-            setDialogOpen = setDialogOpen,
-            viewModelDatabase = viewModelDatabase
+    Column(modifier = modifier) {
+        Text(
+            modifier = modifier
+                .padding(0.dp, 16.dp)
+                .fillMaxWidth(),
+            text = "원하시는 플랫폼을 선택해 주세요.",
+            fontSize = 18.sp,
+            fontWeight = FontWeight(weight = 700),
+            textAlign = TextAlign.Center,
+            color = fontColor,
         )
 
-    } else if (state.menu.contains("주차별 베스트") || state.menu.contains("월별 베스트")) {
-        ScreenBestAnalyze(
-            viewModelDatabase = viewModelDatabase,
-            root = if (state.menu.contains("주차별 베스트")) {
-                "BEST_WEEK"
-            } else if (state.menu.contains("월별 베스트")) {
-                "BEST_MONTH"
-            } else {
-                ""
-            },
-            modalSheetState = modalSheetState,
-            setDialogOpen = setDialogOpen
-        )
+        Spacer(modifier = Modifier.size(4.dp))
 
-    } else if (state.menu.contains("장르 리스트 작품") || state.menu.contains("장르 리스트 현황")) {
+        LazyVerticalGrid(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White),
+            columns = GridCells.Fixed(4)
+        ) {
+            itemsIndexed(list) { index, item ->
 
-        ScreenGenreDetail(
-            viewModelDatabase = viewModelDatabase,
-            mode = if (state.menu.contains("장르 리스트 작품")) {
-                "GENRE_BOOK"
-            } else if (state.menu.contains("장르 리스트 현황")) {
-                "GENRE_STATUS"
-            } else {
-                "GENRE_BOOK"
-            },
-        )
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (getValue == item) {
+                            colorF6F6F6
+                        } else {
+                            Color.White
+                        }
+                    ),
+                    onClick = {
+                        viewModelDatabase?.setScreen(platform = item)
+                        isClose()
+                    },
+                    contentPadding = PaddingValues(4.dp, 8.dp),
+                    shape = RoundedCornerShape(0.dp),
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
-    } else if (state.menu.contains("투데이 장르 현황")
-        || state.menu.contains("주차별 장르 현황")
-        || state.menu.contains("월별 장르 현황")
-        || state.menu.contains("투데이 키워드 현황")
-        || state.menu.contains("주차별 키워드 현황")
-        || state.menu.contains("월별 키워드 현황")
-    ) {
-        ScreenGenreKeyword(
-            menuType = if (state.menu.contains("투데이")) {
-                "투데이"
-            } else if (state.menu.contains("주차별")) {
-                "주간"
-            } else {
-                "월간"
-            },
-            dataType = if(state.menu.contains("장르")){
-                "GENRE"
-            } else {
-                "KEYWORD"
-            },
-            viewModelDatabase = viewModelDatabase
-        )
+                        Image(
+                            contentScale = ContentScale.FillWidth,
+                            painter = painterResource(
+                                id = getPlatformLogo(changePlatformNameKor(item))
+                            ),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .height(24.dp)
+                                .width(24.dp)
+                        )
 
-    } else if (state.menu.contains("주간 장르 현황") || state.menu.contains("월간 장르 현황")) {
+                        Spacer(modifier = Modifier.size(4.dp))
 
-        GenreDetailJson(
-            viewModelDatabase = viewModelDatabase,
-            menuType = if (state.menu.contains("주간 장르 현황")) {
-                "주간"
-            } else {
-                "월간"
+                        Text(
+                            text = changePlatformNameKor(item),
+                            color = Color.Black,
+                            fontWeight = FontWeight(weight = 700),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
             }
-        )
+        }
+    }
+}
 
-    } else if (state.menu.contains("주간 키워드 현황")
-        || state.menu.contains("월간 키워드 현황")) {
+@Composable
+fun ScreenChoosePlatformFab(
+    platform: String,
+    isOpen: () -> Unit,
+) {
+    FloatingActionButton(
+        onClick = {
+            isOpen()
+        },
+        containerColor = getPlatformColorEng(platform),
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
-        GenreDetailJson(
-            viewModelDatabase = viewModelDatabase,
-            menuType = if (state.menu.contains("주간 키워드 현황")) {
-                "주간"
-            } else {
-                "월간"
-            },
-            type = "KEYWORD"
-        )
+            Spacer(modifier = Modifier.size(4.dp))
 
-    } else if (state.menu.contains("키워드 리스트 작품") || state.menu.contains("키워드 리스트 현황")) {
+            Image(
+                contentScale = ContentScale.FillWidth,
+                painter = painterResource(
+                    id = getPlatformLogo(
+                        changePlatformNameKor(platform)
+                    )
+                ),
+                contentDescription = null,
+                modifier = Modifier
+                    .height(28.dp)
+                    .width(28.dp)
+            )
 
-        ScreenGenreDetail(
-            viewModelDatabase = viewModelDatabase,
-            mode = if (state.menu.contains("키워드 리스트 작품")) {
-                "KEYWORD_BOOK"
-            } else if (state.menu.contains("키워드 리스트 현황")) {
-                "KEYWORD_STATUS"
-            } else {
-                "KEYWORD_BOOK"
-            },
-        )
+            Spacer(modifier = Modifier.size(4.dp))
 
+            Text(
+                modifier = Modifier.padding(8.dp, 0.dp, 8.dp, 4.dp),
+                text = changePlatformNameKor(platform),
+                color = Color.White,
+                fontWeight = FontWeight(weight = 700),
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }

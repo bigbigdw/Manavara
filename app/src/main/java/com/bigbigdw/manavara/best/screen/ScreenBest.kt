@@ -26,22 +26,17 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -86,7 +81,7 @@ import com.bigbigdw.manavara.util.comicListKor
 import com.bigbigdw.manavara.util.getPlatformColor
 import com.bigbigdw.manavara.util.getPlatformDescription
 import com.bigbigdw.manavara.util.getPlatformLogo
-import com.bigbigdw.manavara.util.getRandomNovel
+import com.bigbigdw.manavara.util.getRandomPlatform
 import com.bigbigdw.manavara.util.novelListKor
 import com.bigbigdw.manavara.util.screen.AlertTwoBtn
 import com.bigbigdw.manavara.util.screen.BackOnPressedMobile
@@ -118,7 +113,7 @@ fun ScreenBest(
 
     LaunchedEffect(currentRoute) {
 
-        val platform = getRandomNovel()
+        val platform = getRandomPlatform()
 
         runBlocking {
             getBestListTodayJson(

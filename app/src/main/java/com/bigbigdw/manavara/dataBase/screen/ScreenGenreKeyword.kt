@@ -682,6 +682,7 @@ fun ScreenBookList(
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
     viewModelDatabase: ViewModelDatabase,
+    list : List<String>
 ) {
 
     val state = viewModelDatabase.state.collectAsState().value
@@ -693,7 +694,7 @@ fun ScreenBookList(
             platform = state.platform,
             context = context
         ) {
-            viewModelDatabase.setFilteredList(it)
+            viewModelDatabase.setFilteredList(filteredList = it)
         }
     }
 
@@ -712,7 +713,7 @@ fun ScreenBookList(
             LazyRow(
                 modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 0.dp),
             ) {
-                itemsIndexed(novelListEng()) { index, item ->
+                itemsIndexed(list) { index, item ->
                     Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
                         ScreenItemKeyword(
                             getter = item,
@@ -762,6 +763,10 @@ fun ScreenBookList(
                     }
                 }
             }
+        }
+
+        item {
+            Spacer(modifier = Modifier.size(60.dp))
         }
     }
 }

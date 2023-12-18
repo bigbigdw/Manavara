@@ -995,10 +995,9 @@ fun getBestDetailDescription(menu: String) : String {
     }
 }
 
-fun getRandomNovel(): String {
-    val novelList = novelListEng()
-    val randomIndex = Random.nextInt(novelList.size)
-    return novelList[randomIndex]
+fun getRandomPlatform(list : List<String> = novelListEng()): String {
+    val randomIndex = Random.nextInt(list.size)
+    return list[randomIndex]
 }
 
 val menuListManavara = arrayListOf(

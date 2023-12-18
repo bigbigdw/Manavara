@@ -113,68 +113,31 @@ fun ScreenDataBaseItems(
 
             Spacer(modifier = Modifier.size(16.dp))
 
-            if (state.detail.isNotEmpty()) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(id = R.drawable.icon_arrow_left),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .width(30.dp)
+                        .height(30.dp)
+                )
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Image(
-                        painter = painterResource(id = R.drawable.icon_arrow_left),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .width(30.dp)
-                            .height(30.dp)
-                    )
-
-                    Text(
-                        modifier = Modifier
-                            .padding(16.dp, 0.dp, 0.dp, 0.dp),
-                        text = state.detail,
-                        fontSize = 24.sp,
-                        color = color000000,
-                        fontWeight = FontWeight(weight = 700)
-                    )
-                }
-
-
-            } else if (state.menu.isNotEmpty()) {
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Image(
-                        painter = painterResource(id = R.drawable.icon_arrow_left),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .width(30.dp)
-                            .height(30.dp)
-                    )
-
-                    Text(
-                        modifier = Modifier
-                            .padding(16.dp, 0.dp, 0.dp, 0.dp),
-                        text = state.menu,
-                        fontSize = 24.sp,
-                        color = color000000,
-                        fontWeight = FontWeight(weight = 700)
-                    )
-                }
+                Text(
+                    modifier = Modifier
+                        .padding(16.dp, 0.dp, 0.dp, 0.dp),
+                    text = state.menu,
+                    fontSize = 24.sp,
+                    color = color000000,
+                    fontWeight = FontWeight(weight = 700)
+                )
             }
         }
 
-        if (state.detail.isNotEmpty()) {
-
-            ScreenAnalyzeItemDetail(
-                viewModelDatabase = viewModelDatabase,
-                modalSheetState = modalSheetState,
-                setDialogOpen = setDialogOpen
-            )
-        } else {
-
-            ScreenDataBaseItem(
-                viewModelDatabase = viewModelDatabase,
-                drawerState = drawerState,
-                modalSheetState = modalSheetState,
-                setDialogOpen = setDialogOpen,
-                isExpandedScreen = isExpandedScreen
-            )
-        }
+        ScreenDataBaseItem(
+            viewModelDatabase = viewModelDatabase,
+            modalSheetState = modalSheetState,
+            setDialogOpen = setDialogOpen
+        )
     }
 }
 
@@ -509,6 +472,11 @@ fun ScreenBestAnalyze(
                     }
                 }
             }
+
+            item {
+                Spacer(modifier = Modifier.size(60.dp))
+            }
+
         } else {
             item { ScreenEmpty(str = "데이터가 없습니다") }
         }
@@ -737,32 +705,6 @@ fun ScreenSearchDataBase(
         }
 
         item {
-            LazyRow(
-                modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 0.dp),
-            ) {
-                itemsIndexed(novelListEng()) { index, item ->
-                    Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
-                        ScreenItemKeyword(
-                            getter = item,
-                            onClick = {
-                                coroutineScope.launch {
-                                    viewModelDatabase.setScreen(
-                                        platform = item,
-                                        type = "NOVEL",
-                                        menu = state.menu,
-                                        menuDesc = state.menuDesc
-                                    )
-                                }
-                            },
-                            title = changePlatformNameKor(item),
-                            getValue = state.platform
-                        )
-                    }
-                }
-            }
-        }
-
-        item {
             Spacer(modifier = Modifier.size(4.dp))
         }
 
@@ -857,32 +799,6 @@ fun ScreenSearchDataBaseDetail(
 
         item {
             Spacer(modifier = Modifier.size(8.dp))
-        }
-
-        item {
-            LazyRow(
-                modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 0.dp),
-            ) {
-                itemsIndexed(novelListEng()) { index, item ->
-                    Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
-                        ScreenItemKeyword(
-                            getter = item,
-                            onClick = {
-                                coroutineScope.launch {
-                                    viewModelDatabase.setScreen(
-                                        platform = item,
-                                        type = "NOVEL",
-                                        menu = state.menu,
-                                        menuDesc = state.menuDesc
-                                    )
-                                }
-                            },
-                            title = changePlatformNameKor(item),
-                            getValue = state.platform
-                        )
-                    }
-                }
-            }
         }
 
         item {

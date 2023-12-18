@@ -233,9 +233,15 @@ fun getGenreKeywordToday(
                     }
                 }
 
-                val cmpAsc: java.util.Comparator<ItemKeyword> =
-                    Comparator { o1, o2 -> o2.value.toInt().compareTo(o1.value.toInt()) }
-                Collections.sort(arrayList, cmpAsc)
+                if(dataType == "KEYWORD"){
+                    val cmpAsc: java.util.Comparator<ItemKeyword> =
+                        Comparator { o1, o2 -> o2.value.split("\\s+".toRegex()).count { it.isNotEmpty() }.compareTo(o1.value.split("\\s+".toRegex()).count { it.isNotEmpty() }) }
+                    Collections.sort(arrayList, cmpAsc)
+                } else {
+                    val cmpAsc: java.util.Comparator<ItemKeyword> =
+                        Comparator { o1, o2 -> o2.value.toInt().compareTo(o1.value.toInt()) }
+                    Collections.sort(arrayList, cmpAsc)
+                }
 
                 callbacks.invoke(arrayList)
 
