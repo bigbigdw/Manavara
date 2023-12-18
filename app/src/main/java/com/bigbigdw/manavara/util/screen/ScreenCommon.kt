@@ -246,7 +246,8 @@ fun AlertTwoBtn(
     btnLeft: String,
     btnRight: String,
     contents: @Composable () -> Unit,
-    modifier: Modifier
+    modifier: Modifier,
+    btnLeftColor : Color = color8F8F8F
 ) {
 
     Box(
@@ -290,7 +291,7 @@ fun AlertTwoBtn(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Button(
-                                colors = ButtonDefaults.buttonColors(containerColor = color8F8F8F),
+                                colors = ButtonDefaults.buttonColors(containerColor = btnLeftColor),
 
                                 onClick = { onClickLeft() },
                                 modifier = Modifier

@@ -771,11 +771,7 @@ fun ScreenDialogBest(
             }
 
             Button(
-                colors = ButtonDefaults.buttonColors(containerColor = if (isPicked) {
-                    color4AD7CF
-                } else {
-                    color8F8F8F
-                }),
+                colors = ButtonDefaults.buttonColors(containerColor = color20459E),
                 onClick = {
                     onClickRight()
                 },

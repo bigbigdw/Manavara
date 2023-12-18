@@ -67,6 +67,7 @@ import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color4AD7CF
 import com.bigbigdw.manavara.ui.theme.color5372DE
+import com.bigbigdw.manavara.ui.theme.color8F8F8F
 import com.bigbigdw.manavara.ui.theme.color998DF9
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.util.changePlatformNameEng
@@ -467,7 +468,13 @@ fun BestDialog(
     Dialog(
         onDismissRequest = { onDismissRequest() },
     ) {
-        AlertTwoBtn(onClickLeft = {
+        AlertTwoBtn(
+            btnLeftColor = if (state.isPicked) {
+                color4AD7CF
+            } else {
+                color8F8F8F
+            },
+            onClickLeft = {
             if (state.isPicked) {
                 viewModelMain.setUnPickBook(
                     platform = item.platform, type = "NOVEL", item = item
