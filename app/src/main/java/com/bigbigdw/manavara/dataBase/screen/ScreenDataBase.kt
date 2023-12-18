@@ -150,7 +150,8 @@ fun ScreenDataBase(
                 onDismissRequest = { setDialogOpen(false) },
                 itemBestInfoTrophyList = state.itemBestInfoTrophyList,
                 item = state.itemBookInfo,
-                isExpandedScreen = isExpandedScreen
+                isExpandedScreen = isExpandedScreen,
+                type = state.type
             )
         }
 

@@ -93,7 +93,7 @@ import kotlinx.coroutines.runBlocking
 @Composable
 fun ScreenBest(
     isExpandedScreen: Boolean,
-    currentRoute: String?,
+    currentRoute: String,
 ) {
 
     val context = LocalContext.current
@@ -171,7 +171,8 @@ fun ScreenBest(
                         onDismissRequest = { setDialogOpen(false) },
                         itemBestInfoTrophyList = state.itemBestInfoTrophyList,
                         item = item,
-                        isExpandedScreen = isExpandedScreen
+                        isExpandedScreen = isExpandedScreen,
+                        type = state.type
                     )
                 }
 
@@ -446,7 +447,8 @@ fun BestDialog(
     onDismissRequest: () -> Unit,
     itemBestInfoTrophyList: ArrayList<ItemBestInfo>,
     item: ItemBookInfo,
-    isExpandedScreen: Boolean
+    isExpandedScreen: Boolean,
+    type: String
 ) {
 
     val viewModelStoreOwner =
@@ -476,12 +478,16 @@ fun BestDialog(
                 )
             }
         }, onClickRight = {
-            val intent = Intent(context, ActivityBestDetail::class.java)
-            intent.putExtra("BOOKCODE", item.bookCode)
-            intent.putExtra("PLATFORM", item.platform)
-            intent.putExtra("TYPE", item.platform)
-            context.startActivity(intent)
-            onDismissRequest()
+
+            if(item.bookCode.isNotEmpty()){
+                val intent = Intent(context, ActivityBestDetail::class.java)
+                intent.putExtra("BOOKCODE", item.bookCode)
+                intent.putExtra("PLATFORM", item.platform)
+                intent.putExtra("TYPE", type)
+                context.startActivity(intent)
+                onDismissRequest()
+            }
+
         }, btnLeft = if (state.isPicked) {
             "작품 PICK 해제"
         } else {
@@ -547,12 +553,15 @@ fun BestBottomDialog(
         },
         onClickRight = {
             coroutineScope.launch {
-                val intent = Intent(context, ActivityBestDetail::class.java)
-                intent.putExtra("BOOKCODE", item.bookCode)
-                intent.putExtra("PLATFORM", item.platform)
-                intent.putExtra("TYPE", currentRoute)
-                context.startActivity(intent)
-                modalSheetState.hide()
+
+                if(item.bookCode.isNotEmpty()){
+                    val intent = Intent(context, ActivityBestDetail::class.java)
+                    intent.putExtra("BOOKCODE", item.bookCode)
+                    intent.putExtra("PLATFORM", item.platform)
+                    intent.putExtra("TYPE", currentRoute)
+                    context.startActivity(intent)
+                    modalSheetState.hide()
+                }
             }
         })
 }

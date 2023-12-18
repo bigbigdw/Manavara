@@ -114,7 +114,9 @@ class ViewModelBestDetail @Inject constructor() : ViewModel() {
                 }
             }
 
-            override fun onCancelled(databaseError: DatabaseError) {}
+            override fun onCancelled(databaseError: DatabaseError) {
+
+            }
         })
     }
 

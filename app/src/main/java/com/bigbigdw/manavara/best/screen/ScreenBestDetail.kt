@@ -111,6 +111,9 @@ fun ScreenBestDetail(
     val viewModelMain: ViewModelMain = viewModel(viewModelStoreOwner = viewModelStoreOwner)
     val stateMain = viewModelMain.state.collectAsState().value
     val stateDetail = viewModelBestDetail.state.collectAsState().value
+    val (getMenu, setMenu) = remember { mutableStateOf("") }
+    val item = viewModelBestDetail.state.collectAsState().value.itemBestDetailInfo
+    val itemBestInfo = viewModelBestDetail.state.collectAsState().value.itemBestInfo
 
     LaunchedEffect(bookCode) {
 
@@ -129,11 +132,26 @@ fun ScreenBestDetail(
         }
     }
 
-    val (getMenu, setMenu) = remember { mutableStateOf("") }
-    val item = viewModelBestDetail.state.collectAsState().value.itemBestDetailInfo
-    val itemBestInfo = viewModelBestDetail.state.collectAsState().value.itemBestInfo
+    if (isExpandedScreen) {
 
-    if (!isExpandedScreen) {
+        ScreenTabletBestDetail(
+            viewModelBestDetail = viewModelBestDetail,
+            isExpandedScreen = isExpandedScreen,
+            platform = platform,
+            bookCode = bookCode,
+            type = type,
+            getMenu = getMenu,
+            setMenu = setMenu,
+            item = item,
+            viewModelMain = viewModelMain
+        )
+
+        BestDetailBackOnPressed(
+            getMenu = getMenu,
+            setMenu = setMenu
+        )
+
+    } else {
 
         if (getMenu.isEmpty()) {
             setMenu("작품 상세")
@@ -206,7 +224,7 @@ fun ScreenBestDetail(
                                 .weight(1f)
                                 .height(48.dp),
 
-                        ) {
+                            ) {
                             Text(
                                 text = if (stateMain.isPicked) {
                                     "작품 PICK 해제"
@@ -228,7 +246,7 @@ fun ScreenBestDetail(
                             colors = ButtonDefaults.buttonColors(containerColor = color20459E),
                             shape = RoundedCornerShape(0.dp),
                             onClick = {
-                               gotoUrl(
+                                gotoUrl(
                                     platform = platform,
                                     bookCode = bookCode,
                                     context = context
@@ -272,24 +290,6 @@ fun ScreenBestDetail(
             }
         }
 
-    } else {
-
-        ScreenTabletBestDetail(
-            viewModelBestDetail = viewModelBestDetail,
-            isExpandedScreen = isExpandedScreen,
-            platform = platform,
-            bookCode = bookCode,
-            type = type,
-            getMenu = getMenu,
-            setMenu = setMenu,
-            item = item,
-            viewModelMain = viewModelMain
-        )
-
-        BestDetailBackOnPressed(
-            getMenu = getMenu,
-            setMenu = setMenu
-        )
     }
 }
 
@@ -1184,11 +1184,14 @@ fun ScreenBestDetailOther(
                 ),
                 shape = RoundedCornerShape(20.dp),
                 onClick = {
-                    val intent = Intent(context, ActivityBestDetail::class.java)
-                    intent.putExtra("BOOKCODE", itemBookInfo.bookCode)
-                    intent.putExtra("PLATFORM", itemBookInfo.platform)
-                    intent.putExtra("TYPE", type)
-                    context.startActivity(intent)
+
+                    if(itemBookInfo.bookCode.isNotEmpty()){
+                        val intent = Intent(context, ActivityBestDetail::class.java)
+                        intent.putExtra("BOOKCODE", itemBookInfo.bookCode)
+                        intent.putExtra("PLATFORM", itemBookInfo.platform)
+                        intent.putExtra("TYPE", type)
+                        context.startActivity(intent)
+                    }
                 },
                 content = {
                     Column(

@@ -62,7 +62,7 @@ fun ScreenMain(
 
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
+    val currentRoute = navBackStackEntry?.destination?.route ?: ""
 
     if (isExpandedScreen) {
 
@@ -86,7 +86,7 @@ fun ScreenMain(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenMainTablet(
-    currentRoute: String?,
+    currentRoute: String,
     navController: NavHostController,
     isExpandedScreen: Boolean,
 ) {
@@ -106,7 +106,7 @@ fun ScreenMainTablet(
 @Composable
 fun ScreenMainMobile(
     navController: NavHostController,
-    currentRoute: String?,
+    currentRoute: String,
     isExpandedScreen: Boolean,
 ) {
 
@@ -187,7 +187,7 @@ fun BottomNavScreen(navController: NavHostController, currentRoute: String?) {
 fun NavigationGraph(
     navController: NavHostController,
     isExpandedScreen: Boolean,
-    currentRoute: String?,
+    currentRoute: String,
 ) {
 
     NavHost(
@@ -198,7 +198,7 @@ fun NavigationGraph(
 
             ScreenBest(
                 isExpandedScreen = isExpandedScreen,
-                currentRoute = currentRoute
+                currentRoute = "NOVEL"
             )
 
         }
@@ -206,7 +206,7 @@ fun NavigationGraph(
 
             ScreenBest(
                 isExpandedScreen = isExpandedScreen,
-                currentRoute = currentRoute
+                currentRoute = "COMIC"
             )
 
         }
@@ -214,7 +214,7 @@ fun NavigationGraph(
 
             ScreenDataBase(
                 isExpandedScreen = isExpandedScreen,
-                currentRoute = currentRoute
+                currentRoute = "NOVEL"
             )
 
         }
@@ -222,7 +222,7 @@ fun NavigationGraph(
 
             ScreenDataBase(
                 isExpandedScreen = isExpandedScreen,
-                currentRoute = currentRoute
+                currentRoute = "COMIC"
             )
 
         }
