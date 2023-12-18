@@ -247,7 +247,8 @@ fun AlertTwoBtn(
     btnRight: String,
     contents: @Composable () -> Unit,
     modifier: Modifier,
-    btnLeftColor : Color = color8F8F8F
+    btnLeftColor : Color = color8F8F8F,
+    btnLeftTextColor : Color = Color.White,
 ) {
 
     Box(
@@ -303,7 +304,7 @@ fun AlertTwoBtn(
                                 Text(
                                     text = btnLeft,
                                     textAlign = TextAlign.Center,
-                                    color = Color.White,
+                                    color = btnLeftTextColor,
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold
                                 )

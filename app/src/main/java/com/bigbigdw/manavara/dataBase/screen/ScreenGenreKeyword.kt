@@ -538,7 +538,9 @@ fun GenreDetailJson(
                             }
                         }
                     } else {
-                        ScreenEmpty(str = "데이터가 없습니다")
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            ScreenEmpty(str = "데이터가 없습니다")
+                        }
                     }
                 }
             }
@@ -670,7 +672,9 @@ fun GenreDetailJson(
                             item { Spacer(modifier = Modifier.size(60.dp)) }
                         }
                     } else {
-                        ScreenEmpty(str = "데이터가 없습니다")
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            ScreenEmpty(str = "데이터가 없습니다")
+                        }
                     }
                 }
             }

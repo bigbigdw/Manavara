@@ -440,7 +440,11 @@ fun ScreenTodayWeek(
                     }
                 }
             } else {
-                item { ScreenEmpty(str = "데이터가 없습니다") }
+                item {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        ScreenEmpty(str = "데이터가 없습니다")
+                    }
+                }
             }
         }
     }
@@ -627,7 +631,9 @@ fun ScreenTodayMonth(
                     }
                 }
             } else {
-                ScreenEmpty(str = "데이터가 없습니다")
+                Box(modifier = Modifier.fillMaxSize()) {
+                    ScreenEmpty(str = "데이터가 없습니다")
+                }
             }
         }
     }

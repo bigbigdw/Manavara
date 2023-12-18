@@ -178,6 +178,9 @@ fun ScreenBest(
                 }
 
                 Scaffold(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(color = colorF6F6F6),
                     floatingActionButton = {
                         Column {
                             if (getFab) {
@@ -193,7 +196,7 @@ fun ScreenBest(
                 ) {
 
                     Row(
-                        modifier = Modifier.padding(it)
+                        modifier = Modifier.padding(it).background(color = colorF6F6F6)
                     ) {
                         ScreenBestPropertyList(
                             listState = listState,
@@ -233,7 +236,11 @@ fun ScreenBest(
                     )
 
                 }) {
-                    Scaffold(topBar = {
+                    Scaffold(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(color = colorF6F6F6),
+                        topBar = {
                         ScreenTopbar(
                             detail = "${changePlatformNameKor(state.platform)} ${state.detail}",
                             menu = "${changePlatformNameKor(state.platform)} ${state.menu}"
@@ -469,6 +476,11 @@ fun BestDialog(
         onDismissRequest = { onDismissRequest() },
     ) {
         AlertTwoBtn(
+            btnLeftTextColor = if (state.isPicked) {
+                Color.Black
+            } else {
+                Color.White
+            },
             btnLeftColor = if (state.isPicked) {
                 color4AD7CF
             } else {

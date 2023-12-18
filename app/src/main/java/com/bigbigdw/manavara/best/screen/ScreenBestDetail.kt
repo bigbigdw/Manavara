@@ -198,9 +198,9 @@ fun ScreenBestDetail(
                         Button(
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = if (stateMain.isPicked) {
-                                    color4AD7CF
-                                } else {
                                     color8F8F8F
+                                } else {
+                                    color4AD7CF
                                 }
                             ),
                             shape = RoundedCornerShape(0.dp),
@@ -233,9 +233,9 @@ fun ScreenBestDetail(
                                 },
                                 textAlign = TextAlign.Center,
                                 color = if (stateMain.isPicked) {
-                                    Color.Black
-                                } else {
                                     Color.White
+                                } else {
+                                    Color.Black
                                 },
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold
@@ -1225,11 +1225,8 @@ fun ScreenBestDetailOther(
             Spacer(modifier = Modifier.size(16.dp))
         }
     } else {
-        Box(
-            modifier = Modifier
-                .height(500.dp)
-                .fillMaxWidth()
-        ) {
+
+        Box(modifier = Modifier.fillMaxSize()) {
             ScreenEmpty(str = "작품이 없습니다")
         }
     }
