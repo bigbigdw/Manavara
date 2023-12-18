@@ -5,8 +5,6 @@ import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,7 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -53,7 +50,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -69,10 +65,8 @@ import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.viewModels.ViewModelBest
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.ui.theme.color000000
-import com.bigbigdw.manavara.ui.theme.color1E4394
 import com.bigbigdw.manavara.ui.theme.color4AD7CF
 import com.bigbigdw.manavara.ui.theme.color5372DE
-import com.bigbigdw.manavara.ui.theme.color555b68
 import com.bigbigdw.manavara.ui.theme.color998DF9
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.util.changePlatformNameEng
@@ -87,6 +81,7 @@ import com.bigbigdw.manavara.util.screen.AlertTwoBtn
 import com.bigbigdw.manavara.util.screen.BackOnPressedMobile
 import com.bigbigdw.manavara.util.screen.ItemMainSettingSingleTablet
 import com.bigbigdw.manavara.util.screen.ScreenTest
+import com.bigbigdw.manavara.util.screen.ScreenTopbar
 import deleteJson
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -110,6 +105,7 @@ fun ScreenBest(
     val item = state.itemBookInfo
     val listState = rememberLazyListState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val (getFab, setFab) = remember { mutableStateOf(false) }
 
     LaunchedEffect(currentRoute) {
 
@@ -117,12 +113,10 @@ fun ScreenBest(
 
         runBlocking {
             getBestListTodayJson(
-                context = context,
-                platform = platform,
-                type = currentRoute ?: ""
-            ){ json ->
+                context = context, platform = platform, type = currentRoute ?: ""
+            ) { json ->
 
-                if(json.isNotEmpty()){
+                if (json.isNotEmpty()) {
                     getBestListTodayStorage(
                         context = context,
                         platform = platform,
@@ -153,15 +147,15 @@ fun ScreenBest(
         )
 
         coroutineScope.launch {
-            viewModelBest.sideEffects
-                .onEach { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
-                .launchIn(coroutineScope)
+            viewModelBest.sideEffects.onEach {
+                    Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                }.launchIn(coroutineScope)
 
         }
 
     }
 
-    if(state.platform.isNotEmpty()){
+    if (state.platform.isNotEmpty()) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
@@ -170,7 +164,7 @@ fun ScreenBest(
             if (isExpandedScreen) {
 
                 val (getDialogOpen, setDialogOpen) = remember { mutableStateOf(false) }
-                val (getFab, setFab) = remember { mutableStateOf(false) }
+
 
                 if (getDialogOpen) {
                     BestDialog(
@@ -185,53 +179,19 @@ fun ScreenBest(
                     floatingActionButton = {
                         Column {
                             if (getFab) {
-
-                                BestScreenFab(
-                                    viewModelBest = viewModelBest,
-                                    setFab = {setFab(false)}
-                                )
-
+                                BestScreenFab(viewModelBest = viewModelBest,
+                                    setFab = { setFab(false) })
                             } else {
-                                FloatingActionButton(
-                                    onClick = {
-                                        setFab(true)
-                                    },
-                                    containerColor = when (state.detail) {
-                                        "투데이 베스트" -> {
-                                            color4AD7CF
-                                        }
-                                        "주간 베스트" -> {
-                                            color5372DE
-                                        }
-                                        else -> {
-                                            color998DF9
-                                        }
-                                    },
-                                ) {
-                                    Text(
-                                        text = when (state.detail) {
-                                            "투데이 베스트" -> {
-                                                "투데이"
-                                            }
-                                            "주간 베스트" -> {
-                                                "주간"
-                                            }
-                                            else -> {
-                                                "월간"
-                                            }
-                                        },
-                                        color = Color.White,
-                                        fontWeight = FontWeight(weight = 700)
-                                    )
-                                }
+                                BestScreenFabResult(
+                                    setFab = { setFab(true) }, detail = state.detail
+                                )
                             }
                         }
                     }, floatingActionButtonPosition = FabPosition.End
                 ) {
 
                     Row(
-                        modifier = Modifier
-                            .padding(it)
+                        modifier = Modifier.padding(it)
                     ) {
                         ScreenBestPropertyList(
                             listState = listState,
@@ -271,16 +231,28 @@ fun ScreenBest(
                     )
 
                 }) {
-                    Scaffold(
-                        topBar = {
-                            ScreenBestTopbar(viewModelBest = viewModelBest, onClick = {
-                                coroutineScope.launch {
-                                    drawerState.open()
-                                }
-                            })
-                        },
-
+                    Scaffold(topBar = {
+                        ScreenTopbar(
+                            detail = "${changePlatformNameKor(state.platform)} ${state.detail}",
+                            menu = "${changePlatformNameKor(state.platform)} ${state.menu}"
                         ) {
+                            coroutineScope.launch {
+                                drawerState.open()
+                            }
+                        }
+                    }, floatingActionButton = {
+                        Column {
+                            if (getFab) {
+                                BestScreenFab(viewModelBest = viewModelBest,
+                                    setFab = { setFab(false) })
+                            } else {
+                                BestScreenFabResult(
+                                    setFab = { setFab(true) }, detail = state.detail
+                                )
+                            }
+                        }
+                    }, floatingActionButtonPosition = FabPosition.End
+                    ) {
                         Box(
                             Modifier
                                 .padding(it)
@@ -301,8 +273,7 @@ fun ScreenBest(
                             sheetState = modalSheetState,
                             sheetElevation = 50.dp,
                             sheetShape = RoundedCornerShape(
-                                topStart = 25.dp,
-                                topEnd = 25.dp
+                                topStart = 25.dp, topEnd = 25.dp
                             ),
                             sheetContent = {
 
@@ -334,9 +305,7 @@ fun ScreenBest(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenBestPropertyList(
-    listState: LazyListState,
-    drawerState: DrawerState?,
-    viewModelBest: ViewModelBest
+    listState: LazyListState, drawerState: DrawerState?, viewModelBest: ViewModelBest
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -473,109 +442,6 @@ fun ScreenMainBestItemDetail(
 }
 
 @Composable
-fun ScreenBestTopbar(viewModelBest: ViewModelBest, onClick: () -> Unit) {
-    val state = viewModelBest.state.collectAsState().value
-
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .background(color = Color.White)
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-
-        Box(
-            modifier = Modifier.weight(1f)
-        ) {
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable { onClick() }) {
-                Image(
-                    painter = painterResource(id = R.drawable.icon_drawer),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(22.dp)
-                        .height(22.dp)
-                )
-
-                Spacer(
-                    modifier = Modifier.size(8.dp)
-                )
-
-                Text(
-                    text = "${changePlatformNameKor(state.platform)} 베스트",
-                    fontSize = 20.sp,
-                    textAlign = TextAlign.Left,
-                    color = color000000,
-                    fontWeight = FontWeight.Bold
-                )
-
-            }
-
-        }
-
-        Text(
-            modifier = Modifier.clickable {
-                viewModelBest.setScreen(detail = "TODAY_BEST")
-            },
-            text = "투데이",
-            fontSize = 18.sp,
-            textAlign = TextAlign.Left,
-            color = if (state.detail.contains("TODAY_BEST")) {
-                color1E4394
-            } else {
-                color555b68
-            },
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(
-            modifier = Modifier
-                .wrapContentWidth()
-                .width(16.dp)
-        )
-
-        Text(
-            modifier = Modifier.clickable {
-                viewModelBest.setScreen(detail = "WEEK_BEST")
-            },
-            text = "주간",
-            fontSize = 18.sp,
-            textAlign = TextAlign.Left,
-            color = if (state.detail.contains("WEEK_BEST")) {
-                color1E4394
-            } else {
-                color555b68
-            },
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(
-            modifier = Modifier
-                .wrapContentWidth()
-                .width(16.dp)
-        )
-
-        Text(
-            modifier = Modifier.clickable {
-                viewModelBest.setScreen(detail = "MONTH_BEST")
-            },
-            text = "월간",
-            fontSize = 18.sp,
-            textAlign = TextAlign.Left,
-            color = if (state.detail.contains("MONTH_BEST")) {
-                color1E4394
-            } else {
-                color555b68
-            },
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
-
-@Composable
 fun BestDialog(
     onDismissRequest: () -> Unit,
     itemBestInfoTrophyList: ArrayList<ItemBestInfo>,
@@ -592,63 +458,46 @@ fun BestDialog(
 
     LaunchedEffect(item.bookCode) {
         viewModelMain.setIsPicked(
-            type = "NOVEL",
-            platform = item.platform,
-            bookCode = item.bookCode
+            type = "NOVEL", platform = item.platform, bookCode = item.bookCode
         )
     }
 
     Dialog(
         onDismissRequest = { onDismissRequest() },
     ) {
-        AlertTwoBtn(
-            onClickLeft = {
-                if (state.isPicked) {
-                    viewModelMain.setUnPickBook(
-                        type = "NOVEL",
-                        platform = item.platform,
-                        item = item,
-                        context = context
-                    )
-                } else {
-                    viewModelMain.setPickBook(
-                        type = "NOVEL",
-                        platform = item.platform,
-                        item = item,
-                        context = context
-                    )
-                }
-            },
-            onClickRight = {
-                val intent = Intent(context, ActivityBestDetail::class.java)
-                intent.putExtra("BOOKCODE", item.bookCode)
-                intent.putExtra("PLATFORM", item.platform)
-                intent.putExtra("TYPE", item.platform)
-                context.startActivity(intent)
-                onDismissRequest()
-            },
-            btnLeft = if (state.isPicked) {
-                "작품 PICK 해제"
+        AlertTwoBtn(onClickLeft = {
+            if (state.isPicked) {
+                viewModelMain.setUnPickBook(
+                    platform = item.platform, type = "NOVEL", item = item
+                )
             } else {
-                "작품 PICK 하기"
-            },
-            btnRight = "작품 보러가기",
-            modifier = Modifier.requiredWidth(400.dp),
-            contents = {
-                ScreenDialogBest(
-                    item = item,
-                    trophy = itemBestInfoTrophyList,
-                    isExpandedScreen = isExpandedScreen,
-                    isPicked = state.isPicked,
-                    btnPickText = if (state.isPicked) {
-                        "작품 PICK 해제"
-                    } else {
-                        "작품 PICK 하기"
-                    },
-                    onClickLeft = {}
-                ) {}
+                viewModelMain.setPickBook(
+                    type = "NOVEL", platform = item.platform, item = item, context = context
+                )
             }
-        )
+        }, onClickRight = {
+            val intent = Intent(context, ActivityBestDetail::class.java)
+            intent.putExtra("BOOKCODE", item.bookCode)
+            intent.putExtra("PLATFORM", item.platform)
+            intent.putExtra("TYPE", item.platform)
+            context.startActivity(intent)
+            onDismissRequest()
+        }, btnLeft = if (state.isPicked) {
+            "작품 PICK 해제"
+        } else {
+            "작품 PICK 하기"
+        }, btnRight = "작품 보러가기", modifier = Modifier.requiredWidth(400.dp), contents = {
+            ScreenDialogBest(item = item,
+                trophy = itemBestInfoTrophyList,
+                isExpandedScreen = isExpandedScreen,
+                isPicked = state.isPicked,
+                btnPickText = if (state.isPicked) {
+                    "작품 PICK 해제"
+                } else {
+                    "작품 PICK 하기"
+                },
+                onClickLeft = {}) {}
+        })
     }
 }
 
@@ -672,18 +521,14 @@ fun BestBottomDialog(
 
     LaunchedEffect(item.bookCode) {
         viewModelMain.setIsPicked(
-            type = "NOVEL",
-            platform = item.platform,
-            bookCode = item.bookCode
+            type = "NOVEL", platform = item.platform, bookCode = item.bookCode
         )
     }
 
-    ScreenDialogBest(
-        item = item,
+    ScreenDialogBest(item = item,
         trophy = itemBestInfoTrophyList,
         isExpandedScreen = isExpandedScreen,
         isPicked = state.isPicked,
-        needTrophyList = false,
         btnPickText = if (state.isPicked) {
             "작품 PICK 해제"
         } else {
@@ -692,17 +537,11 @@ fun BestBottomDialog(
         onClickLeft = {
             if (state.isPicked) {
                 viewModelMain.setUnPickBook(
-                    type = "NOVEL",
-                    platform = item.platform,
-                    item = item,
-                    context = context
+                    platform = item.platform, type = "NOVEL", item = item
                 )
             } else {
                 viewModelMain.setPickBook(
-                    type = "NOVEL",
-                    platform = item.platform,
-                    item = item,
-                    context = context
+                    type = "NOVEL", platform = item.platform, item = item, context = context
                 )
             }
         },
@@ -730,9 +569,7 @@ fun BestScreenFab(viewModelBest: ViewModelBest, setFab: () -> Unit) {
         containerColor = color4AD7CF,
     ) {
         Text(
-            text = "투데이",
-            color = Color.White,
-            fontWeight = FontWeight(weight = 700)
+            text = "투데이", color = Color.White, fontWeight = FontWeight(weight = 700)
         )
     }
 
@@ -748,9 +585,7 @@ fun BestScreenFab(viewModelBest: ViewModelBest, setFab: () -> Unit) {
         containerColor = color5372DE,
     ) {
         Text(
-            text = "주간",
-            color = Color.White,
-            fontWeight = FontWeight(weight = 700)
+            text = "주간", color = Color.White, fontWeight = FontWeight(weight = 700)
         )
     }
 
@@ -766,9 +601,46 @@ fun BestScreenFab(viewModelBest: ViewModelBest, setFab: () -> Unit) {
         containerColor = color998DF9,
     ) {
         Text(
-            text = "월간",
-            color = Color.White,
-            fontWeight = FontWeight(weight = 700)
+            text = "월간", color = Color.White, fontWeight = FontWeight(weight = 700)
         )
     }
 }
+
+@Composable
+fun BestScreenFabResult(setFab: () -> Unit, detail: String) {
+    FloatingActionButton(
+        onClick = {
+            setFab()
+        },
+        containerColor = when (detail) {
+            "투데이 베스트" -> {
+                color4AD7CF
+            }
+
+            "주간 베스트" -> {
+                color5372DE
+            }
+
+            else -> {
+                color998DF9
+            }
+        },
+    ) {
+        Text(
+            text = when (detail) {
+                "투데이 베스트" -> {
+                    "투데이"
+                }
+
+                "주간 베스트" -> {
+                    "주간"
+                }
+
+                else -> {
+                    "월간"
+                }
+            }, color = Color.White, fontWeight = FontWeight(weight = 700)
+        )
+    }
+}
+

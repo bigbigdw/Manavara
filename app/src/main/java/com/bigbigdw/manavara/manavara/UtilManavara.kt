@@ -351,10 +351,10 @@ private fun getBoard(Url: String, ID : String) {
 }
 
 //TODO : UID 받아오는 부분 처리
-fun getPickList(type : String, root : String = "MY", callbacks: (ArrayList<String>, ArrayList<ItemBookInfo>) -> Unit){
+fun getPickList(uid : String = "ecXPTeFiDnV732gOiaD8u525NnE3", type : String, root : String = "MY", callbacks: (ArrayList<String>, ArrayList<ItemBookInfo>) -> Unit){
     val rootRef = FirebaseDatabase.getInstance().reference
         .child("USER")
-        .child("A8uh2QkVQaV3Q3rE8SgBNKzV6VH2")
+        .child(uid)
         .child("PICK")
         .child(root)
         .child(type)
@@ -385,10 +385,6 @@ fun getPickList(type : String, root : String = "MY", callbacks: (ArrayList<Strin
 
             }
 
-            if(root != "MY"){
-                pickCategory.add("리스트 만들기")
-            }
-
             val cmpAsc: java.util.Comparator<ItemBookInfo> =
                 Comparator { o1, o2 -> o1.title.compareTo(o2.title) }
             Collections.sort(pickItemList, cmpAsc)
@@ -403,6 +399,7 @@ fun getPickList(type : String, root : String = "MY", callbacks: (ArrayList<Strin
 fun setSharePickList(
     listName: String,
     type : String,
+    uid : String = "ecXPTeFiDnV732gOiaD8u525NnE3",
     pickCategory: ArrayList<String>,
     pickItemList: ArrayList<ItemBookInfo>,
     initTitle: () -> Unit
@@ -424,7 +421,7 @@ fun setSharePickList(
 
     FirebaseDatabase.getInstance().reference
         .child("USER")
-        .child("A8uh2QkVQaV3Q3rE8SgBNKzV6VH2")
+        .child(uid)
         .child("PICK")
         .child("SHARE")
         .child(type)
@@ -443,12 +440,13 @@ fun setSharePickList(
 fun getUserPickShareList(
     type: String,
     root : String,
+    uid : String = "ecXPTeFiDnV732gOiaD8u525NnE3",
     callbacks: (ArrayList<String>, MutableMap<String, ArrayList<ItemBookInfo>>) -> Unit
 ){
     val rootRef = if(root == "SHARE"){
         FirebaseDatabase.getInstance().reference
             .child("USER")
-            .child("A8uh2QkVQaV3Q3rE8SgBNKzV6VH2")
+            .child(uid)
             .child("PICK")
             .child("SHARE")
             .child(type)
@@ -466,32 +464,33 @@ fun getUserPickShareList(
 
             if (dataSnapshot.exists()) {
 
-                for(category in dataSnapshot.children){
-                    pickCategory.add(category.key ?: "")
-                    val itemList = ArrayList<ItemBookInfo>()
+                try {
+                    for (category in dataSnapshot.children) {
+                        pickCategory.add(category.key ?: "")
+                        val itemList = ArrayList<ItemBookInfo>()
 
-                    for(pickItem in category.children){
-                        val item = pickItem.getValue(ItemBookInfo::class.java)
+                        for (pickItem in category.children) {
+                            val item = pickItem.getValue(ItemBookInfo::class.java)
 
-                        if(item != null){
-                            itemList.add(item)
+                            if (item != null) {
+                                itemList.add(item)
+                            }
                         }
+
+                        val cmpAsc: java.util.Comparator<ItemBookInfo> =
+                            Comparator { o1, o2 -> o1.title.compareTo(o2.title) }
+                        Collections.sort(itemList, cmpAsc)
+
+                        pickItemList[category.key ?: ""] = itemList
                     }
 
-                    val cmpAsc: java.util.Comparator<ItemBookInfo> =
-                        Comparator { o1, o2 -> o1.title.compareTo(o2.title) }
-                    Collections.sort(itemList, cmpAsc)
-
-                    pickItemList[category.key ?: ""] = itemList
+                    callbacks.invoke(pickCategory, pickItemList)
+                } catch (e: Exception) {
+                    callbacks.invoke(pickCategory, pickItemList)
                 }
-
+            } else {
+                callbacks.invoke(pickCategory, pickItemList)
             }
-
-            if(root == "SHARE"){
-                pickCategory.add("리스트 만들기")
-            }
-
-            callbacks.invoke(pickCategory, pickItemList)
         }
 
         override fun onCancelled(databaseError: DatabaseError) {}
@@ -501,7 +500,7 @@ fun getUserPickShareList(
 fun editSharePickList(
     type : String,
     status : String,
-    uid : String = "A8uh2QkVQaV3Q3rE8SgBNKzV6VH2",
+    uid : String = "ecXPTeFiDnV732gOiaD8u525NnE3",
     listName: String,
     pickItemList: ArrayList<ItemBookInfo>?,
 ){
@@ -515,6 +514,13 @@ fun editSharePickList(
             .child(type)
             .child(listName)
             .removeValue()
+
+        FirebaseDatabase.getInstance().reference
+            .child("PICK_SHARE")
+            .child(type)
+            .child(listName)
+            .removeValue()
+
     } else {
         val pickItemListMap = mutableMapOf<String, ItemBookInfo>()
 
@@ -529,6 +535,12 @@ fun editSharePickList(
             .child(uid)
             .child("PICK")
             .child("SHARE")
+            .child(type)
+            .child(listName)
+            .setValue(pickItemListMap)
+
+        FirebaseDatabase.getInstance().reference
+            .child("PICK_SHARE")
             .child(type)
             .child(listName)
             .setValue(pickItemListMap)

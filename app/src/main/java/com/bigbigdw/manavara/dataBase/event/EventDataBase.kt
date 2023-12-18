@@ -31,6 +31,7 @@ sealed interface EventDataBase{
         val detail: String = "",
         val type: String = "",
         val menuDesc: String = "",
+        val date: String = "",
     ) : EventDataBase
 
     class SetWeekTrophyList(
@@ -54,6 +55,8 @@ sealed interface EventDataBase{
     class SetGenreKeywordWeekList(
         var genreWeekList :  ArrayList<ArrayList<ItemKeyword>> = ArrayList(),
         var genreKeywordList : ArrayList<ItemKeyword> = ArrayList(),
+        val date: String = "",
+        val jsonNameList : List<String> = arrayListOf(),
     ) : EventDataBase
 
     class SetSearchQuery(

@@ -1,7 +1,6 @@
 package com.bigbigdw.manavara.main.viewModels
 
 import android.content.Context
-import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bigbigdw.manavara.best.models.ItemBookInfo
@@ -10,8 +9,6 @@ import com.bigbigdw.manavara.main.event.StateMain
 import com.bigbigdw.manavara.main.models.UserInfo
 import com.bigbigdw.manavara.util.DataStoreManager
 import com.bigbigdw.manavara.util.DataStoreManager.Companion.UID
-import com.bigbigdw.manavara.util.getPlatformDataKeyComic
-import com.bigbigdw.manavara.util.getPlatformDataKeyNovel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
@@ -19,12 +16,10 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.getValue
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
@@ -72,11 +67,11 @@ class ViewModelMain @Inject constructor() : ViewModel() {
     }
 
     //TODO: UID 받아오게 작업하기
-    fun setIsPicked(type: String, platform: String, bookCode: String){
+    fun setIsPicked(type: String, platform: String, bookCode: String, uid: String = "ecXPTeFiDnV732gOiaD8u525NnE3"){
 
         val mRootRef = FirebaseDatabase.getInstance().reference
             .child("USER")
-            .child("A8uh2QkVQaV3Q3rE8SgBNKzV6VH2")
+            .child(uid)
             .child("PICK")
             .child("MY")
             .child(type)
@@ -104,7 +99,7 @@ class ViewModelMain @Inject constructor() : ViewModel() {
 
     //TODO: UID 받아오게 작업하기
 
-    fun setPickBook(context : Context, platform: String, type : String, item: ItemBookInfo){
+    fun setPickBook(context : Context, platform: String, type : String, item: ItemBookInfo, uid : String = "ecXPTeFiDnV732gOiaD8u525NnE3"){
         val dataStore = DataStoreManager(context)
 
         viewModelScope.launch {
@@ -112,7 +107,8 @@ class ViewModelMain @Inject constructor() : ViewModel() {
             dataStore.getDataStoreString(UID).collect{
                 FirebaseDatabase.getInstance().reference
                     .child("USER")
-                    .child("A8uh2QkVQaV3Q3rE8SgBNKzV6VH2")
+//                    .child(it ?: uid)
+                    .child(uid)
                     .child("PICK")
                     .child("MY")
                     .child(type)
@@ -126,14 +122,11 @@ class ViewModelMain @Inject constructor() : ViewModel() {
     }
 
     //TODO: UID 받아오게 작업하기
-    fun setUnPickBook(context : Context, platform: String, type : String, item: ItemBookInfo){
-        val currentUser :  FirebaseUser?
-        val auth: FirebaseAuth = Firebase.auth
-        currentUser = auth.currentUser
+    fun setUnPickBook(platform: String, type: String, item: ItemBookInfo){
 
         FirebaseDatabase.getInstance().reference
             .child("USER")
-            .child("A8uh2QkVQaV3Q3rE8SgBNKzV6VH2")
+            .child( "ecXPTeFiDnV732gOiaD8u525NnE3")
             .child("PICK")
             .child("MY")
             .child(type)

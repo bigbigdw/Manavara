@@ -52,7 +52,7 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
             }
 
             is EventDataBase.SetScreen -> {
-                current.copy(menu = event.menu, platform = event.platform, detail = event.detail, type = event.type, menuDesc = event.menuDesc)
+                current.copy(menu = event.menu, platform = event.platform, detail = event.detail, type = event.type, menuDesc = event.menuDesc, date = event.date)
             }
 
             is EventDataBase.SetGenreKeywordList -> {
@@ -60,7 +60,7 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
             }
 
             is EventDataBase.SetGenreKeywordWeekList -> {
-                current.copy(genreKeywordWeekList = event.genreWeekList, genreKeywordList = event.genreKeywordList)
+                current.copy(genreKeywordWeekList = event.genreWeekList, genreKeywordList = event.genreKeywordList, jsonNameList = event.jsonNameList, date = event.date)
             }
 
             is EventDataBase.SetWeekTrophyList -> {
@@ -127,12 +127,6 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setItemBookInfo(itemBookInfo: ItemBookInfo){
-        viewModelScope.launch {
-            events.send(EventDataBase.SetItemBookInfo(itemBookInfo = itemBookInfo))
-        }
-    }
-
     fun setItemBestInfoTrophyList(itemBookInfo: ItemBookInfo,  itemBestInfoTrophyList: ArrayList<ItemBestInfo>){
         viewModelScope.launch {
             events.send(EventDataBase.SetItemBestInfoTrophyList(itemBookInfo = itemBookInfo, itemBestInfoTrophyList = itemBestInfoTrophyList))
@@ -160,20 +154,27 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
                     detail = detail,
                     type = type,
                     menuDesc = menuDesc,
+                    date = ""
                 )
             )
         }
     }
 
-    fun setGenreWeekList(genreWeekList: ArrayList<ArrayList<ItemKeyword>>, genreList: ArrayList<ItemKeyword>){
+    fun setGenreKeywordWeekList(
+        genreWeekList: ArrayList<ArrayList<ItemKeyword>> = arrayListOf(),
+        genreKeywordList: ArrayList<ItemKeyword> = ArrayList(),
+        date: String = "",
+        jsonNameList: List<String> = arrayListOf()
+    ) {
         viewModelScope.launch {
-            events.send(EventDataBase.SetGenreKeywordWeekList(genreWeekList = genreWeekList, genreKeywordList = genreList))
-        }
-    }
-
-    fun setGenreKeywordWeekList(genreList: ArrayList<ItemKeyword>){
-        viewModelScope.launch {
-            events.send(EventDataBase.SetGenreKeywordWeekList(genreKeywordList = genreList))
+            events.send(
+                EventDataBase.SetGenreKeywordWeekList(
+                    genreWeekList = genreWeekList,
+                    genreKeywordList = genreKeywordList,
+                    date = date,
+                    jsonNameList = jsonNameList
+                )
+            )
         }
     }
 

@@ -272,7 +272,7 @@ fun ScreenManavaraItem(
             viewModelManavara = viewModelManavara,
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen,
-            root = "SHARE"
+            root = "MY_SHARE"
         )
     } else if (state.menu.contains("PICK 작품들 보기")) {
         ScreenUser()

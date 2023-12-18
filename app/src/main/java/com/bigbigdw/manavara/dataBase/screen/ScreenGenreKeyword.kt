@@ -368,7 +368,7 @@ fun ScreenGenreKeyword(
     val listState = rememberLazyListState()
     val context = LocalContext.current
 
-    LaunchedEffect(state.platform, state.type, state.jsonNameList, state.date) {
+    LaunchedEffect(menuType, state.platform, state.type, state.date) {
         when (menuType) {
             "투데이" -> {
                 getGenreKeywordJson(
@@ -377,7 +377,7 @@ fun ScreenGenreKeyword(
                     type = state.type,
                     dataType = dataType
                 ) {
-                    viewModelDatabase.setGenreKeywordWeekList(it)
+                    viewModelDatabase.setGenreKeywordWeekList(genreKeywordList = it)
                 }
             }
 
@@ -391,19 +391,16 @@ fun ScreenGenreKeyword(
                     } else {
                         "BEST_MONTH"
                     },
-                ) {
-                    viewModelDatabase.setJsonNameList(it)
+                ) { jsonNameList ->
 
-                    if (state.date.isEmpty()) {
-                        viewModelDatabase.setDate(date = it.get(0))
+                    val date = state.date.ifEmpty {
+                        jsonNameList[0]
                     }
-                }
 
-                if (state.jsonNameList.isNotEmpty()) {
                     getGenreListWeekJson(
                         platform = state.platform,
                         type = state.type,
-                        root = state.date,
+                        root = date,
                         dayType = if (menuType == "주간") {
                             "WEEK"
                         } else {
@@ -412,10 +409,15 @@ fun ScreenGenreKeyword(
                         dataType = dataType,
                         context = context
                     ) { weekList, list ->
-                        viewModelDatabase.setGenreKeywordWeekList(list)
+
+                        viewModelDatabase.setGenreKeywordWeekList(
+                            genreWeekList = weekList,
+                            genreKeywordList = list,
+                            jsonNameList = jsonNameList,
+                            date = date
+                        )
                     }
                 }
-
             }
         }
     }
@@ -468,7 +470,7 @@ fun GenreDetailJson(
             },
             dataType = type,
         ) { genreWeekList, genreList ->
-            viewModelDatabase.setGenreWeekList(genreWeekList = genreWeekList, genreList = genreList)
+            viewModelDatabase.setGenreKeywordWeekList(genreWeekList = genreWeekList, genreKeywordList = genreList)
         }
     }
 

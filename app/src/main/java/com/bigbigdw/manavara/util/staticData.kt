@@ -1004,14 +1004,12 @@ val menuListManavara = arrayListOf(
     MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "웹소설 PICK 작품들 보기", body = "내가 가지고 있는 모든 웹소설 작품 보기"),
     MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "나의 웹소설 PICK 보기", body = "내가 엄선한 웹소설 작품들 보기"),
     MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "다른 웹소설 PICK 보기", body = "다른 사람이 엄선한 웹소설 작품들 보기"),
-    MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "내가 공유한 웹소설 PICK", body = "내가 공유한 웹소설 PICK 보기"),
-    MenuInfo(needLine = true, image = R.drawable.ic_launcher, menu = "웹소설 공유 PICK 만들기", body = "공유할 웹소설 PICK 리스트 만들기"),
+    MenuInfo(needLine = true, image = R.drawable.ic_launcher, menu = "내가 공유한 웹소설 PICK", body = "내가 공유한 웹소설 PICK 보기"),
 
     MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "웹툰 PICK 작품들 보기", body = "내가 가지고 있는 모든 웹툰 작품 보기"),
     MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "나의 웹툰 PICK 보기", body = "내가 엄선한 웹툰 작품들 보기"),
     MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "다른 웹툰 PICK 보기", body = "다른 사람이 엄선한 웹툰 작품들 보기"),
-    MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "내가 공유한 웹툰 PICK", body = "내가 공유한 웹툰 PICK 보기"),
-    MenuInfo(needLine = true, image = R.drawable.ic_launcher, menu = "웹툰 공유 PICK 만들기", body = "공유할 웹툰 PICK 리스트 만들기"),
+    MenuInfo(needLine = true, image = R.drawable.ic_launcher, menu = "내가 공유한 웹툰 PICK", body = "내가 공유한 웹툰 PICK 보기"),
 
 //    MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "나의 기록", body = "https://m.comic.naver.com/event/yearend/2023"),
     MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "내가 분석한 웹소설 작품", body = "내가 데이터를 모으고 있는 웹소설 작품들 보기"),

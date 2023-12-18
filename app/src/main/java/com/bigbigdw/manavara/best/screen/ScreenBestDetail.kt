@@ -189,10 +189,9 @@ fun ScreenBestDetail(
                             onClick = {
                                 if (stateMain.isPicked) {
                                     viewModelMain.setUnPickBook(
-                                        type = "NOVEL",
                                         platform = platform,
-                                        item = stateDetail.itemBestInfo,
-                                        context = context
+                                        type = "NOVEL",
+                                        item = stateDetail.itemBestInfo
                                     )
                                 } else {
                                     viewModelMain.setPickBook(
@@ -676,10 +675,9 @@ fun ScreenItemBestDetailCard(
                 onClick = {
                     if (stateMain.isPicked) {
                         viewModelMain.setUnPickBook(
-                            type = "NOVEL",
                             platform = platform,
-                            item = stateDetail.itemBestInfo,
-                            context = context
+                            type = "NOVEL",
+                            item = stateDetail.itemBestInfo
                         )
                     } else {
                         viewModelMain.setPickBook(

@@ -38,6 +38,10 @@ sealed interface EventManavara{
         val platform: String = "",
     ) : EventManavara
 
+    class SetIsMakePickList(
+        val isMakePickList: Boolean = false,
+    ) : EventManavara
+
 }
 
 data class StateManavara(
@@ -52,5 +56,6 @@ data class StateManavara(
 
     val pickCategory : ArrayList<String> = ArrayList(),
     val pickItemList : ArrayList<ItemBookInfo> = ArrayList(),
-    val pickShareItemList : MutableMap<String, ArrayList<ItemBookInfo>> = mutableMapOf()
+    val pickShareItemList : MutableMap<String, ArrayList<ItemBookInfo>> = mutableMapOf(),
+    val isMakePickList: Boolean = false,
 )

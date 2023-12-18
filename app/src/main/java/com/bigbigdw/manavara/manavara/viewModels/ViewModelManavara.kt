@@ -54,9 +54,19 @@ class ViewModelManavara @Inject constructor() : ViewModel() {
                 current.copy(pickCategory = event.pickCategory)
             }
 
+            is EventManavara.SetIsMakePickList -> {
+                current.copy(isMakePickList = event.isMakePickList)
+            }
+
             else -> {
                 current.copy(Loaded = false)
             }
+        }
+    }
+
+    fun setIsMakePickList(isMakePickList: Boolean){
+        viewModelScope.launch {
+            events.send(EventManavara.SetIsMakePickList(isMakePickList = isMakePickList))
         }
     }
 

@@ -22,6 +22,8 @@ import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -36,12 +38,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.bigbigdw.manavara.best.getBookItemWeekTrophy
 import com.bigbigdw.manavara.best.models.ItemBookInfo
+import com.bigbigdw.manavara.dataBase.screen.ScreenChoosePlatformFab
 import com.bigbigdw.manavara.firebase.DataFCMBodyNotification
 import com.bigbigdw.manavara.manavara.editSharePickList
 import com.bigbigdw.manavara.manavara.getPickList
@@ -50,7 +54,10 @@ import com.bigbigdw.manavara.manavara.setSharePickList
 import com.bigbigdw.manavara.manavara.viewModels.ViewModelManavara
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color20459E
+import com.bigbigdw.manavara.ui.theme.color4AD7CF
+import com.bigbigdw.manavara.ui.theme.color5372DE
 import com.bigbigdw.manavara.ui.theme.color898989
+import com.bigbigdw.manavara.ui.theme.color998DF9
 import com.bigbigdw.manavara.ui.theme.colorEDE6FD
 import com.bigbigdw.manavara.util.changePlatformNameKor
 import com.bigbigdw.manavara.util.screen.AlertOneBtn
@@ -249,27 +256,30 @@ fun ScreenPickShare(
     val state = viewModelManavara.state.collectAsState().value
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(viewModelManavara) {
+    LaunchedEffect(viewModelManavara, state.pickCategory) {
         getUserPickShareList(type = "NOVEL", root = root) { pickCategory, pickShareItemList ->
             viewModelManavara.setPickShareList(
                 pickCategory = pickCategory,
                 pickShareItemList = pickShareItemList,
-                platform = pickCategory[0]
+                platform = if(pickCategory.isEmpty()){
+                    "JOARA"
+                } else {
+                    pickCategory[0]
+                }
             )
         }
     }
 
-    Scaffold(modifier = Modifier
-        .wrapContentSize(),
-        bottomBar = {
-            if (state.pickCategory.isNotEmpty()) {
-                Button(
-                    colors = ButtonDefaults.buttonColors(containerColor = color20459E),
-                    onClick = {
+    Scaffold(modifier = Modifier.wrapContentSize(),
+        floatingActionButton = {
 
+            if(state.pickCategory.isNotEmpty()){
+                FloatingActionButton(
+                    modifier = Modifier.size(60.dp),
+                    onClick = {
                         editSharePickList(
                             type = "NOVEL",
-                            status = if (root == "PICK_SHARE") {
+                            status = if (root == "PICK_SHARE" || state.pickCategory.isEmpty()) {
                                 "SHARE"
                             } else {
                                 "DELETE"
@@ -278,35 +288,41 @@ fun ScreenPickShare(
                             pickItemList = state.pickShareItemList[state.platform]
                         )
 
-                        if(root == "SHARE"){
+                        if(root == "MY_SHARE"){
                             getUserPickShareList(type = "NOVEL", root = root) { pickCategory, pickShareItemList ->
                                 viewModelManavara.setPickShareList(
                                     pickCategory = pickCategory,
                                     pickShareItemList = pickShareItemList,
-                                    platform = pickCategory[0]
+                                    platform = if(pickCategory.isEmpty()){
+                                        "JOARA"
+                                    } else {
+                                        pickCategory[0]
+                                    }
                                 )
                             }
                         }
                     },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    shape = RoundedCornerShape(0.dp)
-
+                    containerColor = if (root == "PICK_SHARE") {
+                        color4AD7CF
+                    } else {
+                        color5372DE
+                    },
                 ) {
                     Text(
-                        text = if (root == "PICK_SHARE") {
-                            "공유 리스트 가져오기"
+                        modifier = Modifier.padding(8.dp),
+                        text = if (root == "PICK_SHARE" || state.pickCategory.isEmpty()) {
+                            "가져\n오기"
                         } else {
-                            "공유 리스트 삭제하기"
+                            "삭제\n하기"
                         },
-                        textAlign = TextAlign.Center,
-                        color = colorEDE6FD,
-                        fontSize = 16.sp
+                        color = Color.White,
+                        fontWeight = FontWeight(weight = 700),
+                        textAlign = TextAlign.Center
                     )
                 }
             }
-        }) {
+
+        }, floatingActionButtonPosition = FabPosition.End) {
 
         LazyColumn(modifier = Modifier.padding(it)) {
             item {
@@ -342,7 +358,7 @@ fun ScreenPickShare(
                 Spacer(modifier = Modifier.size(4.dp))
             }
 
-            if (state.pickItemList.isEmpty() || state.platform == "리스트 만들기") {
+            if (state.pickCategory.isEmpty()) {
                 item {
                     ScreenManavaraItemMakeSharePick(
                         viewModelManavara = viewModelManavara,
