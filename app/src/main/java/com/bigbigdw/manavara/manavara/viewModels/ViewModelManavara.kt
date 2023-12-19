@@ -82,9 +82,21 @@ class ViewModelManavara @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setScreen(menu: String = "", platform: String = "", detail: String = "", type: String = ""){
+    fun setScreen(
+        menu: String = state.value.menu,
+        platform: String = state.value.platform,
+        detail: String = state.value.detail,
+        type: String = state.value.type
+    ) {
         viewModelScope.launch {
-            events.send(EventManavara.SetScreen(menu = menu, platform = platform, detail = detail, type = type))
+            events.send(
+                EventManavara.SetScreen(
+                    menu = menu,
+                    platform = platform,
+                    detail = detail,
+                    type = type
+                )
+            )
         }
     }
 

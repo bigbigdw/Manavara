@@ -568,7 +568,7 @@ fun ScreenChoosePlatform(
             color = fontColor,
         )
 
-        Spacer(modifier = Modifier.fillMaxWidth().height(16.dp).background(Color.Red))
+        Spacer(modifier = Modifier.fillMaxWidth().height(8.dp).background(Color.White))
 
         LazyVerticalGrid(
             modifier = Modifier
@@ -619,7 +619,7 @@ fun ScreenChoosePlatform(
             }
         }
 
-        Spacer(modifier = Modifier.fillMaxWidth().height(32.dp).background(Color.Red))
+        Spacer(modifier = Modifier.fillMaxWidth().height(8.dp).background(Color.White))
     }
 }
 

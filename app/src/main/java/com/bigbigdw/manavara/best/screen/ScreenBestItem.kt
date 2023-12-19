@@ -93,7 +93,7 @@ fun ScreenTodayBest(
 
     Log.d("ScreenTodayBest", "state.platform == ${state.platform}")
 
-    LaunchedEffect(state.platform){
+    LaunchedEffect(state.platform, state.type){
 
         Log.d("ScreenTodayBest", "LaunchedEffect state.platform == ${state.platform}")
 

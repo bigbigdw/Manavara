@@ -1,5 +1,6 @@
 package com.bigbigdw.manavara.manavara.screen
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -262,7 +263,7 @@ fun ScreenPickShare(
                 pickCategory = pickCategory,
                 pickShareItemList = pickShareItemList,
                 platform = if(pickCategory.isEmpty()){
-                    "JOARA"
+                    ""
                 } else {
                     pickCategory[0]
                 }
@@ -277,29 +278,36 @@ fun ScreenPickShare(
                 FloatingActionButton(
                     modifier = Modifier.size(60.dp),
                     onClick = {
-                        editSharePickList(
-                            type = "NOVEL",
-                            status = if (root == "PICK_SHARE" || state.pickCategory.isEmpty()) {
-                                "SHARE"
-                            } else {
-                                "DELETE"
-                            },
-                            listName = state.platform,
-                            pickItemList = state.pickShareItemList[state.platform]
-                        )
+
+                        if(root == "PICK_SHARE"){
+                            editSharePickList(
+                                type = "NOVEL",
+                                status = if (root == "PICK_SHARE" || state.pickCategory.isEmpty()) {
+                                    "SHARE"
+                                } else {
+                                    "DELETE"
+                                },
+                                listName = state.platform,
+                                pickItemList = state.pickShareItemList[state.platform]
+                            )
+                        }
 
                         if(root == "MY_SHARE"){
-                            getUserPickShareList(type = "NOVEL", root = root) { pickCategory, pickShareItemList ->
-                                viewModelManavara.setPickShareList(
-                                    pickCategory = pickCategory,
-                                    pickShareItemList = pickShareItemList,
-                                    platform = if(pickCategory.isEmpty()){
-                                        "JOARA"
-                                    } else {
-                                        pickCategory[0]
-                                    }
-                                )
-                            }
+                            viewModelManavara.setScreen(
+                                detail = "웹소설 PICK 공유 리스트 만들기",
+                            )
+
+//                            getUserPickShareList(type = "NOVEL", root = root) { pickCategory, pickShareItemList ->
+//                                viewModelManavara.setPickShareList(
+//                                    pickCategory = pickCategory,
+//                                    pickShareItemList = pickShareItemList,
+//                                    platform = if(pickCategory.isEmpty()){
+//                                        ""
+//                                    } else {
+//                                        pickCategory[0]
+//                                    }
+//                                )
+//                            }
                         }
                     },
                     containerColor = if (root == "PICK_SHARE") {
@@ -310,14 +318,20 @@ fun ScreenPickShare(
                 ) {
                     Text(
                         modifier = Modifier.padding(8.dp),
-                        text = if (root == "PICK_SHARE" || state.pickCategory.isEmpty()) {
+                        text = if (root == "PICK_SHARE") {
                             "가져\n오기"
                         } else {
-                            "삭제\n하기"
+//                            "삭제\n하기"
+                            "+"
                         },
                         color = Color.White,
                         fontWeight = FontWeight(weight = 700),
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        fontSize = if (root == "PICK_SHARE") {
+                            14.sp
+                        } else {
+                            24.sp
+                        }
                     )
                 }
             }
@@ -426,6 +440,7 @@ fun ScreenMakeSharePick(
     val state = viewModelManavara.state.collectAsState().value
     val coroutineScope = rememberCoroutineScope()
     val itemList = state.pickCategory
+    val context = LocalContext.current
 
     LaunchedEffect(viewModelManavara) {
         getPickList(type = "NOVEL") { _, pickItemList ->
@@ -449,11 +464,27 @@ fun ScreenMakeSharePick(
                         pickCategory = state.pickCategory,
                         pickItemList = state.pickItemList
                     )
+
+                    viewModelManavara.setScreen(detail = "")
+
+                    Toast.makeText(context, "공유리스트 생성이 완료되었습니다.", Toast.LENGTH_SHORT).show()
+
                     setDialogOpen(false)
                 },
-                modifier = Modifier.Companion.requiredWidth(360.dp),
+                modifier = Modifier.Companion.requiredWidth(300.dp),
                 btnText = "리스트 만들기",
                 contents = {
+
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = "공유 리스트 이름입력",
+                        textAlign = TextAlign.Center,
+                        color = Color.Black,
+                        fontSize = 16.sp
+                    )
+
+                    Spacer(modifier = Modifier.size(16.dp))
+
                     TextField(
                         value = getCategoryName,
                         onValueChange = { setCategoryName(it) },
@@ -463,7 +494,9 @@ fun ScreenMakeSharePick(
                             containerColor = Color(0),
                             textColor = color000000
                         ),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp, 0.dp)
                     )
 
                     Spacer(modifier = Modifier.size(16.dp))

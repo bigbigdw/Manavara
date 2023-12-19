@@ -37,7 +37,9 @@ fun getBestListTodayJson(
 
     } catch (exception: Exception) {
 
-        getBestListTodayStorage(platform = platform, type = type, context = context) {
+        Log.d("getBestListTodayJson", "getBestListTodayJson ==$exception")
+
+        getBestListTodayStorage(context = context, platform = platform, type = type) {
             callbacks.invoke(it)
         }
     }
@@ -47,15 +49,13 @@ fun getBestListTodayStorage(
     context: Context,
     platform: String,
     type: String,
-    checkUpdate: Boolean = false,
     callbacks: (ArrayList<ItemBookInfo>) -> Unit
 ) {
 
     try {
         val storage = Firebase.storage
         val storageRef = storage.reference
-        val todayFileRef =
-            storageRef.child("${platform}/${type}/BEST_DAY/${DBDate.dateMMDD()}.json")
+        val todayFileRef = storageRef.child("${platform}/${type}/BEST_DAY/${DBDate.dateMMDD()}.json")
         val todayFile = File(context.filesDir, "BEST_DAY_${type}_${platform}.json")
 
         todayFileRef.getFile(todayFile).addOnSuccessListener { bytes ->
@@ -67,22 +67,16 @@ fun getBestListTodayStorage(
 
         }.addOnFailureListener { exception ->
 
-            if (checkUpdate) {
-                callbacks.invoke(ArrayList())
-            } else {
-                getBestList(platform = platform, type = type) {
-                    callbacks.invoke(it)
-                }
+            Log.d("getBestListTodayStorage", "getBestListTodayJson ==$exception")
+
+            getBestList(platform = platform, type = type) {
+                callbacks.invoke(it)
             }
         }
 
     } catch (e: Exception) {
-        if (checkUpdate) {
-            callbacks.invoke(ArrayList())
-        } else {
-            getBestList(platform = platform, type = type) {
-                callbacks.invoke(it)
-            }
+        getBestList(platform = platform, type = type) {
+            callbacks.invoke(it)
         }
     }
 }
@@ -95,7 +89,7 @@ private fun getBestList(
 
     val mRootRef =
         FirebaseDatabase.getInstance().reference.child("BEST").child(type).child(platform)
-            .child("DAY")
+            .child("BEST_DAY")
 
     mRootRef.addListenerForSingleValueEvent(object :
         ValueEventListener {

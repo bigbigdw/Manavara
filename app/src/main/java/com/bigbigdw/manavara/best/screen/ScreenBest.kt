@@ -121,8 +121,7 @@ fun ScreenBest(
                     getBestListTodayStorage(
                         context = context,
                         platform = platform,
-                        type = currentRoute ?: "",
-                        checkUpdate = true
+                        type = currentRoute ?: ""
                     ) { storage ->
                         if (json.isNotEmpty() && storage.isNotEmpty()) {
 
@@ -196,7 +195,9 @@ fun ScreenBest(
                 ) {
 
                     Row(
-                        modifier = Modifier.padding(it).background(color = colorF6F6F6)
+                        modifier = Modifier
+                            .padding(it)
+                            .background(color = colorF6F6F6)
                     ) {
                         ScreenBestPropertyList(
                             listState = listState,
@@ -462,7 +463,7 @@ fun BestDialog(
     val viewModelStoreOwner =
         checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
     val viewModelMain: ViewModelMain = viewModel(viewModelStoreOwner = viewModelStoreOwner)
-
+    val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     val state = viewModelMain.state.collectAsState().value
 
@@ -470,6 +471,12 @@ fun BestDialog(
         viewModelMain.setIsPicked(
             type = "NOVEL", platform = item.platform, bookCode = item.bookCode
         )
+
+        coroutineScope.launch {
+            viewModelMain.sideEffects.onEach {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            }.launchIn(coroutineScope)
+        }
     }
 
     Dialog(
@@ -487,27 +494,29 @@ fun BestDialog(
                 color8F8F8F
             },
             onClickLeft = {
-            if (state.isPicked) {
-                viewModelMain.setUnPickBook(
-                    platform = item.platform, type = "NOVEL", item = item
-                )
-            } else {
-                viewModelMain.setPickBook(
-                    type = "NOVEL", platform = item.platform, item = item, context = context
-                )
-            }
-        }, onClickRight = {
-
-            if(item.bookCode.isNotEmpty()){
-                val intent = Intent(context, ActivityBestDetail::class.java)
-                intent.putExtra("BOOKCODE", item.bookCode)
-                intent.putExtra("PLATFORM", item.platform)
-                intent.putExtra("TYPE", type)
-                context.startActivity(intent)
+                if (state.isPicked) {
+                    viewModelMain.setUnPickBook(
+                        platform = item.platform, type = "NOVEL", item = item
+                    )
+                } else {
+                    viewModelMain.setPickBook(
+                        type = "NOVEL", platform = item.platform, item = item, context = context
+                    )
+                }
                 onDismissRequest()
-            }
+            },
+            onClickRight = {
+                if (item.bookCode.isNotEmpty()) {
+                    val intent = Intent(context, ActivityBestDetail::class.java)
+                    intent.putExtra("BOOKCODE", item.bookCode)
+                    intent.putExtra("PLATFORM", item.platform)
+                    intent.putExtra("TYPE", type)
+                    context.startActivity(intent)
+                    onDismissRequest()
+                }
 
-        }, btnLeft = if (state.isPicked) {
+            },
+            btnLeft = if (state.isPicked) {
             "작품 PICK 해제"
         } else {
             "작품 PICK 하기"
@@ -548,6 +557,12 @@ fun BestBottomDialog(
         viewModelMain.setIsPicked(
             type = "NOVEL", platform = item.platform, bookCode = item.bookCode
         )
+
+        coroutineScope.launch {
+            viewModelMain.sideEffects.onEach {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            }.launchIn(coroutineScope)
+        }
     }
 
     ScreenDialogBest(item = item,
@@ -560,14 +575,19 @@ fun BestBottomDialog(
             "작품 PICK 하기"
         },
         onClickLeft = {
-            if (state.isPicked) {
-                viewModelMain.setUnPickBook(
-                    platform = item.platform, type = "NOVEL", item = item
-                )
-            } else {
-                viewModelMain.setPickBook(
-                    type = "NOVEL", platform = item.platform, item = item, context = context
-                )
+            coroutineScope.launch {
+
+                if (state.isPicked) {
+                    viewModelMain.setUnPickBook(
+                        platform = item.platform, type = "NOVEL", item = item
+                    )
+                } else {
+                    viewModelMain.setPickBook(
+                        type = "NOVEL", platform = item.platform, item = item, context = context
+                    )
+                }
+
+                modalSheetState.hide()
             }
         },
         onClickRight = {

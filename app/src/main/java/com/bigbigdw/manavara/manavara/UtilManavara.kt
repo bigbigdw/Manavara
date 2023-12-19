@@ -526,6 +526,9 @@ fun editSharePickList(
 
         if (pickItemList != null) {
             for(item in pickItemList){
+
+                item.belong = "SHARE_DOWNLOADED"
+
                 pickItemListMap[item.bookCode] = item
             }
         }
@@ -534,13 +537,7 @@ fun editSharePickList(
             .child("USER")
             .child(uid)
             .child("PICK")
-            .child("SHARE")
-            .child(type)
-            .child(listName)
-            .setValue(pickItemListMap)
-
-        FirebaseDatabase.getInstance().reference
-            .child("PICK_SHARE")
+            .child("DOWNLOADED")
             .child(type)
             .child(listName)
             .setValue(pickItemListMap)

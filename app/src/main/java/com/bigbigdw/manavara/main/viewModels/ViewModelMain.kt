@@ -104,6 +104,8 @@ class ViewModelMain @Inject constructor() : ViewModel() {
 
         viewModelScope.launch {
 
+            item.belong = "SHARE"
+
             dataStore.getDataStoreString(UID).collect{
                 FirebaseDatabase.getInstance().reference
                     .child("USER")
@@ -116,7 +118,7 @@ class ViewModelMain @Inject constructor() : ViewModel() {
                     .child(item.bookCode).setValue(item)
 
                 events.send(EventMain.SetIsPicked(true))
-                _sideEffects.send("${item.title} 이 PICK 되었습니다. 마나바라 -> PICK에서 확인 할 수 있습니다.")
+                _sideEffects.send("[${item.title}] 이 PICK 되었습니다. 마나바라 -> PICK에서 확인 할 수 있습니다.")
             }
         }
     }
@@ -135,7 +137,7 @@ class ViewModelMain @Inject constructor() : ViewModel() {
 
         viewModelScope.launch {
             events.send(EventMain.SetIsPicked(false))
-            _sideEffects.send("${item.title} 이 PICK 해제 되었습니다.")
+            _sideEffects.send("[${item.title}] 이 PICK 해제 되었습니다.")
         }
     }
 

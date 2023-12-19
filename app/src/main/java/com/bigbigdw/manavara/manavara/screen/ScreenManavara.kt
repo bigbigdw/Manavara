@@ -1,5 +1,6 @@
 package com.bigbigdw.manavara.manavara.screen
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +27,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,6 +50,8 @@ import com.bigbigdw.manavara.util.menuListManavara
 import com.bigbigdw.manavara.util.screen.BackOnPressedMobile
 import com.bigbigdw.manavara.util.screen.ScreenMenuItem
 import com.bigbigdw.manavara.util.screen.ScreenTopbar
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
@@ -70,6 +74,14 @@ fun ScreenManavara(
         skipHalfExpanded = false
     )
 
+    LaunchedEffect(viewModelManavara){
+        coroutineScope.launch {
+            viewModelManavara.sideEffects.onEach {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            }.launchIn(coroutineScope)
+
+        }
+    }
 
     Box(
         modifier = Modifier
