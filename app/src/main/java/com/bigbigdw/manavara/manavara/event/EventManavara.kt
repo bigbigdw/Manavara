@@ -11,7 +11,7 @@ sealed interface EventManavara{
     object Loaded: EventManavara
 
     class SetScreen(
-        val menu: String = "나의 웹소설 PICK 보기",
+        val menu: String = "웹소설 PICK 작품들 보기",
         val platform: String = "전체",
         val detail: String = "",
         val type: String = "NOVEL",
@@ -46,7 +46,7 @@ sealed interface EventManavara{
 
 data class StateManavara(
     val Loaded: Boolean = false,
-    val menu: String = "나의 웹소설 PICK 보기",
+    val menu: String = "웹소설 PICK 작품들 보기",
     val platform: String = "",
     val detail: String = "",
     val type: String = "NOVEL",

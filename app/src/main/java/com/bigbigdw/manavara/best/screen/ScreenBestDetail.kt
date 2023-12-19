@@ -121,6 +121,7 @@ fun ScreenBestDetail(
             type = "NOVEL",
             platform = platform,
             bookCode = bookCode,
+            context = context,
         )
 
         setBestDetailInfo(
@@ -596,11 +597,11 @@ fun ScreenBestItemDetailTabItem(
             type = type
         )
 
-        val item = viewModelBestDetail.state.collectAsState().value.listBestInfo
+        val listBestInfo = viewModelBestDetail.state.collectAsState().value.listBestInfo
 
-        if(item.isNotEmpty()){
+        if(listBestInfo.isNotEmpty()){
             ScreenBestDetailAnalyze(
-                item = item,
+                item = listBestInfo,
                 getMenu = getMenu
             )
         }
@@ -1089,7 +1090,7 @@ fun ScreenBestDetailComment(
     Spacer(modifier = Modifier.size(16.dp))
 
     if (item.size > 0) {
-        item.forEachIndexed { index, itemBestComment ->
+        item.forEachIndexed { _, itemBestComment ->
             Row(
                 Modifier
                     .fillMaxWidth()
@@ -1173,7 +1174,7 @@ fun ScreenBestDetailOther(
     Spacer(modifier = Modifier.size(16.dp))
 
     if (item.size > 0) {
-        item.forEachIndexed { index, itemBookInfo ->
+        item.forEachIndexed { _, itemBookInfo ->
             Button(
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                 contentPadding = PaddingValues(

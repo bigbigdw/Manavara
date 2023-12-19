@@ -114,21 +114,21 @@ fun ScreenBest(
 
         runBlocking {
             getBestListTodayJson(
-                context = context, platform = platform, type = currentRoute ?: ""
+                context = context, platform = platform, type = currentRoute
             ) { json ->
 
                 if (json.isNotEmpty()) {
                     getBestListTodayStorage(
                         context = context,
                         platform = platform,
-                        type = currentRoute ?: ""
+                        type = currentRoute
                     ) { storage ->
                         if (json.isNotEmpty() && storage.isNotEmpty()) {
 
                             if (areListsEqual(json, storage)) {
                                 deleteJson(
                                     context = context,
-                                    platform = currentRoute ?: "",
+                                    platform = currentRoute,
                                     type = "NOVEL",
                                 )
                             }
@@ -140,7 +140,7 @@ fun ScreenBest(
         }
 
         viewModelBest.setScreen(
-            type = currentRoute ?: "",
+            type = currentRoute,
             platform = platform,
             detail = "투데이 베스트",
             menu = changePlatformNameKor(platform)
@@ -469,7 +469,7 @@ fun BestDialog(
 
     LaunchedEffect(item.bookCode) {
         viewModelMain.setIsPicked(
-            type = "NOVEL", platform = item.platform, bookCode = item.bookCode
+            context = context, type = "NOVEL", platform = item.platform, bookCode = item.bookCode
         )
 
         coroutineScope.launch {
@@ -555,7 +555,7 @@ fun BestBottomDialog(
 
     LaunchedEffect(item.bookCode) {
         viewModelMain.setIsPicked(
-            type = "NOVEL", platform = item.platform, bookCode = item.bookCode
+            context = context, type = "NOVEL", platform = item.platform, bookCode = item.bookCode
         )
 
         coroutineScope.launch {
