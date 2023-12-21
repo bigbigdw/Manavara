@@ -46,8 +46,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bigbigdw.manavara.best.getBookItemWeekTrophy
 import com.bigbigdw.manavara.best.models.ItemBookInfo
+import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.manavara.editSharePickList
 import com.bigbigdw.manavara.manavara.getPickList
 import com.bigbigdw.manavara.manavara.getUserPickShareList
@@ -67,22 +70,33 @@ import com.bigbigdw.manavara.util.screen.AlertOneBtn
 import com.bigbigdw.manavara.util.screen.ScreenBookCard
 import com.bigbigdw.manavara.util.screen.ScreenEmpty
 import com.bigbigdw.manavara.util.screen.ScreenItemKeyword
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScreenMyPick(
-    viewModelManavara: ViewModelManavara,
+    viewModelMain : ViewModelMain,
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
     root: String,
 ) {
+
+    val viewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelManavara: ViewModelManavara = viewModel(viewModelStoreOwner = viewModelStoreOwner)
 
     val state = viewModelManavara.state.collectAsState().value
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
     LaunchedEffect(viewModelManavara) {
+        coroutineScope.launch {
+            viewModelManavara.sideEffects.onEach {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            }.launchIn(coroutineScope)
+        }
 
         getPickList(context = context, type = "NOVEL", root = root) { pickCategory, pickItemList ->
             viewModelManavara.setPickList(
@@ -108,7 +122,7 @@ fun ScreenMyPick(
                             getter = item,
                             onClick = {
                                 coroutineScope.launch {
-                                    viewModelManavara.setScreen(
+                                    viewModelManavara.setView(
                                         platform = item,
                                         type = "NOVEL",
                                         menu = state.menu,
@@ -167,7 +181,7 @@ fun ScreenMyPick(
                                 platform = item.platform
                             ) { itemBestInfoTrophyList ->
 
-                                viewModelManavara.setItemBestInfoTrophyList(
+                                viewModelMain.setItemBestInfoTrophyList(
                                     itemBookInfo = item,
                                     itemBestInfoTrophyList = itemBestInfoTrophyList
                                 )
@@ -190,17 +204,29 @@ fun ScreenMyPick(
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenPickShare(
-    viewModelManavara: ViewModelManavara,
+    viewModelMain : ViewModelMain,
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
     root: String
 ) {
 
-    val state = viewModelManavara.state.collectAsState().value
+    val viewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelManavara: ViewModelManavara = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+
+    val manavaraState = viewModelManavara.state.collectAsState().value
+
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    LaunchedEffect(viewModelManavara, state.pickCategory) {
+    LaunchedEffect(viewModelManavara, manavaraState.pickCategory) {
+
+        coroutineScope.launch {
+            viewModelManavara.sideEffects.onEach {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            }.launchIn(coroutineScope)
+        }
+
         getUserPickShareList(context = context, type = "NOVEL", root = root) { pickCategory, pickShareItemList ->
             viewModelManavara.setPickShareList(
                 pickCategory = pickCategory,
@@ -217,7 +243,7 @@ fun ScreenPickShare(
     Scaffold(modifier = Modifier.wrapContentSize().background(color = colorF6F6F6),
         floatingActionButton = {
 
-            if(state.pickCategory.isNotEmpty()){
+            if(manavaraState.pickCategory.isNotEmpty()){
                 FloatingActionButton(
                     modifier = Modifier.size(60.dp),
                     onClick = {
@@ -226,16 +252,16 @@ fun ScreenPickShare(
                             editSharePickList(
                                 type = "NOVEL",
                                 status = "SHARE",
-                                listName = state.platform,
-                                pickItemList = state.pickShareItemList[state.platform],
+                                listName = manavaraState.platform,
+                                pickItemList = manavaraState.pickShareItemList[manavaraState.platform],
                                 context = context,
                             )
 
-                            Toast.makeText(context, "${state.platform}을 성공적으로 가져왔습니다.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "${manavaraState.platform}을 성공적으로 가져왔습니다.", Toast.LENGTH_SHORT).show()
                         }
 
                         if(root == "MY_SHARE"){
-                            viewModelManavara.setScreen(
+                            viewModelMain.setScreen(
                                 detail = "웹소설 PICK 공유 리스트 만들기",
                             )
                         }
@@ -276,21 +302,21 @@ fun ScreenPickShare(
                 LazyRow(
                     modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 0.dp),
                 ) {
-                    itemsIndexed(state.pickCategory) { index, item ->
+                    itemsIndexed(manavaraState.pickCategory) { index, item ->
                         Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
                             ScreenItemKeyword(
                                 getter = item,
                                 onClick = {
                                     coroutineScope.launch {
-                                        viewModelManavara.setScreen(
+                                        viewModelManavara.setView(
                                             platform = item,
                                             type = "NOVEL",
-                                            menu = state.menu,
+                                            menu = manavaraState.menu,
                                         )
                                     }
                                 },
                                 title = changePlatformNameKor(item),
-                                getValue = state.platform
+                                getValue = manavaraState.platform
                             )
                         }
                     }
@@ -301,18 +327,18 @@ fun ScreenPickShare(
                 Spacer(modifier = Modifier.size(4.dp))
             }
 
-            if (state.pickCategory.isEmpty()) {
+            if (manavaraState.pickCategory.isEmpty()) {
                 item {
                     ScreenManavaraItemMakeSharePick(
-                        viewModelManavara = viewModelManavara,
-                        menu = state.menu,
-                        platform = state.platform,
-                        type = state.type
+                        viewModelMain = viewModelMain,
+                        menu = manavaraState.menu,
+                        platform = manavaraState.platform,
+                        type = manavaraState.type
                     )
                 }
             } else {
 
-                val list = state.pickShareItemList[state.platform]
+                val list = manavaraState.pickShareItemList[manavaraState.platform]
 
                 if (list != null) {
                     itemsIndexed(ArrayList(list)) { index, item ->
@@ -335,7 +361,7 @@ fun ScreenPickShare(
                                         platform = item.platform
                                     ) { itemBestInfoTrophyList ->
 
-                                        viewModelManavara.setItemBestInfoTrophyList(
+                                        viewModelMain.setItemBestInfoTrophyList(
                                             itemBookInfo = item,
                                             itemBestInfoTrophyList = itemBestInfoTrophyList
                                         )
@@ -363,14 +389,25 @@ fun ScreenPickShare(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenMakeSharePick(
-    viewModelManavara: ViewModelManavara
+    viewModelMain : ViewModelMain
 ) {
 
-    val state = viewModelManavara.state.collectAsState().value
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
+    val viewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelManavara: ViewModelManavara = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+    val state = viewModelManavara.state.collectAsState().value
+
     LaunchedEffect(viewModelManavara) {
+
+        coroutineScope.launch {
+            viewModelManavara.sideEffects.onEach {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            }.launchIn(coroutineScope)
+        }
+
         getPickList(context = context, type = "NOVEL") { pickCategory, pickItemList ->
             viewModelManavara.setPickList(pickCategory = pickCategory, pickItemList = pickItemList)
         }
@@ -395,7 +432,7 @@ fun ScreenMakeSharePick(
                         context = context,
                     )
 
-                    viewModelManavara.setScreen(detail = "")
+                    viewModelMain.setScreen(detail = "")
 
                     Toast.makeText(context, "공유리스트 생성이 완료되었습니다.", Toast.LENGTH_SHORT).show()
 
@@ -475,7 +512,7 @@ fun ScreenMakeSharePick(
                                 getter = item,
                                 onClick = {
                                     coroutineScope.launch {
-                                        viewModelManavara.setScreen(
+                                        viewModelMain.setScreen(
                                             platform = item,
                                             type = "NOVEL",
                                             menu = state.menu,
@@ -547,7 +584,7 @@ fun ScreenMakeSharePick(
                                 platform = item.platform
                             ) { itemBestInfoTrophyList ->
 
-                                viewModelManavara.setItemBestInfoTrophyList(
+                                viewModelMain.setItemBestInfoTrophyList(
                                     itemBookInfo = item,
                                     itemBestInfoTrophyList = itemBestInfoTrophyList
                                 )
@@ -566,7 +603,7 @@ fun ScreenMakeSharePick(
 
 @Composable
 fun ScreenManavaraItemMakeSharePick(
-    viewModelManavara: ViewModelManavara,
+    viewModelMain: ViewModelMain,
     menu: String,
     platform: String,
     type: String,
@@ -578,7 +615,7 @@ fun ScreenManavaraItemMakeSharePick(
         Button(
             colors = ButtonDefaults.buttonColors(containerColor = color20459E),
             onClick = {
-                viewModelManavara.setScreen(
+                viewModelMain.setScreen(
                     menu = menu,
                     platform = platform,
                     detail = "웹소설 PICK 공유 리스트 만들기",
@@ -604,16 +641,26 @@ fun ScreenManavaraItemMakeSharePick(
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenPickShareAll(
-    viewModelManavara: ViewModelManavara,
+    viewModelMain: ViewModelMain,
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?
 ) {
+
+    val viewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelManavara: ViewModelManavara = viewModel(viewModelStoreOwner = viewModelStoreOwner)
 
     val state = viewModelManavara.state.collectAsState().value
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
     LaunchedEffect(viewModelManavara) {
+
+        coroutineScope.launch {
+            viewModelManavara.sideEffects.onEach {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            }.launchIn(coroutineScope)
+        }
 
         val pickCategoryAll =  ArrayList<String>()
 
@@ -704,7 +751,7 @@ fun ScreenPickShareAll(
                                 getter = item,
                                 onClick = {
                                     coroutineScope.launch {
-                                        viewModelManavara.setScreen(
+                                        viewModelManavara.setView(
                                             platform = item,
                                             type = "NOVEL",
                                             menu = state.menu,
@@ -726,7 +773,7 @@ fun ScreenPickShareAll(
             if (state.pickCategory.isEmpty()) {
                 item {
                     ScreenManavaraItemMakeSharePick(
-                        viewModelManavara = viewModelManavara,
+                        viewModelMain = viewModelMain,
                         menu = state.menu,
                         platform = state.platform,
                         type = state.type
@@ -773,7 +820,7 @@ fun ScreenPickShareAll(
                                         platform = item.platform
                                     ) { itemBestInfoTrophyList ->
 
-                                        viewModelManavara.setItemBestInfoTrophyList(
+                                        viewModelMain.setItemBestInfoTrophyList(
                                             itemBookInfo = item,
                                             itemBestInfoTrophyList = itemBestInfoTrophyList
                                         )

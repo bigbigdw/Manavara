@@ -24,11 +24,6 @@ sealed interface EventManavara{
         val platform: String = "",
     ) : EventManavara
 
-    class SetItemBestInfoTrophyList(
-        val itemBestInfoTrophyList : ArrayList<ItemBestInfo> = ArrayList(),
-        val itemBookInfo : ItemBookInfo = ItemBookInfo()
-    ) : EventManavara
-
     class SetPickShareList(
         val pickCategory : ArrayList<String> = ArrayList(),
         val pickShareItemList : MutableMap<String, ArrayList<ItemBookInfo>> = mutableMapOf(),

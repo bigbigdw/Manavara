@@ -1,6 +1,5 @@
 package com.bigbigdw.manavara.manavara.screen
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,6 +26,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bigbigdw.manavara.firebase.DataFCMBodyNotification
 import com.bigbigdw.manavara.manavara.getFCMList
 import com.bigbigdw.manavara.manavara.models.ItemAlert
@@ -99,7 +100,11 @@ fun ScreenUser() {
 }
 
 @Composable
-fun ContentsFCMList(viewModelManavara: ViewModelManavara, child: String) {
+fun ContentsFCMList(child: String) {
+
+    val viewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelManavara: ViewModelManavara = viewModel(viewModelStoreOwner = viewModelStoreOwner)
 
     LaunchedEffect(child){
         getFCMList(child = child){

@@ -2,7 +2,6 @@ package com.bigbigdw.manavara.manavara.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.manavara.event.EventManavara
 import com.bigbigdw.manavara.manavara.event.StateManavara
@@ -40,10 +39,6 @@ class ViewModelManavara @Inject constructor() : ViewModel() {
 
             is EventManavara.SetPickList -> {
                 current.copy(pickCategory = event.pickCategory, pickItemList = event.pickItemList, platform = event.platform)
-            }
-
-            is EventManavara.SetItemBestInfoTrophyList -> {
-                current.copy(itemBookInfo = event.itemBookInfo, itemBestInfoTrophyList = event.itemBestInfoTrophyList)
             }
 
             is EventManavara.SetPickShareList -> {
@@ -84,13 +79,7 @@ class ViewModelManavara @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setItemBestInfoTrophyList(itemBookInfo: ItemBookInfo,  itemBestInfoTrophyList: ArrayList<ItemBestInfo>){
-        viewModelScope.launch {
-            events.send(EventManavara.SetItemBestInfoTrophyList(itemBookInfo = itemBookInfo, itemBestInfoTrophyList = itemBestInfoTrophyList))
-        }
-    }
-
-    fun setScreen(
+    fun setView(
         menu: String = state.value.menu,
         platform: String = state.value.platform,
         detail: String = state.value.detail,

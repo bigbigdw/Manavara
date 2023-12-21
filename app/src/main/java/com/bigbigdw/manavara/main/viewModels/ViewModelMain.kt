@@ -5,10 +5,12 @@ import android.util.Log
 import androidx.datastore.dataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.main.event.EventMain
 import com.bigbigdw.manavara.main.event.StateMain
 import com.bigbigdw.manavara.main.models.UserInfo
+import com.bigbigdw.manavara.manavara.event.EventManavara
 import com.bigbigdw.manavara.util.DataStoreManager
 import com.bigbigdw.manavara.util.DataStoreManager.Companion.UID
 import com.google.firebase.database.DataSnapshot
@@ -59,6 +61,38 @@ class ViewModelMain @Inject constructor() : ViewModel() {
                 current.copy(isPicked = event.isPicked)
             }
 
+            is EventMain.SetScreen -> {
+                current.copy(menu = event.menu, platform = event.platform, detail = event.detail, type = event.type)
+            }
+
+            is EventMain.SetItemBestInfoTrophyList -> {
+                current.copy(itemBookInfo = event.itemBookInfo, itemBestInfoTrophyList = event.itemBestInfoTrophyList)
+            }
+
+        }
+    }
+
+    fun setItemBestInfoTrophyList(itemBookInfo: ItemBookInfo,  itemBestInfoTrophyList: ArrayList<ItemBestInfo>){
+        viewModelScope.launch {
+            events.send(EventMain.SetItemBestInfoTrophyList(itemBookInfo = itemBookInfo, itemBestInfoTrophyList = itemBestInfoTrophyList))
+        }
+    }
+
+    fun setScreen(
+        menu: String = state.value.menu,
+        platform: String = state.value.platform,
+        detail: String = state.value.detail,
+        type: String = state.value.type
+    ) {
+        viewModelScope.launch {
+            events.send(
+                EventMain.SetScreen(
+                    menu = menu,
+                    platform = platform,
+                    detail = detail,
+                    type = type
+                )
+            )
         }
     }
 

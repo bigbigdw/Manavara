@@ -1,8 +1,10 @@
 package com.bigbigdw.manavara.main.event
 
 import com.bigbigdw.manavara.best.event.EventBest
+import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.main.models.UserInfo
+import com.bigbigdw.manavara.manavara.event.EventManavara
 
 sealed interface EventMain{
     object Loaded: EventMain
@@ -23,6 +25,17 @@ sealed interface EventMain{
         val isPicked: Boolean = false,
     ) : EventMain
 
+    class SetItemBestInfoTrophyList(
+        val itemBestInfoTrophyList : ArrayList<ItemBestInfo> = ArrayList(),
+        val itemBookInfo : ItemBookInfo = ItemBookInfo()
+    ) : EventMain
+
+    class SetScreen(
+        val menu: String = "",
+        val platform: String = "",
+        val detail: String = "",
+        val type: String = "",
+    ) : EventMain
 }
 
 data class StateMain(
@@ -31,5 +44,11 @@ data class StateMain(
     val json : ArrayList<ItemBookInfo> = ArrayList(),
     val storage : ArrayList<ItemBookInfo> = ArrayList(),
     val isPicked: Boolean = false,
+    val menu: String = "",
+    val platform: String = "",
+    val detail: String = "",
+    val type: String = "",
+    val itemBestInfoTrophyList : ArrayList<ItemBestInfo> = ArrayList(),
+    val itemBookInfo : ItemBookInfo = ItemBookInfo()
 )
 

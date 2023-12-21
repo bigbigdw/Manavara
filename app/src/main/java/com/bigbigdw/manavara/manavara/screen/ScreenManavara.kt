@@ -1,6 +1,5 @@
 package com.bigbigdw.manavara.manavara.screen
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -43,10 +42,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.bigbigdw.manavara.best.getBestListTodayJson
-import com.bigbigdw.manavara.best.getBookMapJson
 import com.bigbigdw.manavara.best.screen.BestBottomDialog
 import com.bigbigdw.manavara.best.screen.BestDialog
+import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.manavara.viewModels.ViewModelManavara
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.util.menuListManavara
@@ -66,8 +64,10 @@ fun ScreenManavara(
     val context = LocalContext.current
     val viewModelStoreOwner =
         checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
-    val viewModelManavara: ViewModelManavara = viewModel(viewModelStoreOwner = viewModelStoreOwner)
-    val state = viewModelManavara.state.collectAsState().value
+
+    val viewModelMain: ViewModelMain = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+
+    val mainState = viewModelMain.state.collectAsState().value
     val coroutineScope = rememberCoroutineScope()
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -77,13 +77,19 @@ fun ScreenManavara(
         skipHalfExpanded = false
     )
 
-    LaunchedEffect(viewModelManavara){
+    LaunchedEffect(viewModelMain){
         coroutineScope.launch {
-            viewModelManavara.sideEffects.onEach {
+            viewModelMain.sideEffects.onEach {
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             }.launchIn(coroutineScope)
-
         }
+
+        viewModelMain.setScreen(
+            menu = "웹소설 PICK 작품들 보기",
+            platform = "전체",
+            detail = "",
+            type = "NOVEL"
+        )
     }
 
     Box(
@@ -100,15 +106,15 @@ fun ScreenManavara(
                 if(getDialogOpen){
                     BestDialog(
                         onDismissRequest = { setDialogOpen(false) },
-                        itemBestInfoTrophyList = state.itemBestInfoTrophyList,
-                        item = state.itemBookInfo,
+                        itemBestInfoTrophyList = mainState.itemBestInfoTrophyList,
+                        item = mainState.itemBookInfo,
                         isExpandedScreen = isExpandedScreen,
-                        type = state.type
+                        type = mainState.type
                     )
                 }
 
                 ScreenManavaraPropertyList(
-                    viewModelManavara = viewModelManavara,
+                    viewModelMain = viewModelMain,
                     drawerState = drawerState
                 )
 
@@ -120,9 +126,9 @@ fun ScreenManavara(
                 )
 
                 ScreenManavaraItem(
-                    viewModelManavara = viewModelManavara,
                     modalSheetState = modalSheetState,
-                    setDialogOpen = setDialogOpen
+                    setDialogOpen = setDialogOpen,
+                    viewModelMain = viewModelMain
                 )
 
 
@@ -131,14 +137,14 @@ fun ScreenManavara(
                 ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
 
                     ScreenManavaraPropertyList(
-                        viewModelManavara = viewModelManavara,
-                        drawerState = drawerState
+                        drawerState = drawerState,
+                        viewModelMain = viewModelMain
                     )
 
                 }) {
                     Scaffold(
                         topBar = {
-                            ScreenTopbar(detail = state.detail, menu = state.menu) {
+                            ScreenTopbar(detail = mainState.detail, menu = mainState.menu) {
                                 coroutineScope.launch {
                                     drawerState.open()
                                 }
@@ -154,15 +160,15 @@ fun ScreenManavara(
                         ) {
                             Spacer(modifier = Modifier.size(8.dp))
 
-                            if(state.detail.isEmpty()){
+                            if(mainState.detail.isEmpty()){
                                 ScreenManavaraItem(
-                                    viewModelManavara = viewModelManavara,
                                     modalSheetState = modalSheetState,
-                                    setDialogOpen = null
+                                    setDialogOpen = null,
+                                    viewModelMain = viewModelMain
                                 )
                             } else {
                                 ScreenManavaraItemDetail(
-                                    viewModelManavara = viewModelManavara
+                                    viewModelMain = viewModelMain
                                 )
                             }
                         }
@@ -181,8 +187,8 @@ fun ScreenManavara(
                                 Spacer(modifier = Modifier.size(4.dp))
 
                                 BestBottomDialog(
-                                    itemBestInfoTrophyList = state.itemBestInfoTrophyList,
-                                    item = state.itemBookInfo,
+                                    itemBestInfoTrophyList = mainState.itemBestInfoTrophyList,
+                                    item = mainState.itemBookInfo,
                                     isExpandedScreen = isExpandedScreen,
                                     modalSheetState = modalSheetState,
                                     currentRoute = "NOVEL",
@@ -202,12 +208,12 @@ fun ScreenManavara(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenManavaraPropertyList(
-    viewModelManavara: ViewModelManavara,
     drawerState: DrawerState?,
+    viewModelMain: ViewModelMain,
 ) {
 
-    val state = viewModelManavara.state.collectAsState().value
     val coroutineScope = rememberCoroutineScope()
+    val state = viewModelMain.state.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -235,7 +241,7 @@ fun ScreenManavaraPropertyList(
                 current = state.menu,
                 onClick ={
                     coroutineScope.launch {
-                        viewModelManavara.setScreen(
+                        viewModelMain.setScreen(
                             menu = item.menu,
                             detail = "",
                             type = state.type
@@ -251,29 +257,17 @@ fun ScreenManavaraPropertyList(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScreenManavaraItem(
-    viewModelManavara: ViewModelManavara,
     modalSheetState: ModalBottomSheetState?,
-    setDialogOpen: ((Boolean) -> Unit)?
+    setDialogOpen: ((Boolean) -> Unit)?,
+    viewModelMain: ViewModelMain
 ) {
 
-    val state = viewModelManavara.state.collectAsState().value
-    val context = LocalContext.current
-
-    LaunchedEffect(viewModelManavara){
-        getBookMapJson(
-            platform = state.platform,
-            type = state.type,
-            context = context
-        ){ itemBookInfoMap ->
-            viewModelManavara.setItemBookInfoMap(itemBookInfoMap = itemBookInfoMap)
-        }
-    }
+    val state = viewModelMain.state.collectAsState().value
 
     if (state.menu.contains("유저 옵션")) {
         ScreenUser()
     } else if (state.menu.contains("메세지함") || state.menu.contains("최신화 현황판")) {
         ContentsFCMList(
-            viewModelManavara = viewModelManavara,
             child = if(state.menu.contains("메세지함")){
                 "NOTICE"
             } else {
@@ -284,33 +278,33 @@ fun ScreenManavaraItem(
 
         if(state.menu.contains("다른")){
             ScreenPickShare(
-                viewModelManavara = viewModelManavara,
                 modalSheetState = modalSheetState,
                 setDialogOpen = setDialogOpen,
-                root = "PICK_SHARE"
+                root = "PICK_SHARE",
+                viewModelMain = viewModelMain
             )
         } else {
             ScreenMyPick(
-                viewModelManavara = viewModelManavara,
                 modalSheetState = modalSheetState,
                 setDialogOpen = setDialogOpen,
-                root = "MY"
+                root = "MY",
+                viewModelMain = viewModelMain
             )
         }
     } else if (state.menu.contains("만들기")) {
         ScreenMakeSharePick(
-            viewModelManavara = viewModelManavara
+            viewModelMain = viewModelMain
         )
     } else if (state.menu.contains("공유")) {
         ScreenPickShare(
-            viewModelManavara = viewModelManavara,
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen,
-            root = "MY_SHARE"
+            root = "MY_SHARE",
+            viewModelMain = viewModelMain
         )
     } else if (state.menu.contains("PICK 작품들 보기")) {
         ScreenPickShareAll(
-            viewModelManavara = viewModelManavara,
+            viewModelMain = viewModelMain,
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen,
         )
@@ -319,14 +313,14 @@ fun ScreenManavaraItem(
 
 @Composable
 fun ScreenManavaraItemDetail(
-    viewModelManavara: ViewModelManavara
+    viewModelMain: ViewModelMain
 ) {
 
-    val state = viewModelManavara.state.collectAsState().value
+    val state = viewModelMain.state.collectAsState().value
 
     if (state.detail.contains("공유 리스트 만들기")) {
         ScreenMakeSharePick(
-            viewModelManavara = viewModelManavara
+            viewModelMain = viewModelMain
         )
     }
 }
