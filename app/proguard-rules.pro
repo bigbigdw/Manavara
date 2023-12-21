@@ -22,6 +22,7 @@
 
 -keep class com.bigbigdw.manavara.main.models.** { *; }
 -keep class com.bigbigdw.manavara.best.models.** { *; }
+-keep class com.bigbigdw.manavara.manavara.models.** { *; }
 -keepclassmembers class com.bigbigdw.manavara.best.models.ItemBookInfo {
     <fields>;
     <init>();

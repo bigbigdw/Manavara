@@ -7,6 +7,7 @@ import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.dataBase.event.EventDataBase
 import com.bigbigdw.manavara.manavara.event.EventManavara
 import com.bigbigdw.manavara.manavara.event.StateManavara
+import com.bigbigdw.manavara.manavara.models.ItemPickData
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -56,6 +57,10 @@ class ViewModelManavara @Inject constructor() : ViewModel() {
 
             is EventManavara.SetIsMakePickList -> {
                 current.copy(isMakePickList = event.isMakePickList)
+            }
+
+            is EventManavara.SetItemBookInfoMap -> {
+                current.copy(itemBookInfoMap = event.itemBookInfoMap)
             }
 
             else -> {
@@ -112,4 +117,9 @@ class ViewModelManavara @Inject constructor() : ViewModel() {
         }
     }
 
+    fun setItemBookInfoMap(itemBookInfoMap: MutableMap<String, ItemBookInfo>){
+        viewModelScope.launch {
+            events.send(EventManavara.SetItemBookInfoMap(itemBookInfoMap = itemBookInfoMap))
+        }
+    }
 }

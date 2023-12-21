@@ -1,6 +1,7 @@
 package com.bigbigdw.manavara.main.viewModels
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.dataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.util.Collections
 import javax.inject.Inject
 
 class ViewModelMain @Inject constructor() : ViewModel() {
@@ -74,15 +76,26 @@ class ViewModelMain @Inject constructor() : ViewModel() {
                     .child("MY")
                     .child(type)
                     .child(platform)
-                    .child(bookCode)
 
                 mRootRef.addListenerForSingleValueEvent(object :
                     ValueEventListener {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
 
                         if (dataSnapshot.exists()) {
+
+                            for(item in dataSnapshot.children){
+                                Log.d("HIHI", "Item == $item")
+                                val itemBookInfo = item.getValue(ItemBookInfo::class.java)
+
+                                if(itemBookInfo?.bookCode.equals(bookCode)){
+                                    viewModelScope.launch {
+                                        events.send(EventMain.SetIsPicked(true))
+                                    }
+                                    return
+                                }
+                            }
                             viewModelScope.launch {
-                                events.send(EventMain.SetIsPicked(true))
+                                events.send(EventMain.SetIsPicked(false))
                             }
                         } else {
                             viewModelScope.launch {
@@ -102,10 +115,8 @@ class ViewModelMain @Inject constructor() : ViewModel() {
 
         viewModelScope.launch {
 
-            item.belong = "SHARE"
-
             dataStore.getDataStoreString(UID).collect{
-                FirebaseDatabase.getInstance().reference
+                val rootRef = FirebaseDatabase.getInstance().reference
                     .child("USER")
                     .child("ecXPTeFiDnV732gOiaD8u525NnE3")
 //                    .child(it ?: uid)
@@ -113,25 +124,58 @@ class ViewModelMain @Inject constructor() : ViewModel() {
                     .child("MY")
                     .child(type)
                     .child(platform)
-                    .child(item.bookCode).setValue(item)
+
+                rootRef.addListenerForSingleValueEvent(object :
+                    ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        rootRef.child((dataSnapshot.childrenCount + 1).toString()).setValue(item)
+                    }
+
+                    override fun onCancelled(databaseError: DatabaseError) {}
+                })
 
                 events.send(EventMain.SetIsPicked(true))
-                _sideEffects.send("[${item.title}] 이 PICK 되었습니다. 마나바라 -> PICK에서 확인 할 수 있습니다.")
+                _sideEffects.send("[${item.title}] 이 PICK 되었습니다.")
             }
         }
     }
 
     //TODO: UID 받아오게 작업하기
-    fun setUnPickBook(platform: String, type: String, item: ItemBookInfo){
+    fun setUnPickBook(context : Context, platform: String, type: String, item: ItemBookInfo, uid : String = "ecXPTeFiDnV732gOiaD8u525NnE3"){
+        val dataStore = DataStoreManager(context)
 
-        FirebaseDatabase.getInstance().reference
-            .child("USER")
-            .child( "ecXPTeFiDnV732gOiaD8u525NnE3")
-            .child("PICK")
-            .child("MY")
-            .child(type)
-            .child(platform)
-            .child(item.bookCode).removeValue()
+        viewModelScope.launch {
+
+            dataStore.getDataStoreString(UID).collect{
+                val rootRef = FirebaseDatabase.getInstance().reference
+                    .child("USER")
+                    .child("ecXPTeFiDnV732gOiaD8u525NnE3")
+//                    .child(it ?: uid)
+                    .child("PICK")
+                    .child("MY")
+                    .child(type)
+                    .child(platform)
+
+
+                rootRef.addListenerForSingleValueEvent(object :
+                    ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        for(pickedItem in dataSnapshot.children){
+                            val pickedItemValue = pickedItem.getValue(ItemBookInfo::class.java)
+
+                            if(pickedItemValue == item){
+                                rootRef.child(pickedItem.key ?: "").removeValue()
+                            }
+                        }
+                    }
+
+                    override fun onCancelled(databaseError: DatabaseError) {}
+                })
+
+                events.send(EventMain.SetIsPicked(true))
+                _sideEffects.send("[${item.title}] 이 PICK 되었습니다.")
+            }
+        }
 
         viewModelScope.launch {
             events.send(EventMain.SetIsPicked(false))

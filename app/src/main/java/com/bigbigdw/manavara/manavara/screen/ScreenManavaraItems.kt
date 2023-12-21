@@ -2,6 +2,7 @@ package com.bigbigdw.manavara.manavara.screen
 
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -54,6 +55,7 @@ import com.bigbigdw.manavara.manavara.editSharePickList
 import com.bigbigdw.manavara.manavara.getPickList
 import com.bigbigdw.manavara.manavara.getUserPickShareList
 import com.bigbigdw.manavara.manavara.getUserPickShareListALL
+import com.bigbigdw.manavara.manavara.models.ItemPickData
 import com.bigbigdw.manavara.manavara.setSharePickList
 import com.bigbigdw.manavara.manavara.viewModels.ViewModelManavara
 import com.bigbigdw.manavara.ui.theme.color000000
@@ -63,6 +65,7 @@ import com.bigbigdw.manavara.ui.theme.color5372DE
 import com.bigbigdw.manavara.ui.theme.color898989
 import com.bigbigdw.manavara.ui.theme.color998DF9
 import com.bigbigdw.manavara.ui.theme.colorEDE6FD
+import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.util.changePlatformNameKor
 import com.bigbigdw.manavara.util.novelListEng
 import com.bigbigdw.manavara.util.screen.AlertOneBtn
@@ -157,7 +160,7 @@ fun ScreenMyPick(
         }
     }
 
-    LazyColumn {
+    LazyColumn(modifier = Modifier.fillMaxSize().background(color = colorF6F6F6)) {
         item {
             Spacer(modifier = Modifier.size(8.dp))
         }
@@ -278,7 +281,7 @@ fun ScreenPickShare(
         }
     }
 
-    Scaffold(modifier = Modifier.wrapContentSize(),
+    Scaffold(modifier = Modifier.wrapContentSize().background(color = colorF6F6F6),
         floatingActionButton = {
 
             if(state.pickCategory.isNotEmpty()){
@@ -500,7 +503,7 @@ fun ScreenMakeSharePick(
     }
 
     Scaffold(modifier = Modifier
-        .wrapContentSize(),
+        .wrapContentSize().background(color = colorF6F6F6),
         bottomBar = {
             if (state.pickCategory.isNotEmpty()) {
                 Button(
@@ -679,38 +682,34 @@ fun ScreenPickShareAll(
 
     LaunchedEffect(viewModelManavara) {
 
-        val pickShareItemListAll = mutableMapOf<String, ArrayList<ItemBookInfo>>()
         val pickCategoryAll =  ArrayList<String>()
 
-        getUserPickShareListALL(context = context, type = "NOVEL", root = "MY") { pickCategory, pickShareItemListMY ->
+        getUserPickShareListALL(context = context, type = "NOVEL") { pickCategory, pickShareItemList ->
+
+            Log.d("ScreenPickShareAll", "ScreenPickShareAll == $pickCategory $pickShareItemList")
+
             pickCategoryAll.add("전체")
-            pickShareItemListAll.putAll(pickShareItemListMY)
             pickCategoryAll.addAll(pickCategory)
 
-            getUserPickShareListALL(context = context, type = "NOVEL", root = "SHARE_DOWNLOADED") { pickCategoryDownLoaded, pickShareItemListDownLoaded ->
-
-                pickCategoryAll.addAll(pickCategoryDownLoaded)
-                pickShareItemListAll.putAll(pickShareItemListDownLoaded)
-
-                viewModelManavara.setPickShareList(
-                    pickCategory = pickCategoryAll,
-                    pickShareItemList = pickShareItemListAll,
-                    platform = if(pickCategoryAll.isEmpty()){
-                        ""
-                    } else {
-                        pickCategoryAll[0]
-                    }
-                )
-            }
+            viewModelManavara.setPickShareList(
+                pickCategory = pickCategoryAll,
+                pickShareItemList = pickShareItemList,
+                platform = if(pickCategoryAll.isEmpty()){
+                    ""
+                } else {
+                    pickCategoryAll[0]
+                }
+            )
         }
 
 
     }
 
-    Scaffold(modifier = Modifier.wrapContentSize(),
+//    colorF6F6F6
+    Scaffold(modifier = Modifier.fillMaxSize().background(color = colorF6F6F6),
         floatingActionButton = {
 
-            if(state.pickCategory.isNotEmpty()){
+            if(state.pickCategory.isNotEmpty() && state.platform != "전체" && state.platform != "내 작품들"){
                 FloatingActionButton(
                     modifier = Modifier.size(60.dp),
                     onClick = {
@@ -739,7 +738,7 @@ fun ScreenPickShareAll(
 
         }, floatingActionButtonPosition = FabPosition.End) {
 
-        LazyColumn(modifier = Modifier.padding(it)) {
+        LazyColumn(modifier = Modifier.padding(it).fillMaxSize().background(color = colorF6F6F6)) {
             item {
                 Spacer(modifier = Modifier.size(8.dp))
             }
@@ -786,33 +785,23 @@ fun ScreenPickShareAll(
 
                 val list = if(state.platform == "전체"){
                     val combinedList = ArrayList<ItemBookInfo>()
-                    val pickShareItemListAll = mutableMapOf<String, ItemBookInfo>()
+                    val pickShareItemListAll = mutableMapOf<String, ArrayList<ItemBookInfo>>()
 
-                    for(category in state.pickShareItemList){
-                        for(item in category.value){
-                            pickShareItemListAll[item.bookCode] = item
+                    for(item in state.pickShareItemList){
+                        pickShareItemListAll["ALL"] = item.value
+                    }
+
+                    if(pickShareItemListAll["ALL"] != null){
+                        for(item in pickShareItemListAll["ALL"]!!){
+                            if (item != null) {
+                                combinedList.add(item)
+                            }
                         }
                     }
-
-                    for(item in pickShareItemListAll){
-                        combinedList.add(item.value)
-                    }
-
-                    val cmpAsc: java.util.Comparator<ItemBookInfo> =
-                        Comparator { o1, o2 -> o1.title.compareTo(o2.title) }
-                    Collections.sort(combinedList, cmpAsc)
 
                     combinedList
                 } else {
                     val arrayList = state.pickShareItemList[state.platform]?.let { it1 -> ArrayList(it1) }
-
-                    val cmpAsc: java.util.Comparator<ItemBookInfo> =
-                        Comparator { o1, o2 -> o1.title.compareTo(o2.title) }
-
-                    if (arrayList != null) {
-                        Collections.sort(arrayList, cmpAsc)
-                    }
-
                     arrayList
                 }
 

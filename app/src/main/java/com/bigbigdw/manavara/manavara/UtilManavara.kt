@@ -6,6 +6,7 @@ import android.util.Log
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.manavara.models.CommunityBoard
 import com.bigbigdw.manavara.manavara.models.EventData
+import com.bigbigdw.manavara.manavara.models.ItemPickData
 import com.bigbigdw.manavara.retrofit.Param
 import com.bigbigdw.manavara.retrofit.RetrofitDataListener
 import com.bigbigdw.manavara.retrofit.RetrofitJoara
@@ -393,10 +394,6 @@ fun getPickList(context: Context, uid : String = "ecXPTeFiDnV732gOiaD8u525NnE3",
 
                     }
 
-                    val cmpAsc: java.util.Comparator<ItemBookInfo> =
-                        Comparator { o1, o2 -> o1.title.compareTo(o2.title) }
-                    Collections.sort(pickItemList, cmpAsc)
-
                     callbacks.invoke(pickCategory, pickItemList)
                 }
 
@@ -567,13 +564,13 @@ fun editSharePickList(
                     .child("ecXPTeFiDnV732gOiaD8u525NnE3")
 //                    .child(it ?: uid)
                     .child("PICK")
-                    .child("SHARE")
+                    .child("DOWNLOADED")
                     .child(type)
                     .child(listName)
                     .removeValue()
 
                 FirebaseDatabase.getInstance().reference
-                    .child("PICK_SHARE")
+                    .child("SHARE")
                     .child("ecXPTeFiDnV732gOiaD8u525NnE3")
 //                    .child(it ?: uid)
                     .child(type)
@@ -607,7 +604,6 @@ fun editSharePickList(
 fun getUserPickShareListALL(
     context : Context,
     type: String,
-    root : String,
     uid : String = "ecXPTeFiDnV732gOiaD8u525NnE3",
     callbacks: (ArrayList<String>, MutableMap<String, ArrayList<ItemBookInfo>>) -> Unit
 ){
@@ -616,77 +612,85 @@ fun getUserPickShareListALL(
 
     CoroutineScope(Dispatchers.Main).launch{
         dataStore.getDataStoreString(DataStoreManager.UID).collect{
-            val rootRef = when (root) {
-                "MY" -> {
-                    FirebaseDatabase.getInstance().reference
-                        .child("USER")
-                        .child("ecXPTeFiDnV732gOiaD8u525NnE3")
-                        //                    .child(it ?: uid)
-                        .child("PICK")
-                        .child("MY")
-                        .child(type)
-                }
-                else -> {
-                    FirebaseDatabase.getInstance().reference
-                        .child("USER")
-                        .child("ecXPTeFiDnV732gOiaD8u525NnE3")
-                        //                    .child(it ?: uid)
-                        .child("PICK")
-                        .child("DOWNLOADED")
-                        .child(type)
-                }
-            }
+            val rootRef = FirebaseDatabase.getInstance().reference
+                .child("USER")
+                .child("ecXPTeFiDnV732gOiaD8u525NnE3")
+                //                    .child(it ?: uid)
+                .child("PICK")
+
 
             rootRef.addListenerForSingleValueEvent(object :
                 ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     val pickCategory = ArrayList<String>()
                     val pickItemList = mutableMapOf<String, ArrayList<ItemBookInfo>>()
+                    val myList = dataSnapshot.child("MY").child(type)
+                    val downloadList = dataSnapshot.child("DOWNLOADED").child(type)
+                    val shareList = dataSnapshot.child("SHARE").child(type)
 
-                    if (dataSnapshot.exists()) {
+                    if (myList.exists()) {
 
-                        try {
+                        pickCategory.add("내 작품들")
+                        val itemList = ArrayList<ItemBookInfo>()
 
-                            if(root == "MY"){
-                                pickCategory.add("내 작품들")
-                            }
-                            val itemListAll = ArrayList<ItemBookInfo>()
+                        for (category in myList.children) {
 
-                            for (category in dataSnapshot.children) {
+                            for (pickItem in category.children) {
+                                val item = pickItem.getValue(ItemBookInfo::class.java)
+                                item?.belong = "MY"
 
-                                if(root != "MY"){
-                                    pickCategory.add(category.key ?: "")
-                                }
-
-                                val itemList = ArrayList<ItemBookInfo>()
-
-                                for (pickItem in category.children) {
-                                    val item = pickItem.getValue(ItemBookInfo::class.java)
-
-                                    if (item != null) {
-                                        itemList.add(item)
-                                        itemListAll.add(item)
-                                    }
-                                }
-
-                                val cmpAsc: java.util.Comparator<ItemBookInfo> =
-                                    Comparator { o1, o2 -> o1.title.compareTo(o2.title) }
-                                Collections.sort(itemList, cmpAsc)
-
-                                if(root == "MY"){
-                                    pickItemList["내 작품들"] = itemListAll
-                                } else {
-                                    pickItemList[category.key ?: ""] = itemList
+                                if (item != null) {
+                                    itemList.add(item)
                                 }
                             }
 
-                            callbacks.invoke(pickCategory, pickItemList)
-                        } catch (e: Exception) {
-                            callbacks.invoke(pickCategory, pickItemList)
+                            pickItemList["내 작품들"] = itemList
                         }
-                    } else {
-                        callbacks.invoke(pickCategory, pickItemList)
                     }
+
+                    if (downloadList.exists()) {
+
+                        for (category in downloadList.children) {
+
+                            pickCategory.add(category.key ?: "")
+
+                            val itemList = ArrayList<ItemBookInfo>()
+
+                            for (pickItem in category.children) {
+                                val item = pickItem.getValue(ItemBookInfo::class.java)
+                                item?.belong = "DOWNLOADED"
+
+                                if (item != null) {
+                                    itemList.add(item)
+                                }
+                            }
+
+                            pickItemList[category.key ?: ""] = itemList
+                        }
+                    }
+
+                    if (shareList.exists()) {
+
+                        for (category in shareList.children) {
+
+                            pickCategory.add(category.key ?: "")
+
+                            val itemList = ArrayList<ItemBookInfo>()
+
+                            for (pickItem in category.children) {
+                                val item = pickItem.getValue(ItemBookInfo::class.java)
+                                item?.belong = "SHARE"
+
+                                if (item != null) {
+                                    itemList.add(item)
+                                }
+                            }
+
+                            pickItemList[category.key ?: ""] = itemList
+                        }
+                    }
+
+                    callbacks.invoke(pickCategory, pickItemList)
                 }
 
                 override fun onCancelled(databaseError: DatabaseError) {}

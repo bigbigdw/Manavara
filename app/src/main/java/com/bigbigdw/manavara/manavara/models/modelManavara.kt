@@ -1,5 +1,8 @@
 package com.bigbigdw.manavara.manavara.models
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
 class EventData(
     var link: String = "",
     var imgfile: String = "",
@@ -15,4 +18,12 @@ data class CommunityBoard(
     var title: String = "",
     var link: String = "",
     var date: String = ""
+)
+
+@Serializable
+data class ItemPickData(
+    @SerialName("title")
+    var title: String = "",
+    @SerialName("bookCode")
+    var bookCode: String = "",
 )

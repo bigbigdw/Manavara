@@ -468,9 +468,12 @@ fun BestDialog(
     val state = viewModelMain.state.collectAsState().value
 
     LaunchedEffect(item.bookCode) {
-        viewModelMain.setIsPicked(
-            context = context, type = "NOVEL", platform = item.platform, bookCode = item.bookCode
-        )
+
+        if(item.bookCode.isNotEmpty() && item.platform.isNotEmpty()){
+            viewModelMain.setIsPicked(
+                context = context, type = "NOVEL", platform = item.platform, bookCode = item.bookCode
+            )
+        }
 
         coroutineScope.launch {
             viewModelMain.sideEffects.onEach {
@@ -496,7 +499,7 @@ fun BestDialog(
             onClickLeft = {
                 if (state.isPicked) {
                     viewModelMain.setUnPickBook(
-                        platform = item.platform, type = "NOVEL", item = item
+                        platform = item.platform, type = "NOVEL", item = item, context = context
                     )
                 } else {
                     viewModelMain.setPickBook(
@@ -554,9 +557,13 @@ fun BestBottomDialog(
     val state = viewModelMain.state.collectAsState().value
 
     LaunchedEffect(item.bookCode) {
-        viewModelMain.setIsPicked(
-            context = context, type = "NOVEL", platform = item.platform, bookCode = item.bookCode
-        )
+
+        if(item.bookCode.isNotEmpty() && item.platform.isNotEmpty()){
+            viewModelMain.setIsPicked(
+                context = context, type = "NOVEL", platform = item.platform, bookCode = item.bookCode
+            )
+
+        }
 
         coroutineScope.launch {
             viewModelMain.sideEffects.onEach {
@@ -579,7 +586,7 @@ fun BestBottomDialog(
 
                 if (state.isPicked) {
                     viewModelMain.setUnPickBook(
-                        platform = item.platform, type = "NOVEL", item = item
+                        platform = item.platform, type = "NOVEL", item = item, context = context
                     )
                 } else {
                     viewModelMain.setPickBook(

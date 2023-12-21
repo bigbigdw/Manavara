@@ -1,5 +1,6 @@
 package com.bigbigdw.manavara.manavara.screen
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -42,6 +43,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.bigbigdw.manavara.best.getBestListTodayJson
+import com.bigbigdw.manavara.best.getBookMapJson
 import com.bigbigdw.manavara.best.screen.BestBottomDialog
 import com.bigbigdw.manavara.best.screen.BestDialog
 import com.bigbigdw.manavara.manavara.viewModels.ViewModelManavara
@@ -159,9 +162,7 @@ fun ScreenManavara(
                                 )
                             } else {
                                 ScreenManavaraItemDetail(
-                                    viewModelManavara = viewModelManavara,
-                                    modalSheetState = modalSheetState,
-                                    setDialogOpen = null
+                                    viewModelManavara = viewModelManavara
                                 )
                             }
                         }
@@ -256,6 +257,17 @@ fun ScreenManavaraItem(
 ) {
 
     val state = viewModelManavara.state.collectAsState().value
+    val context = LocalContext.current
+
+    LaunchedEffect(viewModelManavara){
+        getBookMapJson(
+            platform = state.platform,
+            type = state.type,
+            context = context
+        ){ itemBookInfoMap ->
+            viewModelManavara.setItemBookInfoMap(itemBookInfoMap = itemBookInfoMap)
+        }
+    }
 
     if (state.menu.contains("유저 옵션")) {
         ScreenUser()
@@ -296,12 +308,9 @@ fun ScreenManavaraItem(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScreenManavaraItemDetail(
-    viewModelManavara: ViewModelManavara,
-    modalSheetState: ModalBottomSheetState?,
-    setDialogOpen: ((Boolean) -> Unit)?
+    viewModelManavara: ViewModelManavara
 ) {
 
     val state = viewModelManavara.state.collectAsState().value
