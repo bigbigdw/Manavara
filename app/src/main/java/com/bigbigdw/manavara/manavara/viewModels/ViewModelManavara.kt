@@ -4,10 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
-import com.bigbigdw.manavara.dataBase.event.EventDataBase
 import com.bigbigdw.manavara.manavara.event.EventManavara
 import com.bigbigdw.manavara.manavara.event.StateManavara
-import com.bigbigdw.manavara.manavara.models.ItemPickData
+import com.bigbigdw.manavara.manavara.models.ItemAlert
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -63,6 +62,10 @@ class ViewModelManavara @Inject constructor() : ViewModel() {
                 current.copy(itemBookInfoMap = event.itemBookInfoMap)
             }
 
+            is EventManavara.SetFcmList -> {
+                current.copy(fcmList = event.fcmList)
+            }
+
             else -> {
                 current.copy(Loaded = false)
             }
@@ -75,9 +78,9 @@ class ViewModelManavara @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setPickItems(pickCategory: ArrayList<String>){
+    fun setFcmList(fcmList: ArrayList<ItemAlert>){
         viewModelScope.launch {
-            events.send(EventManavara.SetPickItems(pickCategory = pickCategory))
+            events.send(EventManavara.SetFcmList(fcmList = fcmList))
         }
     }
 

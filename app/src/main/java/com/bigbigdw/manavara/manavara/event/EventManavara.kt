@@ -2,11 +2,7 @@ package com.bigbigdw.manavara.manavara.event
 
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
-import com.bigbigdw.manavara.best.models.ItemKeyword
-import com.bigbigdw.manavara.dataBase.event.EventDataBase
-import com.bigbigdw.manavara.main.models.UserInfo
-import com.bigbigdw.manavara.manavara.models.ItemPickData
-import com.bigbigdw.manavara.util.novelListEng
+import com.bigbigdw.manavara.manavara.models.ItemAlert
 
 sealed interface EventManavara{
     object Loaded: EventManavara
@@ -46,6 +42,10 @@ sealed interface EventManavara{
     class SetItemBookInfoMap(
         var itemBookInfoMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
     ) : EventManavara
+
+    class SetFcmList(
+        val fcmList : ArrayList<ItemAlert> = ArrayList(),
+    ) : EventManavara
 }
 
 data class StateManavara(
@@ -64,4 +64,5 @@ data class StateManavara(
     val isMakePickList: Boolean = false,
 
     var itemBookInfoMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
+    val fcmList : ArrayList<ItemAlert> = ArrayList(),
 )

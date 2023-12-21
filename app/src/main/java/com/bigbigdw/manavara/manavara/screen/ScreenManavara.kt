@@ -271,6 +271,15 @@ fun ScreenManavaraItem(
 
     if (state.menu.contains("유저 옵션")) {
         ScreenUser()
+    } else if (state.menu.contains("메세지함") || state.menu.contains("최신화 현황판")) {
+        ContentsFCMList(
+            viewModelManavara = viewModelManavara,
+            child = if(state.menu.contains("메세지함")){
+                "NOTICE"
+            } else {
+                "ALERT"
+            }
+        )
     } else if (state.menu.contains("PICK 보기")) {
 
         if(state.menu.contains("다른")){

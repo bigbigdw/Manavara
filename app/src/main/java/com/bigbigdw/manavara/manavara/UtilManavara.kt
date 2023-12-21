@@ -3,10 +3,11 @@ package com.bigbigdw.manavara.manavara
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.viewModelScope
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.manavara.models.CommunityBoard
 import com.bigbigdw.manavara.manavara.models.EventData
-import com.bigbigdw.manavara.manavara.models.ItemPickData
+import com.bigbigdw.manavara.manavara.models.ItemAlert
 import com.bigbigdw.manavara.retrofit.Param
 import com.bigbigdw.manavara.retrofit.RetrofitDataListener
 import com.bigbigdw.manavara.retrofit.RetrofitJoara
@@ -30,7 +31,6 @@ import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 import java.net.URLDecoder
 import java.net.URLEncoder
-import java.util.Collections
 
 fun setEvent(platform : String, context : Context) {
 
@@ -465,24 +465,19 @@ fun getUserPickShareList(
 
     CoroutineScope(Dispatchers.Main).launch{
         dataStore.getDataStoreString(DataStoreManager.UID).collect{
+
+            val userpickRef = FirebaseDatabase.getInstance().reference
+                .child("USER")
+                .child("ecXPTeFiDnV732gOiaD8u525NnE3")
+                //                    .child(it ?: uid)
+                .child("PICK")
+
             val rootRef = when (root) {
                 "MY" -> {
-                    FirebaseDatabase.getInstance().reference
-                        .child("USER")
-                        .child("ecXPTeFiDnV732gOiaD8u525NnE3")
-                        //                    .child(it ?: uid)
-                        .child("PICK")
-                        .child("MY")
-                        .child(type)
+                    userpickRef.child("MY").child(type)
                 }
                 "MY_SHARE" -> {
-                    FirebaseDatabase.getInstance().reference
-                        .child("USER")
-                        .child("ecXPTeFiDnV732gOiaD8u525NnE3")
-        //                    .child(it ?: uid)
-                        .child("PICK")
-                        .child("SHARE")
-                        .child(type)
+                    userpickRef.child("SHARE").child(type)
                 }
                 "PICK_SHARE" -> {
                     FirebaseDatabase.getInstance().reference
@@ -492,13 +487,7 @@ fun getUserPickShareList(
                         .child(type)
                 }
                 else -> {
-                    FirebaseDatabase.getInstance().reference
-                        .child("USER")
-                        .child("ecXPTeFiDnV732gOiaD8u525NnE3")
-        //                    .child(it ?: uid)
-                        .child("PICK")
-                        .child("DOWNLOADED")
-                        .child(type)
+                    userpickRef.child("DOWNLOADED").child(type)
                 }
             }
 
@@ -522,10 +511,6 @@ fun getUserPickShareList(
                                         itemList.add(item)
                                     }
                                 }
-
-                                val cmpAsc: java.util.Comparator<ItemBookInfo> =
-                                    Comparator { o1, o2 -> o1.title.compareTo(o2.title) }
-                                Collections.sort(itemList, cmpAsc)
 
                                 pickItemList[category.key ?: ""] = itemList
                             }
@@ -559,19 +544,18 @@ fun editSharePickList(
     CoroutineScope(Dispatchers.Main).launch {
         dataStore.getDataStoreString(DataStoreManager.UID).collect {
             if(status == "DELETE"){
-                FirebaseDatabase.getInstance().reference
+
+                val pickUser = FirebaseDatabase.getInstance().reference
                     .child("USER")
                     .child("ecXPTeFiDnV732gOiaD8u525NnE3")
-//                    .child(it ?: uid)
                     .child("PICK")
-                    .child("DOWNLOADED")
+
+                pickUser.child("DOWNLOADED")
                     .child(type)
                     .child(listName)
                     .removeValue()
 
-                FirebaseDatabase.getInstance().reference
-                    .child("SHARE")
-                    .child("ecXPTeFiDnV732gOiaD8u525NnE3")
+                pickUser.child("SHARE")
 //                    .child(it ?: uid)
                     .child(type)
                     .child(listName)
@@ -697,4 +681,37 @@ fun getUserPickShareListALL(
             })
         }
     }
+}
+
+fun getFCMList(child: String = "NOTICE", callbacks: (ArrayList<ItemAlert>) -> Unit) {
+
+    val mRootRef = FirebaseDatabase.getInstance().reference.child("MESSAGE").child(child)
+
+    mRootRef.addListenerForSingleValueEvent(object :
+        ValueEventListener {
+        override fun onDataChange(dataSnapshot: DataSnapshot) {
+            if (dataSnapshot.exists()) {
+
+                val fcmlist = ArrayList<ItemAlert>()
+
+                for (item in dataSnapshot.children) {
+                    val fcm: ItemAlert? =
+                        dataSnapshot.child(item.key ?: "").getValue(ItemAlert::class.java)
+
+                    if (fcm != null) {
+                        fcmlist.add(fcm)
+                    }
+                }
+
+                fcmlist.reverse()
+
+                callbacks.invoke(fcmlist)
+
+            } else {
+                Log.d("HIHI", "FALSE")
+            }
+        }
+
+        override fun onCancelled(databaseError: DatabaseError) {}
+    })
 }

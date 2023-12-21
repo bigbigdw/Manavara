@@ -21,9 +21,15 @@ data class CommunityBoard(
 )
 
 @Serializable
-data class ItemPickData(
+data class ItemAlert (
+    @SerialName("date")
+    var date: String = "",
     @SerialName("title")
     var title: String = "",
-    @SerialName("bookCode")
-    var bookCode: String = "",
+    @SerialName("body")
+    var body: String = "",
+    @SerialName("data")
+    var data : String = "",
+    @SerialName("activity")
+    var activity : String = "",
 )

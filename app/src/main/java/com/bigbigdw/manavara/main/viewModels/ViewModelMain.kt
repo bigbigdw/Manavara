@@ -84,7 +84,6 @@ class ViewModelMain @Inject constructor() : ViewModel() {
                         if (dataSnapshot.exists()) {
 
                             for(item in dataSnapshot.children){
-                                Log.d("HIHI", "Item == $item")
                                 val itemBookInfo = item.getValue(ItemBookInfo::class.java)
 
                                 if(itemBookInfo?.bookCode.equals(bookCode)){
