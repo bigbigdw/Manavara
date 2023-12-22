@@ -276,7 +276,7 @@ fun ScreenManavaraItem(
         )
     } else if (state.menu.contains("PICK 보기")) {
 
-        if(state.menu.contains("다른")){
+        if(state.menu.contains("공유된")){
             ScreenPickShare(
                 modalSheetState = modalSheetState,
                 setDialogOpen = setDialogOpen,

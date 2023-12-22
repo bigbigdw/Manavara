@@ -1,23 +1,9 @@
 package com.bigbigdw.manavara.manavara
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
-import androidx.lifecycle.viewModelScope
 import com.bigbigdw.manavara.best.models.ItemBookInfo
-import com.bigbigdw.manavara.manavara.models.CommunityBoard
-import com.bigbigdw.manavara.manavara.models.EventData
 import com.bigbigdw.manavara.manavara.models.ItemAlert
-import com.bigbigdw.manavara.retrofit.Param
-import com.bigbigdw.manavara.retrofit.RetrofitDataListener
-import com.bigbigdw.manavara.retrofit.RetrofitJoara
-import com.bigbigdw.manavara.retrofit.RetrofitKaKao
-import com.bigbigdw.manavara.retrofit.RetrofitToksoda
-import com.bigbigdw.manavara.retrofit.result.BestBannerListResult
-import com.bigbigdw.manavara.retrofit.result.JoaraBoardResult
-import com.bigbigdw.manavara.retrofit.result.JoaraEventResult
-import com.bigbigdw.manavara.retrofit.result.KakaoStageEventList
-import com.bigbigdw.manavara.util.DBDate
 import com.bigbigdw.manavara.util.DataStoreManager
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -26,11 +12,6 @@ import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
-import org.jsoup.select.Elements
-import java.net.URLDecoder
-import java.net.URLEncoder
 
 
 fun getPickList(context: Context, uid : String = "ecXPTeFiDnV732gOiaD8u525NnE3", type : String, root : String = "MY", callbacks: (ArrayList<String>, ArrayList<ItemBookInfo>) -> Unit){
@@ -41,8 +22,8 @@ fun getPickList(context: Context, uid : String = "ecXPTeFiDnV732gOiaD8u525NnE3",
         dataStore.getDataStoreString(DataStoreManager.UID).collect{
             val rootRef = FirebaseDatabase.getInstance().reference
                 .child("USER")
-                .child("ecXPTeFiDnV732gOiaD8u525NnE3")
-//                .child(it ?: uid)
+//                .child("ecXPTeFiDnV732gOiaD8u525NnE3")
+                .child(it ?: uid)
                 .child("PICK")
                 .child(root)
                 .child(type)
@@ -109,8 +90,8 @@ fun setSharePickList(
         dataStore.getDataStoreString(DataStoreManager.UID).collect{
             FirebaseDatabase.getInstance().reference
                 .child("USER")
-                .child("ecXPTeFiDnV732gOiaD8u525NnE3")
-//                .child(it ?: uid)
+//                .child("ecXPTeFiDnV732gOiaD8u525NnE3")
+                .child(it ?: uid)
                 .child("PICK")
                 .child("SHARE")
                 .child(type)
@@ -119,8 +100,8 @@ fun setSharePickList(
 
             FirebaseDatabase.getInstance().reference
                 .child("PICK_SHARE")
-                .child("ecXPTeFiDnV732gOiaD8u525NnE3")
-//                .child(it ?: uid)
+//                .child("ecXPTeFiDnV732gOiaD8u525NnE3")
+                .child(it ?: uid)
                 .child(type)
                 .child(listName)
                 .setValue(filteredMap)
@@ -130,7 +111,7 @@ fun setSharePickList(
     initTitle()
 }
 
-fun getUserPickShareList(
+fun getUserPickList(
     context : Context,
     type: String,
     root : String,
@@ -145,8 +126,8 @@ fun getUserPickShareList(
 
             val userpickRef = FirebaseDatabase.getInstance().reference
                 .child("USER")
-                .child("ecXPTeFiDnV732gOiaD8u525NnE3")
-                //                    .child(it ?: uid)
+//                .child("ecXPTeFiDnV732gOiaD8u525NnE3")
+                .child(it ?: uid)
                 .child("PICK")
 
             val rootRef = when (root) {
@@ -159,8 +140,8 @@ fun getUserPickShareList(
                 "PICK_SHARE" -> {
                     FirebaseDatabase.getInstance().reference
                         .child("PICK_SHARE")
-                        .child("ecXPTeFiDnV732gOiaD8u525NnE3")
-        //                    .child(it ?: uid)
+//                        .child("ecXPTeFiDnV732gOiaD8u525NnE3")
+                        .child(it ?: uid)
                         .child(type)
                 }
                 else -> {
@@ -207,6 +188,61 @@ fun getUserPickShareList(
     }
 }
 
+fun getPickShareList(
+    context: Context,
+    type: String,
+    callbacks: (ArrayList<String>, MutableMap<String, ArrayList<ItemBookInfo>>) -> Unit
+){
+
+    val dataStore = DataStoreManager(context)
+
+    CoroutineScope(Dispatchers.Main).launch{
+        dataStore.getDataStoreString(DataStoreManager.UID).collect{
+
+            val rootRef = FirebaseDatabase.getInstance().reference
+                .child("PICK_SHARE")
+
+            rootRef.addListenerForSingleValueEvent(object :
+                ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    val pickCategory = ArrayList<String>()
+                    val pickItemList = mutableMapOf<String, ArrayList<ItemBookInfo>>()
+
+                    if (dataSnapshot.exists()) {
+                        try {
+
+                            for(uid in dataSnapshot.children){
+                                for(category in uid.child(type).children){
+                                    pickCategory.add(category.key ?: "")
+                                    val itemList = ArrayList<ItemBookInfo>()
+
+                                    for (pickItem in category.children) {
+                                        val item = pickItem.getValue(ItemBookInfo::class.java)
+
+                                        if (item != null) {
+                                            itemList.add(item)
+                                        }
+                                    }
+
+                                    pickItemList[category.key ?: ""] = itemList
+                                }
+                            }
+
+                            callbacks.invoke(pickCategory, pickItemList)
+                        } catch (e: Exception) {
+                            callbacks.invoke(pickCategory, pickItemList)
+                        }
+                    } else {
+                        callbacks.invoke(pickCategory, pickItemList)
+                    }
+                }
+
+                override fun onCancelled(databaseError: DatabaseError) {}
+            })
+        }
+    }
+}
+
 fun editSharePickList(
     context: Context,
     type : String,
@@ -224,7 +260,8 @@ fun editSharePickList(
 
                 val pickUser = FirebaseDatabase.getInstance().reference
                     .child("USER")
-                    .child("ecXPTeFiDnV732gOiaD8u525NnE3")
+                    .child(it ?: uid)
+//                    .child("ecXPTeFiDnV732gOiaD8u525NnE3")
                     .child("PICK")
 
                 pickUser.child("DOWNLOADED")
@@ -233,7 +270,7 @@ fun editSharePickList(
                     .removeValue()
 
                 pickUser.child("SHARE")
-//                    .child(it ?: uid)
+
                     .child(type)
                     .child(listName)
                     .removeValue()
@@ -250,8 +287,8 @@ fun editSharePickList(
 
                 FirebaseDatabase.getInstance().reference
                     .child("USER")
-                    .child("ecXPTeFiDnV732gOiaD8u525NnE3")
-//                    .child(it ?: uid)
+//                    .child("ecXPTeFiDnV732gOiaD8u525NnE3")
+                    .child(it ?: uid)
                     .child("PICK")
                     .child("DOWNLOADED")
                     .child(type)
@@ -275,8 +312,8 @@ fun getUserPickShareListALL(
         dataStore.getDataStoreString(DataStoreManager.UID).collect{
             val rootRef = FirebaseDatabase.getInstance().reference
                 .child("USER")
-                .child("ecXPTeFiDnV732gOiaD8u525NnE3")
-                //                    .child(it ?: uid)
+//                .child("ecXPTeFiDnV732gOiaD8u525NnE3")
+                .child(it ?: uid)
                 .child("PICK")
 
 

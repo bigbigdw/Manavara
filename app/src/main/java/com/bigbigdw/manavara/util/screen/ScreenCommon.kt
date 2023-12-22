@@ -773,13 +773,14 @@ fun ScreenBookCard(
     item: ItemBookInfo,
     index: Int,
     needIntro : Boolean = true,
+    boxColor : Color = Color.White,
     onClick: () -> Unit
 ) {
 
     val coroutineScope = rememberCoroutineScope()
 
     Button(
-        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+        colors = ButtonDefaults.buttonColors(containerColor = boxColor),
         contentPadding = PaddingValues(
             start = 0.dp,
             top = 0.dp,

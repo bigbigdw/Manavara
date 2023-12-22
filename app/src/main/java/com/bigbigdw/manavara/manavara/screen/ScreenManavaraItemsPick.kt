@@ -52,11 +52,11 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bigbigdw.manavara.best.getBookItemWeekTrophy
 import com.bigbigdw.manavara.best.models.ItemBookInfo
-import com.bigbigdw.manavara.best.models.ItemKeyword
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.manavara.editSharePickList
 import com.bigbigdw.manavara.manavara.getPickList
-import com.bigbigdw.manavara.manavara.getUserPickShareList
+import com.bigbigdw.manavara.manavara.getPickShareList
+import com.bigbigdw.manavara.manavara.getUserPickList
 import com.bigbigdw.manavara.manavara.getUserPickShareListALL
 import com.bigbigdw.manavara.manavara.setSharePickList
 import com.bigbigdw.manavara.manavara.viewModels.ViewModelManavara
@@ -111,99 +111,94 @@ fun ScreenMyPick(
         }
     }
 
-    LazyColumn(modifier = Modifier
+    Column(modifier = Modifier
         .fillMaxSize()
         .background(color = colorF6F6F6)) {
-        item {
-            Spacer(modifier = Modifier.size(8.dp))
-        }
 
-        item {
-            LazyRow(
-                modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 0.dp),
-            ) {
-                itemsIndexed(state.pickCategory) { index, item ->
-                    Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
-                        ScreenItemKeyword(
-                            getter = item,
-                            onClick = {
-                                coroutineScope.launch {
-                                    viewModelManavara.setView(
-                                        platform = item,
-                                        type = "NOVEL",
-                                        menu = state.menu,
-                                    )
-                                }
-                            },
-                            title = changePlatformNameKor(item),
-                            getValue = state.platform
-                        )
-                    }
-                }
-            }
-        }
-
-        item {
-            Spacer(modifier = Modifier.size(4.dp))
-        }
-
-        if (state.pickItemList.isEmpty()) {
-            item {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    ScreenEmpty(str = "데이터가 없습니다")
-                }
-            }
-        } else {
-            var filterdList = ArrayList<ItemBookInfo>()
-
-            if (state.platform == "전체") {
-                filterdList = state.pickItemList
-
-            } else {
-                for (item in state.pickItemList) {
-                    if (item.platform == state.platform) {
-                        filterdList.add(item)
-                    }
-                }
-            }
-
-            itemsIndexed(filterdList) { index, item ->
-
-                Box(
-                    modifier = Modifier
-                        .padding(16.dp, 8.dp, 16.dp, 8.dp)
-                        .wrapContentSize()
-                ) {
-                    ScreenBookCard(
-                        mode = "PLATFORM",
-                        item = item,
-                        index = index,
-                    ) {
-
-                        coroutineScope.launch {
-                            getBookItemWeekTrophy(
-                                bookCode = item.bookCode,
-                                type = "NOVEL",
-                                platform = item.platform
-                            ) { itemBestInfoTrophyList ->
-
-                                viewModelMain.setItemBestInfoTrophyList(
-                                    itemBookInfo = item,
-                                    itemBestInfoTrophyList = itemBestInfoTrophyList
+        LazyRow(
+            modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 0.dp),
+        ) {
+            itemsIndexed(state.pickCategory) { index, item ->
+                Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
+                    ScreenItemKeyword(
+                        getter = item,
+                        onClick = {
+                            coroutineScope.launch {
+                                viewModelManavara.setView(
+                                    platform = item,
+                                    type = "NOVEL",
+                                    menu = state.menu,
                                 )
                             }
+                        },
+                        title = changePlatformNameKor(item),
+                        getValue = state.platform
+                    )
+                }
+            }
+        }
 
-                            modalSheetState?.show()
+        Spacer(modifier = Modifier.size(8.dp))
 
-                            if (setDialogOpen != null) {
-                                setDialogOpen(true)
+        LazyColumn {
+
+            if (state.pickItemList.isEmpty()) {
+                item {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        ScreenEmpty(str = "데이터가 없습니다")
+                    }
+                }
+            } else {
+                var filterdList = ArrayList<ItemBookInfo>()
+
+                if (state.platform == "전체") {
+                    filterdList = state.pickItemList
+
+                } else {
+                    for (item in state.pickItemList) {
+                        if (item.platform == state.platform) {
+                            filterdList.add(item)
+                        }
+                    }
+                }
+
+                itemsIndexed(filterdList) { index, item ->
+
+                    Box(
+                        modifier = Modifier
+                            .padding(16.dp, 8.dp, 16.dp, 8.dp)
+                            .wrapContentSize()
+                    ) {
+                        ScreenBookCard(
+                            mode = "PLATFORM",
+                            item = item,
+                            index = index,
+                        ) {
+
+                            coroutineScope.launch {
+                                getBookItemWeekTrophy(
+                                    bookCode = item.bookCode,
+                                    type = "NOVEL",
+                                    platform = item.platform
+                                ) { itemBestInfoTrophyList ->
+
+                                    viewModelMain.setItemBestInfoTrophyList(
+                                        itemBookInfo = item,
+                                        itemBestInfoTrophyList = itemBestInfoTrophyList
+                                    )
+                                }
+
+                                modalSheetState?.show()
+
+                                if (setDialogOpen != null) {
+                                    setDialogOpen(true)
+                                }
                             }
                         }
                     }
                 }
             }
         }
-
     }
 }
 
@@ -234,16 +229,30 @@ fun ScreenPickShare(
             }.launchIn(coroutineScope)
         }
 
-        getUserPickShareList(context = context, type = "NOVEL", root = root) { pickCategory, pickShareItemList ->
-            viewModelManavara.setPickShareList(
-                pickCategory = pickCategory,
-                pickShareItemList = pickShareItemList,
-                platform = if(pickCategory.isEmpty()){
-                    ""
-                } else {
-                    pickCategory[0]
-                }
-            )
+        if(root == "PICK_SHARE"){
+            getPickShareList(context = context, type = "NOVEL") { pickCategory, pickShareItemList ->
+                viewModelManavara.setPickShareList(
+                    pickCategory = pickCategory,
+                    pickShareItemList = pickShareItemList,
+                    platform = if(pickCategory.isEmpty()){
+                        ""
+                    } else {
+                        pickCategory[0]
+                    }
+                )
+            }
+        } else {
+            getUserPickList(context = context, type = "NOVEL", root = root) { pickCategory, pickShareItemList ->
+                viewModelManavara.setPickShareList(
+                    pickCategory = pickCategory,
+                    pickShareItemList = pickShareItemList,
+                    platform = if(pickCategory.isEmpty()){
+                        ""
+                    } else {
+                        pickCategory[0]
+                    }
+                )
+            }
         }
     }
 
@@ -302,7 +311,10 @@ fun ScreenPickShare(
 
         }, floatingActionButtonPosition = FabPosition.End) {
 
-        Column(modifier = Modifier.padding(it).fillMaxSize().background(colorF6F6F6)) {
+        Column(modifier = Modifier
+            .padding(it)
+            .fillMaxSize()
+            .background(colorF6F6F6)) {
 
             LazyRow(
                 modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 0.dp),
@@ -507,7 +519,10 @@ fun ScreenMakeSharePick(
             }
         }) {
 
-        Column(modifier = Modifier.padding(it).fillMaxSize().background(colorF6F6F6)) {
+        Column(modifier = Modifier
+            .padding(it)
+            .fillMaxSize()
+            .background(colorF6F6F6)) {
 
             LazyRow(
                 modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 0.dp),
@@ -693,8 +708,6 @@ fun ScreenPickShareAll(
                 }
             )
         }
-
-
     }
 
 
@@ -750,111 +763,123 @@ fun ScreenPickShareAll(
 
         }, floatingActionButtonPosition = FabPosition.End) {
 
-        LazyColumn(modifier = Modifier
+        Column(modifier = Modifier
             .padding(it)
             .fillMaxSize()
             .background(color = colorF6F6F6)) {
-            item {
-                Spacer(modifier = Modifier.size(8.dp))
-            }
 
-            item {
-                LazyRow(
-                    modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 0.dp),
-                ) {
-                    itemsIndexed(state.pickCategory) { index, item ->
-                        Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
-                            ScreenItemKeyword(
-                                getter = item,
-                                onClick = {
-                                    coroutineScope.launch {
-                                        viewModelManavara.setView(
-                                            platform = item,
-                                            type = "NOVEL",
-                                            menu = state.menu,
-                                        )
-                                    }
-                                },
-                                title = changePlatformNameKor(item),
-                                getValue = state.platform
-                            )
-                        }
-                    }
-                }
-            }
-
-            item {
-                Spacer(modifier = Modifier.size(4.dp))
-            }
-
-            if (state.pickCategory.isEmpty()) {
-                item {
-                    ScreenManavaraItemMakeSharePick(
-                        viewModelMain = viewModelMain,
-                        menu = state.menu,
-                        platform = state.platform,
-                        type = state.type
-                    )
-                }
-            } else {
-
-                val list = if(state.platform == "전체"){
-
-                    val pickShareItemListAll = mutableMapOf<String, ItemBookInfo>()
-
-                    state.pickShareItemList.forEach { (_, array) ->
-                        for(item in array){
-                            pickShareItemListAll[item.bookCode] = item
-                        }
-                    }
-
-                    pickShareItemListAll.values.toList() as ArrayList<ItemBookInfo>
-                } else {
-                    val arrayList = state.pickShareItemList[state.platform]?.let { it1 -> ArrayList(it1) }
-                    arrayList
-                }
-
-                Log.d("ScreenPickShareAll", "list.size == ${list?.size}")
-
-                if (list != null) {
-                    itemsIndexed(list) { index, item ->
-
-                        Box(
-                            modifier = Modifier
-                                .padding(16.dp, 8.dp, 16.dp, 8.dp)
-                                .wrapContentSize()
-                        ) {
-                            ScreenBookCard(
-                                mode = "PLATFORM",
-                                item = item,
-                                index = index,
-                            ) {
-
+            LazyRow(
+                modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 0.dp),
+            ) {
+                itemsIndexed(state.pickCategory) { index, item ->
+                    Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
+                        ScreenItemKeyword(
+                            getter = item,
+                            onClick = {
                                 coroutineScope.launch {
-                                    getBookItemWeekTrophy(
-                                        bookCode = item.bookCode,
+                                    viewModelManavara.setView(
+                                        platform = item,
                                         type = "NOVEL",
-                                        platform = item.platform
-                                    ) { itemBestInfoTrophyList ->
+                                        menu = state.menu,
+                                    )
+                                }
+                            },
+                            title = changePlatformNameKor(item),
+                            getValue = state.platform
+                        )
+                    }
+                }
+            }
 
-                                        viewModelMain.setItemBestInfoTrophyList(
-                                            itemBookInfo = item,
-                                            itemBestInfoTrophyList = itemBestInfoTrophyList
-                                        )
+            Spacer(modifier = Modifier.size(8.dp))
+
+            LazyColumn {
+
+                if (state.pickCategory.isEmpty()) {
+                    item {
+                        ScreenManavaraItemMakeSharePick(
+                            viewModelMain = viewModelMain,
+                            menu = state.menu,
+                            platform = state.platform,
+                            type = state.type
+                        )
+                    }
+                } else {
+
+                    val list = if(state.platform == "전체"){
+
+                        val pickShareItemListAll = ArrayList<ItemBookInfo>()
+                        val pickShareItemMapAll = mutableMapOf<String, ItemBookInfo>()
+
+                        state.pickShareItemList.forEach { (_, array) ->
+                            for(item in array){
+                                pickShareItemMapAll[item.bookCode] = item
+                            }
+                        }
+
+                        for(item in pickShareItemMapAll){
+                            pickShareItemListAll.add(item.value)
+                        }
+
+                        pickShareItemListAll
+                    } else {
+                        val arrayList = state.pickShareItemList[state.platform]?.let { it1 -> ArrayList(it1) }
+                        arrayList
+                    }
+
+                    Log.d("ScreenPickShareAll", "list.size == ${list?.size}")
+
+                    if (list != null) {
+                        itemsIndexed(list) { index, item ->
+
+                            Box(
+                                modifier = Modifier
+                                    .padding(16.dp, 8.dp, 16.dp, 8.dp)
+                                    .wrapContentSize()
+                            ) {
+                                ScreenBookCard(
+                                    mode = "PLATFORM",
+                                    item = item,
+                                    index = index,
+                                    boxColor = when (item.belong) {
+                                        "SHARE" -> {
+                                            Color(0xFFECFCFB)
+                                        }
+                                        "DOWNLOADED" -> {
+                                            Color(0xFFE9EEFD)
+                                        }
+                                        else -> {
+                                            Color(0xFFFFFFFF)
+                                        }
                                     }
+                                ) {
 
-                                    modalSheetState?.show()
+                                    coroutineScope.launch {
+                                        getBookItemWeekTrophy(
+                                            bookCode = item.bookCode,
+                                            type = "NOVEL",
+                                            platform = item.platform
+                                        ) { itemBestInfoTrophyList ->
 
-                                    if (setDialogOpen != null) {
-                                        setDialogOpen(true)
+                                            viewModelMain.setItemBestInfoTrophyList(
+                                                itemBookInfo = item,
+                                                itemBestInfoTrophyList = itemBestInfoTrophyList
+                                            )
+                                        }
+
+                                        modalSheetState?.show()
+
+                                        if (setDialogOpen != null) {
+                                            setDialogOpen(true)
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
 
-                    item {
-                        Spacer(modifier = Modifier.size(60.dp))
+                        item {
+                            Spacer(modifier = Modifier.size(60.dp))
+                        }
                     }
                 }
             }

@@ -1,5 +1,7 @@
 package com.bigbigdw.manavara.best.models
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -27,6 +29,7 @@ data class ItemBestDetailInfo(
     var tabInfo: ArrayList<String> = arrayListOf(),
     var keyword: ArrayList<String> = arrayListOf(),
 )
+@Entity
 @Serializable
 data class ItemBookInfo(
     @SerialName("writer")
@@ -73,7 +76,9 @@ data class ItemBookInfo(
     var genre: String = "",
     @SerialName("belong")
     var belong: String = "",
-)
+){
+    @PrimaryKey(autoGenerate = true) var id: Int = 0
+}
 @Serializable
 data class ItemBestInfo (
     @SerialName("number")
