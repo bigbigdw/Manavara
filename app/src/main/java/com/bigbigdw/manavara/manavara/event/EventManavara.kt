@@ -41,6 +41,11 @@ sealed interface EventManavara{
     class SetFcmList(
         val fcmList : ArrayList<ItemAlert> = ArrayList(),
     ) : EventManavara
+
+    class SetItemBookInfoList(
+        val itemBookInfoList: List<ItemBookInfo>? = ArrayList(),
+    ) : EventManavara
+
 }
 
 data class StateManavara(
@@ -50,14 +55,16 @@ data class StateManavara(
     val detail: String = "",
     val type: String = "NOVEL",
 
-    val itemBestInfoTrophyList : ArrayList<ItemBestInfo> = ArrayList(),
-    val itemBookInfo : ItemBookInfo = ItemBookInfo(),
+    val itemBestInfoTrophyList: ArrayList<ItemBestInfo> = ArrayList(),
+    val itemBookInfo: ItemBookInfo = ItemBookInfo(),
 
-    val pickCategory : ArrayList<String> = ArrayList(),
-    val pickItemList : ArrayList<ItemBookInfo> = ArrayList(),
-    val pickShareItemList : MutableMap<String, ArrayList<ItemBookInfo>> = mutableMapOf(),
+    val pickCategory: ArrayList<String> = ArrayList(),
+    val pickItemList: ArrayList<ItemBookInfo> = ArrayList(),
+    val pickShareItemList: MutableMap<String, ArrayList<ItemBookInfo>> = mutableMapOf(),
     val isMakePickList: Boolean = false,
 
     var itemBookInfoMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
-    val fcmList : ArrayList<ItemAlert> = ArrayList(),
+    val fcmList: ArrayList<ItemAlert> = ArrayList(),
+
+    val itemBookInfoList: List<ItemBookInfo>? = ArrayList()
 )

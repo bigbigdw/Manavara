@@ -45,7 +45,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bigbigdw.manavara.best.screen.BestBottomDialog
 import com.bigbigdw.manavara.best.screen.BestDialog
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
-import com.bigbigdw.manavara.manavara.viewModels.ViewModelManavara
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.util.menuListManavara
 import com.bigbigdw.manavara.util.screen.BackOnPressedMobile
@@ -168,7 +167,8 @@ fun ScreenManavara(
                                 )
                             } else {
                                 ScreenManavaraItemDetail(
-                                    viewModelMain = viewModelMain
+                                    viewModelMain = viewModelMain,
+                                    isExpandedScreen = isExpandedScreen
                                 )
                             }
                         }
@@ -293,7 +293,8 @@ fun ScreenManavaraItem(
         }
     } else if (state.menu.contains("만들기")) {
         ScreenMakeSharePick(
-            viewModelMain = viewModelMain
+            viewModelMain = viewModelMain,
+            mode = "SHARE"
         )
     } else if (state.menu.contains("공유")) {
         ScreenPickShare(
@@ -312,7 +313,7 @@ fun ScreenManavaraItem(
         ScreenMiningStatus(
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen,
-            root = "PICK_SHARE",
+            type = "NOVEL",
             viewModelMain = viewModelMain
         )
     }
@@ -320,16 +321,29 @@ fun ScreenManavaraItem(
 
 @Composable
 fun ScreenManavaraItemDetail(
-    viewModelMain: ViewModelMain
+    viewModelMain: ViewModelMain,
+    isExpandedScreen: Boolean
 ) {
 
     val state = viewModelMain.state.collectAsState().value
 
-    if (state.detail.contains("공유 리스트 만들기")) {
+    if(state.detail.contains("리스트 만들기")){
         ScreenMakeSharePick(
-            viewModelMain = viewModelMain
+            viewModelMain = viewModelMain,
+            mode = if(state.detail.contains("공유 리스트 만들기")){
+                "SHARE"
+            } else {
+                "MINING"
+            }
+        )
+    } else if(state.detail.contains("리스트 삭제하기")){
+        ScreenMiningDelete(
+            viewModelMain = viewModelMain,
+            isExpandedScreen = isExpandedScreen
         )
     }
+    
+
 }
 
 

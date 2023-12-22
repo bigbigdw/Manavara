@@ -2,8 +2,10 @@ package com.bigbigdw.manavara.manavara
 
 import android.content.Context
 import android.util.Log
+import androidx.room.Room
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.manavara.models.ItemAlert
+import com.bigbigdw.manavara.room.DBBookInfo
 import com.bigbigdw.manavara.util.DataStoreManager
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -22,7 +24,8 @@ fun getPickList(context: Context, uid : String = "ecXPTeFiDnV732gOiaD8u525NnE3",
         dataStore.getDataStoreString(DataStoreManager.UID).collect{
             val rootRef = FirebaseDatabase.getInstance().reference
                 .child("USER")
-                .child(it ?: uid)
+                .child(uid)
+//                    .child(it ?: uid)
                 .child("PICK")
                 .child(root)
                 .child(type)
@@ -89,7 +92,8 @@ fun setSharePickList(
         dataStore.getDataStoreString(DataStoreManager.UID).collect{
             FirebaseDatabase.getInstance().reference
                 .child("USER")
-                .child(it ?: uid)
+                .child(uid)
+//                    .child(it ?: uid)
                 .child("PICK")
                 .child("SHARE")
                 .child(type)
@@ -98,7 +102,8 @@ fun setSharePickList(
 
             FirebaseDatabase.getInstance().reference
                 .child("PICK_SHARE")
-                .child(it ?: uid)
+                .child(uid)
+//                    .child(it ?: uid)
                 .child(type)
                 .child(listName)
                 .setValue(filteredMap)
@@ -107,6 +112,50 @@ fun setSharePickList(
 
     initTitle()
 }
+
+fun setMiningList(
+    context: Context,
+    type: String,
+    pickCategory: ArrayList<String>,
+    pickItemList: ArrayList<ItemBookInfo>,
+    mode : String = "INSERT",
+    initTitle: () -> Unit
+){
+
+    val filteredList = ArrayList<ItemBookInfo>()
+    val pickItemListMap = mutableMapOf<String, ItemBookInfo>()
+    var roomDao: DBBookInfo?
+
+    for(item in pickItemList){
+        pickItemListMap[item.bookCode] = item
+    }
+
+    for(bookCode in pickCategory){
+        val item = pickItemListMap[bookCode]
+        if(item != null){
+            filteredList.add(item)
+        }
+    }
+
+    CoroutineScope(Dispatchers.IO).launch {
+        roomDao = Room.databaseBuilder(
+            context,
+            DBBookInfo::class.java,
+            type
+        ).build()
+
+        if(mode == "INSERT"){
+            roomDao?.bookInfoDao()?.insert(filteredList)
+        } else {
+            for(item in filteredList){
+                roomDao?.bookInfoDao()?.delete(item)
+            }
+        }
+    }
+
+    initTitle()
+}
+
 
 fun getUserPickList(
     context : Context,
@@ -123,7 +172,8 @@ fun getUserPickList(
 
             val userpickRef = FirebaseDatabase.getInstance().reference
                 .child("USER")
-                .child(it ?: uid)
+                .child(uid)
+//                    .child(it ?: uid)
                 .child("PICK")
 
             val rootRef = when (root) {
@@ -136,7 +186,8 @@ fun getUserPickList(
                 "PICK_SHARE" -> {
                     FirebaseDatabase.getInstance().reference
                         .child("PICK_SHARE")
-                        .child(it ?: uid)
+                        .child(uid)
+//                    .child(it ?: uid)
                         .child(type)
                 }
                 else -> {
@@ -255,7 +306,8 @@ fun editSharePickList(
 
                 val pickUser = FirebaseDatabase.getInstance().reference
                     .child("USER")
-                    .child(it ?: uid)
+                    .child(uid)
+//                    .child(it ?: uid)
                     .child("PICK")
 
                 pickUser.child("DOWNLOADED")
@@ -281,7 +333,8 @@ fun editSharePickList(
 
                 FirebaseDatabase.getInstance().reference
                     .child("USER")
-                    .child(it ?: uid)
+                    .child(uid)
+//                    .child(it ?: uid)
                     .child("PICK")
                     .child("DOWNLOADED")
                     .child(type)
@@ -305,7 +358,8 @@ fun getUserPickShareListALL(
         dataStore.getDataStoreString(DataStoreManager.UID).collect{
             val rootRef = FirebaseDatabase.getInstance().reference
                 .child("USER")
-                .child(it ?: uid)
+                .child(uid)
+//                    .child(it ?: uid)
                 .child("PICK")
 
 

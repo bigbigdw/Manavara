@@ -58,6 +58,7 @@ import com.bigbigdw.manavara.manavara.getPickList
 import com.bigbigdw.manavara.manavara.getPickShareList
 import com.bigbigdw.manavara.manavara.getUserPickList
 import com.bigbigdw.manavara.manavara.getUserPickShareListALL
+import com.bigbigdw.manavara.manavara.setMiningList
 import com.bigbigdw.manavara.manavara.setSharePickList
 import com.bigbigdw.manavara.manavara.viewModels.ViewModelManavara
 import com.bigbigdw.manavara.ui.theme.color000000
@@ -351,7 +352,8 @@ fun ScreenPickShare(
                             viewModelMain = viewModelMain,
                             menu = manavaraState.menu,
                             platform = manavaraState.platform,
-                            type = manavaraState.type
+                            type = manavaraState.type,
+                            mode = "SHARE"
                         )
                     }
                 } else {
@@ -409,7 +411,8 @@ fun ScreenPickShare(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenMakeSharePick(
-    viewModelMain : ViewModelMain
+    viewModelMain: ViewModelMain,
+    mode: String
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -438,7 +441,7 @@ fun ScreenMakeSharePick(
         }
     }
 
-    if (getDialogOpen) {
+    if (getDialogOpen && mode == "SHARE") {
         Dialog(
             onDismissRequest = { setDialogOpen(false) },
         ) {
@@ -501,7 +504,19 @@ fun ScreenMakeSharePick(
                 Button(
                     colors = ButtonDefaults.buttonColors(containerColor = color20459E),
                     onClick = {
-                        setDialogOpen(true)
+                        if(mode == "SHARE"){
+                            setDialogOpen(true)
+                        } else {
+                            setMiningList(
+                                context = context,
+                                type = "NOVEL",
+                                pickCategory = getPickCategory,
+                                pickItemList = state.pickItemList,
+                            ) { setCategoryName("") }
+
+                            viewModelMain.setScreen(detail = "")
+                            Toast.makeText(context, "마이닝 작품 리스트가 추가되었습니다.", Toast.LENGTH_SHORT).show()
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -510,7 +525,11 @@ fun ScreenMakeSharePick(
 
                 ) {
                     Text(
-                        text = "공유 리스트 생성하기",
+                        text = if (mode == "SHARE") {
+                            "공유 리스트 생성하기"
+                        } else {
+                            "마이닝 작품 추가하기"
+                        },
                         textAlign = TextAlign.Center,
                         color = colorEDE6FD,
                         fontSize = 16.sp
@@ -634,7 +653,8 @@ fun ScreenManavaraItemMakeSharePick(
     menu: String,
     platform: String,
     type: String,
-    comment: String = "데이터가 없습니다.\n공유하실 작품 리스트를 추가해주세요."
+    comment: String = "데이터가 없습니다.\n공유하실 작품 리스트를 추가해주세요.",
+    mode: String = "SHARE"
 ) {
     Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         ScreenEmpty(str = comment)
@@ -645,7 +665,11 @@ fun ScreenManavaraItemMakeSharePick(
                 viewModelMain.setScreen(
                     menu = menu,
                     platform = platform,
-                    detail = "웹소설 PICK 공유 리스트 만들기",
+                    detail = if (mode == "SHARE") {
+                        "웹소설 PICK 공유 리스트 만들기"
+                    } else {
+                        "웹소설 마이닝 작품 리스트 만들기"
+                    },
                     type = type
                 )
             },
@@ -656,7 +680,11 @@ fun ScreenManavaraItemMakeSharePick(
 
         ) {
             Text(
-                text = "공유 PICK 리스트 추가하기",
+                text = if (mode == "SHARE") {
+                    "공유 PICK 리스트 추가하기"
+                } else {
+                    "마이닝 리스트 추가하기"
+                },
                 textAlign = TextAlign.Center,
                 color = colorEDE6FD,
                 fontSize = 16.sp
@@ -801,7 +829,8 @@ fun ScreenPickShareAll(
                             viewModelMain = viewModelMain,
                             menu = state.menu,
                             platform = state.platform,
-                            type = state.type
+                            type = state.type,
+                            mode = "SHARE"
                         )
                     }
                 } else {

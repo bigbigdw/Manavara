@@ -9,7 +9,7 @@ import androidx.room.Update
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 
 @Dao
-interface DaoRoom {
+interface DaoBookInfo {
 
     @Query("SELECT * FROM ItemBookInfo WHERE bookCode = :bookCode")
     fun getRank(bookCode: String): List<ItemBookInfo>
@@ -26,9 +26,6 @@ interface DaoRoom {
     @Query("SELECT * FROM ItemBookInfo")
     fun getAll(): List<ItemBookInfo>
 
-    @Query("SELECT * FROM ItemBookInfo")
-    fun getPickAll(): List<ItemBookInfo>
-
     @Query("DELETE FROM ItemBookInfo WHERE platform = :platform")
     fun initWeek(platform: String)
 
@@ -42,7 +39,7 @@ interface DaoRoom {
     fun initAll()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(user: ItemBookInfo)
+    fun insert(itemBookInfoList : ArrayList<ItemBookInfo>)
 
     @Delete
     fun delete(user: ItemBookInfo)

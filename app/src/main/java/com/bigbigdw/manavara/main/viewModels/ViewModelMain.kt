@@ -104,7 +104,8 @@ class ViewModelMain @Inject constructor() : ViewModel() {
             dataStore.getDataStoreString(UID).collect{
                 val mRootRef = FirebaseDatabase.getInstance().reference
                     .child("USER")
-                    .child(it ?: uid)
+                    .child(uid)
+//                    .child(it ?: uid)
                     .child("PICK")
                     .child("MY")
                     .child(type)
@@ -150,7 +151,8 @@ class ViewModelMain @Inject constructor() : ViewModel() {
             dataStore.getDataStoreString(UID).collect{
                 val rootRef = FirebaseDatabase.getInstance().reference
                     .child("USER")
-                    .child(it ?: uid)
+                    .child(uid)
+//                    .child(it ?: uid)
                     .child("PICK")
                     .child("MY")
                     .child(type)
@@ -159,6 +161,9 @@ class ViewModelMain @Inject constructor() : ViewModel() {
                 rootRef.addListenerForSingleValueEvent(object :
                     ValueEventListener {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
+
+                        item.belong = "PICK"
+
                         rootRef.child((dataSnapshot.childrenCount + 1).toString()).setValue(item)
                     }
 
@@ -180,7 +185,8 @@ class ViewModelMain @Inject constructor() : ViewModel() {
             dataStore.getDataStoreString(UID).collect{
                 val rootRef = FirebaseDatabase.getInstance().reference
                     .child("USER")
-                    .child(it ?: uid)
+                    .child(uid)
+//                    .child(it ?: uid)
                     .child("PICK")
                     .child("MY")
                     .child(type)

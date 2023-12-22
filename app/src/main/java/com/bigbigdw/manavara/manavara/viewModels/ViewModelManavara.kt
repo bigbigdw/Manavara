@@ -61,15 +61,19 @@ class ViewModelManavara @Inject constructor() : ViewModel() {
                 current.copy(fcmList = event.fcmList)
             }
 
+            is EventManavara.SetItemBookInfoList -> {
+                current.copy(itemBookInfoList = event.itemBookInfoList)
+            }
+
             else -> {
                 current.copy(Loaded = false)
             }
         }
     }
 
-    fun setIsMakePickList(isMakePickList: Boolean){
+    fun setItemBookInfoList(itemBookInfoList: List<ItemBookInfo>?){
         viewModelScope.launch {
-            events.send(EventManavara.SetIsMakePickList(isMakePickList = isMakePickList))
+            events.send(EventManavara.SetItemBookInfoList(itemBookInfoList = itemBookInfoList))
         }
     }
 
@@ -109,9 +113,4 @@ class ViewModelManavara @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setItemBookInfoMap(itemBookInfoMap: MutableMap<String, ItemBookInfo>){
-        viewModelScope.launch {
-            events.send(EventManavara.SetItemBookInfoMap(itemBookInfoMap = itemBookInfoMap))
-        }
-    }
 }

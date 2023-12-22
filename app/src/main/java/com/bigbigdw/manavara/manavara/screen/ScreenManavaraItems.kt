@@ -1,5 +1,7 @@
 package com.bigbigdw.manavara.manavara.screen
 
+import android.annotation.SuppressLint
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -14,11 +16,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Checkbox
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
@@ -46,25 +50,27 @@ import androidx.room.Room
 import com.bigbigdw.manavara.best.getBookItemWeekTrophy
 import com.bigbigdw.manavara.firebase.DataFCMBodyNotification
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
-import com.bigbigdw.manavara.manavara.editSharePickList
 import com.bigbigdw.manavara.manavara.getFCMList
 import com.bigbigdw.manavara.manavara.models.ItemAlert
+import com.bigbigdw.manavara.manavara.setMiningList
 import com.bigbigdw.manavara.manavara.viewModels.ViewModelManavara
-import com.bigbigdw.manavara.room.DBRoom
+import com.bigbigdw.manavara.room.DBBookInfo
 import com.bigbigdw.manavara.ui.theme.color000000
-import com.bigbigdw.manavara.ui.theme.color4AD7CF
-import com.bigbigdw.manavara.ui.theme.color5372DE
+import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color898989
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
+import com.bigbigdw.manavara.ui.theme.color998DF9
 import com.bigbigdw.manavara.ui.theme.colorE9E9E9
+import com.bigbigdw.manavara.ui.theme.colorEDE6FD
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
+import com.bigbigdw.manavara.ui.theme.colorFF2366
 import com.bigbigdw.manavara.util.DBDate
-import com.bigbigdw.manavara.util.changePlatformNameKor
 import com.bigbigdw.manavara.util.screen.BtnMobile
 import com.bigbigdw.manavara.util.screen.ItemTabletTitle
 import com.bigbigdw.manavara.util.screen.ScreenBookCard
-import com.bigbigdw.manavara.util.screen.ScreenItemKeyword
 import com.bigbigdw.manavara.util.screen.TabletContentWrap
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -242,38 +248,38 @@ fun ScreenMiningStatus(
     viewModelMain : ViewModelMain,
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
-    root: String
+    type: String = "NOVEL"
 ) {
 
     val viewModelStoreOwner =
         checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
     val viewModelManavara: ViewModelManavara = viewModel(viewModelStoreOwner = viewModelStoreOwner)
-
     val manavaraState = viewModelManavara.state.collectAsState().value
-
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     val listState = rememberLazyListState()
 
-    var roomDao: DBRoom? = null
-
-    LaunchedEffect(viewModelManavara, manavaraState.pickCategory) {
+    LaunchedEffect(viewModelManavara) {
 
         coroutineScope.launch {
             viewModelManavara.sideEffects.onEach {
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             }.launchIn(coroutineScope)
+        }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val roomDao: DBBookInfo?
 
             roomDao = Room.databaseBuilder(
                 context,
-                DBRoom::class.java,
-                "NOVEL"
-            ).allowMainThreadQueries().build()
+                DBBookInfo::class.java,
+                type
+            ).build()
 
-            val test =  roomDao?.roomdao()?.getAll()
+            viewModelManavara.setItemBookInfoList(
+                itemBookInfoList = roomDao.bookInfoDao().getAll()
+            )
         }
-
-
     }
 
     Scaffold(modifier = Modifier
@@ -281,51 +287,49 @@ fun ScreenMiningStatus(
         .background(color = colorF6F6F6),
         floatingActionButton = {
 
-            if(manavaraState.pickCategory.isNotEmpty()){
-                FloatingActionButton(
-                    modifier = Modifier.size(60.dp),
-                    onClick = {
+            if (manavaraState.itemBookInfoList?.isEmpty() == false) {
 
-                        if(root == "PICK_SHARE"){
-                            editSharePickList(
-                                type = "NOVEL",
-                                status = "SHARE",
-                                listName = manavaraState.platform,
-                                pickItemList = manavaraState.pickShareItemList[manavaraState.platform],
-                                context = context,
-                            )
-
-                            Toast.makeText(context, "${manavaraState.platform}을 성공적으로 가져왔습니다.", Toast.LENGTH_SHORT).show()
-                        }
-
-                        if(root == "MY_SHARE"){
+                Column {
+                    FloatingActionButton(
+                        modifier = Modifier.size(60.dp),
+                        onClick = {
                             viewModelMain.setScreen(
-                                detail = "웹소설 PICK 공유 리스트 만들기",
+                                detail = "웹소설 마이닝 리스트 삭제하기",
                             )
-                        }
-                    },
-                    containerColor = if (root == "PICK_SHARE") {
-                        color4AD7CF
-                    } else {
-                        color5372DE
-                    },
-                ) {
-                    Text(
-                        modifier = Modifier.padding(8.dp),
-                        text = if (root == "PICK_SHARE") {
-                            "가져\n오기"
-                        } else {
-                            "+"
                         },
-                        color = Color.White,
-                        fontWeight = FontWeight(weight = 700),
-                        textAlign = TextAlign.Center,
-                        fontSize = if (root == "PICK_SHARE") {
-                            14.sp
-                        } else {
-                            24.sp
-                        }
-                    )
+                        containerColor = colorFF2366,
+                    ) {
+                        Text(
+                            modifier = Modifier.padding(8.dp),
+                            text = "-",
+                            color = Color.White,
+                            fontWeight = FontWeight(weight = 700),
+                            textAlign = TextAlign.Center,
+                            fontSize =  24.sp
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.size(16.dp))
+
+                    FloatingActionButton(
+                        modifier = Modifier.size(60.dp),
+                        onClick = {
+                            viewModelMain.setScreen(
+                                menu = "웹소설 분석 현황",
+                                detail = "웹소설 마이닝 리스트 만들기",
+                            )
+                        },
+                        containerColor = color998DF9,
+                    ) {
+                        Text(
+                            modifier = Modifier.padding(8.dp),
+                            text = "+",
+                            color = Color.White,
+                            fontWeight = FontWeight(weight = 700),
+                            textAlign = TextAlign.Center,
+                            fontSize =  24.sp
+                        )
+                    }
                 }
             }
 
@@ -336,50 +340,23 @@ fun ScreenMiningStatus(
             .fillMaxSize()
             .background(colorF6F6F6)) {
 
-            LazyRow(
-                modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 0.dp),
-            ) {
-                itemsIndexed(manavaraState.pickCategory) { index, item ->
-                    Box(modifier = Modifier.padding(8.dp, 0.dp, 8.dp, 0.dp)) {
-                        ScreenItemKeyword(
-                            getter = item,
-                            onClick = {
-                                coroutineScope.launch {
-                                    viewModelManavara.setView(
-                                        platform = item,
-                                        type = "NOVEL",
-                                        menu = manavaraState.menu,
-                                    )
-
-                                    listState.scrollToItem(index = 0)
-                                }
-                            },
-                            title = changePlatformNameKor(item),
-                            getValue = manavaraState.platform
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.size(8.dp))
-
             LazyColumn(state = listState) {
 
-                if (manavaraState.pickCategory.isEmpty()) {
+                if (manavaraState.itemBookInfoList?.isEmpty() == true) {
                     item {
                         ScreenManavaraItemMakeSharePick(
                             viewModelMain = viewModelMain,
                             menu = manavaraState.menu,
                             platform = manavaraState.platform,
-                            type = manavaraState.type
+                            type = manavaraState.type,
+                            comment = "수집하고 있는 작품이 없습니다.\n마이닝할 작품 리스트를 추가해주세요.",
+                            mode = "ROOM"
                         )
                     }
                 } else {
 
-                    val list = manavaraState.pickShareItemList[manavaraState.platform]
-
-                    if (list != null) {
-                        itemsIndexed(ArrayList(list)) { index, item ->
+                    if(manavaraState.itemBookInfoList?.isNotEmpty() == true){
+                        items(manavaraState.itemBookInfoList.size) { index ->
 
                             Box(
                                 modifier = Modifier
@@ -388,19 +365,19 @@ fun ScreenMiningStatus(
                             ) {
                                 ScreenBookCard(
                                     mode = "PLATFORM",
-                                    item = item,
+                                    item = manavaraState.itemBookInfoList[index],
                                     index = index,
                                 ) {
 
                                     coroutineScope.launch {
                                         getBookItemWeekTrophy(
-                                            bookCode = item.bookCode,
+                                            bookCode = manavaraState.itemBookInfoList[index].bookCode,
                                             type = "NOVEL",
-                                            platform = item.platform
+                                            platform = manavaraState.itemBookInfoList[index].platform
                                         ) { itemBestInfoTrophyList ->
 
                                             viewModelMain.setItemBestInfoTrophyList(
-                                                itemBookInfo = item,
+                                                itemBookInfo = manavaraState.itemBookInfoList[index],
                                                 itemBestInfoTrophyList = itemBestInfoTrophyList
                                             )
                                         }
@@ -414,12 +391,167 @@ fun ScreenMiningStatus(
                                 }
                             }
                         }
+                    }
 
-                        item {
-                            Spacer(modifier = Modifier.size(60.dp))
+                    item {
+                        Spacer(modifier = Modifier.size(60.dp))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@SuppressLint("CoroutineCreationDuringComposition")
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ScreenMiningDelete(
+    viewModelMain: ViewModelMain,
+    type: String = "NOVEL",
+    isExpandedScreen: Boolean
+) {
+
+    val viewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelManavara: ViewModelManavara = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+    val manavaraState = viewModelManavara.state.collectAsState().value
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val listState = rememberLazyListState()
+    val (getPickCategory, setPickCategory) = remember { mutableStateOf(ArrayList<String>()) }
+
+    LaunchedEffect(viewModelManavara) {
+
+        coroutineScope.launch {
+            viewModelManavara.sideEffects.onEach {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            }.launchIn(coroutineScope)
+        }
+    }
+
+    CoroutineScope(Dispatchers.IO).launch {
+        val roomDao: DBBookInfo?
+
+        roomDao = Room.databaseBuilder(
+            context,
+            DBBookInfo::class.java,
+            type
+        ).build()
+
+        viewModelManavara.setItemBookInfoList(
+            itemBookInfoList = roomDao.bookInfoDao().getAll()
+        )
+    }
+
+    Scaffold(modifier = Modifier
+        .wrapContentSize()
+        .background(color = colorF6F6F6),
+        bottomBar = {
+            if (manavaraState.pickCategory.isNotEmpty() && !isExpandedScreen) {
+                Button(
+                    colors = ButtonDefaults.buttonColors(containerColor = color20459E),
+                    onClick = {
+                        setMiningList(
+                            context = context,
+                            type = "NOVEL",
+                            pickCategory = getPickCategory,
+                            pickItemList = manavaraState.pickItemList,
+                        ) {  }
+
+                        viewModelMain.setScreen(detail = "")
+                        Toast.makeText(context, "마이닝 작품 리스트가 추가되었습니다.", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(0.dp)
+
+                ) {
+                    Text(
+                        text =  "마이닝 작품 삭제하기",
+                        textAlign = TextAlign.Center,
+                        color = colorEDE6FD,
+                        fontSize = 16.sp
+                    )
+                }
+            }
+        },
+        floatingActionButton = {
+
+            if (manavaraState.itemBookInfoList?.isEmpty() == false && isExpandedScreen) {
+
+                FloatingActionButton(
+                    modifier = Modifier.size(60.dp),
+                    onClick = {
+                        viewModelMain.setScreen(
+                            menu = "웹소설 분석 현황",
+                            detail = "웹소설 마이닝 리스트 만들기",
+                        )
+                    },
+                    containerColor = colorFF2366,
+                ) {
+                    Text(
+                        modifier = Modifier.padding(8.dp),
+                        text = "삭제",
+                        color = Color.White,
+                        fontWeight = FontWeight(weight = 700),
+                        textAlign = TextAlign.Center,
+                        fontSize =  24.sp
+                    )
+                }
+            }
+
+        },
+        floatingActionButtonPosition = FabPosition.End) {
+
+        LazyColumn(modifier = Modifier
+            .padding(it)
+            .fillMaxSize()
+            .background(colorF6F6F6),
+            state = listState) {
+
+            if(manavaraState.itemBookInfoList?.isNotEmpty() == true){
+                items(manavaraState.itemBookInfoList.size) { index ->
+
+                    val item = manavaraState.itemBookInfoList[index]
+                    Log.d("HIHI", "getPickCategory.contains(item.bookCode) == ${getPickCategory.contains(item.bookCode)}")
+
+                    Row(
+                        modifier = Modifier
+                            .padding(16.dp, 8.dp, 16.dp, 8.dp)
+                    ) {
+                        Checkbox(
+                            checked = getPickCategory.contains(item.bookCode),
+                            onCheckedChange = { isChecked ->
+                                if (isChecked) {
+                                    getPickCategory.add(item.bookCode)
+                                } else {
+                                    getPickCategory.remove(item.bookCode)
+                                }
+
+                            })
+
+                        ScreenBookCard(
+                            mode = "PLATFORM",
+                            item = item,
+                            index = index,
+                            needIntro = false
+                        ) {
+                            if (getPickCategory.contains(item.bookCode)) {
+                                Log.d("HIHI", "remove getPickCategory == $getPickCategory")
+                                getPickCategory.remove(item.bookCode)
+                            } else {
+                                Log.d("HIHI", "add getPickCategory == $getPickCategory")
+                                getPickCategory.add(item.bookCode)
+                            }
+
                         }
                     }
                 }
+            }
+
+            item {
+                Spacer(modifier = Modifier.size(60.dp))
             }
         }
     }

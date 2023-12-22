@@ -11,6 +11,30 @@ data class ItemBestComment(
     var comment : String = "",
 )
 
+@Entity
+@Serializable
+data class ItemBookMining(
+    @PrimaryKey
+    @SerialName("bookCode")
+    var bookCode: String = "",
+    @SerialName("platform")
+    var platform: String = "",
+    @SerialName("cntPageRead")
+    var cntPageRead: String = "",
+    @SerialName("cntFavorite")
+    var cntFavorite: String = "",
+    @SerialName("cntRecom")
+    var cntRecom: String = "",
+    @SerialName("cntTotalComment")
+    var cntTotalComment: String = "",
+    @SerialName("cntChapter")
+    var cntChapter: String = "",
+    @SerialName("genre")
+    var genre: String = "",
+    @SerialName("belong")
+    var belong: String = "",
+)
+
 @Serializable
 data class ItemBestDetailInfo(
     var writer: String = "",
@@ -32,14 +56,15 @@ data class ItemBestDetailInfo(
 @Entity
 @Serializable
 data class ItemBookInfo(
+    @PrimaryKey
+    @SerialName("bookCode")
+    var bookCode: String = "",
     @SerialName("writer")
     var writer: String = "",
     @SerialName("title")
     var title: String = "",
     @SerialName("bookImg")
     var bookImg: String = "",
-    @SerialName("bookCode")
-    var bookCode: String = "",
     @SerialName("platform")
     var platform: String = "",
     @SerialName("intro")
@@ -76,9 +101,7 @@ data class ItemBookInfo(
     var genre: String = "",
     @SerialName("belong")
     var belong: String = "",
-){
-    @PrimaryKey(autoGenerate = true) var id: Int = 0
-}
+)
 @Serializable
 data class ItemBestInfo (
     @SerialName("number")
