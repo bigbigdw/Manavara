@@ -1,6 +1,5 @@
 package com.bigbigdw.manavara.manavara.screen
 
-import android.annotation.SuppressLint
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -33,6 +32,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -402,7 +402,7 @@ fun ScreenMiningStatus(
     }
 }
 
-@SuppressLint("CoroutineCreationDuringComposition")
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenMiningDelete(
@@ -418,7 +418,7 @@ fun ScreenMiningDelete(
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     val listState = rememberLazyListState()
-    val (getPickCategory, setPickCategory) = remember { mutableStateOf(ArrayList<String>()) }
+    val pickCategory = remember { mutableStateListOf<String>()}
 
     LaunchedEffect(viewModelManavara) {
 
@@ -427,20 +427,20 @@ fun ScreenMiningDelete(
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             }.launchIn(coroutineScope)
         }
-    }
 
-    CoroutineScope(Dispatchers.IO).launch {
-        val roomDao: DBBookInfo?
+        CoroutineScope(Dispatchers.IO).launch {
+            val roomDao: DBBookInfo?
 
-        roomDao = Room.databaseBuilder(
-            context,
-            DBBookInfo::class.java,
-            type
-        ).build()
+            roomDao = Room.databaseBuilder(
+                context,
+                DBBookInfo::class.java,
+                type
+            ).build()
 
-        viewModelManavara.setItemBookInfoList(
-            itemBookInfoList = roomDao.bookInfoDao().getAll()
-        )
+            viewModelManavara.setItemBookInfoList(
+                itemBookInfoList = roomDao.bookInfoDao().getAll()
+            )
+        }
     }
 
     Scaffold(modifier = Modifier
@@ -454,7 +454,7 @@ fun ScreenMiningDelete(
                         setMiningList(
                             context = context,
                             type = "NOVEL",
-                            pickCategory = getPickCategory,
+                            pickCategory = pickCategory.toMutableList() as ArrayList<String>,
                             pickItemList = manavaraState.pickItemList,
                         ) {  }
 
@@ -514,19 +514,19 @@ fun ScreenMiningDelete(
                 items(manavaraState.itemBookInfoList.size) { index ->
 
                     val item = manavaraState.itemBookInfoList[index]
-                    Log.d("HIHI", "getPickCategory.contains(item.bookCode) == ${getPickCategory.contains(item.bookCode)}")
+                    Log.d("HIHI", "getPickCategory.contains(item.bookCode) == ${pickCategory.contains(item.bookCode)}")
 
                     Row(
                         modifier = Modifier
                             .padding(16.dp, 8.dp, 16.dp, 8.dp)
                     ) {
                         Checkbox(
-                            checked = getPickCategory.contains(item.bookCode),
+                            checked = pickCategory.contains(item.bookCode),
                             onCheckedChange = { isChecked ->
                                 if (isChecked) {
-                                    getPickCategory.add(item.bookCode)
+                                    pickCategory.add(item.bookCode)
                                 } else {
-                                    getPickCategory.remove(item.bookCode)
+                                    pickCategory.remove(item.bookCode)
                                 }
 
                             })
@@ -537,12 +537,12 @@ fun ScreenMiningDelete(
                             index = index,
                             needIntro = false
                         ) {
-                            if (getPickCategory.contains(item.bookCode)) {
-                                Log.d("HIHI", "remove getPickCategory == $getPickCategory")
-                                getPickCategory.remove(item.bookCode)
+                            if (pickCategory.contains(item.bookCode)) {
+                                Log.d("HIHI", "remove getPickCategory == $pickCategory")
+                                pickCategory.remove(item.bookCode)
                             } else {
-                                Log.d("HIHI", "add getPickCategory == $getPickCategory")
-                                getPickCategory.add(item.bookCode)
+                                Log.d("HIHI", "add getPickCategory == $pickCategory")
+                                pickCategory.add(item.bookCode)
                             }
 
                         }
