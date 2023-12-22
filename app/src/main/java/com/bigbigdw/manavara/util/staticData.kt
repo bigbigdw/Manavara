@@ -1012,8 +1012,10 @@ val menuListManavara = arrayListOf(
     MenuInfo(needLine = true, image = R.drawable.ic_launcher, menu = "내가 공유한 웹툰 PICK", body = "내가 공유한 웹툰 PICK 보기"),
 
 //    MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "나의 기록", body = "https://m.comic.naver.com/event/yearend/2023"),
-    MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "내가 분석한 웹소설 작품", body = "직접 데이터를 수집중인 웹소설 작품들"),
-    MenuInfo(needLine = true, image = R.drawable.ic_launcher, menu = "내가 분석한 웹툰 작품", body = "직접 데이터를 수집중인 웹툰 작품들"),
+    MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "웹소설 분석 현황", body = "직접 데이터를 수집중인 웹소설 작품들"),
+    MenuInfo(needLine = true, image = R.drawable.ic_launcher, menu = "웹소설 분석 보고서", body = "직접 수집중인 웹소설 작품 보고서"),
+    MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "웹툰 분석 현황", body = "직접 데이터를 수집중인 웹툰 작품들"),
+    MenuInfo(needLine = true, image = R.drawable.ic_launcher, menu = "웹툰 분석 보고서", body = "직접 데이터를 수집중인 웹툰 작품들"),
 
     MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "유저 옵션", body = "마나바라 유저 옵션"),
     MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "메세지함", body = "공지사항 및 알림 등 메세지 확인"),

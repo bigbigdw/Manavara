@@ -22,7 +22,6 @@ fun getPickList(context: Context, uid : String = "ecXPTeFiDnV732gOiaD8u525NnE3",
         dataStore.getDataStoreString(DataStoreManager.UID).collect{
             val rootRef = FirebaseDatabase.getInstance().reference
                 .child("USER")
-//                .child("ecXPTeFiDnV732gOiaD8u525NnE3")
                 .child(it ?: uid)
                 .child("PICK")
                 .child(root)
@@ -90,7 +89,6 @@ fun setSharePickList(
         dataStore.getDataStoreString(DataStoreManager.UID).collect{
             FirebaseDatabase.getInstance().reference
                 .child("USER")
-//                .child("ecXPTeFiDnV732gOiaD8u525NnE3")
                 .child(it ?: uid)
                 .child("PICK")
                 .child("SHARE")
@@ -100,7 +98,6 @@ fun setSharePickList(
 
             FirebaseDatabase.getInstance().reference
                 .child("PICK_SHARE")
-//                .child("ecXPTeFiDnV732gOiaD8u525NnE3")
                 .child(it ?: uid)
                 .child(type)
                 .child(listName)
@@ -126,7 +123,6 @@ fun getUserPickList(
 
             val userpickRef = FirebaseDatabase.getInstance().reference
                 .child("USER")
-//                .child("ecXPTeFiDnV732gOiaD8u525NnE3")
                 .child(it ?: uid)
                 .child("PICK")
 
@@ -140,7 +136,6 @@ fun getUserPickList(
                 "PICK_SHARE" -> {
                     FirebaseDatabase.getInstance().reference
                         .child("PICK_SHARE")
-//                        .child("ecXPTeFiDnV732gOiaD8u525NnE3")
                         .child(it ?: uid)
                         .child(type)
                 }
@@ -261,7 +256,6 @@ fun editSharePickList(
                 val pickUser = FirebaseDatabase.getInstance().reference
                     .child("USER")
                     .child(it ?: uid)
-//                    .child("ecXPTeFiDnV732gOiaD8u525NnE3")
                     .child("PICK")
 
                 pickUser.child("DOWNLOADED")
@@ -287,7 +281,6 @@ fun editSharePickList(
 
                 FirebaseDatabase.getInstance().reference
                     .child("USER")
-//                    .child("ecXPTeFiDnV732gOiaD8u525NnE3")
                     .child(it ?: uid)
                     .child("PICK")
                     .child("DOWNLOADED")
@@ -312,7 +305,6 @@ fun getUserPickShareListALL(
         dataStore.getDataStoreString(DataStoreManager.UID).collect{
             val rootRef = FirebaseDatabase.getInstance().reference
                 .child("USER")
-//                .child("ecXPTeFiDnV732gOiaD8u525NnE3")
                 .child(it ?: uid)
                 .child("PICK")
 

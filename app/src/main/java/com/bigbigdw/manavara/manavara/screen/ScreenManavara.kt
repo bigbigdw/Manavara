@@ -308,6 +308,13 @@ fun ScreenManavaraItem(
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen,
         )
+    } else if (state.menu.contains("분석 현황")) {
+        ScreenMiningStatus(
+            modalSheetState = modalSheetState,
+            setDialogOpen = setDialogOpen,
+            root = "PICK_SHARE",
+            viewModelMain = viewModelMain
+        )
     }
 }
 

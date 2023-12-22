@@ -104,7 +104,6 @@ class ViewModelMain @Inject constructor() : ViewModel() {
             dataStore.getDataStoreString(UID).collect{
                 val mRootRef = FirebaseDatabase.getInstance().reference
                     .child("USER")
-//                    .child("ecXPTeFiDnV732gOiaD8u525NnE3")
                     .child(it ?: uid)
                     .child("PICK")
                     .child("MY")
@@ -151,7 +150,6 @@ class ViewModelMain @Inject constructor() : ViewModel() {
             dataStore.getDataStoreString(UID).collect{
                 val rootRef = FirebaseDatabase.getInstance().reference
                     .child("USER")
-//                    .child("ecXPTeFiDnV732gOiaD8u525NnE3")
                     .child(it ?: uid)
                     .child("PICK")
                     .child("MY")
@@ -182,7 +180,6 @@ class ViewModelMain @Inject constructor() : ViewModel() {
             dataStore.getDataStoreString(UID).collect{
                 val rootRef = FirebaseDatabase.getInstance().reference
                     .child("USER")
-//                    .child("ecXPTeFiDnV732gOiaD8u525NnE3")
                     .child(it ?: uid)
                     .child("PICK")
                     .child("MY")
