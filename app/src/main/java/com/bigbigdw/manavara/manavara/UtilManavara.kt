@@ -66,9 +66,9 @@ fun getPickList(context: Context, uid : String = "ecXPTeFiDnV732gOiaD8u525NnE3",
 fun setSharePickList(
     context: Context,
     listName: String,
-    type : String,
-    uid : String = "ecXPTeFiDnV732gOiaD8u525NnE3",
-    pickCategory: ArrayList<String>,
+    type: String,
+    uid: String = "ecXPTeFiDnV732gOiaD8u525NnE3",
+    pickCategory: List<String>,
     pickItemList: ArrayList<ItemBookInfo>,
     initTitle: () -> Unit
 ){

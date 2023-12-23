@@ -28,9 +28,10 @@ data class ItemBookMining(
     var cntTotalComment: String = "",
     @SerialName("cntChapter")
     var cntChapter: String = "",
-){
-    @PrimaryKey(autoGenerate = true) var id: Int = 0
-}
+    @PrimaryKey
+    @SerialName("date")
+    var date: String = "",
+)
 
 @Serializable
 data class ItemBestDetailInfo(

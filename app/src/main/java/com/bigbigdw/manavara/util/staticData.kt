@@ -1020,6 +1020,8 @@ val menuListManavara = arrayListOf(
     MenuInfo(needLine = false, image = R.drawable.icon_setting_wht, menu = "유저 옵션", body = "마나바라 유저 옵션"),
     MenuInfo(needLine = false, image = R.drawable.icon_fcm_wht, menu = "메세지함", body = "공지사항 및 알림 등 메세지 확인"),
     MenuInfo(needLine = false, image = R.drawable.icon_fcm_wht, menu = "최신화 현황판", body = "공지사항 및 알림 등 메세지 확인"),
+    MenuInfo(needLine = false, image = R.drawable.icon_fcm_wht, menu = "웹소설 마이닝 현황판", body = "웹소설 마이닝 작품 현황 확인"),
+    MenuInfo(needLine = false, image = R.drawable.icon_fcm_wht, menu = "웹툰 마이닝 현황판", body = "웹툰 마이닝 작품 현황 확인"),
 )
 
 val menuListDatabase = arrayListOf(

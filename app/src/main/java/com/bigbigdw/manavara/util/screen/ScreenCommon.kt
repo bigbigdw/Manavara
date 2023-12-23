@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
@@ -774,7 +775,8 @@ fun ScreenBookCard(
     index: Int,
     needIntro : Boolean = true,
     boxColor : Color = Color.White,
-    onClick: () -> Unit
+    additionalContents : @Composable () -> Unit = {},
+    onClick: () -> Unit,
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -810,6 +812,8 @@ fun ScreenBookCard(
 
                         ScreenItemBestCount(item = item)
                     }
+
+                    additionalContents()
 
                     if(needIntro && item.intro.isNotEmpty()){
                         Spacer(modifier = Modifier.size(16.dp))

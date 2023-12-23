@@ -7,10 +7,11 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.bigbigdw.manavara.best.models.ItemBookMining
 import com.bigbigdw.manavara.best.setBestDetailInfo
+import com.bigbigdw.manavara.manavara.models.ItemAlert
+import com.bigbigdw.manavara.room.DBAlert
 import com.bigbigdw.manavara.room.DBBookInfo
 import com.bigbigdw.manavara.room.DBMining
 import com.bigbigdw.manavara.util.DBDate
-import com.bigbigdw.manavara.util.DataStoreManager
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.messaging.FirebaseMessaging
@@ -81,6 +82,7 @@ class FirebaseWorkManager(context: Context, workerParams: WorkerParameters) :
                                         cntRecom = it.cntRecom,
                                         cntTotalComment = it.cntTotalComment,
                                         cntChapter = it.cntChapter,
+                                        date = DBDate.dateMMDD() + item.bookCode
                                     )
                                 )
                             }
@@ -92,7 +94,6 @@ class FirebaseWorkManager(context: Context, workerParams: WorkerParameters) :
             postFCM(
                 data = "마이닝 작품 최신화",
                 time = "${year}.${month}.${day} ${hour}:${min}:${sec}",
-                activity = "MINING",
             )
 
         }  else {
@@ -100,14 +101,13 @@ class FirebaseWorkManager(context: Context, workerParams: WorkerParameters) :
             postFCM(
                 data = workerName ?: "",
                 time = "${year}.${month}.${day} ${hour}:${min}:${sec}",
-                activity = "MINING",
             )
         }
 
         return Result.success()
     }
 
-    private fun postFCM(data: String, time: String, activity: String = "") {
+    private fun postFCM(data: String, time: String) {
 
         FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
             if (!task.isSuccessful) {
@@ -127,6 +127,8 @@ class FirebaseWorkManager(context: Context, workerParams: WorkerParameters) :
                     click_action = "best"
                 ),
             )
+
+            miningAlert(data = data, time = time)
 
             val call = Retrofit.Builder()
                 .baseUrl("https://fcm.googleapis.com")
@@ -153,5 +155,29 @@ class FirebaseWorkManager(context: Context, workerParams: WorkerParameters) :
                 }
             })
         })
+    }
+
+    private fun miningAlert(
+        data: String, time: String
+    ) {
+        CoroutineScope(Dispatchers.IO).launch() {
+            withContext(Dispatchers.IO) {
+                val alertDao: DBAlert?
+
+                alertDao = Room.databaseBuilder(
+                    applicationContext,
+                    DBAlert::class.java,
+                    "NOVEL_ALERT"
+                ).build()
+
+                alertDao.alertDao().insert(
+                    ItemAlert(
+                        title = data,
+                        date = DBDate.dateMMDDHHMM(),
+                        body = "웹소설 마이닝 작품 최신화 완료"
+                    )
+                )
+            }
+        }
     }
 }

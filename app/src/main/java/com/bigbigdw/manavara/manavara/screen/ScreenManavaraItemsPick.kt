@@ -457,7 +457,7 @@ fun ScreenMakeSharePick(
                         type = "NOVEL",
                         initTitle = { categoryName.value = "" },
                         listName = categoryName.value,
-                        pickCategory = pickCategory.toList() as ArrayList<String>,
+                        pickCategory = pickCategory.toList(),
                         pickItemList = state.pickItemList,
                         context = context,
                     )
@@ -482,7 +482,7 @@ fun ScreenMakeSharePick(
 
                     TextField(
                         value = categoryName.value,
-                        onValueChange =  { categoryName.value = "" },
+                        onValueChange =  { categoryName.value = it },
                         label = { Text("리스트 이름을 입력해 주십시오", color = color898989) },
                         singleLine = true,
                         colors = TextFieldDefaults.textFieldColors(
@@ -510,29 +510,35 @@ fun ScreenMakeSharePick(
                 FloatingActionButton(
                     modifier = Modifier.size(60.dp),
                     onClick = {
-                        setMiningList(
-                            context = context,
-                            type = "NOVEL",
-                            pickCategory = pickCategory.toList(),
-                            pickItemList = state.pickItemList,
-                        ) {
-                            categoryName.value = ""
 
-                            val workManager = WorkManager.getInstance(context)
+                        if(mode == "SHARE"){
+                            dialogOpen.value = true
+                        } else {
+                            setMiningList(
+                                context = context,
+                                type = "NOVEL",
+                                pickCategory = pickCategory.toList(),
+                                pickItemList = state.pickItemList,
+                            ) {
 
-                            MiningWorker.cancelAllWorker(workManager)
+                                categoryName.value = ""
 
-                            MiningWorker.doWorkerPeriodic(
-                                workManager = workManager,
-                                time = 15,
-                                timeUnit = TimeUnit.MINUTES,
-                                tag = "MINING",
-                            )
+                                val workManager = WorkManager.getInstance(context)
 
-                            viewModelMain.setScreen(detail = "")
+                                MiningWorker.cancelAllWorker(workManager)
+
+                                MiningWorker.doWorkerPeriodic(
+                                    workManager = workManager,
+                                    time = 6,
+                                    timeUnit = TimeUnit.HOURS,
+                                    tag = "MINING",
+                                )
+
+                                viewModelMain.setScreen(detail = "")
+                            }
+
+                            Toast.makeText(context, "마이닝 작품 리스트가 추가되었습니다.", Toast.LENGTH_SHORT).show()
                         }
-
-                        Toast.makeText(context, "마이닝 작품 리스트가 추가되었습니다.", Toast.LENGTH_SHORT).show()
                     },
                     containerColor = color1E4394,
                 ) {
@@ -570,8 +576,8 @@ fun ScreenMakeSharePick(
 
                                 MiningWorker.doWorkerPeriodic(
                                     workManager = workManager,
-                                    time = 15,
-                                    timeUnit = TimeUnit.MINUTES,
+                                    time = 6,
+                                    timeUnit = TimeUnit.HOURS,
                                     tag = "MINING",
                                 )
 
@@ -780,8 +786,6 @@ fun ScreenPickShareAll(
 
         getUserPickShareListALL(context = context, type = "NOVEL") { pickCategory, pickShareItemList ->
 
-            Log.d("ScreenPickShareAll", "ScreenPickShareAll == $pickCategory $pickShareItemList")
-
             pickCategoryAll.add("전체")
             pickCategoryAll.addAll(pickCategory)
 
@@ -833,6 +837,8 @@ fun ScreenPickShareAll(
                                 }
                             )
                         }
+
+                        Toast.makeText(context, "리스트 삭제가 완료되었습니다.", Toast.LENGTH_SHORT).show()
 
                     },
                     containerColor = color998DF9,
@@ -914,8 +920,6 @@ fun ScreenPickShareAll(
                         val arrayList = state.pickShareItemList[state.platform]?.let { it1 -> ArrayList(it1) }
                         arrayList
                     }
-
-                    Log.d("ScreenPickShareAll", "list.size == ${list?.size}")
 
                     if (list != null) {
                         itemsIndexed(list) { index, item ->

@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Checkbox
@@ -48,14 +50,18 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.room.Room
 import com.bigbigdw.manavara.best.getBookItemWeekTrophy
+import com.bigbigdw.manavara.best.models.ItemBookInfo
+import com.bigbigdw.manavara.best.models.ItemBookMining
+import com.bigbigdw.manavara.best.screen.ItemBestDetailInfoAnalyze
 import com.bigbigdw.manavara.firebase.DataFCMBodyNotification
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.manavara.getFCMList
 import com.bigbigdw.manavara.manavara.models.ItemAlert
-import com.bigbigdw.manavara.manavara.setMiningList
 import com.bigbigdw.manavara.manavara.setMiningListDelete
 import com.bigbigdw.manavara.manavara.viewModels.ViewModelManavara
+import com.bigbigdw.manavara.room.DBAlert
 import com.bigbigdw.manavara.room.DBBookInfo
+import com.bigbigdw.manavara.room.DBMining
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color898989
@@ -66,9 +72,11 @@ import com.bigbigdw.manavara.ui.theme.colorEDE6FD
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorFF2366
 import com.bigbigdw.manavara.util.DBDate
+import com.bigbigdw.manavara.util.changePlatformNameKor
 import com.bigbigdw.manavara.util.screen.BtnMobile
 import com.bigbigdw.manavara.util.screen.ItemTabletTitle
 import com.bigbigdw.manavara.util.screen.ScreenBookCard
+import com.bigbigdw.manavara.util.screen.ScreenItemKeyword
 import com.bigbigdw.manavara.util.screen.TabletContentWrap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -140,10 +148,28 @@ fun ContentsFCMList(child: String) {
     val viewModelStoreOwner =
         checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
     val viewModelManavara: ViewModelManavara = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+    val context = LocalContext.current
 
     LaunchedEffect(child) {
-        getFCMList(child = child) {
-            viewModelManavara.setFcmList(it)
+
+        if(child != "MINING"){
+            getFCMList(child = child) {
+                viewModelManavara.setFcmList(it)
+            }
+        } else {
+            CoroutineScope(Dispatchers.IO).launch {
+                val alertDao: DBAlert?
+
+                alertDao = Room.databaseBuilder(
+                    context,
+                    DBAlert::class.java,
+                    "NOVEL_ALERT"
+                ).build()
+
+                val fcmList = ArrayList(alertDao.alertDao().getAll())
+
+                viewModelManavara.setFcmList(fcmList)
+            }
         }
     }
 
@@ -293,7 +319,7 @@ fun ScreenMiningStatus(
             .background(color = colorF6F6F6),
         floatingActionButton = {
 
-            if (manavaraState.itemBookInfoList?.isEmpty() == false) {
+            if (manavaraState.itemBookInfoList.isNotEmpty()) {
 
                 Column {
                     FloatingActionButton(
@@ -351,7 +377,7 @@ fun ScreenMiningStatus(
 
             LazyColumn(state = listState) {
 
-                if (manavaraState.itemBookInfoList?.isEmpty() == true) {
+                if (manavaraState.itemBookInfoList.isEmpty() == true) {
                     item {
                         ScreenManavaraItemMakeSharePick(
                             viewModelMain = viewModelMain,
@@ -364,38 +390,36 @@ fun ScreenMiningStatus(
                     }
                 } else {
 
-                    if (manavaraState.itemBookInfoList?.isNotEmpty() == true) {
-                        items(manavaraState.itemBookInfoList.size) { index ->
+                    items(manavaraState.itemBookInfoList.size) { index ->
 
-                            Box(
-                                modifier = Modifier
-                                    .padding(16.dp, 8.dp, 16.dp, 8.dp)
-                                    .wrapContentSize()
+                        Box(
+                            modifier = Modifier
+                                .padding(16.dp, 8.dp, 16.dp, 8.dp)
+                                .wrapContentSize()
+                        ) {
+                            ScreenBookCard(
+                                mode = "PLATFORM",
+                                item = manavaraState.itemBookInfoList[index],
+                                index = index,
                             ) {
-                                ScreenBookCard(
-                                    mode = "PLATFORM",
-                                    item = manavaraState.itemBookInfoList[index],
-                                    index = index,
-                                ) {
 
-                                    coroutineScope.launch {
-                                        getBookItemWeekTrophy(
-                                            bookCode = manavaraState.itemBookInfoList[index].bookCode,
-                                            type = "NOVEL",
-                                            platform = manavaraState.itemBookInfoList[index].platform
-                                        ) { itemBestInfoTrophyList ->
+                                coroutineScope.launch {
+                                    getBookItemWeekTrophy(
+                                        bookCode = manavaraState.itemBookInfoList[index].bookCode,
+                                        type = "NOVEL",
+                                        platform = manavaraState.itemBookInfoList[index].platform
+                                    ) { itemBestInfoTrophyList ->
 
-                                            viewModelMain.setItemBestInfoTrophyList(
-                                                itemBookInfo = manavaraState.itemBookInfoList[index],
-                                                itemBestInfoTrophyList = itemBestInfoTrophyList
-                                            )
-                                        }
+                                        viewModelMain.setItemBestInfoTrophyList(
+                                            itemBookInfo = manavaraState.itemBookInfoList[index],
+                                            itemBestInfoTrophyList = itemBestInfoTrophyList
+                                        )
+                                    }
 
-                                        modalSheetState?.show()
+                                    modalSheetState?.show()
 
-                                        if (setDialogOpen != null) {
-                                            setDialogOpen(true)
-                                        }
+                                    if (setDialogOpen != null) {
+                                        setDialogOpen(true)
                                     }
                                 }
                             }
@@ -489,7 +513,7 @@ fun ScreenMiningDelete(
         },
         floatingActionButton = {
 
-            if (manavaraState.itemBookInfoList?.isEmpty() == false && isExpandedScreen) {
+            if (manavaraState.itemBookInfoList.isNotEmpty() && isExpandedScreen) {
 
                 FloatingActionButton(
                     modifier = Modifier.size(60.dp),
@@ -529,7 +553,7 @@ fun ScreenMiningDelete(
             state = listState
         ) {
 
-            if (manavaraState.itemBookInfoList?.isNotEmpty() == true) {
+            if (manavaraState.itemBookInfoList.isNotEmpty()) {
                 items(manavaraState.itemBookInfoList.size) { index ->
 
                     val item = manavaraState.itemBookInfoList[index]
@@ -570,5 +594,306 @@ fun ScreenMiningDelete(
                 Spacer(modifier = Modifier.size(60.dp))
             }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
+@Composable
+fun ScreenMiningReport(
+    viewModelMain: ViewModelMain,
+    modalSheetState: ModalBottomSheetState?,
+    setDialogOpen: ((Boolean) -> Unit)?,
+    type: String = "NOVEL"
+) {
+
+    val viewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelManavara: ViewModelManavara = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+    val manavaraState = viewModelManavara.state.collectAsState().value
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(viewModelManavara) {
+
+        coroutineScope.launch {
+            viewModelManavara.sideEffects.onEach {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            }.launchIn(coroutineScope)
+        }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val roomDao: DBBookInfo?
+            val miningDao: DBMining?
+
+            roomDao = Room.databaseBuilder(
+                context,
+                DBBookInfo::class.java,
+                type
+            ).build()
+
+            miningDao = Room.databaseBuilder(
+                context,
+                DBMining::class.java,
+                "${type}_MINING"
+            ).allowMainThreadQueries().build()
+
+            val list = miningDao.miningDao().getAll()
+            val miningMap = mutableMapOf<String, ItemBookMining>()
+            val pickCategory = ArrayList<String>()
+
+            for(item in list){
+                miningMap[item.date] = item
+
+                if(!pickCategory.contains(item.platform)){
+                    pickCategory.add(item.platform)
+                }
+            }
+
+            viewModelManavara.setItemBookInfoList(
+                itemBookInfoList = roomDao.bookInfoDao().getAll(),
+                itemBookMiningMap = miningMap,
+                pickCategory = pickCategory,
+                platform = if(pickCategory.isEmpty()){
+                    ""
+                } else {
+                    pickCategory[0]
+                }
+            )
+        }
+    }
+
+    Scaffold(
+        modifier = Modifier
+            .wrapContentSize()
+            .background(color = colorF6F6F6),
+    ) {
+
+        Column(
+            modifier = Modifier
+                .padding(it)
+                .fillMaxSize()
+                .background(colorF6F6F6)
+        ) {
+
+            LazyRow(
+                modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 0.dp),
+            ) {
+                itemsIndexed(manavaraState.pickCategory) { index, item ->
+                    Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
+                        ScreenItemKeyword(
+                            getter = item,
+                            onClick = {
+                                coroutineScope.launch {
+                                    viewModelManavara.setView(
+                                        platform = item,
+                                        type = "NOVEL",
+                                        menu = manavaraState.menu,
+                                    )
+                                }
+                            },
+                            title = changePlatformNameKor(item),
+                            getValue = manavaraState.platform
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.size(8.dp))
+
+            LazyColumn(state = listState) {
+
+                if (manavaraState.itemBookInfoList.isEmpty()) {
+                    item {
+                        ScreenManavaraItemMakeSharePick(
+                            viewModelMain = viewModelMain,
+                            menu = manavaraState.menu,
+                            platform = manavaraState.platform,
+                            type = manavaraState.type,
+                            comment = "수집하고 있는 작품이 없습니다.\n마이닝할 작품 리스트를 추가해주세요.",
+                            mode = "ROOM"
+                        )
+                    }
+                } else {
+
+                    val filteredList = ArrayList<ItemBookInfo>()
+
+                    for(item in manavaraState.itemBookInfoList){
+                        if(manavaraState.platform == item.platform){
+                            filteredList.add(item)
+                        }
+                    }
+
+                    itemsIndexed(filteredList) { index, item ->
+
+                        Box(
+                            modifier = Modifier
+                                .padding(16.dp, 8.dp, 16.dp, 8.dp)
+                                .wrapContentSize()
+                        ) {
+                            ScreenBookCard(
+                                mode = "PLATFORM",
+                                item = item,
+                                index = index,
+                                needIntro = false,
+                                additionalContents = {
+
+                                    val miningList = ArrayList<ItemBookMining>()
+
+                                    for(mining in manavaraState.itemBookMiningMap){
+                                        if(mining.value.date.contains(item.bookCode)){
+                                            miningList.add(mining.value)
+                                        }
+                                    }
+
+                                    ScreenMinigAnalyze(miningList = miningList)
+
+                                }
+                            ) {
+
+                                coroutineScope.launch {
+                                    getBookItemWeekTrophy(
+                                        bookCode = item.bookCode,
+                                        type = "NOVEL",
+                                        platform = item.platform
+                                    ) { itemBestInfoTrophyList ->
+
+                                        viewModelMain.setItemBestInfoTrophyList(
+                                            itemBookInfo = item,
+                                            itemBestInfoTrophyList = itemBestInfoTrophyList
+                                        )
+                                    }
+
+                                    modalSheetState?.show()
+
+                                    if (setDialogOpen != null) {
+                                        setDialogOpen(true)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.size(60.dp))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ScreenMinigAnalyze(
+    miningList: ArrayList<ItemBookMining>
+) {
+    Column {
+        Spacer(modifier = Modifier.size(16.dp))
+
+        if(miningList[0].cntRecom.isNotEmpty()){
+            ItemTabletTitle(str = "평점 분석")
+
+            TabletContentWrap {
+                miningList.forEachIndexed { index, itemBestInfo ->
+
+                    val year = itemBestInfo.date.substring(0, 4)
+                    val month = itemBestInfo.date.substring(4, 6)
+                    val day = itemBestInfo.date.substring(6, 8)
+
+                    ItemBestDetailInfoAnalyze(
+                        title = "${year}년 ${month}월 ${day}일",
+                        value = itemBestInfo.cntRecom,
+                        beforeValue = if (index == 0) {
+                            "0"
+                        } else {
+                            miningList[index - 1].cntRecom
+                        },
+                        type = "평점 분석",
+                        isLast = index == miningList.size - 1
+                    )
+                }
+
+            }
+        }
+
+        if(miningList[0].cntFavorite.isNotEmpty()){
+            ItemTabletTitle(str = "선호작 분석")
+
+            TabletContentWrap {
+                miningList.forEachIndexed { index, itemBestInfo ->
+
+                    val year = itemBestInfo.date.substring(0, 4)
+                    val month = itemBestInfo.date.substring(4, 6)
+                    val day = itemBestInfo.date.substring(6, 8)
+
+                    ItemBestDetailInfoAnalyze(
+                        title = "${year}년 ${month}월 ${day}일",
+                        value = itemBestInfo.cntFavorite,
+                        beforeValue = if (index == 0) {
+                            "0"
+                        } else {
+                            miningList[index - 1].cntFavorite
+                        },
+                        type = "선호작 분석",
+                        isLast = index == miningList.size - 1
+                    )
+                }
+            }
+        }
+
+        if(miningList[0].cntPageRead.isNotEmpty()){
+            ItemTabletTitle(str = "조회 분석")
+
+            TabletContentWrap {
+                miningList.forEachIndexed { index, itemBestInfo ->
+
+                    val year = itemBestInfo.date.substring(0, 4)
+                    val month = itemBestInfo.date.substring(4, 6)
+                    val day = itemBestInfo.date.substring(6, 8)
+
+                    ItemBestDetailInfoAnalyze(
+                        title = "${year}년 ${month}월 ${day}일",
+                        value = itemBestInfo.cntPageRead,
+                        beforeValue = if (index == 0) {
+                            "0"
+                        } else {
+                            miningList[index - 1].cntPageRead
+                        },
+                        type = "조회 분석",
+                        isLast = index == miningList.size - 1
+                    )
+                }
+            }
+        }
+
+        if(miningList[0].cntTotalComment.isNotEmpty()){
+            ItemTabletTitle(str = "댓글 분석")
+
+            TabletContentWrap {
+                miningList.forEachIndexed { index, itemBestInfo ->
+
+                    val year = itemBestInfo.date.substring(0, 4)
+                    val month = itemBestInfo.date.substring(4, 6)
+                    val day = itemBestInfo.date.substring(6, 8)
+
+
+                    ItemBestDetailInfoAnalyze(
+                        title = "${year}년 ${month}월 ${day}일",
+                        value = itemBestInfo.cntTotalComment,
+                        beforeValue = if (index == 0) {
+                            "0"
+                        } else {
+                            miningList[index - 1].cntTotalComment
+                        },
+                        type = "댓글 분석",
+                        isLast = index == miningList.size - 1
+                    )
+
+                }
+            }
+
+        }
+
+        Spacer(modifier = Modifier.size(32.dp))
     }
 }

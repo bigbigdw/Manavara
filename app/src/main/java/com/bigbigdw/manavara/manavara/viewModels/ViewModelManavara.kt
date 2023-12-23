@@ -3,6 +3,7 @@ package com.bigbigdw.manavara.manavara.viewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bigbigdw.manavara.best.models.ItemBookInfo
+import com.bigbigdw.manavara.best.models.ItemBookMining
 import com.bigbigdw.manavara.manavara.event.EventManavara
 import com.bigbigdw.manavara.manavara.event.StateManavara
 import com.bigbigdw.manavara.manavara.models.ItemAlert
@@ -28,21 +29,34 @@ class ViewModelManavara @Inject constructor() : ViewModel() {
     val sideEffects = _sideEffects.receiveAsFlow()
 
     private fun reduceState(current: StateManavara, event: EventManavara): StateManavara {
-        return when(event){
+        return when (event) {
             EventManavara.Loaded -> {
                 current.copy(Loaded = true)
             }
 
             is EventManavara.SetScreen -> {
-                current.copy(menu = event.menu, platform = event.platform, detail = event.detail, type = event.type)
+                current.copy(
+                    menu = event.menu,
+                    platform = event.platform,
+                    detail = event.detail,
+                    type = event.type
+                )
             }
 
             is EventManavara.SetPickList -> {
-                current.copy(pickCategory = event.pickCategory, pickItemList = event.pickItemList, platform = event.platform)
+                current.copy(
+                    pickCategory = event.pickCategory,
+                    pickItemList = event.pickItemList,
+                    platform = event.platform
+                )
             }
 
             is EventManavara.SetPickShareList -> {
-                current.copy(pickCategory = event.pickCategory, pickShareItemList = event.pickShareItemList, platform = event.platform)
+                current.copy(
+                    pickCategory = event.pickCategory,
+                    pickShareItemList = event.pickShareItemList,
+                    platform = event.platform
+                )
             }
 
             is EventManavara.SetPickItems -> {
@@ -62,7 +76,12 @@ class ViewModelManavara @Inject constructor() : ViewModel() {
             }
 
             is EventManavara.SetItemBookInfoList -> {
-                current.copy(itemBookInfoList = event.itemBookInfoList)
+                current.copy(
+                    itemBookInfoList = event.itemBookInfoList,
+                    itemBookMiningMap = event.itemBookMiningMap,
+                    pickCategory = event.pickCategory,
+                    platform = event.platform
+                )
             }
 
             else -> {
@@ -71,13 +90,25 @@ class ViewModelManavara @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setItemBookInfoList(itemBookInfoList: List<ItemBookInfo>?){
+    fun setItemBookInfoList(
+        itemBookInfoList: List<ItemBookInfo> = ArrayList(),
+        itemBookMiningMap: MutableMap<String, ItemBookMining> = mutableMapOf(),
+        pickCategory: ArrayList<String> = ArrayList(),
+        platform: String = ""
+    ) {
         viewModelScope.launch {
-            events.send(EventManavara.SetItemBookInfoList(itemBookInfoList = itemBookInfoList))
+            events.send(
+                EventManavara.SetItemBookInfoList(
+                    itemBookInfoList = itemBookInfoList,
+                    itemBookMiningMap = itemBookMiningMap,
+                    pickCategory = pickCategory,
+                    platform = platform
+                )
+            )
         }
     }
 
-    fun setFcmList(fcmList: ArrayList<ItemAlert>){
+    fun setFcmList(fcmList: ArrayList<ItemAlert>) {
         viewModelScope.launch {
             events.send(EventManavara.SetFcmList(fcmList = fcmList))
         }
@@ -101,15 +132,35 @@ class ViewModelManavara @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setPickList(pickCategory: ArrayList<String>, pickItemList: ArrayList<ItemBookInfo>, platform: String = "전체"){
+    fun setPickList(
+        pickCategory: ArrayList<String>,
+        pickItemList: ArrayList<ItemBookInfo>,
+        platform: String = "전체"
+    ) {
         viewModelScope.launch {
-            events.send(EventManavara.SetPickList(pickCategory = pickCategory, pickItemList = pickItemList, platform = platform))
+            events.send(
+                EventManavara.SetPickList(
+                    pickCategory = pickCategory,
+                    pickItemList = pickItemList,
+                    platform = platform
+                )
+            )
         }
     }
 
-    fun setPickShareList(pickCategory: ArrayList<String>, pickShareItemList: MutableMap<String, ArrayList<ItemBookInfo>>, platform: String = "전체"){
+    fun setPickShareList(
+        pickCategory: ArrayList<String>,
+        pickShareItemList: MutableMap<String, ArrayList<ItemBookInfo>>,
+        platform: String = "전체"
+    ) {
         viewModelScope.launch {
-            events.send(EventManavara.SetPickShareList(pickCategory = pickCategory, pickShareItemList = pickShareItemList, platform = platform))
+            events.send(
+                EventManavara.SetPickShareList(
+                    pickCategory = pickCategory,
+                    pickShareItemList = pickShareItemList,
+                    platform = platform
+                )
+            )
         }
     }
 

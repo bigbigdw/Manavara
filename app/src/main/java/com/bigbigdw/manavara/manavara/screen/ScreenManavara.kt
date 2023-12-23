@@ -145,7 +145,9 @@ fun ScreenManavara(
                         Text(
                             modifier = Modifier
                                 .padding(16.dp, 0.dp, 0.dp, 0.dp),
-                            text = mainState.menu,
+                            text = mainState.detail.ifEmpty {
+                                mainState.menu
+                            },
                             fontSize = 24.sp,
                             color = color000000,
                             fontWeight = FontWeight(weight = 700)
@@ -155,7 +157,7 @@ fun ScreenManavara(
                     if(mainState.detail.isEmpty()){
                         ScreenManavaraItem(
                             modalSheetState = modalSheetState,
-                            setDialogOpen = null,
+                            setDialogOpen = setDialogOpen,
                             viewModelMain = viewModelMain,
                             isExpandedScreen = isExpandedScreen
                         )
@@ -303,12 +305,14 @@ fun ScreenManavaraItem(
 
     if (state.menu.contains("유저 옵션")) {
         ScreenUser()
-    } else if (state.menu.contains("메세지함") || state.menu.contains("최신화 현황판")) {
+    } else if (state.menu.contains("메세지함") || state.menu.contains("최신화 현황판") || state.menu.contains("마이닝 현황판")) {
         ContentsFCMList(
             child = if(state.menu.contains("메세지함")){
                 "NOTICE"
-            } else {
+            } else if(state.menu.contains("최신화 현황판")) {
                 "ALERT"
+            } else {
+                "MINING"
             }
         )
     } else if (state.menu.contains("PICK 보기")) {
@@ -349,6 +353,13 @@ fun ScreenManavaraItem(
         )
     } else if (state.menu.contains("분석 현황")) {
         ScreenMiningStatus(
+            modalSheetState = modalSheetState,
+            setDialogOpen = setDialogOpen,
+            type = "NOVEL",
+            viewModelMain = viewModelMain
+        )
+    } else if (state.menu.contains("분석 보고서")) {
+        ScreenMiningReport(
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen,
             type = "NOVEL",
