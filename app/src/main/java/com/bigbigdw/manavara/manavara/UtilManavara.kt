@@ -116,44 +116,76 @@ fun setSharePickList(
 fun setMiningList(
     context: Context,
     type: String,
-    pickCategory: ArrayList<String>,
+    pickCategory: List<String>,
     pickItemList: ArrayList<ItemBookInfo>,
-    mode : String = "INSERT",
     initTitle: () -> Unit
 ){
-
-    val filteredList = ArrayList<ItemBookInfo>()
-    val pickItemListMap = mutableMapOf<String, ItemBookInfo>()
-    var roomDao: DBBookInfo?
-
-    for(item in pickItemList){
-        pickItemListMap[item.bookCode] = item
-    }
-
-    for(bookCode in pickCategory){
-        val item = pickItemListMap[bookCode]
-        if(item != null){
-            filteredList.add(item)
-        }
-    }
-
     CoroutineScope(Dispatchers.IO).launch {
+        val filteredList = ArrayList<ItemBookInfo>()
+        val pickItemListMap = mutableMapOf<String, ItemBookInfo>()
+        val roomDao: DBBookInfo?
+
+        for(item in pickItemList){
+            pickItemListMap[item.bookCode] = item
+        }
+
+        for(bookCode in pickCategory){
+            val item = pickItemListMap[bookCode]
+            if(item != null){
+                filteredList.add(item)
+            }
+        }
+
         roomDao = Room.databaseBuilder(
             context,
             DBBookInfo::class.java,
             type
         ).build()
 
-        if(mode == "INSERT"){
-            roomDao?.bookInfoDao()?.insert(filteredList)
-        } else {
-            for(item in filteredList){
-                roomDao?.bookInfoDao()?.delete(item)
+        roomDao.bookInfoDao().insert(filteredList)
+
+        initTitle()
+    }
+}
+
+fun setMiningListDelete(
+    context: Context,
+    type: String,
+    pickCategory: ArrayList<String>,
+    pickItemList: List<ItemBookInfo>?,
+    initTitle: () -> Unit
+){
+
+    CoroutineScope(Dispatchers.IO).launch {
+        val filteredList = ArrayList<ItemBookInfo>()
+        val pickItemListMap = mutableMapOf<String, ItemBookInfo>()
+        val roomDao: DBBookInfo?
+
+        if (pickItemList != null) {
+            for(item in pickItemList){
+                pickItemListMap[item.bookCode] = item
             }
         }
-    }
 
-    initTitle()
+        for(bookCode in pickCategory){
+            val item = pickItemListMap[bookCode]
+            if(item != null){
+                filteredList.add(item)
+            }
+        }
+
+        roomDao = Room.databaseBuilder(
+            context,
+            DBBookInfo::class.java,
+            type
+        ).build()
+
+        for(item in filteredList){
+            roomDao.bookInfoDao().delete(item)
+        }
+
+        initTitle()
+    }
 }
 
 

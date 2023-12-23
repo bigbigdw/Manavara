@@ -53,6 +53,7 @@ import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.manavara.getFCMList
 import com.bigbigdw.manavara.manavara.models.ItemAlert
 import com.bigbigdw.manavara.manavara.setMiningList
+import com.bigbigdw.manavara.manavara.setMiningListDelete
 import com.bigbigdw.manavara.manavara.viewModels.ViewModelManavara
 import com.bigbigdw.manavara.room.DBBookInfo
 import com.bigbigdw.manavara.ui.theme.color000000
@@ -140,8 +141,8 @@ fun ContentsFCMList(child: String) {
         checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
     val viewModelManavara: ViewModelManavara = viewModel(viewModelStoreOwner = viewModelStoreOwner)
 
-    LaunchedEffect(child){
-        getFCMList(child = child){
+    LaunchedEffect(child) {
+        getFCMList(child = child) {
             viewModelManavara.setFcmList(it)
         }
     }
@@ -150,7 +151,7 @@ fun ContentsFCMList(child: String) {
 
     LazyColumn {
         item {
-            Box(modifier = Modifier.padding(8.dp)){
+            Box(modifier = Modifier.padding(8.dp)) {
                 TabletContentWrap {
                     Spacer(modifier = Modifier.size(8.dp))
 
@@ -171,17 +172,17 @@ fun ContentsFCMList(child: String) {
 }
 
 @Composable
-fun ItemTabletFCMList(item : ItemAlert, isLast: Boolean){
+fun ItemTabletFCMList(item: ItemAlert, isLast: Boolean) {
 
     val today = DBDate.dateMMDD()
 
-    val year = item.date.substring(0,4)
-    val month = item.date.substring(4,6)
-    val day = item.date.substring(6,8)
-    val hour = item.date.substring(8,10)
-    val min = item.date.substring(10,12)
-    val sec = if(item.date.length > 12){
-        ":${item.date.substring(12,14)}"
+    val year = item.date.substring(0, 4)
+    val month = item.date.substring(4, 6)
+    val day = item.date.substring(6, 8)
+    val hour = item.date.substring(8, 10)
+    val min = item.date.substring(10, 12)
+    val sec = if (item.date.length > 12) {
+        ":${item.date.substring(12, 14)}"
     } else {
         ""
     }
@@ -194,11 +195,13 @@ fun ItemTabletFCMList(item : ItemAlert, isLast: Boolean){
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                modifier = Modifier.background(color = if(item.date.contains(today)){
-                    colorE9E9E9
-                } else {
-                    Color.Transparent
-                }),
+                modifier = Modifier.background(
+                    color = if (item.date.contains(today)) {
+                        colorE9E9E9
+                    } else {
+                        Color.Transparent
+                    }
+                ),
                 text = "${year}.${month}.${day} ${hour}:${min}${sec}",
                 color = color000000,
                 fontSize = 18.sp,
@@ -231,12 +234,14 @@ fun ItemTabletFCMList(item : ItemAlert, isLast: Boolean){
             )
         }
 
-        if(!isLast){
+        if (!isLast) {
             Spacer(modifier = Modifier.size(2.dp))
-            Spacer(modifier = Modifier
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(color = colorE9E9E9))
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(color = colorE9E9E9)
+            )
             Spacer(modifier = Modifier.size(2.dp))
         }
     }
@@ -245,7 +250,7 @@ fun ItemTabletFCMList(item : ItemAlert, isLast: Boolean){
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenMiningStatus(
-    viewModelMain : ViewModelMain,
+    viewModelMain: ViewModelMain,
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
     type: String = "NOVEL"
@@ -282,9 +287,10 @@ fun ScreenMiningStatus(
         }
     }
 
-    Scaffold(modifier = Modifier
-        .wrapContentSize()
-        .background(color = colorF6F6F6),
+    Scaffold(
+        modifier = Modifier
+            .wrapContentSize()
+            .background(color = colorF6F6F6),
         floatingActionButton = {
 
             if (manavaraState.itemBookInfoList?.isEmpty() == false) {
@@ -305,7 +311,7 @@ fun ScreenMiningStatus(
                             color = Color.White,
                             fontWeight = FontWeight(weight = 700),
                             textAlign = TextAlign.Center,
-                            fontSize =  24.sp
+                            fontSize = 24.sp
                         )
                     }
 
@@ -327,18 +333,21 @@ fun ScreenMiningStatus(
                             color = Color.White,
                             fontWeight = FontWeight(weight = 700),
                             textAlign = TextAlign.Center,
-                            fontSize =  24.sp
+                            fontSize = 24.sp
                         )
                     }
                 }
             }
 
-        }, floatingActionButtonPosition = FabPosition.End) {
+        }, floatingActionButtonPosition = FabPosition.End
+    ) {
 
-        Column(modifier = Modifier
-            .padding(it)
-            .fillMaxSize()
-            .background(colorF6F6F6)) {
+        Column(
+            modifier = Modifier
+                .padding(it)
+                .fillMaxSize()
+                .background(colorF6F6F6)
+        ) {
 
             LazyColumn(state = listState) {
 
@@ -355,7 +364,7 @@ fun ScreenMiningStatus(
                     }
                 } else {
 
-                    if(manavaraState.itemBookInfoList?.isNotEmpty() == true){
+                    if (manavaraState.itemBookInfoList?.isNotEmpty() == true) {
                         items(manavaraState.itemBookInfoList.size) { index ->
 
                             Box(
@@ -418,7 +427,7 @@ fun ScreenMiningDelete(
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     val listState = rememberLazyListState()
-    val pickCategory = remember { mutableStateListOf<String>()}
+    val pickCategory = remember { mutableStateListOf<String>() }
 
     LaunchedEffect(viewModelManavara) {
 
@@ -443,23 +452,25 @@ fun ScreenMiningDelete(
         }
     }
 
-    Scaffold(modifier = Modifier
-        .wrapContentSize()
-        .background(color = colorF6F6F6),
+    Scaffold(
+        modifier = Modifier
+            .wrapContentSize()
+            .background(color = colorF6F6F6),
         bottomBar = {
             if (manavaraState.pickCategory.isNotEmpty() && !isExpandedScreen) {
                 Button(
                     colors = ButtonDefaults.buttonColors(containerColor = color20459E),
                     onClick = {
-                        setMiningList(
+                        setMiningListDelete(
                             context = context,
                             type = "NOVEL",
                             pickCategory = pickCategory.toMutableList() as ArrayList<String>,
-                            pickItemList = manavaraState.pickItemList,
-                        ) {  }
+                            pickItemList = manavaraState.itemBookInfoList,
+                        ) {
+                            viewModelMain.setScreen(detail = "")
+                        }
 
-                        viewModelMain.setScreen(detail = "")
-                        Toast.makeText(context, "마이닝 작품 리스트가 추가되었습니다.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "마이닝 작품 리스트가 삭제되었습니다.", Toast.LENGTH_SHORT).show()
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -468,7 +479,7 @@ fun ScreenMiningDelete(
 
                 ) {
                     Text(
-                        text =  "마이닝 작품 삭제하기",
+                        text = "마이닝 작품 삭제하기",
                         textAlign = TextAlign.Center,
                         color = colorEDE6FD,
                         fontSize = 16.sp
@@ -483,38 +494,45 @@ fun ScreenMiningDelete(
                 FloatingActionButton(
                     modifier = Modifier.size(60.dp),
                     onClick = {
-                        viewModelMain.setScreen(
-                            menu = "웹소설 분석 현황",
-                            detail = "웹소설 마이닝 리스트 만들기",
-                        )
+                        setMiningListDelete(
+                            context = context,
+                            type = "NOVEL",
+                            pickCategory = pickCategory.toMutableList() as ArrayList<String>,
+                            pickItemList = manavaraState.itemBookInfoList,
+                        ) {
+                            viewModelMain.setScreen(detail = "")
+                        }
+
+                        Toast.makeText(context, "마이닝 작품 리스트가 삭제되었습니다.", Toast.LENGTH_SHORT).show()
                     },
                     containerColor = colorFF2366,
                 ) {
                     Text(
                         modifier = Modifier.padding(8.dp),
-                        text = "삭제",
+                        text = "삭제\n하기",
                         color = Color.White,
                         fontWeight = FontWeight(weight = 700),
                         textAlign = TextAlign.Center,
-                        fontSize =  24.sp
                     )
                 }
             }
 
         },
-        floatingActionButtonPosition = FabPosition.End) {
+        floatingActionButtonPosition = FabPosition.End
+    ) {
 
-        LazyColumn(modifier = Modifier
-            .padding(it)
-            .fillMaxSize()
-            .background(colorF6F6F6),
-            state = listState) {
+        LazyColumn(
+            modifier = Modifier
+                .padding(it)
+                .fillMaxSize()
+                .background(colorF6F6F6),
+            state = listState
+        ) {
 
-            if(manavaraState.itemBookInfoList?.isNotEmpty() == true){
+            if (manavaraState.itemBookInfoList?.isNotEmpty() == true) {
                 items(manavaraState.itemBookInfoList.size) { index ->
 
                     val item = manavaraState.itemBookInfoList[index]
-                    Log.d("HIHI", "getPickCategory.contains(item.bookCode) == ${pickCategory.contains(item.bookCode)}")
 
                     Row(
                         modifier = Modifier
@@ -538,10 +556,8 @@ fun ScreenMiningDelete(
                             needIntro = false
                         ) {
                             if (pickCategory.contains(item.bookCode)) {
-                                Log.d("HIHI", "remove getPickCategory == $pickCategory")
                                 pickCategory.remove(item.bookCode)
                             } else {
-                                Log.d("HIHI", "add getPickCategory == $pickCategory")
                                 pickCategory.add(item.bookCode)
                             }
 

@@ -36,6 +36,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -50,6 +51,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.work.WorkManager
 import com.bigbigdw.manavara.best.getBookItemWeekTrophy
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
@@ -62,6 +64,7 @@ import com.bigbigdw.manavara.manavara.setMiningList
 import com.bigbigdw.manavara.manavara.setSharePickList
 import com.bigbigdw.manavara.manavara.viewModels.ViewModelManavara
 import com.bigbigdw.manavara.ui.theme.color000000
+import com.bigbigdw.manavara.ui.theme.color1E4394
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color4AD7CF
 import com.bigbigdw.manavara.ui.theme.color5372DE
@@ -69,6 +72,7 @@ import com.bigbigdw.manavara.ui.theme.color898989
 import com.bigbigdw.manavara.ui.theme.color998DF9
 import com.bigbigdw.manavara.ui.theme.colorEDE6FD
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
+import com.bigbigdw.manavara.util.MiningWorker
 import com.bigbigdw.manavara.util.changePlatformNameKor
 import com.bigbigdw.manavara.util.screen.AlertOneBtn
 import com.bigbigdw.manavara.util.screen.ScreenBookCard
@@ -412,6 +416,7 @@ fun ScreenPickShare(
 @Composable
 fun ScreenMakeSharePick(
     viewModelMain: ViewModelMain,
+    isExpandedScreen : Boolean,
     mode: String
 ) {
 
@@ -424,9 +429,9 @@ fun ScreenMakeSharePick(
     val viewModelManavara: ViewModelManavara = viewModel(viewModelStoreOwner = viewModelStoreOwner)
     val state = viewModelManavara.state.collectAsState().value
     val listState = rememberLazyListState()
-    val (getDialogOpen, setDialogOpen) = remember { mutableStateOf(false) }
-    val (getCategoryName, setCategoryName) = remember { mutableStateOf("") }
-    val (getPickCategory, setPickCategory) = remember { mutableStateOf(ArrayList<String>()) }
+    val dialogOpen = remember { mutableStateOf(false) }
+    val categoryName = remember { mutableStateOf("") }
+    val pickCategory = remember { mutableStateListOf<String>() }
 
     LaunchedEffect(viewModelManavara) {
 
@@ -441,26 +446,24 @@ fun ScreenMakeSharePick(
         }
     }
 
-    if (getDialogOpen && mode == "SHARE") {
+    if (dialogOpen.value && mode == "SHARE") {
         Dialog(
-            onDismissRequest = { setDialogOpen(false) },
+            onDismissRequest = { dialogOpen.value = false },
         ) {
             AlertOneBtn(
                 isShow = {
                     setSharePickList(
                         type = "NOVEL",
-                        initTitle = { setCategoryName("") },
-                        listName = getCategoryName,
-                        pickCategory = getPickCategory,
+                        initTitle = { categoryName.value = "" },
+                        listName = categoryName.value,
+                        pickCategory = pickCategory.toList() as ArrayList<String>,
                         pickItemList = state.pickItemList,
                         context = context,
                     )
 
                     viewModelMain.setScreen(detail = "")
-
                     Toast.makeText(context, "공유리스트 생성이 완료되었습니다.", Toast.LENGTH_SHORT).show()
-
-                    setDialogOpen(false)
+                    dialogOpen.value = false
                 },
                 modifier = Modifier.requiredWidth(300.dp),
                 btnText = "리스트 만들기",
@@ -477,8 +480,8 @@ fun ScreenMakeSharePick(
                     Spacer(modifier = Modifier.size(16.dp))
 
                     TextField(
-                        value = getCategoryName,
-                        onValueChange = { setCategoryName(it) },
+                        value = categoryName.value,
+                        onValueChange =  { categoryName.value = "" },
                         label = { Text("리스트 이름을 입력해 주십시오", color = color898989) },
                         singleLine = true,
                         colors = TextFieldDefaults.textFieldColors(
@@ -499,22 +502,75 @@ fun ScreenMakeSharePick(
     Scaffold(modifier = Modifier
         .wrapContentSize()
         .background(color = colorF6F6F6),
+        floatingActionButton = {
+
+            if (state.pickCategory.isNotEmpty() && isExpandedScreen) {
+
+                FloatingActionButton(
+                    modifier = Modifier.size(60.dp),
+                    onClick = {
+                        setMiningList(
+                            context = context,
+                            type = "NOVEL",
+                            pickCategory = pickCategory.toList(),
+                            pickItemList = state.pickItemList,
+                        ) {
+                            categoryName.value = ""
+
+                            val workManager = WorkManager.getInstance(context)
+
+                            MiningWorker.doWorkerPeriodic(
+                                workManager = workManager,
+                                time = 3,
+                                tag = "MINING",
+                            )
+
+                            viewModelMain.setScreen(detail = "")
+                        }
+
+                        Toast.makeText(context, "마이닝 작품 리스트가 추가되었습니다.", Toast.LENGTH_SHORT).show()
+                    },
+                    containerColor = color1E4394,
+                ) {
+                    Text(
+                        modifier = Modifier.padding(8.dp),
+                        text = "추가\n하기",
+                        color = Color.White,
+                        fontWeight = FontWeight(weight = 700),
+                        textAlign = TextAlign.Center,
+                    )
+                }
+            }
+
+        },
+        floatingActionButtonPosition = FabPosition.End,
         bottomBar = {
-            if (state.pickCategory.isNotEmpty()) {
+            if (state.pickCategory.isNotEmpty() && !isExpandedScreen) {
                 Button(
                     colors = ButtonDefaults.buttonColors(containerColor = color20459E),
                     onClick = {
                         if(mode == "SHARE"){
-                            setDialogOpen(true)
+                            dialogOpen.value = true
                         } else {
                             setMiningList(
                                 context = context,
                                 type = "NOVEL",
-                                pickCategory = getPickCategory,
+                                pickCategory = pickCategory.toList(),
                                 pickItemList = state.pickItemList,
-                            ) { setCategoryName("") }
+                            ) {
+                                categoryName.value = ""
 
-                            viewModelMain.setScreen(detail = "")
+                                val workManager = WorkManager.getInstance(context)
+
+                                MiningWorker.doWorkerPeriodic(
+                                    workManager = workManager,
+                                    time = 3,
+                                    tag = "MINING",
+                                )
+
+                                viewModelMain.setScreen(detail = "")
+                            }
+
                             Toast.makeText(context, "마이닝 작품 리스트가 추가되었습니다.", Toast.LENGTH_SHORT).show()
                         }
                     },
@@ -595,14 +651,12 @@ fun ScreenMakeSharePick(
                             .padding(16.dp, 8.dp, 16.dp, 8.dp)
                     ) {
                         Checkbox(
-                            checked = getPickCategory.contains(item.bookCode),
+                            checked = pickCategory.contains(item.bookCode),
                             onCheckedChange = { isChecked ->
                                 if (isChecked) {
-                                    getPickCategory.add(item.bookCode)
-                                    setPickCategory(getPickCategory)
+                                    pickCategory.add(item.bookCode)
                                 } else {
-                                    getPickCategory.remove(item.bookCode)
-                                    setPickCategory(getPickCategory)
+                                    pickCategory.remove(item.bookCode)
                                 }
 
                             })
@@ -614,12 +668,10 @@ fun ScreenMakeSharePick(
                             needIntro = false
                         ) {
 
-                            if (getPickCategory.contains(item.bookCode)) {
-                                getPickCategory.remove(item.bookCode)
-                                setPickCategory(getPickCategory)
+                            if (pickCategory.contains(item.bookCode)) {
+                                pickCategory.remove(item.bookCode)
                             } else {
-                                getPickCategory.add(item.bookCode)
-                                setPickCategory(getPickCategory)
+                                pickCategory.add(item.bookCode)
                             }
 
                             coroutineScope.launch {

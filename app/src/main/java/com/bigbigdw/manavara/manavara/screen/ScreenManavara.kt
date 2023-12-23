@@ -1,6 +1,7 @@
 package com.bigbigdw.manavara.manavara.screen
 
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -32,9 +34,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -42,9 +46,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.screen.BestBottomDialog
 import com.bigbigdw.manavara.best.screen.BestDialog
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
+import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.util.menuListManavara
 import com.bigbigdw.manavara.util.screen.BackOnPressedMobile
@@ -124,13 +130,42 @@ fun ScreenManavara(
                         .background(color = colorF6F6F6)
                 )
 
-                ScreenManavaraItem(
-                    modalSheetState = modalSheetState,
-                    setDialogOpen = setDialogOpen,
-                    viewModelMain = viewModelMain
-                )
+                Column {
+                    Spacer(modifier = Modifier.size(16.dp))
 
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            painter = painterResource(id = R.drawable.icon_arrow_left),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .width(30.dp)
+                                .height(30.dp)
+                        )
 
+                        Text(
+                            modifier = Modifier
+                                .padding(16.dp, 0.dp, 0.dp, 0.dp),
+                            text = mainState.menu,
+                            fontSize = 24.sp,
+                            color = color000000,
+                            fontWeight = FontWeight(weight = 700)
+                        )
+                    }
+
+                    if(mainState.detail.isEmpty()){
+                        ScreenManavaraItem(
+                            modalSheetState = modalSheetState,
+                            setDialogOpen = null,
+                            viewModelMain = viewModelMain,
+                            isExpandedScreen = isExpandedScreen
+                        )
+                    } else {
+                        ScreenManavaraItemDetail(
+                            viewModelMain = viewModelMain,
+                            isExpandedScreen = isExpandedScreen
+                        )
+                    }
+                }
             } else {
 
                 ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
@@ -163,7 +198,8 @@ fun ScreenManavara(
                                 ScreenManavaraItem(
                                     modalSheetState = modalSheetState,
                                     setDialogOpen = null,
-                                    viewModelMain = viewModelMain
+                                    viewModelMain = viewModelMain,
+                                    isExpandedScreen = isExpandedScreen
                                 )
                             } else {
                                 ScreenManavaraItemDetail(
@@ -259,6 +295,7 @@ fun ScreenManavaraPropertyList(
 fun ScreenManavaraItem(
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
+    isExpandedScreen : Boolean,
     viewModelMain: ViewModelMain
 ) {
 
@@ -294,7 +331,8 @@ fun ScreenManavaraItem(
     } else if (state.menu.contains("만들기")) {
         ScreenMakeSharePick(
             viewModelMain = viewModelMain,
-            mode = "SHARE"
+            mode = "SHARE",
+            isExpandedScreen = isExpandedScreen
         )
     } else if (state.menu.contains("공유")) {
         ScreenPickShare(
@@ -330,6 +368,7 @@ fun ScreenManavaraItemDetail(
     if(state.detail.contains("리스트 만들기")){
         ScreenMakeSharePick(
             viewModelMain = viewModelMain,
+            isExpandedScreen = isExpandedScreen,
             mode = if(state.detail.contains("공유 리스트 만들기")){
                 "SHARE"
             } else {
