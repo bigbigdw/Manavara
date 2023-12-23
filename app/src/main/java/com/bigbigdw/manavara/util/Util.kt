@@ -212,10 +212,10 @@ fun postFCM(context: Context, fcmBody: DataFCMBody) {
 fun postFCMAlert(context: Context, getFCM: DataFCMBodyNotification) {
 
     val fcmBody = DataFCMBody(
-        "/topics/cs",
-        "high",
-        DataFCMBodyData("ALERT_ALL", ""),
-        DataFCMBodyNotification(
+        to = "/topics/cs",
+        priority = "high",
+        data = DataFCMBodyData("ALERT_ALL", ""),
+        notification = DataFCMBodyNotification(
             getFCM.title,
             getFCM.body,
             ""

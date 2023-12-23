@@ -1,6 +1,7 @@
 package com.bigbigdw.manavara.firebase
 
 class DataFCMBody(
+    var token : String = "",
     var to: String? = "/topics/all",
     var priority: String? = "high",
     var data: DataFCMBodyData? = null,

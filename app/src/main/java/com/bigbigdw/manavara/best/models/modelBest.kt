@@ -14,7 +14,6 @@ data class ItemBestComment(
 @Entity
 @Serializable
 data class ItemBookMining(
-    @PrimaryKey
     @SerialName("bookCode")
     var bookCode: String = "",
     @SerialName("platform")
@@ -29,11 +28,9 @@ data class ItemBookMining(
     var cntTotalComment: String = "",
     @SerialName("cntChapter")
     var cntChapter: String = "",
-    @SerialName("genre")
-    var genre: String = "",
-    @SerialName("belong")
-    var belong: String = "",
-)
+){
+    @PrimaryKey(autoGenerate = true) var id: Int = 0
+}
 
 @Serializable
 data class ItemBestDetailInfo(

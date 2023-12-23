@@ -82,6 +82,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.Collections
+import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -519,9 +520,12 @@ fun ScreenMakeSharePick(
 
                             val workManager = WorkManager.getInstance(context)
 
+                            MiningWorker.cancelAllWorker(workManager)
+
                             MiningWorker.doWorkerPeriodic(
                                 workManager = workManager,
-                                time = 3,
+                                time = 15,
+                                timeUnit = TimeUnit.MINUTES,
                                 tag = "MINING",
                             )
 
@@ -562,9 +566,12 @@ fun ScreenMakeSharePick(
 
                                 val workManager = WorkManager.getInstance(context)
 
+                                MiningWorker.cancelAllWorker(workManager)
+
                                 MiningWorker.doWorkerPeriodic(
                                     workManager = workManager,
-                                    time = 3,
+                                    time = 15,
+                                    timeUnit = TimeUnit.MINUTES,
                                     tag = "MINING",
                                 )
 

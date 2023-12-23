@@ -366,10 +366,10 @@ fun ScreenRegister(
                 val sec = DBDate.dateMMDDHHMMss().substring(12, 14)
 
                 val fcmBody = DataFCMBody(
-                    "/topics/user",
-                    "high",
-                    DataFCMBodyData("마나바라", " 회원가입 - ${viewModelLogin.state.value.userInfo.userEmail}"),
-                    DataFCMBodyNotification(
+                    to = "/topics/user",
+                    priority = "high",
+                    data  = DataFCMBodyData("마나바라", " 회원가입 - ${viewModelLogin.state.value.userInfo.userEmail}"),
+                    notification = DataFCMBodyNotification(
                         title = "마나바라",
                         body = "${year}.${month}.${day} ${hour}:${min}:${sec}  회원가입 - ${viewModelLogin.state.value.userInfo.userEmail}",
                         click_action = "best"
