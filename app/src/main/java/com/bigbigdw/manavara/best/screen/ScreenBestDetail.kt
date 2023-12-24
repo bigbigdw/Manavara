@@ -199,9 +199,9 @@ fun ScreenBestDetail(
                         Button(
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = if (stateMain.isPicked) {
-                                    color8F8F8F
-                                } else {
                                     color4AD7CF
+                                } else {
+                                    color8F8F8F
                                 }
                             ),
                             shape = RoundedCornerShape(0.dp),
@@ -235,9 +235,9 @@ fun ScreenBestDetail(
                                 },
                                 textAlign = TextAlign.Center,
                                 color = if (stateMain.isPicked) {
-                                    Color.White
-                                } else {
                                     Color.Black
+                                } else {
+                                    Color.White
                                 },
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold

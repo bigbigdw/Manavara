@@ -250,6 +250,8 @@ fun getBookItemWeekTrophy(
                 }
 
                 callbacks.invoke(weekArray)
+            } else {
+                callbacks.invoke(weekArray)
             }
         }
 

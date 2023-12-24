@@ -53,13 +53,56 @@ fun setBookNewInfo(platform: String, context: Context, callbacks: (ArrayList<Ite
     }
 }
 
-fun searchJoara(page: Int, text: String, context : Context) {
+fun setBookSearch(query : String, platform: String, context: Context, callbacks: (ArrayList<ItemBookInfo>) -> Unit) {
+
+    when (platform) {
+        "JOARA", "JOARA_NOBLESS", "JOARA_PREMIUM" -> {
+            searchJoara(context = context, platform = platform, query = query, callbacks = callbacks)
+        }
+
+        "NAVER_WEBNOVEL_FREE", "NAVER_WEBNOVEL_PAY", "NAVER_BEST", "NAVER_CHALLENGE" -> {
+            bookListNaver(platform = platform, mining = "", platformType = "", callbacks = callbacks)
+        }
+
+//        "NAVER_SERIES" -> {
+//            setLayoutNaverSeries(bookCode = bookCode, platform = platform, callbacks = callbacks)
+//        }
+//
+//        "RIDI_FANTAGY", "RIDI_ROMANCE", "RIDI_ROFAN" -> {
+//            setLayoutRidi(bookCode = bookCode, platform = platform, callbacks = callbacks)
+//        }
+//
+//        "KAKAO_STAGE" -> {
+//            setLayoutKakaoStage(bookCode = bookCode, platform = platform, callbacks = callbacks)
+//        }
+//
+//        "ONESTORY_FANTAGY", "ONESTORY_ROMANCE", "ONESTORY_PASS_FANTAGY", "ONESTORY_PASS_ROMANCE" -> {
+//            setLayoutOneStory(bookCode = bookCode, platform = platform, callbacks = callbacks)
+//        }
+//
+//        "MUNPIA_PAY", "MUNPIA_FREE" -> {
+//            setLayoutMunpia(bookCode = bookCode, platform = platform, callbacks = callbacks)
+//        }
+//
+//        "TOKSODA", "TOKSODA_FREE", -> {
+//            setLayoutToksoda(bookCode = bookCode, platform = platform, callbacks = callbacks)
+//        }
+    }
+}
+
+fun searchJoara(
+    page: Int = 1,
+    query: String,
+    platform: String,
+    context: Context,
+    callbacks: (ArrayList<ItemBookInfo>) -> Unit,
+) {
     val apiJoara = RetrofitJoara()
     val param = Param.getItemAPI(context)
     val searchItems = ArrayList<ItemBookInfo>()
 
     param["page"] = page
-    param["query"] = text
+    param["query"] = query
     param["collection"] = ""
     param["search"] = "subject"
     param["kind"] = ""
@@ -99,6 +142,8 @@ fun searchJoara(page: Int, text: String, context : Context) {
                             )
                         )
                     }
+
+                    callbacks.invoke(searchItems)
                 }
             }
         })

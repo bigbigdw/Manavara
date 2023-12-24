@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.room.util.query
 import coil.compose.AsyncImage
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.getBookItemWeekTrophy
@@ -67,6 +68,8 @@ import com.bigbigdw.manavara.best.screen.ScreenBestDetailInfo
 import com.bigbigdw.manavara.best.setBestDetailInfo
 import com.bigbigdw.manavara.dataBase.getGenreKeywordJson
 import com.bigbigdw.manavara.dataBase.getJsonFiles
+import com.bigbigdw.manavara.dataBase.setBookNewInfo
+import com.bigbigdw.manavara.dataBase.setBookSearch
 import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDatabase
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.ui.theme.color000000
@@ -548,6 +551,105 @@ fun ScreenSearchDataBase(
 
         item {
             Spacer(modifier = Modifier.size(4.dp))
+        }
+
+        if(manavaraState.filteredList.isEmpty()){
+            item {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    ScreenEmpty(str = "데이터가 없습니다")
+                }
+            }
+        } else {
+            itemsIndexed(manavaraState.filteredList) { index, item ->
+
+                Box(modifier = Modifier
+                    .padding(16.dp, 8.dp, 16.dp, 8.dp)
+                    .wrapContentSize()){
+                    ScreenBookCard(
+                        item = item,
+                        index = index,
+                    ) {
+                        coroutineScope.launch {
+
+                            getBookItemWeekTrophy(
+                                bookCode = item.bookCode,
+                                type = mainState.type,
+                                platform = mainState.platform
+                            ) { itemBestInfoTrophyList ->
+
+                                viewModelMain.setItemBestInfoTrophyList(
+                                    itemBookInfo = item,
+                                    itemBestInfoTrophyList = itemBestInfoTrophyList
+                                )
+
+                            }
+                            modalSheetState?.show()
+
+                            if (setDialogOpen != null) {
+                                setDialogOpen(true)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@Composable
+fun ScreenSearchAPI(
+    modalSheetState: ModalBottomSheetState?,
+    setDialogOpen: ((Boolean) -> Unit)?,
+    viewModelMain: ViewModelMain,
+) {
+
+    val viewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelDatabase: ViewModelDatabase = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+    val manavaraState = viewModelDatabase.state.collectAsState().value
+    val mainState = viewModelMain.state.collectAsState().value
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    LaunchedEffect(mainState.platform, manavaraState.searchQuery, manavaraState.itemBookInfoMap){
+        setBookSearch(
+            query = manavaraState.searchQuery,
+            platform = manavaraState.platform.ifEmpty { mainState.platform },
+            context = context
+        ) {
+            viewModelDatabase.setFilteredList(filteredList = it)
+        }
+    }
+
+    Spacer(modifier = Modifier.size(8.dp))
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(colorF6F6F6)
+    ) {
+
+        item{
+            TextField(
+                value = manavaraState.searchQuery,
+                onValueChange = {
+                    viewModelDatabase.setSearchQuery(it)
+                },
+                label = { Text("검색어 입력", color = color898989) },
+                singleLine = true,
+                colors = TextFieldDefaults.textFieldColors(
+                    containerColor = Color(0),
+                    textColor = color000000
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp, 0.dp, 16.dp, 0.dp)
+            )
+        }
+
+        item {
+            Spacer(modifier = Modifier.size(8.dp))
         }
 
         if(manavaraState.filteredList.isEmpty()){

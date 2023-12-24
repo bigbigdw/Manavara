@@ -530,7 +530,7 @@ fun ScreenDataBaseItem(
 
     } else if (mainState.menu.contains("작품 검색")) {
 
-        ScreenSearchDataBase(
+        ScreenSearchAPI(
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen,
             viewModelMain = viewModelMain,
