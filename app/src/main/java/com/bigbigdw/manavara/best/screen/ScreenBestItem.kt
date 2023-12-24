@@ -1,6 +1,5 @@
 package com.bigbigdw.manavara.best.screen
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -31,6 +30,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,6 +58,7 @@ import com.bigbigdw.manavara.best.getBookMapJson
 import com.bigbigdw.manavara.best.getTrophyWeekMonthJson
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
+import com.bigbigdw.manavara.best.setIsPicked
 import com.bigbigdw.manavara.best.viewModels.ViewModelBest
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.ui.theme.color000000
@@ -86,7 +87,7 @@ import kotlinx.coroutines.launch
 fun ScreenTodayBest(
     listState: LazyListState,
     modalSheetState: ModalBottomSheetState?,
-    setDialogOpen: ((Boolean) -> Unit)?,
+    dialogOpen: MutableState<Boolean>?,
     viewModelMain: ViewModelMain,
 ) {
 
@@ -99,29 +100,29 @@ fun ScreenTodayBest(
     val viewModelBest: ViewModelBest = viewModel(viewModelStoreOwner = viewModelStoreOwner)
     val bestState = viewModelBest.state.collectAsState().value
 
-    Log.d("ScreenTodayBest", "state.platform == ${mainState.platform}")
+    LaunchedEffect(mainState.platform){
 
-    LaunchedEffect(mainState.platform, mainState.type){
-
-        Log.d("ScreenTodayBest", "LaunchedEffect state.platform == ${mainState.platform}")
-
-        getBookMapJson(
+        setIsPicked(
+            context = context,
             platform = mainState.platform,
             type = mainState.type,
-            context = context
-        ){ itemBookInfoMap ->
+        ) { itemPickInfo ->
 
-            Log.d("ScreenTodayBest", "itemBookInfoMap == ${itemBookInfoMap.size}")
-
-            getBestListTodayJson(
-                context = context,
+            getBookMapJson(
                 platform = mainState.platform,
-                type = mainState.type
-            ) { itemBookInfoList ->
+                type = mainState.type,
+                context = context
+            ){ itemBookInfoMap ->
 
-                Log.d("ScreenTodayBest", "itemBookInfoMap == ${itemBookInfoMap.size} itemBookInfoList == ${itemBookInfoList.size}")
+                getBestListTodayJson(
+                    context = context,
+                    platform = mainState.platform,
+                    type = mainState.type,
+                    itemPickMap = itemPickInfo
+                ) { itemBookInfoList ->
 
-                viewModelBest.setItemBestInfoList(itemBookInfoMap = itemBookInfoMap, itemBookInfoList = itemBookInfoList)
+                    viewModelBest.setItemBestInfoList(itemBookInfoMap = itemBookInfoMap, itemBookInfoList = itemBookInfoList)
+                }
             }
         }
     }
@@ -140,6 +141,11 @@ fun ScreenTodayBest(
             ListBestToday(
                 itemBookInfo = item,
                 index = index,
+                backGroundColor = if(item.belong == "SHARED"){
+                    Color(0xFFEFE1FC)
+                } else {
+                    Color.White
+                }
             ){
 
                 getBookItemWeekTrophy(
@@ -156,9 +162,7 @@ fun ScreenTodayBest(
                 coroutineScope.launch {
                     modalSheetState?.show()
 
-                    if (setDialogOpen != null) {
-                        setDialogOpen(true)
-                    }
+                    dialogOpen?.value = true
                 }
             }
         }
@@ -171,6 +175,7 @@ fun ScreenTodayBest(
 fun ListBestToday(
     itemBookInfo: ItemBookInfo,
     index: Int,
+    backGroundColor : Color = Color.White,
     onClick: () -> Unit
 ) {
 
@@ -198,7 +203,7 @@ fun ListBestToday(
                 .fillMaxWidth()
                 .height(56.dp),
             shape = RoundedCornerShape(25.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+            colors = ButtonDefaults.buttonColors(containerColor = backGroundColor),
             onClick = {
                 onClick()
             },
@@ -301,7 +306,7 @@ fun ListBestToday(
 @Composable
 fun ScreenTodayWeek(
     modalSheetState: ModalBottomSheetState?,
-    setDialogOpen: ((Boolean) -> Unit)?,
+    dialogOpen: MutableState<Boolean>?,
     viewModelMain: ViewModelMain,
 ) {
 
@@ -418,9 +423,7 @@ fun ScreenTodayWeek(
 
                             modalSheetState?.show()
 
-                            if (setDialogOpen != null) {
-                                setDialogOpen(true)
-                            }
+                            dialogOpen?.value = true
 
                             listState.scrollToItem(index = 0)
                         }
@@ -449,9 +452,7 @@ fun ScreenTodayWeek(
                             coroutineScope.launch {
                                 modalSheetState?.show()
 
-                                if (setDialogOpen != null) {
-                                    setDialogOpen(true)
-                                }
+                                dialogOpen?.value = true
                             }
                         }
                     }
@@ -471,7 +472,7 @@ fun ScreenTodayWeek(
 @Composable
 fun ScreenTodayMonth(
     modalSheetState: ModalBottomSheetState?,
-    setDialogOpen: ((Boolean) -> Unit)?,
+    dialogOpen: MutableState<Boolean>?,
     viewModelMain: ViewModelMain,
 ) {
 
@@ -591,9 +592,7 @@ fun ScreenTodayMonth(
 
                             modalSheetState?.show()
 
-                            if (setDialogOpen != null) {
-                                setDialogOpen(true)
-                            }
+                            dialogOpen?.value = true
                         }
                     }
                 }
@@ -644,9 +643,7 @@ fun ScreenTodayMonth(
 
                                 modalSheetState?.show()
 
-                                if (setDialogOpen != null) {
-                                    setDialogOpen(true)
-                                }
+                                dialogOpen?.value = true
                             }
                         }
                     }

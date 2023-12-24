@@ -69,6 +69,29 @@ class ViewModelMain @Inject constructor() : ViewModel() {
                 current.copy(itemBookInfo = event.itemBookInfo, itemBestInfoTrophyList = event.itemBestInfoTrophyList)
             }
 
+            is EventMain.SetItemPickInfo -> {
+                current.copy(menu = event.menu, platform = event.platform, detail = event.detail, type = event.type, itemPickInfo = event.itemPickInfo)
+            }
+
+        }
+    }
+
+    fun setItemPickInfo(
+        menu: String = state.value.menu,
+        platform: String = state.value.platform,
+        detail: String = state.value.detail,
+        type: String = state.value.type,
+        itemPickInfo: MutableMap<String, ItemBookInfo>
+    ) {
+        viewModelScope.launch {
+            events.send(
+                EventMain.SetItemPickInfo(
+                    menu = menu,
+                    platform = platform,
+                    detail = detail,
+                    type = type, itemPickInfo = itemPickInfo
+                )
+            )
         }
     }
 
@@ -96,16 +119,22 @@ class ViewModelMain @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setIsPicked(context: Context, type: String, platform: String, bookCode: String, uid: String = "ecXPTeFiDnV732gOiaD8u525NnE3"){
+    fun setIsPicked(
+        context: Context,
+        type: String,
+        platform: String,
+        bookCode: String,
+        uid: String = "ecXPTeFiDnV732gOiaD8u525NnE3"
+    ) {
 
         val dataStore = DataStoreManager(context)
 
         viewModelScope.launch {
-            dataStore.getDataStoreString(UID).collect{
+            dataStore.getDataStoreString(UID).collect {
                 val mRootRef = FirebaseDatabase.getInstance().reference
                     .child("USER")
-                    .child(uid)
-//                    .child(it ?: uid)
+//                    .child(uid)
+                    .child(it ?: uid)
                     .child("PICK")
                     .child("MY")
                     .child(type)
@@ -117,10 +146,10 @@ class ViewModelMain @Inject constructor() : ViewModel() {
 
                         if (dataSnapshot.exists()) {
 
-                            for(item in dataSnapshot.children){
+                            for (item in dataSnapshot.children) {
                                 val itemBookInfo = item.getValue(ItemBookInfo::class.java)
 
-                                if(itemBookInfo?.bookCode.equals(bookCode)){
+                                if (itemBookInfo?.bookCode.equals(bookCode)) {
                                     viewModelScope.launch {
                                         events.send(EventMain.SetIsPicked(true))
                                     }
@@ -151,8 +180,8 @@ class ViewModelMain @Inject constructor() : ViewModel() {
             dataStore.getDataStoreString(UID).collect{
                 val rootRef = FirebaseDatabase.getInstance().reference
                     .child("USER")
-                    .child(uid)
-//                    .child(it ?: uid)
+//                    .child(uid)
+                    .child(it ?: uid)
                     .child("PICK")
                     .child("MY")
                     .child(type)
@@ -185,8 +214,8 @@ class ViewModelMain @Inject constructor() : ViewModel() {
             dataStore.getDataStoreString(UID).collect{
                 val rootRef = FirebaseDatabase.getInstance().reference
                     .child("USER")
-                    .child(uid)
-//                    .child(it ?: uid)
+//                    .child(uid)
+                    .child(it ?: uid)
                     .child("PICK")
                     .child("MY")
                     .child(type)

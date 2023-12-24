@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
@@ -38,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,6 +62,7 @@ import com.bigbigdw.manavara.best.getBestListTodayJson
 import com.bigbigdw.manavara.best.getBestListTodayStorage
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
+import com.bigbigdw.manavara.best.setIsPicked
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color4AD7CF
@@ -86,7 +87,6 @@ import deleteJson
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
@@ -110,17 +110,34 @@ fun ScreenBest(
 
         val platform = getRandomPlatform()
 
-        runBlocking {
-            getBestListTodayJson(
-                context = context, platform = platform, type = currentRoute
-            ) { json ->
+        setIsPicked(
+            context = context,
+            type = currentRoute,
+            platform = platform
+        ) { itemPickInfo ->
 
+            viewModelMain.setItemPickInfo(
+                type = currentRoute,
+                platform = platform,
+                detail = "투데이 베스트",
+                menu = changePlatformNameKor(platform),
+                itemPickInfo = itemPickInfo
+            )
+
+            getBestListTodayJson(
+                context = context,
+                platform = platform,
+                type = currentRoute,
+                itemPickMap = itemPickInfo
+            ) { json ->
                 if (json.isNotEmpty()) {
                     getBestListTodayStorage(
                         context = context,
                         platform = platform,
-                        type = currentRoute
+                        type = currentRoute,
+                        itemPickMap = itemPickInfo
                     ) { storage ->
+
                         if (json.isNotEmpty() && storage.isNotEmpty()) {
 
                             if (areListsEqual(json, storage)) {
@@ -133,16 +150,8 @@ fun ScreenBest(
                         }
                     }
                 }
-
             }
         }
-
-        viewModelMain.setScreen(
-            type = currentRoute,
-            platform = platform,
-            detail = "투데이 베스트",
-            menu = changePlatformNameKor(platform)
-        )
 
         coroutineScope.launch {
             viewModelMain.sideEffects.onEach {
@@ -160,12 +169,11 @@ fun ScreenBest(
     ) {
         if (isExpandedScreen) {
 
-            val (getDialogOpen, setDialogOpen) = remember { mutableStateOf(false) }
+            val dialogOpen = remember { mutableStateOf(false) }
 
-
-            if (getDialogOpen) {
+            if (dialogOpen.value) {
                 BestDialog(
-                    onDismissRequest = { setDialogOpen(false) },
+                    onDismissRequest = { dialogOpen.value = false },
                     itemBestInfoTrophyList = mainState.itemBestInfoTrophyList,
                     item = mainState.itemBookInfo,
                     isExpandedScreen = isExpandedScreen,
@@ -211,11 +219,34 @@ fun ScreenBest(
                             .background(color = colorF6F6F6)
                     )
 
-                    ScreenMainBestDetail(
-                        listState = listState,
-                        setDialogOpen = setDialogOpen,
-                        viewModelMain = viewModelMain
-                    )
+                    Column {
+                        Spacer(modifier = Modifier.size(16.dp))
+
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Image(
+                                painter = painterResource(id = R.drawable.icon_arrow_left),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .width(30.dp)
+                                    .height(30.dp)
+                            )
+
+                            Text(
+                                modifier = Modifier.padding(16.dp, 0.dp, 0.dp, 0.dp),
+                                text = "${mainState.menu} ${mainState.detail}",
+                                fontSize = 24.sp,
+                                color = color000000,
+                                fontWeight = FontWeight(weight = 700)
+                            )
+                        }
+
+                        ScreenMainBestItemDetail(
+                            modalSheetState = null,
+                            dialogOpen = dialogOpen,
+                            listState = listState,
+                            viewModelMain = viewModelMain
+                        )
+                    }
                 }
             }
 
@@ -272,7 +303,7 @@ fun ScreenBest(
                     ) {
                         ScreenMainBestItemDetail(
                             modalSheetState = modalSheetState,
-                            setDialogOpen = null,
+                            dialogOpen = null,
                             listState = listState,
                             viewModelMain = viewModelMain
                         )
@@ -367,56 +398,10 @@ fun ScreenBestPropertyList(
 }
 
 @OptIn(ExperimentalMaterialApi::class)
-@SuppressLint("MutableCollectionMutableState")
-@Composable
-fun ScreenMainBestDetail(
-    listState: LazyListState,
-    setDialogOpen: (Boolean) -> Unit,
-    viewModelMain: ViewModelMain,
-) {
-
-    val state = viewModelMain.state.collectAsState().value
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(color = colorF6F6F6)
-    ) {
-
-        Spacer(modifier = Modifier.size(16.dp))
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter = painterResource(id = R.drawable.icon_arrow_left),
-                contentDescription = null,
-                modifier = Modifier
-                    .width(30.dp)
-                    .height(30.dp)
-            )
-
-            Text(
-                modifier = Modifier.padding(16.dp, 0.dp, 0.dp, 0.dp),
-                text = "${state.menu} ${state.detail}",
-                fontSize = 24.sp,
-                color = color000000,
-                fontWeight = FontWeight(weight = 700)
-            )
-        }
-
-        ScreenMainBestItemDetail(
-            modalSheetState = null,
-            setDialogOpen = setDialogOpen,
-            listState = listState,
-            viewModelMain = viewModelMain
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScreenMainBestItemDetail(
     modalSheetState: ModalBottomSheetState? = null,
-    setDialogOpen: ((Boolean) -> Unit)?,
+    dialogOpen: MutableState<Boolean>?,
     listState: LazyListState,
     viewModelMain: ViewModelMain,
 ) {
@@ -428,7 +413,7 @@ fun ScreenMainBestItemDetail(
         ScreenTodayBest(
             listState = listState,
             modalSheetState = modalSheetState,
-            setDialogOpen = setDialogOpen,
+            dialogOpen = dialogOpen,
             viewModelMain = viewModelMain
         )
 
@@ -436,7 +421,7 @@ fun ScreenMainBestItemDetail(
 
         ScreenTodayWeek(
             modalSheetState = modalSheetState,
-            setDialogOpen = setDialogOpen,
+            dialogOpen = dialogOpen,
             viewModelMain = viewModelMain
         )
 
@@ -446,7 +431,7 @@ fun ScreenMainBestItemDetail(
 
         ScreenTodayMonth(
             modalSheetState = modalSheetState,
-            setDialogOpen = setDialogOpen,
+            dialogOpen = dialogOpen,
             viewModelMain = viewModelMain
         )
 
@@ -511,6 +496,7 @@ fun BestDialog(
                         type = "NOVEL", platform = item.platform, item = item, context = context
                     )
                 }
+
                 onDismissRequest()
             },
             onClickRight = {

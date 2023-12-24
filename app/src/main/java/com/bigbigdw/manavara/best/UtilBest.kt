@@ -5,6 +5,7 @@ import android.util.Log
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.util.DBDate
+import com.bigbigdw.manavara.util.DataStoreManager
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -12,6 +13,9 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import convertItemBookJson
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.json.JSONArray
 import org.json.JSONObject
@@ -23,7 +27,8 @@ fun getBestListTodayJson(
     context: Context,
     platform: String,
     type: String,
-    callbacks: (ArrayList<ItemBookInfo>) -> Unit
+    itemPickMap: MutableMap<String, ItemBookInfo>,
+    callbacks: (ArrayList<ItemBookInfo>) -> Unit,
 ) {
 
     val filePath = File(context.filesDir, "BEST_DAY_${type}_${platform}.json").absolutePath
@@ -31,7 +36,7 @@ fun getBestListTodayJson(
     try {
         val jsonString = File(filePath).readText(Charset.forName("UTF-8"))
 
-        getBestToday(jsonString){
+        getBestToday(jsonString = jsonString, itemPickMap = itemPickMap){
             callbacks.invoke(it)
         }
 
@@ -39,7 +44,7 @@ fun getBestListTodayJson(
 
         Log.d("getBestListTodayJson", "getBestListTodayJson ==$exception")
 
-        getBestListTodayStorage(context = context, platform = platform, type = type) {
+        getBestListTodayStorage(context = context, platform = platform, type = type, itemPickMap = itemPickMap) {
             callbacks.invoke(it)
         }
     }
@@ -49,7 +54,8 @@ fun getBestListTodayStorage(
     context: Context,
     platform: String,
     type: String,
-    callbacks: (ArrayList<ItemBookInfo>) -> Unit
+    itemPickMap: MutableMap<String, ItemBookInfo>,
+    callbacks: (ArrayList<ItemBookInfo>) -> Unit,
 ) {
 
     try {
@@ -63,12 +69,12 @@ fun getBestListTodayStorage(
             try {
                 val jsonString = todayFile.readText(Charset.forName("UTF-8"))
 
-                getBestToday(jsonString){
+                getBestToday(jsonString = jsonString, itemPickMap = itemPickMap){
                     callbacks.invoke(it)
                 }
 
             }catch (E : Exception){
-                getBestList(platform = platform, type = type) {
+                getBestList(platform = platform, type = type, itemPickMap = itemPickMap) {
                     callbacks.invoke(it)
                 }
             }
@@ -77,13 +83,13 @@ fun getBestListTodayStorage(
 
             Log.d("getBestListTodayStorage", "getBestListTodayJson ==$exception")
 
-            getBestList(platform = platform, type = type) {
+            getBestList(platform = platform, type = type, itemPickMap = itemPickMap){
                 callbacks.invoke(it)
             }
         }
 
     } catch (e: Exception) {
-        getBestList(platform = platform, type = type) {
+        getBestList(platform = platform, type = type, itemPickMap = itemPickMap){
             callbacks.invoke(it)
         }
     }
@@ -92,7 +98,8 @@ fun getBestListTodayStorage(
 private fun getBestList(
     platform: String,
     type: String,
-    callbacks: (ArrayList<ItemBookInfo>) -> Unit
+    itemPickMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
+    callbacks: (ArrayList<ItemBookInfo>) -> Unit,
 ) {
 
     val mRootRef =
@@ -110,6 +117,13 @@ private fun getBestList(
                     val item: ItemBookInfo? =
                         dataSnapshot.child(book.key ?: "").getValue(ItemBookInfo::class.java)
                     if (item != null) {
+
+                        if(itemPickMap[item.bookCode] != null){
+                            item.belong = "SHARED"
+                        } else {
+                            item.belong = ""
+                        }
+
                         bestList.add(item)
                     }
                 }
@@ -491,7 +505,11 @@ fun getBestWeekMonth(jsonString : String, callbacks: (ArrayList<ArrayList<ItemBo
     callbacks.invoke(weekJsonList)
 }
 
-fun getBestToday(jsonString : String, callbacks: (ArrayList<ItemBookInfo>) -> Unit){
+fun getBestToday(
+    jsonString: String,
+    itemPickMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
+    callbacks: (ArrayList<ItemBookInfo>) -> Unit,
+) {
 
     val json = Json { ignoreUnknownKeys = true }
     val itemList = json.decodeFromString<List<ItemBookInfo>>(jsonString)
@@ -499,8 +517,64 @@ fun getBestToday(jsonString : String, callbacks: (ArrayList<ItemBookInfo>) -> Un
     val todayJsonList = ArrayList<ItemBookInfo>()
 
     for (item in itemList) {
+
+        if(itemPickMap[item.bookCode] != null){
+            item.belong = "SHARED"
+        } else {
+            item.belong = ""
+        }
+
         todayJsonList.add(item)
     }
 
     callbacks.invoke(todayJsonList)
+}
+
+fun setIsPicked(
+    context: Context,
+    type: String,
+    platform: String,
+    uid: String = "ecXPTeFiDnV732gOiaD8u525NnE3",
+    callbacks: (MutableMap<String, ItemBookInfo>) -> Unit
+) {
+
+    val dataStore = DataStoreManager(context)
+
+    CoroutineScope(Dispatchers.IO).launch {
+        dataStore.getDataStoreString(DataStoreManager.UID).collect {
+            val mRootRef = FirebaseDatabase.getInstance().reference
+                .child("USER")
+//                    .child(uid)
+                .child(it ?: uid)
+                .child("PICK")
+                .child("MY")
+                .child(type)
+                .child(platform)
+
+            mRootRef.addListenerForSingleValueEvent(object :
+                ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+
+                    val pickMap = mutableMapOf<String, ItemBookInfo>()
+
+                    if (dataSnapshot.exists()) {
+
+                        for (item in dataSnapshot.children) {
+                            val itemBookInfo = item.getValue(ItemBookInfo::class.java)
+
+                            if (itemBookInfo != null) {
+                                pickMap[itemBookInfo.bookCode] = itemBookInfo
+                            }
+                        }
+
+                        callbacks.invoke(pickMap)
+                    } else {
+                        callbacks.invoke(pickMap)
+                    }
+                }
+
+                override fun onCancelled(databaseError: DatabaseError) {}
+            })
+        }
+    }
 }

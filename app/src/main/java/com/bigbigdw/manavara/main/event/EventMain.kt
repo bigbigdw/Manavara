@@ -36,6 +36,14 @@ sealed interface EventMain{
         val detail: String = "",
         val type: String = "",
     ) : EventMain
+
+    class SetItemPickInfo(
+        val menu: String = "",
+        val platform: String = "",
+        val detail: String = "",
+        val type: String = "",
+        val itemPickInfo : MutableMap<String, ItemBookInfo> = mutableMapOf()
+    ) : EventMain
 }
 
 data class StateMain(
@@ -49,6 +57,7 @@ data class StateMain(
     val detail: String = "",
     val type: String = "",
     val itemBestInfoTrophyList : ArrayList<ItemBestInfo> = ArrayList(),
-    val itemBookInfo : ItemBookInfo = ItemBookInfo()
+    val itemBookInfo : ItemBookInfo = ItemBookInfo(),
+    val itemPickInfo : MutableMap<String, ItemBookInfo> = mutableMapOf()
 )
 
