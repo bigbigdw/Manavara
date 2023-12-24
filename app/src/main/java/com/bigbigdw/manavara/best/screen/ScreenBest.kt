@@ -62,7 +62,6 @@ import com.bigbigdw.manavara.best.getBestListTodayJson
 import com.bigbigdw.manavara.best.getBestListTodayStorage
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
-import com.bigbigdw.manavara.best.viewModels.ViewModelBest
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color4AD7CF
@@ -98,15 +97,14 @@ fun ScreenBest(
 ) {
 
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     val viewModelStoreOwner =
         checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
-    val viewModelBest: ViewModelBest = viewModel(viewModelStoreOwner = viewModelStoreOwner)
-    val coroutineScope = rememberCoroutineScope()
-    val state = viewModelBest.state.collectAsState().value
-    val item = state.itemBookInfo
+    val viewModelMain: ViewModelMain = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+    val mainState = viewModelMain.state.collectAsState().value
     val listState = rememberLazyListState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val (getFab, setFab) = remember { mutableStateOf(false) }
+    val isFab = remember { mutableStateOf(false) }
 
     LaunchedEffect(currentRoute) {
 
@@ -128,8 +126,8 @@ fun ScreenBest(
                             if (areListsEqual(json, storage)) {
                                 deleteJson(
                                     context = context,
-                                    platform = currentRoute,
-                                    type = "NOVEL",
+                                    platform = platform,
+                                    type = currentRoute,
                                 )
                             }
                         }
@@ -139,7 +137,7 @@ fun ScreenBest(
             }
         }
 
-        viewModelBest.setScreen(
+        viewModelMain.setScreen(
             type = currentRoute,
             platform = platform,
             detail = "투데이 베스트",
@@ -147,104 +145,105 @@ fun ScreenBest(
         )
 
         coroutineScope.launch {
-            viewModelBest.sideEffects.onEach {
-                    Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-                }.launchIn(coroutineScope)
+            viewModelMain.sideEffects.onEach {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            }.launchIn(coroutineScope)
 
         }
 
     }
 
-    if (state.platform.isNotEmpty()) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color = colorF6F6F6)
-        ) {
-            if (isExpandedScreen) {
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = colorF6F6F6)
+    ) {
+        if (isExpandedScreen) {
 
-                val (getDialogOpen, setDialogOpen) = remember { mutableStateOf(false) }
+            val (getDialogOpen, setDialogOpen) = remember { mutableStateOf(false) }
 
 
-                if (getDialogOpen) {
-                    BestDialog(
-                        onDismissRequest = { setDialogOpen(false) },
-                        itemBestInfoTrophyList = state.itemBestInfoTrophyList,
-                        item = item,
-                        isExpandedScreen = isExpandedScreen,
-                        type = state.type
+            if (getDialogOpen) {
+                BestDialog(
+                    onDismissRequest = { setDialogOpen(false) },
+                    itemBestInfoTrophyList = mainState.itemBestInfoTrophyList,
+                    item = mainState.itemBookInfo,
+                    isExpandedScreen = isExpandedScreen,
+                    type = mainState.type
+                )
+            }
+
+            Scaffold(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = colorF6F6F6),
+                floatingActionButton = {
+                    Column {
+                        if (isFab.value) {
+                            BestScreenFab(
+                                setFab = { isFab.value = false },
+                                viewModelMain = viewModelMain
+                            )
+                        } else {
+                            BestScreenFabResult(
+                                setFab = { isFab.value = true }, detail = mainState.detail
+                            )
+                        }
+                    }
+                }, floatingActionButtonPosition = FabPosition.End
+            ) {
+
+                Row(
+                    modifier = Modifier
+                        .padding(it)
+                        .background(color = colorF6F6F6)
+                ) {
+                    ScreenBestPropertyList(
+                        listState = listState,
+                        drawerState = drawerState,
+                        viewModelMain = viewModelMain
+                    )
+
+                    Spacer(
+                        modifier = Modifier
+                            .width(16.dp)
+                            .fillMaxHeight()
+                            .background(color = colorF6F6F6)
+                    )
+
+                    ScreenMainBestDetail(
+                        listState = listState,
+                        setDialogOpen = setDialogOpen,
+                        viewModelMain = viewModelMain
                     )
                 }
+            }
 
+        } else {
+
+            val modalSheetState = rememberModalBottomSheetState(
+                initialValue = ModalBottomSheetValue.Hidden,
+                confirmValueChange = { it != ModalBottomSheetValue.HalfExpanded },
+                skipHalfExpanded = false
+            )
+
+            ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
+
+                ScreenBestPropertyList(
+                    listState = listState,
+                    drawerState = drawerState,
+                    viewModelMain = viewModelMain
+                )
+
+            }) {
                 Scaffold(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(color = colorF6F6F6),
-                    floatingActionButton = {
-                        Column {
-                            if (getFab) {
-                                BestScreenFab(viewModelBest = viewModelBest,
-                                    setFab = { setFab(false) })
-                            } else {
-                                BestScreenFabResult(
-                                    setFab = { setFab(true) }, detail = state.detail
-                                )
-                            }
-                        }
-                    }, floatingActionButtonPosition = FabPosition.End
-                ) {
-
-                    Row(
-                        modifier = Modifier
-                            .padding(it)
-                            .background(color = colorF6F6F6)
-                    ) {
-                        ScreenBestPropertyList(
-                            listState = listState,
-                            drawerState = drawerState,
-                            viewModelBest = viewModelBest
-                        )
-
-                        Spacer(
-                            modifier = Modifier
-                                .width(16.dp)
-                                .fillMaxHeight()
-                                .background(color = colorF6F6F6)
-                        )
-
-                        ScreenMainBestDetail(
-                            listState = listState,
-                            setDialogOpen = setDialogOpen,
-                            viewModelBest = viewModelBest,
-                        )
-                    }
-                }
-
-            } else {
-
-                val modalSheetState = rememberModalBottomSheetState(
-                    initialValue = ModalBottomSheetValue.Hidden,
-                    confirmValueChange = { it != ModalBottomSheetValue.HalfExpanded },
-                    skipHalfExpanded = false
-                )
-
-                ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
-
-                    ScreenBestPropertyList(
-                        listState = listState,
-                        drawerState = drawerState,
-                        viewModelBest = viewModelBest
-                    )
-
-                }) {
-                    Scaffold(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(color = colorF6F6F6),
-                        topBar = {
+                    topBar = {
                         ScreenTopbar(
-                            detail = "${changePlatformNameKor(state.platform)} ${state.detail}",
-                            menu = "${changePlatformNameKor(state.platform)} ${state.menu}"
+                            detail = "${changePlatformNameKor(mainState.platform)} ${mainState.detail}",
+                            menu = "${changePlatformNameKor(mainState.platform)} ${mainState.menu}"
                         ) {
                             coroutineScope.launch {
                                 drawerState.open()
@@ -252,62 +251,63 @@ fun ScreenBest(
                         }
                     }, floatingActionButton = {
                         Column {
-                            if (getFab) {
-                                BestScreenFab(viewModelBest = viewModelBest,
-                                    setFab = { setFab(false) })
+                            if (isFab.value) {
+                                BestScreenFab(
+                                    setFab = { isFab.value = false },
+                                    viewModelMain = viewModelMain
+                                )
                             } else {
                                 BestScreenFabResult(
-                                    setFab = { setFab(true) }, detail = state.detail
+                                    setFab = { isFab.value = true }, detail = mainState.detail
                                 )
                             }
                         }
                     }, floatingActionButtonPosition = FabPosition.End
+                ) {
+                    Box(
+                        Modifier
+                            .padding(it)
+                            .background(color = colorF6F6F6)
+                            .fillMaxSize()
                     ) {
-                        Box(
-                            Modifier
-                                .padding(it)
-                                .background(color = colorF6F6F6)
-                                .fillMaxSize()
-                        ) {
-                            ScreenMainBestItemDetail(
-                                modalSheetState = modalSheetState,
-                                setDialogOpen = null,
-                                listState = listState,
-                                viewModelBest = viewModelBest
-                            )
-                        }
-                    }
-
-                    if (modalSheetState.isVisible) {
-                        ModalBottomSheetLayout(
-                            sheetState = modalSheetState,
-                            sheetElevation = 50.dp,
-                            sheetShape = RoundedCornerShape(
-                                topStart = 25.dp, topEnd = 25.dp
-                            ),
-                            sheetContent = {
-
-                                if (currentRoute == "NOVEL" || currentRoute == "COMIC") {
-
-                                    Spacer(modifier = Modifier.size(4.dp))
-
-                                    BestBottomDialog(
-                                        itemBestInfoTrophyList = state.itemBestInfoTrophyList,
-                                        item = state.itemBookInfo,
-                                        isExpandedScreen = isExpandedScreen,
-                                        modalSheetState = modalSheetState,
-                                        currentRoute = currentRoute,
-                                    )
-                                } else {
-                                    ScreenTest()
-                                }
-                            },
-                        ) {}
+                        ScreenMainBestItemDetail(
+                            modalSheetState = modalSheetState,
+                            setDialogOpen = null,
+                            listState = listState,
+                            viewModelMain = viewModelMain
+                        )
                     }
                 }
 
-                BackOnPressedMobile(modalSheetState = modalSheetState)
+                if (modalSheetState.isVisible) {
+                    ModalBottomSheetLayout(
+                        sheetState = modalSheetState,
+                        sheetElevation = 50.dp,
+                        sheetShape = RoundedCornerShape(
+                            topStart = 25.dp, topEnd = 25.dp
+                        ),
+                        sheetContent = {
+
+                            if (currentRoute == "NOVEL" || currentRoute == "COMIC") {
+
+                                Spacer(modifier = Modifier.size(4.dp))
+
+                                BestBottomDialog(
+                                    itemBestInfoTrophyList = mainState.itemBestInfoTrophyList,
+                                    item = mainState.itemBookInfo,
+                                    isExpandedScreen = isExpandedScreen,
+                                    modalSheetState = modalSheetState,
+                                    currentRoute = currentRoute,
+                                )
+                            } else {
+                                ScreenTest()
+                            }
+                        },
+                    ) {}
+                }
             }
+
+            BackOnPressedMobile(modalSheetState = modalSheetState)
         }
     }
 }
@@ -315,11 +315,13 @@ fun ScreenBest(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenBestPropertyList(
-    listState: LazyListState, drawerState: DrawerState?, viewModelBest: ViewModelBest
+    listState: LazyListState,
+    drawerState: DrawerState?,
+    viewModelMain: ViewModelMain
 ) {
 
     val coroutineScope = rememberCoroutineScope()
-    val state = viewModelBest.state.collectAsState().value
+    val state = viewModelMain.state.collectAsState().value
 
     LazyColumn(
         modifier = Modifier
@@ -349,7 +351,7 @@ fun ScreenBestPropertyList(
                 value = item,
                 onClick = {
                     coroutineScope.launch {
-                        viewModelBest.setScreen(
+                        viewModelMain.setScreen(
                             menu = item,
                             platform = changePlatformNameEng(item),
                             type = state.type,
@@ -370,10 +372,10 @@ fun ScreenBestPropertyList(
 fun ScreenMainBestDetail(
     listState: LazyListState,
     setDialogOpen: (Boolean) -> Unit,
-    viewModelBest: ViewModelBest,
+    viewModelMain: ViewModelMain,
 ) {
 
-    val state = viewModelBest.state.collectAsState().value
+    val state = viewModelMain.state.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -405,7 +407,7 @@ fun ScreenMainBestDetail(
             modalSheetState = null,
             setDialogOpen = setDialogOpen,
             listState = listState,
-            viewModelBest = viewModelBest,
+            viewModelMain = viewModelMain
         )
     }
 }
@@ -416,10 +418,10 @@ fun ScreenMainBestItemDetail(
     modalSheetState: ModalBottomSheetState? = null,
     setDialogOpen: ((Boolean) -> Unit)?,
     listState: LazyListState,
-    viewModelBest: ViewModelBest,
+    viewModelMain: ViewModelMain,
 ) {
 
-    val state = viewModelBest.state.collectAsState().value
+    val state = viewModelMain.state.collectAsState().value
 
     if (state.detail.contains("투데이 베스트")) {
 
@@ -427,7 +429,7 @@ fun ScreenMainBestItemDetail(
             listState = listState,
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen,
-            viewModelBest = viewModelBest,
+            viewModelMain = viewModelMain
         )
 
     } else if (state.detail.contains("주간 베스트")) {
@@ -435,7 +437,7 @@ fun ScreenMainBestItemDetail(
         ScreenTodayWeek(
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen,
-            viewModelBest = viewModelBest
+            viewModelMain = viewModelMain
         )
 
     } else if (state.detail.contains("월간 베스트")) {
@@ -445,7 +447,7 @@ fun ScreenMainBestItemDetail(
         ScreenTodayMonth(
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen,
-            viewModelBest = viewModelBest
+            viewModelMain = viewModelMain
         )
 
     }
@@ -469,9 +471,12 @@ fun BestDialog(
 
     LaunchedEffect(item.bookCode) {
 
-        if(item.bookCode.isNotEmpty() && item.platform.isNotEmpty()){
+        if (item.bookCode.isNotEmpty() && item.platform.isNotEmpty()) {
             viewModelMain.setIsPicked(
-                context = context, type = "NOVEL", platform = item.platform, bookCode = item.bookCode
+                context = context,
+                type = "NOVEL",
+                platform = item.platform,
+                bookCode = item.bookCode
             )
         }
 
@@ -520,21 +525,21 @@ fun BestDialog(
 
             },
             btnLeft = if (state.isPicked) {
-            "작품 PICK 해제"
-        } else {
-            "작품 PICK 하기"
-        }, btnRight = "작품 보러가기", modifier = Modifier.requiredWidth(400.dp), contents = {
-            ScreenDialogBest(item = item,
-                trophy = itemBestInfoTrophyList,
-                isExpandedScreen = isExpandedScreen,
-                isPicked = state.isPicked,
-                btnPickText = if (state.isPicked) {
-                    "작품 PICK 해제"
-                } else {
-                    "작품 PICK 하기"
-                },
-                onClickLeft = {}) {}
-        })
+                "작품 PICK 해제"
+            } else {
+                "작품 PICK 하기"
+            }, btnRight = "작품 보러가기", modifier = Modifier.requiredWidth(400.dp), contents = {
+                ScreenDialogBest(item = item,
+                    trophy = itemBestInfoTrophyList,
+                    isExpandedScreen = isExpandedScreen,
+                    isPicked = state.isPicked,
+                    btnPickText = if (state.isPicked) {
+                        "작품 PICK 해제"
+                    } else {
+                        "작품 PICK 하기"
+                    },
+                    onClickLeft = {}) {}
+            })
     }
 }
 
@@ -558,9 +563,12 @@ fun BestBottomDialog(
 
     LaunchedEffect(item.bookCode) {
 
-        if(item.bookCode.isNotEmpty() && item.platform.isNotEmpty()){
+        if (item.bookCode.isNotEmpty() && item.platform.isNotEmpty()) {
             viewModelMain.setIsPicked(
-                context = context, type = "NOVEL", platform = item.platform, bookCode = item.bookCode
+                context = context,
+                type = "NOVEL",
+                platform = item.platform,
+                bookCode = item.bookCode
             )
 
         }
@@ -600,7 +608,7 @@ fun BestBottomDialog(
         onClickRight = {
             coroutineScope.launch {
 
-                if(item.bookCode.isNotEmpty()){
+                if (item.bookCode.isNotEmpty()) {
                     val intent = Intent(context, ActivityBestDetail::class.java)
                     intent.putExtra("BOOKCODE", item.bookCode)
                     intent.putExtra("PLATFORM", item.platform)
@@ -613,11 +621,11 @@ fun BestBottomDialog(
 }
 
 @Composable
-fun BestScreenFab(viewModelBest: ViewModelBest, setFab: () -> Unit) {
+fun BestScreenFab(setFab: () -> Unit, viewModelMain: ViewModelMain) {
     FloatingActionButton(
         onClick = {
             setFab()
-            viewModelBest.setScreen(
+            viewModelMain.setScreen(
                 detail = "투데이 베스트",
             )
         },
@@ -633,7 +641,7 @@ fun BestScreenFab(viewModelBest: ViewModelBest, setFab: () -> Unit) {
     FloatingActionButton(
         onClick = {
             setFab()
-            viewModelBest.setScreen(
+            viewModelMain.setScreen(
                 detail = "주간 베스트",
             )
         },
@@ -649,7 +657,7 @@ fun BestScreenFab(viewModelBest: ViewModelBest, setFab: () -> Unit) {
     FloatingActionButton(
         onClick = {
             setFab()
-            viewModelBest.setScreen(
+            viewModelMain.setScreen(
                 detail = "월간 베스트",
             )
         },

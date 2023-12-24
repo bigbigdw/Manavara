@@ -40,15 +40,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bigbigdw.manavara.best.getBookItemWeekTrophy
 import com.bigbigdw.manavara.dataBase.ActivityDataBaseDetail
 import com.bigbigdw.manavara.dataBase.getJsonFiles
 import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDatabase
 import com.bigbigdw.manavara.best.models.ItemKeyword
 import com.bigbigdw.manavara.best.screen.ListBestToday
-import com.bigbigdw.manavara.dataBase.getGenreKeywordJson
 import com.bigbigdw.manavara.dataBase.getGenreListWeekJson
 import com.bigbigdw.manavara.dataBase.setBookNewInfo
+import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.ui.theme.color1CE3EE
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
@@ -56,7 +58,6 @@ import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.util.DBDate
 import com.bigbigdw.manavara.util.changePlatformNameKor
 import com.bigbigdw.manavara.util.getWeekDate
-import com.bigbigdw.manavara.util.novelListEng
 import com.bigbigdw.manavara.util.screen.ItemTabletTitle
 import com.bigbigdw.manavara.util.screen.ScreenEmpty
 import com.bigbigdw.manavara.util.screen.ScreenItemKeyword
@@ -95,13 +96,15 @@ fun ScreenItemKeywordWeek(
     genreList: ArrayList<ItemKeyword> = ArrayList(),
     keywordList: ArrayList<ItemKeyword> = ArrayList(),
     mode: String = "GENRE",
-    dateType : String = "WEEK",
+    dateType: String = "WEEK",
     jsonNameList: List<String>,
     listState: LazyListState,
-    date: String,
-    viewModelDatabase: ViewModelDatabase
+    date: String
 ) {
 
+    val viewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelDatabase: ViewModelDatabase = viewModel(viewModelStoreOwner = viewModelStoreOwner)
     val coroutineScope = rememberCoroutineScope()
 
     LazyColumn(
@@ -172,23 +175,28 @@ fun ScreenItemKeywordWeek(
 
 @Composable
 fun ScreenGenreDetail(
-    viewModelDatabase: ViewModelDatabase,
-    mode : String
+    mode: String,
+    viewModelMain: ViewModelMain
 ) {
 
-    val state = viewModelDatabase.state.collectAsState().value
+    val viewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelDatabase: ViewModelDatabase = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+    val manavaraState = viewModelDatabase.state.collectAsState().value
+    val mainState = viewModelMain.state.collectAsState().value
     val context = LocalContext.current
 
-    LaunchedEffect(state.platform, state.type, state.jsonNameList, state.date) {
+    LaunchedEffect(mainState.platform, mainState.type) {
         getJsonFiles(
-            platform = state.platform,
-            type = state.type,
+            platform = mainState.platform,
+            type = mainState.type,
             root = "BEST_MONTH",
-        ) {
-            viewModelDatabase.setJsonNameList(it)
+        ) { jsonNameList ->
 
-            if (state.date.isEmpty()) {
-                viewModelDatabase.setDate(date = it.get(0))
+            if (manavaraState.date.isEmpty()) {
+                viewModelDatabase.setDate(date = jsonNameList[0], jsonNameList = jsonNameList)
+            } else {
+                viewModelDatabase.setJsonNameList(jsonNameList)
             }
         }
 
@@ -202,7 +210,7 @@ fun ScreenGenreDetail(
             .padding(16.dp, 0.dp, 16.dp, 0.dp)
     ) {
 
-        itemsIndexed(state.jsonNameList) { index, item ->
+        itemsIndexed(manavaraState.jsonNameList) { index, item ->
 
             Row(
                 Modifier
@@ -223,14 +231,22 @@ fun ScreenGenreDetail(
                         intent.putExtra(
                             "TITLE",
                             if (mode.contains("GENRE")) {
-                                "${changePlatformNameKor(state.platform)} ${convertDateStringMonth(item)} 장르"
+                                "${changePlatformNameKor(mainState.platform)} ${
+                                    convertDateStringMonth(
+                                        item
+                                    )
+                                } 장르"
                             } else {
-                                "${changePlatformNameKor(state.platform)} ${convertDateStringMonth(item)} 키워드"
+                                "${changePlatformNameKor(mainState.platform)} ${
+                                    convertDateStringMonth(
+                                        item
+                                    )
+                                } 키워드"
                             }
                         )
                         intent.putExtra("JSON", item)
-                        intent.putExtra("PLATFORM", state.platform)
-                        intent.putExtra("TYPE", state.type)
+                        intent.putExtra("PLATFORM", mainState.platform)
+                        intent.putExtra("TYPE", mainState.type)
                         intent.putExtra("MODE", mode)
                         context.startActivity(intent)
                     },
@@ -360,117 +376,105 @@ fun ListGenreKeywordToday(
 @Composable
 fun ScreenGenreKeyword(
     menuType: String,
-    viewModelDatabase: ViewModelDatabase,
-    dataType : String
+    dataType: String,
+    viewModelMain: ViewModelMain
 ) {
 
-    val state = viewModelDatabase.state.collectAsState().value
+    val viewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelDatabase: ViewModelDatabase = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+    val manavaraState = viewModelDatabase.state.collectAsState().value
+    val mainState = viewModelMain.state.collectAsState().value
     val listState = rememberLazyListState()
     val context = LocalContext.current
 
-    LaunchedEffect(menuType, state.platform, state.type, state.date) {
-        when (menuType) {
-            "투데이" -> {
-                getGenreKeywordJson(
-                    context = context,
-                    platform = state.platform,
-                    type = state.type,
-                    dataType = dataType
-                ) {
-                    viewModelDatabase.setGenreKeywordWeekList(genreKeywordList = it)
-                }
-            }
+    LaunchedEffect(menuType, mainState.platform, mainState.type, manavaraState.date) {
+        getJsonFiles(
+            platform = mainState.platform,
+            type = mainState.type,
+            root = if (menuType == "주간") {
+                "BEST_WEEK"
+            } else {
+                "BEST_MONTH"
+            },
+        ) { jsonNameList ->
 
-            else -> {
+            getGenreListWeekJson(
+                platform = mainState.platform,
+                type = mainState.type,
+                root = manavaraState.date.ifEmpty {
+                    jsonNameList[0]
+                },
+                dayType = if (menuType == "주간") {
+                    "WEEK"
+                } else {
+                    "MONTH"
+                },
+                dataType = dataType,
+                context = context
+            ) { weekList, list ->
 
-                getJsonFiles(
-                    platform = state.platform,
-                    type = state.type,
-                    root = if (menuType == "주간") {
-                        "BEST_WEEK"
-                    } else {
-                        "BEST_MONTH"
-                    },
-                ) { jsonNameList ->
-
-                    val date = state.date.ifEmpty {
+                viewModelDatabase.setGenreKeywordWeekList(
+                    genreWeekList = weekList,
+                    genreKeywordList = list,
+                    jsonNameList = jsonNameList,
+                    date = manavaraState.date.ifEmpty {
                         jsonNameList[0]
                     }
-
-                    getGenreListWeekJson(
-                        platform = state.platform,
-                        type = state.type,
-                        root = date,
-                        dayType = if (menuType == "주간") {
-                            "WEEK"
-                        } else {
-                            "MONTH"
-                        },
-                        dataType = dataType,
-                        context = context
-                    ) { weekList, list ->
-
-                        viewModelDatabase.setGenreKeywordWeekList(
-                            genreWeekList = weekList,
-                            genreKeywordList = list,
-                            jsonNameList = jsonNameList,
-                            date = date
-                        )
-                    }
-                }
+                )
             }
         }
     }
 
     Spacer(modifier = Modifier.size(8.dp))
 
-    when (menuType) {
-        "투데이" -> {
-            ScreenItemKeywordToday(state.genreKeywordList)
-        }
-
-        else -> {
-
-            ScreenItemKeywordWeek(
-                genreList = state.genreKeywordList,
-                jsonNameList = state.jsonNameList,
-                listState = listState,
-                date = state.date,
-                viewModelDatabase = viewModelDatabase,
-                dateType = if(menuType == "주간"){
-                    "WEEK"
-                } else {
-                    "MONTH"
-                }
-            )
-
-        }
+    if(manavaraState.jsonNameList.isNotEmpty()){
+        ScreenItemKeywordWeek(
+            genreList = manavaraState.genreKeywordList,
+            dateType = if (menuType == "주간") {
+                "WEEK"
+            } else {
+                "MONTH"
+            },
+            jsonNameList = manavaraState.jsonNameList,
+            listState = listState,
+            date = manavaraState.date.ifEmpty {
+                manavaraState.jsonNameList[0]
+            }
+        )
     }
 }
 
 @Composable
 fun GenreDetailJson(
-    viewModelDatabase: ViewModelDatabase,
     menuType: String,
-    type : String = "GENRE"
+    type: String = "GENRE",
+    viewModelMain: ViewModelMain
 ) {
 
-    val state = viewModelDatabase.state.collectAsState().value
+    val viewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelDatabase: ViewModelDatabase = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+    val dataBaseState = viewModelDatabase.state.collectAsState().value
+    val mainState = viewModelMain.state.collectAsState().value
     val context = LocalContext.current
 
-    LaunchedEffect(menuType, state.platform, state.type) {
+    LaunchedEffect(menuType, dataBaseState.platform, dataBaseState.type) {
         getGenreListWeekJson(
             context = context,
-            platform = state.platform,
-            type = state.type,
-            dayType = if(menuType == "주간"){
+            platform = dataBaseState.platform.ifEmpty { mainState.platform },
+            type = dataBaseState.type.ifEmpty { mainState.type },
+            dayType = if (menuType == "주간") {
                 "WEEK"
             } else {
                 "MONTH"
             },
             dataType = type,
         ) { genreWeekList, genreList ->
-            viewModelDatabase.setGenreKeywordWeekList(genreWeekList = genreWeekList, genreKeywordList = genreList)
+            viewModelDatabase.setGenreKeywordWeekList(
+                genreWeekList = genreWeekList,
+                genreKeywordList = genreList
+            )
         }
     }
 
@@ -483,7 +487,7 @@ fun GenreDetailJson(
 
             Column(modifier = Modifier.background(color = colorF6F6F6)) {
                 LazyRow(
-                    modifier =  Modifier.padding(16.dp, 8.dp, 0.dp, 8.dp),
+                    modifier = Modifier.padding(16.dp, 8.dp, 0.dp, 8.dp),
                 ) {
 
                     itemsIndexed(weekListAll()) { index, item ->
@@ -507,30 +511,37 @@ fun GenreDetailJson(
                             .padding(16.dp, 0.dp, 16.dp, 0.dp)
                     ) {
 
-                        itemsIndexed(state.genreKeywordList) { index, item ->
+                        itemsIndexed(dataBaseState.genreKeywordList) { index, item ->
                             ListGenreKeywordToday(
                                 title = item.key,
-                                value = item.value,
+                                value = if (type == "GENRE") {
+                                    item.value
+                                } else {
+                                    val wordCount = item.value.split("\\s+".toRegex())
+                                        .count { it.isNotEmpty() }
+                                    wordCount.toString()
+                                },
                                 index = index
                             )
                         }
                     }
                 } else {
 
-                    if(state.genreKeywordWeekList[getWeekDate(getDate)].size > 0){
+                    if (dataBaseState.genreKeywordWeekList[getWeekDate(getDate)].size > 0) {
                         LazyColumn(
                             modifier = Modifier
                                 .background(colorF6F6F6)
                                 .padding(16.dp, 0.dp, 16.dp, 0.dp)
                         ) {
 
-                            itemsIndexed(state.genreKeywordWeekList[getWeekDate(getDate)]) { index, item ->
+                            itemsIndexed(dataBaseState.genreKeywordWeekList[getWeekDate(getDate)]) { index, item ->
                                 ListGenreKeywordToday(
                                     title = item.key,
-                                    value = if(type == "GENRE"){
+                                    value = if (type == "GENRE") {
                                         item.value
-                                    } else{
-                                        val wordCount = item.value.split("\\s+".toRegex()).count { it.isNotEmpty() }
+                                    } else {
+                                        val wordCount = item.value.split("\\s+".toRegex())
+                                            .count { it.isNotEmpty() }
                                         wordCount.toString()
                                     },
                                     index = index
@@ -545,6 +556,7 @@ fun GenreDetailJson(
                 }
             }
         }
+
         else -> {
             val (getDate, setDate) = remember { mutableStateOf("전체") }
 
@@ -553,14 +565,14 @@ fun GenreDetailJson(
 
             var count = 0
 
-            for(item in state.genreKeywordWeekList){
+            for (item in dataBaseState.genreKeywordWeekList) {
                 count += 1
                 arrayList.add("${count}일")
             }
 
             Column(modifier = Modifier.background(color = colorF6F6F6)) {
                 LazyRow(
-                    modifier =  Modifier.padding(16.dp, 8.dp, 0.dp, 8.dp),
+                    modifier = Modifier.padding(16.dp, 8.dp, 0.dp, 8.dp),
                 ) {
                     itemsIndexed(arrayList) { index, item ->
                         Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
@@ -585,10 +597,10 @@ fun GenreDetailJson(
                             .padding(16.dp, 0.dp, 16.dp, 0.dp)
                     ) {
 
-                        item{
+                        item {
                             Button(
                                 colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                                onClick = {  },
+                                onClick = { },
                                 modifier = Modifier
                                     .fillMaxWidth(),
                                 shape = RoundedCornerShape(20.dp),
@@ -615,9 +627,14 @@ fun GenreDetailJson(
                             )
                         }
 
-                        item { ItemTabletTitle(str = "${DBDate.month()}월 전체", isTopPadding = false) }
+                        item {
+                            ItemTabletTitle(
+                                str = "${DBDate.month()}월 전체",
+                                isTopPadding = false
+                            )
+                        }
 
-                        itemsIndexed(state.genreKeywordList) { index, item ->
+                        itemsIndexed(dataBaseState.genreKeywordList) { index, item ->
                             ListGenreKeywordToday(
                                 title = item.key,
                                 value = item.value,
@@ -625,15 +642,15 @@ fun GenreDetailJson(
                             )
                         }
 
-                        itemsIndexed(state.genreKeywordWeekList) { index, item ->
+                        itemsIndexed(dataBaseState.genreKeywordWeekList) { index, item ->
 
-                            if(item.size > 0){
+                            if (item.size > 0) {
 
                                 ItemTabletTitle(str = "${DBDate.month()}월 ${index + 1}일")
 
-                                item.forEachIndexed{ innerIndex, innnerItem ->
+                                item.forEachIndexed { innerIndex, innnerItem ->
 
-                                    if(innerIndex < 5){
+                                    if (innerIndex < 5) {
                                         ListGenreKeywordToday(
                                             title = innnerItem.key,
                                             value = innnerItem.value,
@@ -648,20 +665,26 @@ fun GenreDetailJson(
                     }
                 } else {
 
-                    if(state.genreKeywordWeekList[getDate.replace("일","").toInt() - 1].size > 0){
+                    if (dataBaseState.genreKeywordWeekList[getDate.replace("일", "")
+                            .toInt() - 1].size > 0
+                    ) {
                         LazyColumn(
                             modifier = Modifier
                                 .background(colorF6F6F6)
                                 .padding(16.dp, 0.dp, 16.dp, 0.dp)
                         ) {
 
-                            itemsIndexed(state.genreKeywordWeekList[getDate.replace("일","").toInt() - 1]) { index, item ->
+                            itemsIndexed(
+                                dataBaseState.genreKeywordWeekList[getDate.replace("일", "")
+                                    .toInt() - 1]
+                            ) { index, item ->
                                 ListGenreKeywordToday(
                                     title = item.key,
-                                    value = if(type == "GENRE"){
+                                    value = if (type == "GENRE") {
                                         item.value
-                                    } else{
-                                        val wordCount = item.value.split("\\s+".toRegex()).count { it.isNotEmpty() }
+                                    } else {
+                                        val wordCount = item.value.split("\\s+".toRegex())
+                                            .count { it.isNotEmpty() }
 
                                         wordCount.toString()
                                     },
@@ -687,92 +710,93 @@ fun GenreDetailJson(
 fun ScreenBookList(
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
-    viewModelDatabase: ViewModelDatabase,
-    list : List<String>
+    list: List<String>,
+    viewModelMain: ViewModelMain
 ) {
 
-    val state = viewModelDatabase.state.collectAsState().value
+    val viewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelDatabase: ViewModelDatabase = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+    val dataBaseState = viewModelDatabase.state.collectAsState().value
+    val mainState = viewModelMain.state.collectAsState().value
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(state.platform, state.type){
+    LaunchedEffect(dataBaseState.platform, dataBaseState.type) {
         setBookNewInfo(
-            platform = state.platform,
+            platform = dataBaseState.platform.ifEmpty { mainState.platform },
             context = context
         ) {
             viewModelDatabase.setFilteredList(filteredList = it)
         }
     }
 
-    LazyColumn(
+    Column(
         modifier = Modifier
             .background(colorF6F6F6)
             .padding(16.dp, 0.dp, 16.dp, 0.dp)
             .fillMaxSize(),
     ) {
+        Spacer(modifier = Modifier.size(8.dp))
 
-        item {
-            Spacer(modifier = Modifier.size(8.dp))
-        }
-
-        item {
-            LazyRow(
-                modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 0.dp),
-            ) {
-                itemsIndexed(list) { index, item ->
-                    Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
-                        ScreenItemKeyword(
-                            getter = item,
-                            onClick = {
-                                coroutineScope.launch {
-                                    viewModelDatabase.setScreen(
-                                        platform = item,
-                                        type = state.type,
-                                        menu = state.menu,
-                                    )
-                                }
-                            },
-                            title = changePlatformNameKor(item),
-                            getValue = state.platform
-                        )
-                    }
-                }
-            }
-        }
-
-        item {
-            Spacer(modifier = Modifier.size(4.dp))
-        }
-
-        itemsIndexed(state.filteredList) { index, item ->
-            ListBestToday(
-                itemBookInfo = item,
-                index = index,
-            ){
-
-                getBookItemWeekTrophy(
-                    bookCode = item.bookCode,
-                    platform = state.platform,
-                    type = state.type
-                ){
-                    viewModelDatabase.setItemBestInfoTrophyList(
-                        itemBestInfoTrophyList = it,
-                        itemBookInfo = item
+        LazyRow(
+            modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 0.dp),
+        ) {
+            itemsIndexed(list) { index, item ->
+                Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
+                    ScreenItemKeyword(
+                        getter = item,
+                        onClick = {
+                            coroutineScope.launch {
+                                viewModelDatabase.setView(
+                                    platform = item,
+                                )
+                            }
+                        },
+                        title = changePlatformNameKor(item),
+                        getValue = dataBaseState.platform
                     )
                 }
+            }
+        }
 
-                coroutineScope.launch {
-                    modalSheetState?.show()
+        Spacer(modifier = Modifier.size(4.dp))
 
-                    if (setDialogOpen != null) {
-                        setDialogOpen(true)
+        LazyColumn(
+            modifier = Modifier
+                .background(colorF6F6F6)
+                .padding(16.dp, 0.dp, 16.dp, 0.dp)
+                .fillMaxSize(),
+        ) {
+
+            itemsIndexed(dataBaseState.filteredList) { index, item ->
+                ListBestToday(
+                    itemBookInfo = item,
+                    index = index,
+                ) {
+
+                    getBookItemWeekTrophy(
+                        bookCode = item.bookCode,
+                        platform = mainState.platform,
+                        type = mainState.type
+                    ) {
+                        viewModelMain.setItemBestInfoTrophyList(
+                            itemBestInfoTrophyList = it,
+                            itemBookInfo = item
+                        )
+                    }
+
+                    coroutineScope.launch {
+                        modalSheetState?.show()
+
+                        if (setDialogOpen != null) {
+                            setDialogOpen(true)
+                        }
                     }
                 }
             }
         }
 
-        item {
-            Spacer(modifier = Modifier.size(60.dp))
-        }
+        Spacer(modifier = Modifier.size(60.dp))
     }
 }

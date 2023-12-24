@@ -59,10 +59,18 @@ fun getBestListTodayStorage(
         val todayFile = File(context.filesDir, "BEST_DAY_${type}_${platform}.json")
 
         todayFileRef.getFile(todayFile).addOnSuccessListener { bytes ->
-            val jsonString = todayFile.readText(Charset.forName("UTF-8"))
 
-            getBestToday(jsonString){
-                callbacks.invoke(it)
+            try {
+                val jsonString = todayFile.readText(Charset.forName("UTF-8"))
+
+                getBestToday(jsonString){
+                    callbacks.invoke(it)
+                }
+
+            }catch (E : Exception){
+                getBestList(platform = platform, type = type) {
+                    callbacks.invoke(it)
+                }
             }
 
         }.addOnFailureListener { exception ->

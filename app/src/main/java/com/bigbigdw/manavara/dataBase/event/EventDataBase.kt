@@ -71,6 +71,15 @@ sealed interface EventDataBase{
     class SetItemBestDetailInfo(
         val itemBestDetailInfo : ItemBestDetailInfo = ItemBestDetailInfo()
     ) : EventDataBase
+
+    class SetScreenBestAnalyze(
+        val date: String = "",
+        val dateType: String = "",
+        val jsonNameList : List<String> = arrayListOf(),
+        var weekTrophyList: ArrayList<ItemBestInfo> = ArrayList(),
+        var itemBookInfoMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
+        val filteredList: ArrayList<ItemBookInfo> = ArrayList()
+    ) : EventDataBase
 }
 
 data class StateDataBase(

@@ -44,7 +44,10 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
             }
 
             is EventDataBase.SetItemBestInfoTrophyList -> {
-                current.copy(itemBookInfo = event.itemBookInfo, itemBestInfoTrophyList = event.itemBestInfoTrophyList)
+                current.copy(
+                    itemBookInfo = event.itemBookInfo,
+                    itemBestInfoTrophyList = event.itemBestInfoTrophyList
+                )
             }
 
             is EventDataBase.SetJsonNameList -> {
@@ -52,7 +55,14 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
             }
 
             is EventDataBase.SetScreen -> {
-                current.copy(menu = event.menu, platform = event.platform, detail = event.detail, type = event.type, menuDesc = event.menuDesc, date = event.date)
+                current.copy(
+                    menu = event.menu,
+                    platform = event.platform,
+                    detail = event.detail,
+                    type = event.type,
+                    menuDesc = event.menuDesc,
+                    date = event.date
+                )
             }
 
             is EventDataBase.SetGenreKeywordList -> {
@@ -60,7 +70,12 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
             }
 
             is EventDataBase.SetGenreKeywordWeekList -> {
-                current.copy(genreKeywordWeekList = event.genreWeekList, genreKeywordList = event.genreKeywordList, jsonNameList = event.jsonNameList, date = event.date)
+                current.copy(
+                    genreKeywordWeekList = event.genreWeekList,
+                    genreKeywordList = event.genreKeywordList,
+                    jsonNameList = event.jsonNameList,
+                    date = event.date
+                )
             }
 
             is EventDataBase.SetWeekTrophyList -> {
@@ -72,7 +87,11 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
             }
 
             is EventDataBase.SetDate -> {
-                current.copy(date = event.date, jsonNameList = event.jsonNameList, dateType = event.dateType)
+                current.copy(
+                    date = event.date,
+                    jsonNameList = event.jsonNameList,
+                    dateType = event.dateType
+                )
             }
 
             is EventDataBase.SetSearchQuery -> {
@@ -80,16 +99,65 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
             }
 
             is EventDataBase.SetSearch -> {
-                current.copy(filteredList = event.filteredList, itemBookInfoMap = event.itemBookInfoMap)
+                current.copy(
+                    filteredList = event.filteredList,
+                    itemBookInfoMap = event.itemBookInfoMap
+                )
             }
 
             is EventDataBase.SetItemBestDetailInfo -> {
                 current.copy(itemBestDetailInfo = event.itemBestDetailInfo)
             }
 
+            is EventDataBase.SetScreenBestAnalyze -> {
+                current.copy(
+                    date = event.date,
+                    dateType = event.dateType,
+                    jsonNameList = event.jsonNameList,
+                    weekTrophyList = event.weekTrophyList,
+                    itemBookInfoMap = event.itemBookInfoMap,
+                    filteredList = event.filteredList
+                )
+            }
+
             else -> {
                 current.copy(Loaded = false)
             }
+        }
+    }
+
+    fun setScreenBestAnalyze(
+        date: String,
+        dateType: String,
+        jsonNameList: List<String>,
+        weekTrophyList: ArrayList<ItemBestInfo>,
+        itemBookInfoMap: MutableMap<String, ItemBookInfo>
+    ) {
+
+        val filteredList: ArrayList<ItemBookInfo> = ArrayList()
+
+        if (weekTrophyList.isNotEmpty() && itemBookInfoMap.isNotEmpty()) {
+            for (trophyItem in weekTrophyList) {
+                val bookCode = trophyItem.bookCode
+                val bookInfo = itemBookInfoMap[bookCode]
+
+                if (bookInfo != null) {
+                    filteredList.add(bookInfo)
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            events.send(
+                EventDataBase.SetScreenBestAnalyze(
+                    date = date,
+                    dateType = dateType,
+                    jsonNameList = jsonNameList,
+                    weekTrophyList = weekTrophyList,
+                    itemBookInfoMap = itemBookInfoMap,
+                    filteredList = filteredList
+                )
+            )
         }
     }
 
@@ -109,13 +177,21 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setSearch(filteredList: ArrayList<ItemBookInfo>, itemBookInfoMap: MutableMap<String, ItemBookInfo>){
+    fun setSearch(
+        filteredList: ArrayList<ItemBookInfo>,
+        itemBookInfoMap: MutableMap<String, ItemBookInfo>
+    ) {
         viewModelScope.launch {
-            events.send(EventDataBase.SetSearch(filteredList = filteredList, itemBookInfoMap = itemBookInfoMap))
+            events.send(
+                EventDataBase.SetSearch(
+                    filteredList = filteredList,
+                    itemBookInfoMap = itemBookInfoMap
+                )
+            )
         }
     }
 
-    fun setSearchQuery(searchQuery: String){
+    fun setSearchQuery(searchQuery: String) {
         viewModelScope.launch {
             events.send(EventDataBase.SetSearchQuery(searchQuery = searchQuery))
         }
@@ -127,19 +203,27 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setItemBestInfoTrophyList(itemBookInfo: ItemBookInfo,  itemBestInfoTrophyList: ArrayList<ItemBestInfo>){
+    fun setItemBestInfoTrophyList(
+        itemBookInfo: ItemBookInfo,
+        itemBestInfoTrophyList: ArrayList<ItemBestInfo>
+    ) {
         viewModelScope.launch {
-            events.send(EventDataBase.SetItemBestInfoTrophyList(itemBookInfo = itemBookInfo, itemBestInfoTrophyList = itemBestInfoTrophyList))
+            events.send(
+                EventDataBase.SetItemBestInfoTrophyList(
+                    itemBookInfo = itemBookInfo,
+                    itemBestInfoTrophyList = itemBestInfoTrophyList
+                )
+            )
         }
     }
 
-    fun setJsonNameList( jsonNameList: List<String>){
+    fun setJsonNameList(jsonNameList: List<String>) {
         viewModelScope.launch {
             events.send(EventDataBase.SetJsonNameList(jsonNameList = jsonNameList))
         }
     }
 
-    fun setScreen(
+    fun setView(
         menu: String = state.value.menu,
         platform: String = state.value.platform,
         detail: String = state.value.detail,
@@ -178,17 +262,17 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setWeekTrophyList(weekTrophyList: ArrayList<ItemBestInfo>){
+    fun setWeekTrophyList(weekTrophyList: ArrayList<ItemBestInfo>) {
         viewModelScope.launch {
             events.send(EventDataBase.SetWeekTrophyList(weekTrophyList = weekTrophyList))
         }
     }
 
-    fun setFilteredListTrophy(){
+    fun setFilteredListTrophy() {
 
         val filteredList: ArrayList<ItemBookInfo> = ArrayList()
 
-        if(state.value.weekTrophyList.isNotEmpty() && state.value.itemBookInfoMap.isNotEmpty()){
+        if (state.value.weekTrophyList.isNotEmpty() && state.value.itemBookInfoMap.isNotEmpty()) {
             for (trophyItem in state.value.weekTrophyList) {
                 val bookCode = trophyItem.bookCode
                 val bookInfo = state.value.itemBookInfoMap[bookCode]
@@ -205,7 +289,7 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
         }
     }
 
-    fun setFilteredList(filteredList: ArrayList<ItemBookInfo>){
+    fun setFilteredList(filteredList: ArrayList<ItemBookInfo>) {
         viewModelScope.launch {
             events.send(EventDataBase.SetFilteredList(filteredList = filteredList))
         }
@@ -214,10 +298,16 @@ class ViewModelDatabase @Inject constructor() : ViewModel() {
     fun setDate(
         date: String = "",
         jsonNameList: List<String> = state.value.jsonNameList,
-        dateType : String = state.value.dateType
+        dateType: String = state.value.dateType
     ) {
         viewModelScope.launch {
-            events.send(EventDataBase.SetDate(date = date, jsonNameList = jsonNameList, dateType = dateType))
+            events.send(
+                EventDataBase.SetDate(
+                    date = date,
+                    jsonNameList = jsonNameList,
+                    dateType = dateType
+                )
+            )
         }
     }
 }

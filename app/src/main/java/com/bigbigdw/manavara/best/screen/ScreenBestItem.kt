@@ -47,6 +47,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.getBestListTodayJson
@@ -57,6 +59,7 @@ import com.bigbigdw.manavara.best.getTrophyWeekMonthJson
 import com.bigbigdw.manavara.best.models.ItemBestInfo
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.viewModels.ViewModelBest
+import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color02BC77
 import com.bigbigdw.manavara.ui.theme.color1CE3EE
@@ -84,22 +87,27 @@ fun ScreenTodayBest(
     listState: LazyListState,
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
-    viewModelBest: ViewModelBest,
+    viewModelMain: ViewModelMain,
 ) {
 
-    val state = viewModelBest.state.collectAsState().value
+    val mainState = viewModelMain.state.collectAsState().value
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
-    Log.d("ScreenTodayBest", "state.platform == ${state.platform}")
+    val viewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelBest: ViewModelBest = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+    val bestState = viewModelBest.state.collectAsState().value
 
-    LaunchedEffect(state.platform, state.type){
+    Log.d("ScreenTodayBest", "state.platform == ${mainState.platform}")
 
-        Log.d("ScreenTodayBest", "LaunchedEffect state.platform == ${state.platform}")
+    LaunchedEffect(mainState.platform, mainState.type){
+
+        Log.d("ScreenTodayBest", "LaunchedEffect state.platform == ${mainState.platform}")
 
         getBookMapJson(
-            platform = state.platform,
-            type = state.type,
+            platform = mainState.platform,
+            type = mainState.type,
             context = context
         ){ itemBookInfoMap ->
 
@@ -107,8 +115,8 @@ fun ScreenTodayBest(
 
             getBestListTodayJson(
                 context = context,
-                platform = state.platform,
-                type = state.type
+                platform = mainState.platform,
+                type = mainState.type
             ) { itemBookInfoList ->
 
                 Log.d("ScreenTodayBest", "itemBookInfoMap == ${itemBookInfoMap.size} itemBookInfoList == ${itemBookInfoList.size}")
@@ -128,7 +136,7 @@ fun ScreenTodayBest(
 
         item { Spacer(modifier = Modifier.size(16.dp)) }
 
-        itemsIndexed(state.itemBookInfoList) { index, item ->
+        itemsIndexed(bestState.itemBookInfoList) { index, item ->
             ListBestToday(
                 itemBookInfo = item,
                 index = index,
@@ -136,10 +144,10 @@ fun ScreenTodayBest(
 
                 getBookItemWeekTrophy(
                     bookCode = item.bookCode,
-                    platform = state.platform,
-                    type = state.type
+                    platform = mainState.platform,
+                    type = mainState.type
                 ){
-                    viewModelBest.setItemBestInfoTrophyList(
+                    viewModelMain.setItemBestInfoTrophyList(
                         itemBestInfoTrophyList = it,
                         itemBookInfo = item
                     )
@@ -294,30 +302,35 @@ fun ListBestToday(
 fun ScreenTodayWeek(
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
-    viewModelBest: ViewModelBest,
+    viewModelMain: ViewModelMain,
 ) {
 
-    val state = viewModelBest.state.collectAsState().value
+    val mainState = viewModelMain.state.collectAsState().value
     val (getDate, setDate) = remember { mutableStateOf("전체") }
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
+    val viewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelBest: ViewModelBest = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+    val bestState = viewModelBest.state.collectAsState().value
+
     getBookMapJson(
-        platform = state.platform,
-        type = state.type,
+        platform = mainState.platform,
+        type = mainState.type,
         context = context
     ) { itemBookInfoMap ->
 
         getBestListWeekJson(
             context = context,
-            platform = state.platform,
-            type = state.type,
+            platform = mainState.platform,
+            type = mainState.type,
         ) { weekList ->
 
             getTrophyWeekMonthJson(
-                platform = state.platform,
-                type = state.type,
+                platform = mainState.platform,
+                type = mainState.type,
                 dayType = "WEEK",
                 context = context
             ) { weekTrophyList ->
@@ -333,10 +346,10 @@ fun ScreenTodayWeek(
 
     val filteredList: ArrayList<ItemBookInfo> = ArrayList()
 
-    if(state.weekMonthTrophyList.isNotEmpty() && state.itemBookInfoMap.isNotEmpty()){
-        for (trophyItem in state.weekMonthTrophyList) {
+    if(bestState.weekMonthTrophyList.isNotEmpty() && bestState.itemBookInfoMap.isNotEmpty()){
+        for (trophyItem in bestState.weekMonthTrophyList) {
             val bookCode = trophyItem.bookCode
-            val bookInfo = state.itemBookInfoMap[bookCode]
+            val bookInfo = bestState.itemBookInfoMap[bookCode]
 
             if (bookInfo != null) {
                 filteredList.add(bookInfo)
@@ -344,105 +357,109 @@ fun ScreenTodayWeek(
         }
     }
 
-    LazyColumn(
+    Column(
         modifier = Modifier
             .background(colorF6F6F6)
             .padding(16.dp, 0.dp, 16.dp, 0.dp)
-    ) {
+    )  {
+        Spacer(modifier = Modifier.size(8.dp))
 
-        item { Spacer(modifier = Modifier.size(16.dp)) }
+        LazyRow(
+            modifier = Modifier
+                .padding(8.dp, 8.dp, 0.dp, 8.dp)
+                .background(color = colorF6F6F6),
+            state = listState,
+        ) {
 
-        item {
-            LazyRow(
-                modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 8.dp).background(color = colorF6F6F6),
-                state = listState,
-            ) {
-
-                itemsIndexed(weekListAll()) { index, item ->
-                    Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
-                        ScreenItemKeyword(
-                            getter = getDate,
-                            onClick = {
-                                coroutineScope.launch {
-                                    setDate(item)
-                                    listState.scrollToItem(index = 0)
-                                }
-                            },
-                            title = item,
-                            getValue = item
-                        )
-                    }
+            itemsIndexed(weekListAll()) { index, item ->
+                Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
+                    ScreenItemKeyword(
+                        getter = getDate,
+                        onClick = {
+                            coroutineScope.launch {
+                                setDate(item)
+                                listState.scrollToItem(index = 0)
+                            }
+                        },
+                        title = item,
+                        getValue = item
+                    )
                 }
             }
         }
 
-        if (getDate == "전체") {
+        Spacer(modifier = Modifier.size(8.dp))
 
-            itemsIndexed(filteredList) { index, item ->
+        LazyColumn{
 
-                ScreenBookCard(
-                    item = item,
-                    type = "WEEK",
-                    index = index
-                ){
-                    coroutineScope.launch {
+            if (getDate == "전체") {
 
-                        getBookItemWeekTrophy(
-                            bookCode = item.bookCode,
-                            type = state.type,
-                            platform = state.platform
-                        ) { itemBestInfoTrophyList ->
+                itemsIndexed(filteredList) { index, item ->
 
-                            viewModelBest.setItemBestInfoTrophyList(
-                                itemBookInfo = item,
-                                itemBestInfoTrophyList = itemBestInfoTrophyList
-                            )
-
-                        }
-
-                        modalSheetState?.show()
-
-                        if (setDialogOpen != null) {
-                            setDialogOpen(true)
-                        }
-
-                        listState.scrollToItem(index = 0)
-                    }
-                }
-
-            }
-        } else {
-            if (state.weekMonthList[getWeekDate(getDate)].size > 0) {
-                itemsIndexed(state.weekMonthList[getWeekDate(getDate)]) { index, item ->
-                    ListBestToday(
-                        itemBookInfo = item,
-                        index = index,
+                    ScreenBookCard(
+                        item = item,
+                        type = "WEEK",
+                        index = index
                     ){
-
-                        getBookItemWeekTrophy(
-                            bookCode = item.bookCode,
-                            platform = state.platform,
-                            type = state.type
-                        ){
-                            viewModelBest.setItemBestInfoTrophyList(
-                                itemBestInfoTrophyList = it,
-                                itemBookInfo = item
-                            )
-                        }
-
                         coroutineScope.launch {
+
+                            getBookItemWeekTrophy(
+                                bookCode = item.bookCode,
+                                type = mainState.type,
+                                platform = mainState.platform
+                            ) { itemBestInfoTrophyList ->
+
+                                viewModelBest.setItemBestInfoTrophyList(
+                                    itemBookInfo = item,
+                                    itemBestInfoTrophyList = itemBestInfoTrophyList
+                                )
+
+                            }
+
                             modalSheetState?.show()
 
                             if (setDialogOpen != null) {
                                 setDialogOpen(true)
                             }
+
+                            listState.scrollToItem(index = 0)
                         }
                     }
+
                 }
             } else {
-                item {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        ScreenEmpty(str = "데이터가 없습니다")
+                if (bestState.weekMonthList[getWeekDate(getDate)].size > 0) {
+                    itemsIndexed(bestState.weekMonthList[getWeekDate(getDate)]) { index, item ->
+                        ListBestToday(
+                            itemBookInfo = item,
+                            index = index,
+                        ){
+
+                            getBookItemWeekTrophy(
+                                bookCode = item.bookCode,
+                                platform = mainState.platform,
+                                type = mainState.type
+                            ){
+                                viewModelMain.setItemBestInfoTrophyList(
+                                    itemBestInfoTrophyList = it,
+                                    itemBookInfo = item
+                                )
+                            }
+
+                            coroutineScope.launch {
+                                modalSheetState?.show()
+
+                                if (setDialogOpen != null) {
+                                    setDialogOpen(true)
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    item {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            ScreenEmpty(str = "데이터가 없습니다")
+                        }
                     }
                 }
             }
@@ -455,41 +472,45 @@ fun ScreenTodayWeek(
 fun ScreenTodayMonth(
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
-    viewModelBest: ViewModelBest,
+    viewModelMain: ViewModelMain,
 ) {
 
-    val state = viewModelBest.state.collectAsState().value
+    val mainState = viewModelMain.state.collectAsState().value
     val (getDate, setDate) = remember { mutableStateOf("전체") }
-    val monthList = state.weekMonthList
     val arrayList = ArrayList<String>()
     val context = LocalContext.current
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
+    val viewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelBest: ViewModelBest = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+    val bestState = viewModelBest.state.collectAsState().value
+
     arrayList.add("전체")
 
     var count = 0
 
-    for (item in monthList) {
+    for (item in bestState.weekMonthList) {
         count += 1
         arrayList.add("${count}주차")
     }
 
     getBookMapJson(
-        platform = state.platform,
-        type = state.type,
+        platform = mainState.platform,
+        type = mainState.type,
         context = context
     ) { itemBookInfoMap ->
 
         getBestListWeekJson(
             context = context,
-            platform = state.platform,
-            type = state.type,
+            platform = mainState.platform,
+            type = mainState.type,
             bestType = "MONTH"
         ){ weekList ->
             getTrophyWeekMonthJson(
-                platform = state.platform,
-                type = state.type,
+                platform = mainState.platform,
+                type = mainState.type,
                 dayType = "MONTH",
                 context = context
             ) { weekTrophyList ->
@@ -505,10 +526,10 @@ fun ScreenTodayMonth(
 
     val filteredList: ArrayList<ItemBookInfo> = ArrayList()
 
-    if(state.weekMonthTrophyList.isNotEmpty() && state.itemBookInfoMap.isNotEmpty()){
-        for (trophyItem in state.weekMonthTrophyList) {
+    if(bestState.weekMonthTrophyList.isNotEmpty() && bestState.itemBookInfoMap.isNotEmpty()){
+        for (trophyItem in bestState.weekMonthTrophyList) {
             val bookCode = trophyItem.bookCode
-            val bookInfo = state.itemBookInfoMap[bookCode]
+            val bookInfo = bestState.itemBookInfoMap[bookCode]
 
             if (bookInfo != null) {
                 filteredList.add(bookInfo)
@@ -557,11 +578,11 @@ fun ScreenTodayMonth(
 
                             getBookItemWeekTrophy(
                                 bookCode = item.bookCode,
-                                type = state.type,
-                                platform = state.platform
+                                type = mainState.type,
+                                platform = mainState.platform
                             ) { itemBestInfoTrophyList ->
 
-                                viewModelBest.setItemBestInfoTrophyList(
+                                viewModelMain.setItemBestInfoTrophyList(
                                     itemBookInfo = item,
                                     itemBestInfoTrophyList = itemBestInfoTrophyList
                                 )
@@ -579,7 +600,7 @@ fun ScreenTodayMonth(
             }
         } else {
 
-            if (monthList[geMonthDate(getDate)].size > 0) {
+            if (bestState.weekMonthList[geMonthDate(getDate)].size > 0) {
                 LazyColumn(
                     modifier = Modifier
                         .background(colorF6F6F6)
@@ -588,7 +609,7 @@ fun ScreenTodayMonth(
 
                     itemsIndexed(filteredList) { index, item ->
 
-                        val itemBookInfo = state.itemBookInfoMap[item.bookCode]
+                        val itemBookInfo = bestState.itemBookInfoMap[item.bookCode]
 
                         if (itemBookInfo != null) {
                             Text(
@@ -610,8 +631,8 @@ fun ScreenTodayMonth(
 
                                 getBookItemWeekTrophy(
                                     bookCode = item.bookCode,
-                                    type = state.type,
-                                    platform = state.platform
+                                    type = mainState.type,
+                                    platform = mainState.platform
                                 ) { itemBestInfoTrophyList ->
 
                                     viewModelBest.setItemBestInfoTrophyList(

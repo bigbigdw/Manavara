@@ -61,8 +61,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bigbigdw.manavara.best.screen.BestBottomDialog
-import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDatabase
 import com.bigbigdw.manavara.best.screen.BestDialog
+import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.util.changePlatformNameKor
@@ -92,8 +92,8 @@ fun ScreenDataBase(
     val coroutineScope = rememberCoroutineScope()
     val viewModelStoreOwner =
         checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
-    val viewModelDatabase: ViewModelDatabase = viewModel(viewModelStoreOwner = viewModelStoreOwner)
-    val state = viewModelDatabase.state.collectAsState().value
+    val viewModelMain: ViewModelMain = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+    val mainState = viewModelMain.state.collectAsState().value
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val (getPlatformDialogOpen, setPlatformDialogOpen) = remember { mutableStateOf(false) }
 
@@ -109,7 +109,7 @@ fun ScreenDataBase(
         skipHalfExpanded = false
     )
 
-    BestAnalyzeBackOnPressed(viewModelDatabase = viewModelDatabase)
+    BestAnalyzeBackOnPressed(viewModelMain = viewModelMain)
 
     val menuOption = if (currentRoute?.contains("NOVEL") == true) {
         "웹소설"
@@ -124,17 +124,25 @@ fun ScreenDataBase(
     }
 
     var list = if (currentRoute?.contains("NOVEL") == true) {
-        novelListEng()
+
+        if (mainState.menu.contains("장르")) {
+            genreListEng()
+        } else if (mainState.menu.contains("키워드")) {
+            keywordListEng()
+        } else {
+            novelListEng()
+        }
+
     } else {
         comicListEng()
     }
 
-    LaunchedEffect(context) {
-        viewModelDatabase.sideEffects
+    LaunchedEffect(currentRoute) {
+        viewModelMain.sideEffects
             .onEach { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
             .launchIn(coroutineScope)
 
-        viewModelDatabase.setScreen(
+        viewModelMain.setScreen(
             menu = "마나바라 베스트 DB ${menuOption}",
             type = type,
             platform = getRandomPlatform(list)
@@ -148,10 +156,10 @@ fun ScreenDataBase(
         if (getDialogOpen) {
             BestDialog(
                 onDismissRequest = { setDialogOpen(false) },
-                itemBestInfoTrophyList = state.itemBestInfoTrophyList,
-                item = state.itemBookInfo,
+                itemBestInfoTrophyList = mainState.itemBestInfoTrophyList,
+                item = mainState.itemBookInfo,
                 isExpandedScreen = isExpandedScreen,
-                type = state.type
+                type = mainState.type
             )
         }
 
@@ -160,9 +168,10 @@ fun ScreenDataBase(
                 .fillMaxSize(),
             floatingActionButton = {
 
-                if (!state.menu.contains("신규 작품") &&
-                    !state.menu.contains("투데이 장르 현황") &&
-                    !state.menu.contains("투데이 장르 현황")) {
+                if (!mainState.menu.contains("신규 작품") &&
+                    !mainState.menu.contains("투데이 장르 현황") &&
+                    !mainState.menu.contains("투데이 장르 현황")
+                ) {
                     if (getPlatformDialogOpen) {
                         Dialog(
                             onDismissRequest = { setPlatformDialogOpen(false) },
@@ -176,12 +185,18 @@ fun ScreenDataBase(
                                 contents = {
 
                                     ScreenChoosePlatform(
-                                        list = list,
+                                        list = if (mainState.menu.contains("장르")) {
+                                            genreListEng()
+                                        } else if (mainState.menu.contains("키워드")) {
+                                            keywordListEng()
+                                        } else {
+                                            list
+                                        },
                                         isClose = { setPlatformDialogOpen(false) },
-                                        viewModelDatabase = viewModelDatabase,
                                         modifier = Modifier.width(360.dp),
                                         fontColor = Color.Black,
-                                        getValue = state.platform,
+                                        getValue = mainState.platform,
+                                        viewModelMain = viewModelMain,
                                     )
                                 }
                             )
@@ -190,7 +205,7 @@ fun ScreenDataBase(
 
                     ScreenChoosePlatformFab(
                         isOpen = { setPlatformDialogOpen(true) },
-                        platform = state.platform
+                        platform = mainState.platform
                     )
                 }
 
@@ -205,7 +220,7 @@ fun ScreenDataBase(
             ) {
                 ScreenDataBasePropertyList(
                     drawerState = drawerState,
-                    viewModelDatabase = viewModelDatabase
+                    viewModelMain = viewModelMain,
                 )
 
                 Spacer(
@@ -214,29 +229,28 @@ fun ScreenDataBase(
                 )
 
                 ScreenDataBaseItems(
-                    viewModelDatabase = viewModelDatabase,
-                    drawerState = drawerState,
                     modalSheetState = modalSheetState,
                     setDialogOpen = setDialogOpen,
-                    isExpandedScreen = isExpandedScreen
+                    isExpandedScreen = isExpandedScreen,
+                    viewModelMain = viewModelMain
                 )
             }
         }
 
     } else {
-        BestAnalyzeBackOnPressed(viewModelDatabase = viewModelDatabase)
+        BestAnalyzeBackOnPressed(viewModelMain = viewModelMain)
 
         ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
 
             ScreenDataBasePropertyList(
                 drawerState = drawerState,
-                viewModelDatabase = viewModelDatabase
+                viewModelMain = viewModelMain
             )
 
         }) {
             Scaffold(
                 topBar = {
-                    ScreenTopbar(detail = state.detail, menu = state.menu) {
+                    ScreenTopbar(detail = mainState.detail, menu = mainState.menu) {
                         coroutineScope.launch {
                             drawerState.open()
                         }
@@ -244,9 +258,10 @@ fun ScreenDataBase(
                 },
                 floatingActionButton = {
 
-                    if (!state.menu.contains("신규 작품") &&
-                        !state.menu.contains("투데이 장르 현황") &&
-                        !state.menu.contains("투데이 장르 현황")) {
+                    if (!mainState.menu.contains("신규 작품") &&
+                        !mainState.menu.contains("투데이 장르 현황") &&
+                        !mainState.menu.contains("투데이 장르 현황")
+                    ) {
                         if (!platformModalSheetState.isVisible) {
                             ScreenChoosePlatformFab(
                                 isOpen = {
@@ -254,7 +269,7 @@ fun ScreenDataBase(
                                         platformModalSheetState.show()
                                     }
                                 },
-                                platform = state.platform
+                                platform = mainState.platform
                             )
                         }
                     }
@@ -268,11 +283,10 @@ fun ScreenDataBase(
                         .fillMaxSize()
                 ) {
                     ScreenDataBaseItems(
-                        viewModelDatabase = viewModelDatabase,
-                        drawerState = drawerState,
                         modalSheetState = modalSheetState,
                         setDialogOpen = null,
                         isExpandedScreen = isExpandedScreen,
+                        viewModelMain = viewModelMain,
                     )
                 }
             }
@@ -291,8 +305,8 @@ fun ScreenDataBase(
 
                         if (currentRoute != null) {
                             BestBottomDialog(
-                                itemBestInfoTrophyList = state.itemBestInfoTrophyList,
-                                item = state.itemBookInfo,
+                                itemBestInfoTrophyList = mainState.itemBestInfoTrophyList,
+                                item = mainState.itemBookInfo,
                                 isExpandedScreen = isExpandedScreen,
                                 modalSheetState = modalSheetState,
                                 currentRoute = currentRoute,
@@ -302,9 +316,10 @@ fun ScreenDataBase(
                 ) {}
             }
 
-            if (!state.menu.contains("신규 작품") &&
-                !state.menu.contains("투데이 장르 현황") &&
-                !state.menu.contains("투데이 장르 현황")) {
+            if (!mainState.menu.contains("신규 작품") &&
+                !mainState.menu.contains("투데이 장르 현황") &&
+                !mainState.menu.contains("투데이 장르 현황")
+            ) {
                 if (platformModalSheetState.isVisible) {
                     ModalBottomSheetLayout(
                         sheetState = platformModalSheetState,
@@ -315,9 +330,9 @@ fun ScreenDataBase(
                         ),
                         sheetContent = {
 
-                            list = if (state.menu.contains("장르")) {
+                            list = if (mainState.menu.contains("장르")) {
                                 genreListEng()
-                            } else if (state.menu.contains("키워드")) {
+                            } else if (mainState.menu.contains("키워드")) {
                                 keywordListEng()
                             } else {
                                 list
@@ -330,12 +345,12 @@ fun ScreenDataBase(
                                         platformModalSheetState.hide()
                                     }
                                 },
-                                viewModelDatabase = viewModelDatabase,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .background(color20459E),
                                 fontColor = Color.White,
-                                getValue = state.platform
+                                getValue = mainState.platform,
+                                viewModelMain = viewModelMain
                             )
                         },
                     ) {}
@@ -349,11 +364,11 @@ fun ScreenDataBase(
 @Composable
 fun ScreenDataBasePropertyList(
     drawerState: DrawerState?,
-    viewModelDatabase: ViewModelDatabase
+    viewModelMain: ViewModelMain
 ) {
 
     val coroutineScope = rememberCoroutineScope()
-    val state = viewModelDatabase.state.collectAsState().value
+    val state = viewModelMain.state.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -384,7 +399,7 @@ fun ScreenDataBasePropertyList(
                 current = state.menu,
                 onClick = {
                     coroutineScope.launch {
-                        viewModelDatabase.setScreen(
+                        viewModelMain.setScreen(
                             menu = item.menu,
                         )
                         drawerState?.close()
@@ -398,148 +413,144 @@ fun ScreenDataBasePropertyList(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScreenDataBaseItem(
-    viewModelDatabase: ViewModelDatabase,
     modalSheetState: ModalBottomSheetState?,
-    setDialogOpen: ((Boolean) -> Unit)?
+    setDialogOpen: ((Boolean) -> Unit)?,
+    viewModelMain: ViewModelMain
 ) {
 
-    val state = viewModelDatabase.state.collectAsState().value
+    val mainState = viewModelMain.state.collectAsState().value
 
-    Log.d("ScreenDataBaseItem", "state.menu == ${state.menu}")
+    Log.d("ScreenDataBaseItem", "state.menu == ${mainState.menu}")
 
-    if (state.menu.contains("마나바라 베스트 DB")) {
+    if (mainState.menu.contains("마나바라 베스트 DB")) {
 
         ScreenBookMap(
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen,
-            viewModelDatabase = viewModelDatabase
+            viewModelMain = viewModelMain
         )
 
-    } else if (state.menu.contains("주차별 베스트") || state.menu.contains("월별 베스트")) {
+    } else if (mainState.menu.contains("주차별 베스트") || mainState.menu.contains("월별 베스트")) {
 
         ScreenBestAnalyze(
-            viewModelDatabase = viewModelDatabase,
-            root = if (state.menu.contains("주차별 베스트")) {
+            root = if (mainState.menu.contains("주차별 베스트")) {
                 "BEST_WEEK"
-            } else if (state.menu.contains("월별 베스트")) {
+            } else if (mainState.menu.contains("월별 베스트")) {
                 "BEST_MONTH"
             } else {
                 "BEST_WEEK"
             },
             modalSheetState = modalSheetState,
-            setDialogOpen = setDialogOpen
+            setDialogOpen = setDialogOpen,
+            viewModelMain = viewModelMain
         )
 
-    } else if (state.menu.contains("투데이 장르 현황")
-        || state.menu.contains("투데이 키워드 현황")
+    } else if (mainState.menu.contains("투데이 장르 현황")
+        || mainState.menu.contains("투데이 키워드 현황")
     ) {
 
         ScreenGenreKeywordToday(
-            viewModelDatabase = viewModelDatabase,
-            dataType = if (state.menu.contains("장르")) {
+            dataType = if (mainState.menu.contains("장르")) {
                 "GENRE"
             } else {
                 "KEYWORD"
-            }
+            },
+            viewModelMain = viewModelMain
         )
 
-    } else if (state.menu.contains("주간 장르 현황") ||
-        state.menu.contains("월간 장르 현황") ||
-        state.menu.contains("주간 키워드 현황") ||
-        state.menu.contains("월간 키워드 현황")
+    } else if (mainState.menu.contains("주간 장르 현황") ||
+        mainState.menu.contains("월간 장르 현황") ||
+        mainState.menu.contains("주간 키워드 현황") ||
+        mainState.menu.contains("월간 키워드 현황")
     ) {
 
         GenreDetailJson(
-            viewModelDatabase = viewModelDatabase,
-            menuType = if (state.menu.contains("주간 장르 현황")) {
+            viewModelMain = viewModelMain,
+            menuType = if (mainState.menu.contains("주간 장르 현황")) {
                 "주간"
             } else {
                 "월간"
             },
-            type = if (state.menu.contains("장르")) {
+            type = if (mainState.menu.contains("장르")) {
                 "GENRE"
             } else {
                 "KEYWORD"
             }
         )
 
-    } else if (state.menu.contains("장르 리스트 작품") ||
-        state.menu.contains("장르 리스트 현황") ||
-        state.menu.contains("키워드 리스트 작품") ||
-        state.menu.contains("키워드 리스트 현황")
+    } else if (mainState.menu.contains("장르 리스트 작품") ||
+        mainState.menu.contains("장르 리스트 현황") ||
+        mainState.menu.contains("키워드 리스트 작품") ||
+        mainState.menu.contains("키워드 리스트 현황")
     ) {
 
         ScreenGenreDetail(
-            viewModelDatabase = viewModelDatabase,
-            mode = if (state.menu.contains("장르 리스트 작품")) {
+            viewModelMain = viewModelMain,
+            mode = if (mainState.menu.contains("장르 리스트 작품")) {
                 "GENRE_BOOK"
-            } else if (state.menu.contains("장르 리스트 현황")) {
+            } else if (mainState.menu.contains("장르 리스트 현황")) {
                 "GENRE_STATUS"
-            } else if (state.menu.contains("키워드 리스트 작품")) {
+            } else if (mainState.menu.contains("키워드 리스트 작품")) {
                 "KEYWORD_BOOK"
-            } else if (state.menu.contains("키워드 리스트 현황")) {
+            } else if (mainState.menu.contains("키워드 리스트 현황")) {
                 "KEYWORD_STATUS"
             } else {
                 "KEYWORD_BOOK"
             },
         )
 
-    } else if (state.menu.contains("투데이 장르 현황")
-        || state.menu.contains("주차별 장르 현황")
-        || state.menu.contains("월별 장르 현황")
-        || state.menu.contains("투데이 키워드 현황")
-        || state.menu.contains("주차별 키워드 현황")
-        || state.menu.contains("월별 키워드 현황")
+    } else if (mainState.menu.contains("주차별 장르 현황")
+        || mainState.menu.contains("월별 장르 현황")
+        || mainState.menu.contains("주차별 키워드 현황")
+        || mainState.menu.contains("월별 키워드 현황")
     ) {
         ScreenGenreKeyword(
-            menuType = if (state.menu.contains("투데이")) {
+            menuType = if (mainState.menu.contains("투데이")) {
                 "투데이"
-            } else if (state.menu.contains("주차별")) {
+            } else if (mainState.menu.contains("주차별")) {
                 "주간"
             } else {
                 "월간"
             },
-            dataType = if (state.menu.contains("장르")) {
+            dataType = if (mainState.menu.contains("장르")) {
                 "GENRE"
             } else {
                 "KEYWORD"
             },
-            viewModelDatabase = viewModelDatabase
+            viewModelMain = viewModelMain,
         )
 
-    } else if (state.menu.contains("마나바라 DB 검색")) {
+    } else if (mainState.menu.contains("마나바라 DB 검색")) {
 
         ScreenSearchDataBase(
-            viewModelDatabase = viewModelDatabase,
-            modalSheetState = modalSheetState,
-            setDialogOpen = setDialogOpen
-        )
-
-    } else if (state.menu.contains("작품 검색")) {
-
-        ScreenSearchDataBase(
-            viewModelDatabase = viewModelDatabase,
-            modalSheetState = modalSheetState,
-            setDialogOpen = setDialogOpen
-        )
-
-    } else if (state.menu.contains("북코드 검색")) {
-
-        ScreenSearchDataBaseDetail(
-            viewModelDatabase = viewModelDatabase
-        )
-
-    } else if (state.menu.contains("신규 작품")) {
-
-        ScreenBookList(
-            viewModelDatabase = viewModelDatabase,
             modalSheetState = modalSheetState,
             setDialogOpen = setDialogOpen,
-            list = if (state.type == "NOVEL") {
+            viewModelMain = viewModelMain,
+        )
+
+    } else if (mainState.menu.contains("작품 검색")) {
+
+        ScreenSearchDataBase(
+            modalSheetState = modalSheetState,
+            setDialogOpen = setDialogOpen,
+            viewModelMain = viewModelMain,
+        )
+
+    } else if (mainState.menu.contains("북코드 검색")) {
+
+        ScreenSearchDataBaseDetail(viewModelMain = viewModelMain)
+
+    } else if (mainState.menu.contains("신규 작품")) {
+
+        ScreenBookList(
+            modalSheetState = modalSheetState,
+            setDialogOpen = setDialogOpen,
+            list = if (mainState.type == "NOVEL") {
                 novelListEng()
             } else {
                 comicListEng()
-            }
+            },
+            viewModelMain = viewModelMain
         )
 
     }
@@ -550,10 +561,10 @@ fun ScreenDataBaseItem(
 fun ScreenChoosePlatform(
     list: List<String>,
     isClose: () -> Unit,
-    viewModelDatabase: ViewModelDatabase?,
     modifier: Modifier,
     fontColor: Color,
-    getValue: String
+    getValue: String,
+    viewModelMain: ViewModelMain
 ) {
 
     Column(modifier = modifier) {
@@ -568,7 +579,10 @@ fun ScreenChoosePlatform(
             color = fontColor,
         )
 
-        Spacer(modifier = Modifier.fillMaxWidth().height(8.dp).background(Color.White))
+        Spacer(modifier = Modifier
+            .fillMaxWidth()
+            .height(8.dp)
+            .background(Color.White))
 
         LazyVerticalGrid(
             modifier = Modifier
@@ -587,7 +601,7 @@ fun ScreenChoosePlatform(
                         }
                     ),
                     onClick = {
-                        viewModelDatabase?.setScreen(platform = item)
+                        viewModelMain.setScreen(platform = item)
                         isClose()
                     },
                     contentPadding = PaddingValues(4.dp, 8.dp),
@@ -619,7 +633,10 @@ fun ScreenChoosePlatform(
             }
         }
 
-        Spacer(modifier = Modifier.fillMaxWidth().height(8.dp).background(Color.White))
+        Spacer(modifier = Modifier
+            .fillMaxWidth()
+            .height(8.dp)
+            .background(Color.White))
     }
 }
 

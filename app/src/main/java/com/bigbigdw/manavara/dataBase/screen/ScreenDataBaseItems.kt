@@ -2,7 +2,6 @@ package com.bigbigdw.manavara.dataBase.screen
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
@@ -33,7 +32,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -56,6 +54,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.getBookItemWeekTrophy
@@ -68,40 +68,31 @@ import com.bigbigdw.manavara.best.setBestDetailInfo
 import com.bigbigdw.manavara.dataBase.getGenreKeywordJson
 import com.bigbigdw.manavara.dataBase.getJsonFiles
 import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDatabase
+import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color20459E
 import com.bigbigdw.manavara.ui.theme.color898989
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
-import com.bigbigdw.manavara.util.DataStoreManager
 import com.bigbigdw.manavara.util.changePlatformNameKor
-import com.bigbigdw.manavara.util.comicListEng
-import com.bigbigdw.manavara.util.getPlatformDataKeyComic
-import com.bigbigdw.manavara.util.getPlatformDataKeyNovel
-import com.bigbigdw.manavara.util.getPlatformLogoEng
 import com.bigbigdw.manavara.util.novelListEng
 import com.bigbigdw.manavara.util.screen.ScreenBookCard
-import com.bigbigdw.manavara.util.screen.MainHeader
 import com.bigbigdw.manavara.util.screen.ScreenEmpty
 import com.bigbigdw.manavara.util.screen.ScreenItemKeyword
-import com.bigbigdw.manavara.util.screen.TabletContentWrapBtn
-import com.bigbigdw.manavara.util.screen.spannableString
 import convertDateStringMonth
 import convertDateStringWeek
-import getBookCount
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("MutableCollectionMutableState")
 @Composable
 fun ScreenDataBaseItems(
-    viewModelDatabase: ViewModelDatabase,
-    drawerState: DrawerState?,
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
-    isExpandedScreen: Boolean
+    isExpandedScreen: Boolean,
+    viewModelMain: ViewModelMain
 ) {
 
-    val state = viewModelDatabase.state.collectAsState().value
+    val state = viewModelMain.state.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -134,126 +125,39 @@ fun ScreenDataBaseItems(
         }
 
         ScreenDataBaseItem(
-            viewModelDatabase = viewModelDatabase,
             modalSheetState = modalSheetState,
-            setDialogOpen = setDialogOpen
+            setDialogOpen = setDialogOpen,
+            viewModelMain = viewModelMain
         )
     }
 }
 
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ScreenBestDataBaseList(
-    drawerState: DrawerState?,
-    viewModelDatabase: ViewModelDatabase,
-    isExpandedScreen : Boolean
-) {
-    val context = LocalContext.current
-    val dataStore = DataStoreManager(context)
-    val coroutineScope = rememberCoroutineScope()
-    val state = viewModelDatabase.state.collectAsState().value
-
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colorF6F6F6),
-    ) {
-
-        if(!isExpandedScreen){
-            item{
-                Column(
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    Spacer(modifier = Modifier.size(16.dp))
-
-                    MainHeader(image = R.drawable.logo_transparents, title = state.menuDesc)
-                }
-            }
-        }
-
-        item { Spacer(modifier = Modifier.size(8.dp)) }
-
-        val itemList = if (state.type == "NOVEL") novelListEng() else comicListEng()
-
-        itemsIndexed(itemList) { index, item ->
-            Box(modifier = Modifier.padding(8.dp)) {
-                TabletContentWrapBtn(
-                    onClick = {
-                        coroutineScope.launch {
-
-                            viewModelDatabase.setScreen(
-                                menu = state.menu,
-                                detail = "${changePlatformNameKor(item)} ${state.menu}",
-                                platform = item,
-                                type = state.type,
-                                menuDesc = state.menuDesc
-                            )
-                            drawerState?.close()
-                        }
-                    },
-                    content = {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Start,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Image(
-                                painter = painterResource(id = getPlatformLogoEng(item)),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .width(20.dp)
-                                    .height(20.dp)
-                            )
-
-                            Spacer(modifier = Modifier.size(8.dp))
-
-                            getBookCount(context = context, type = state.type, platform = item)
-
-                            Text(
-                                text = spannableString(
-                                    textFront = "${changePlatformNameKor(item)} : ",
-                                    color = color000000,
-                                    textEnd = "${
-                                        dataStore.getDataStoreString(
-                                            if (state.type == "NOVEL") getPlatformDataKeyNovel(item) else getPlatformDataKeyComic(
-                                                item
-                                            )
-                                        ).collectAsState(initial = "").value ?: "0"
-                                    } 작품"
-                                ),
-                                color = color20459E,
-                                fontSize = 18.sp,
-                            )
-                        }
-                    }
-                )
-            }
-        }
-    }
-}
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScreenBookMap(
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
-    viewModelDatabase: ViewModelDatabase
+    viewModelMain: ViewModelMain
 ) {
 
-    val state = viewModelDatabase.state.collectAsState().value
+    val viewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelDatabase: ViewModelDatabase = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+    val dataBaseState = viewModelDatabase.state.collectAsState().value
+    val mainState = viewModelMain.state.collectAsState().value
+
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    getBookMapJson(
-        platform = state.platform,
-        type = state.type,
-        context = context
-    ) {
-        viewModelDatabase.setItemBookInfoMap(it)
+    LaunchedEffect(mainState.platform, mainState.type){
+        getBookMapJson(
+            platform = mainState.platform,
+            type = mainState.type,
+            context = context
+        ) {
+            viewModelDatabase.setItemBookInfoMap(it)
+        }
     }
 
     LazyColumn(
@@ -264,7 +168,7 @@ fun ScreenBookMap(
 
         item { Spacer(modifier = Modifier.size(16.dp)) }
 
-        itemsIndexed(ArrayList(state.itemBookInfoMap.values)) { index, item ->
+        itemsIndexed(ArrayList(dataBaseState.itemBookInfoMap.values)) { index, item ->
             ScreenBookCard(
                 item = item,
                 type = "MONTH",
@@ -274,11 +178,11 @@ fun ScreenBookMap(
 
                     getBookItemWeekTrophy(
                         bookCode = item.bookCode,
-                        type = state.type,
-                        platform = state.platform
+                        type = mainState.type,
+                        platform = mainState.platform
                     ) { itemBestInfoTrophyList ->
 
-                        viewModelDatabase.setItemBestInfoTrophyList(
+                        viewModelMain.setItemBestInfoTrophyList(
                             itemBookInfo = item,
                             itemBestInfoTrophyList = itemBestInfoTrophyList
                         )
@@ -298,20 +202,20 @@ fun ScreenBookMap(
 
 @Composable
 fun BestAnalyzeBackOnPressed(
-    viewModelDatabase: ViewModelDatabase,
+    viewModelMain: ViewModelMain,
 ) {
     val context = LocalContext.current
     var backPressedState by remember { mutableStateOf(true) }
     var backPressedTime = 0L
     val coroutineScope = rememberCoroutineScope()
 
-    val state = viewModelDatabase.state.collectAsState().value
+    val state = viewModelMain.state.collectAsState().value
 
     BackHandler(enabled = true) {
 
         if (state.detail.isNotEmpty()) {
             coroutineScope.launch {
-                viewModelDatabase.setScreen(detail = "", menu = state.menu, platform = state.platform, type = state.type, menuDesc = state.menuDesc)
+                viewModelMain.setScreen(menu = state.menu, platform = state.platform, type = state.type)
             }
         } else {
             if (System.currentTimeMillis() - backPressedTime <= 400L) {
@@ -329,159 +233,169 @@ fun BestAnalyzeBackOnPressed(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScreenBestAnalyze(
-    viewModelDatabase: ViewModelDatabase,
     root: String,
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
+    viewModelMain: ViewModelMain,
 ) {
 
-    val state = viewModelDatabase.state.collectAsState().value
+    val viewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelDatabase: ViewModelDatabase = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+    val dataBaseState = viewModelDatabase.state.collectAsState().value
+    val mainState = viewModelMain.state.collectAsState().value
+
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    getJsonFiles(
-        platform = state.platform,
-        type = state.type,
-        root = root,
-    ) {
+    LaunchedEffect(root, mainState.platform, dataBaseState.date){
+        getJsonFiles(
+            platform = mainState.platform,
+            type = mainState.type,
+            root = root,
+        ) { jsonNameList ->
 
-        Log.d("ScreenBestAnalyze", "getJsonFiles == ${it.size}")
+            if (root == "BEST_WEEK") {
+                getTrophyWeekMonthJson(
+                    platform = mainState.platform,
+                    type = mainState.type,
+                    root = dataBaseState.date.ifEmpty { jsonNameList[0] },
+                    dayType = "WEEK",
+                    context = context
+                ) { weekTrophyList ->
 
-        viewModelDatabase.setJsonNameList(it)
+                    getBookMapJson(
+                        platform = mainState.platform,
+                        type = mainState.type,
+                        context = context
+                    ) { itemBookInfoMap ->
 
-        if(it.isNotEmpty()){
-            if (state.date.isEmpty()) {
-                viewModelDatabase.setDate(date = it.get(0), jsonNameList = it, dateType = root)
-            }
-        }
-    }
+                        viewModelDatabase.setScreenBestAnalyze(
+                            date = dataBaseState.date.ifEmpty { jsonNameList[0] },
+                            jsonNameList = jsonNameList,
+                            dateType = root,
+                            weekTrophyList = weekTrophyList,
+                            itemBookInfoMap = itemBookInfoMap
+                        )
+                    }
+                }
+            } else {
+                getTrophyWeekMonthJson(
+                    platform = mainState.platform,
+                    type = mainState.type,
+                    dayType = "MONTH",
+                    context = context
+                ) { weekTrophyList ->
 
-    if (state.jsonNameList.isNotEmpty()) {
+                    getBookMapJson(
+                        platform = mainState.platform,
+                        type = mainState.type,
+                        context = context
+                    ) { itemBookInfoMap ->
 
-        if (root == "BEST_WEEK") {
-            getTrophyWeekMonthJson(
-                platform = state.platform,
-                type = state.type,
-                root = state.date,
-                dayType = "WEEK",
-                context = context
-            ) {
-                viewModelDatabase.setWeekTrophyList(it)
-            }
-        } else {
-            getTrophyWeekMonthJson(
-                platform = state.platform,
-                type = state.type,
-                dayType = "MONTH",
-                context = context
-            ) { weekTrophyList ->
-                viewModelDatabase.setWeekTrophyList(weekTrophyList)
-            }
-        }
-
-        getBookMapJson(
-            platform = state.platform,
-            type = state.type,
-            context = context
-        ) {
-            viewModelDatabase.setItemBookInfoMap(it)
-        }
-
-        viewModelDatabase.setFilteredListTrophy()
-    }
-
-    LazyColumn(
-        modifier = Modifier
-            .background(colorF6F6F6)
-    ) {
-
-        item {
-            LazyRow(
-                modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 8.dp),
-            ) {
-                itemsIndexed(state.jsonNameList) { index, item ->
-                    Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
-                        ScreenItemKeyword(
-                            getter = if (root == "BEST_WEEK") {
-                                convertDateStringWeek(item)
-                            } else {
-                                convertDateStringMonth(item)
-                            },
-                            onClick = {
-                                coroutineScope.launch {
-                                    viewModelDatabase.setDate(date = item)
-
-                                    listState.scrollToItem(index = 0)
-                                }
-                            },
-                            title = if (root == "BEST_WEEK") {
-                                convertDateStringWeek(item)
-                            } else {
-                                convertDateStringMonth(item)
-                            },
-                            getValue = if (root == "BEST_WEEK") {
-                                convertDateStringWeek(state.date)
-                            } else {
-                                convertDateStringMonth(state.date)
-                            }
+                        viewModelDatabase.setScreenBestAnalyze(
+                            date = dataBaseState.date.ifEmpty { jsonNameList[0] },
+                            jsonNameList = jsonNameList,
+                            dateType = root,
+                            weekTrophyList = weekTrophyList,
+                            itemBookInfoMap = itemBookInfoMap
                         )
                     }
                 }
             }
         }
+    }
 
-        item {
-            Spacer(modifier = Modifier.size(8.dp))
+
+    Column(modifier = Modifier.background(colorF6F6F6))
+    {
+        LazyRow(
+            modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 8.dp),
+        ) {
+            itemsIndexed(dataBaseState.jsonNameList) { index, item ->
+                Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
+                    ScreenItemKeyword(
+                        getter = if (root == "BEST_WEEK") {
+                            convertDateStringWeek(item)
+                        } else {
+                            convertDateStringMonth(item)
+                        },
+                        onClick = {
+                            coroutineScope.launch {
+                                viewModelDatabase.setDate(date = item)
+
+                                listState.scrollToItem(index = 0)
+                            }
+                        },
+                        title = if (root == "BEST_WEEK") {
+                            convertDateStringWeek(item)
+                        } else {
+                            convertDateStringMonth(item)
+                        },
+                        getValue = if (root == "BEST_WEEK") {
+                            convertDateStringWeek(dataBaseState.date)
+                        } else {
+                            convertDateStringMonth(dataBaseState.date)
+                        }
+                    )
+                }
+            }
         }
 
-        if (state.jsonNameList.isNotEmpty()) {
-            itemsIndexed(state.filteredList) { index, item ->
+        Spacer(modifier = Modifier.size(8.dp))
 
-                Box(
-                    modifier = Modifier
-                        .background(colorF6F6F6)
-                        .padding(16.dp, 0.dp, 16.dp, 0.dp)
-                ) {
-                    ScreenBookCard(
-                        item = item,
-                        type = root,
-                        index = index
+        if (dataBaseState.jsonNameList.isNotEmpty()) {
+
+            LazyColumn(
+                modifier = Modifier
+                    .background(colorF6F6F6)
+            ) {
+
+                itemsIndexed(dataBaseState.filteredList) { index, item ->
+
+                    Column(
+                        modifier = Modifier
+                            .background(colorF6F6F6)
+                            .padding(16.dp, 0.dp, 16.dp, 0.dp)
                     ) {
-                        coroutineScope.launch {
+                        ScreenBookCard(
+                            item = item,
+                            type = root,
+                            index = index
+                        ) {
+                            coroutineScope.launch {
 
-                            getBookItemWeekTrophy(
-                                bookCode = item.bookCode,
-                                type = state.type,
-                                platform = state.platform
-                            ) { itemBestInfoTrophyList ->
+                                getBookItemWeekTrophy(
+                                    bookCode = item.bookCode,
+                                    type = mainState.type,
+                                    platform = mainState.platform
+                                ) { itemBestInfoTrophyList ->
 
-                                viewModelDatabase.setItemBestInfoTrophyList(
-                                    itemBookInfo = item,
-                                    itemBestInfoTrophyList = itemBestInfoTrophyList
-                                )
+                                    viewModelMain.setItemBestInfoTrophyList(
+                                        itemBookInfo = item,
+                                        itemBestInfoTrophyList = itemBestInfoTrophyList
+                                    )
 
-                            }
+                                }
 
-                            modalSheetState?.show()
+                                modalSheetState?.show()
 
-                            if (setDialogOpen != null) {
-                                setDialogOpen(true)
+                                if (setDialogOpen != null) {
+                                    setDialogOpen(true)
+                                }
                             }
                         }
+
+                        Spacer(modifier = Modifier.size(8.dp))
                     }
                 }
             }
 
-            item {
-                Spacer(modifier = Modifier.size(60.dp))
-            }
-
+            Spacer(modifier = Modifier.size(60.dp))
         } else {
-            item {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    ScreenEmpty(str = "데이터가 없습니다")
-                }
+            Box(modifier = Modifier.fillMaxSize()) {
+                ScreenEmpty(str = "데이터가 없습니다")
             }
         }
     }
@@ -489,187 +403,111 @@ fun ScreenBestAnalyze(
 
 @Composable
 fun ScreenGenreKeywordToday(
-    viewModelDatabase: ViewModelDatabase,
     dataType: String,
-    itemList: List<String> = novelListEng()
+    itemList: List<String> = novelListEng(),
+    viewModelMain: ViewModelMain
 ) {
 
     val coroutineScope = rememberCoroutineScope()
-    val state = viewModelDatabase.state.collectAsState().value
+    val viewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelDatabase: ViewModelDatabase = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+    val manavaraState = viewModelDatabase.state.collectAsState().value
+    val mainState = viewModelMain.state.collectAsState().value
     val context = LocalContext.current
 
-    LaunchedEffect(state.platform, state.type, state.jsonNameList, state.date) {
+    LaunchedEffect(manavaraState.platform, manavaraState.type) {
         getGenreKeywordJson(
             context = context,
-            platform = state.platform.ifEmpty { "JOARA" },
-            type = state.type,
+            platform = manavaraState.platform.ifEmpty { mainState.platform },
+            type = manavaraState.type.ifEmpty { mainState.type },
             dataType = dataType
         ) {
             viewModelDatabase.setGenreKeywordList(genreKeywordList = it)
         }
     }
 
-    LazyColumn(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp, 0.dp)
             .background(colorF6F6F6),
     ) {
+        Spacer(modifier = Modifier.size(8.dp))
 
-        item {
-            Spacer(modifier = Modifier.size(8.dp))
-        }
-
-        item {
-            LazyRow(
-                modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 0.dp),
-            ) {
-                itemsIndexed(itemList) { index, item ->
-                    Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
-                        ScreenItemKeyword(
-                            getter = item,
-                            onClick = {
-                                coroutineScope.launch {
-                                    viewModelDatabase.setScreen(
-                                        platform = item,
-                                        type = "NOVEL",
-                                        menu = state.menu,
-                                    )
-                                }
-                            },
-                            title = changePlatformNameKor(item),
-                            getValue = state.platform.ifEmpty { "JOARA" }
-                        )
-                    }
+        LazyRow(
+            modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 0.dp),
+        ) {
+            itemsIndexed(itemList) { index, item ->
+                Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
+                    ScreenItemKeyword(
+                        getter = item,
+                        onClick = {
+                            coroutineScope.launch {
+                                viewModelDatabase.setView(
+                                    platform = item,
+                                    type = "NOVEL",
+                                )
+                            }
+                        },
+                        title = changePlatformNameKor(item),
+                        getValue = manavaraState.platform.ifEmpty { "JOARA" }
+                    )
                 }
             }
         }
 
-        item {
-            Spacer(modifier = Modifier.size(4.dp))
-        }
+        Spacer(modifier = Modifier.size(4.dp))
 
-        itemsIndexed(state.genreKeywordList) { index, item ->
+        LazyColumn {
 
-            val value = if(dataType == "KEYWORD"){
-                (item.value.split("\\s+".toRegex()).count { it.isNotEmpty() }).toString()
-            } else {
-                item.value
-            }
+            itemsIndexed(manavaraState.genreKeywordList) { index, item ->
 
-            ListGenreKeywordToday(
-                title = item.key,
-                value = value,
-                index = index,
-            )
-        }
-
-        item { Spacer(modifier = Modifier.size(60.dp)) }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ScreenBestDataGenreKeywordList(
-    drawerState: DrawerState?,
-    viewModelDatabase: ViewModelDatabase,
-    isExpandedScreen : Boolean,
-    itemList: List<String> = novelListEng()
-) {
-
-    val coroutineScope = rememberCoroutineScope()
-    val state = viewModelDatabase.state.collectAsState().value
-
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(colorF6F6F6),
-    ) {
-
-        if(!isExpandedScreen){
-            item{
-                Column(
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    Spacer(modifier = Modifier.size(16.dp))
-
-                    MainHeader(image = R.drawable.logo_transparents, title = state.menuDesc)
+                val value = if(dataType == "KEYWORD"){
+                    (item.value.split("\\s+".toRegex()).count { it.isNotEmpty() }).toString()
+                } else {
+                    item.value
                 }
-            }
-        }
 
-        item { Spacer(modifier = Modifier.size(16.dp)) }
-
-        itemsIndexed(itemList) { index, item ->
-            Box(modifier = Modifier.padding(8.dp)) {
-                TabletContentWrapBtn(
-                    onClick = {
-                        coroutineScope.launch {
-
-                            viewModelDatabase.setScreen(
-                                menu = state.menu,
-                                detail = "${changePlatformNameKor(item)} ${state.menu}",
-                                platform = item,
-                                type = state.type,
-                                menuDesc = state.menuDesc
-                            )
-                            drawerState?.close()
-                        }
-                    },
-                    content = {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Start,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Image(
-                                painter = painterResource(id = getPlatformLogoEng(item)),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .width(20.dp)
-                                    .height(20.dp)
-                            )
-
-                            Spacer(modifier = Modifier.size(8.dp))
-
-                            Text(
-                                text = changePlatformNameKor(item),
-                                color = color000000,
-                                fontSize = 18.sp,
-                            )
-                        }
-                    }
+                ListGenreKeywordToday(
+                    title = item.key,
+                    value = value,
+                    index = index,
                 )
             }
         }
+
+        Spacer(modifier = Modifier.size(60.dp))
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun ScreenSearchDataBase(
-    viewModelDatabase: ViewModelDatabase,
     modalSheetState: ModalBottomSheetState?,
     setDialogOpen: ((Boolean) -> Unit)?,
+    viewModelMain: ViewModelMain,
 ) {
 
-    val state = viewModelDatabase.state.collectAsState().value
+    val viewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelDatabase: ViewModelDatabase = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+    val manavaraState = viewModelDatabase.state.collectAsState().value
+    val mainState = viewModelMain.state.collectAsState().value
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    LaunchedEffect(state.platform, state.searchQuery, state.itemBookInfoMap){
+    LaunchedEffect(mainState.platform, manavaraState.searchQuery, manavaraState.itemBookInfoMap){
         getBookMapJson(
-            platform = state.platform,
-            type = state.type,
+            platform = mainState.platform,
+            type = mainState.type,
             context = context
         ) {
 
             val result = ArrayList<ItemBookInfo>()
 
             for (item in it) {
-                if (item.value.title.contains(state.searchQuery)) {
+                if (item.value.title.contains(manavaraState.searchQuery)) {
                     result.add(item.value)
                 }
             }
@@ -688,7 +526,7 @@ fun ScreenSearchDataBase(
 
         item{
             TextField(
-                value = state.searchQuery,
+                value = manavaraState.searchQuery,
                 onValueChange = {
                     viewModelDatabase.setSearchQuery(it)
                 },
@@ -712,14 +550,14 @@ fun ScreenSearchDataBase(
             Spacer(modifier = Modifier.size(4.dp))
         }
 
-        if(state.filteredList.isEmpty()){
+        if(manavaraState.filteredList.isEmpty()){
             item {
                 Box(modifier = Modifier.fillMaxSize()) {
                     ScreenEmpty(str = "데이터가 없습니다")
                 }
             }
         } else {
-            itemsIndexed(state.filteredList) { index, item ->
+            itemsIndexed(manavaraState.filteredList) { index, item ->
 
                 Box(modifier = Modifier
                     .padding(16.dp, 8.dp, 16.dp, 8.dp)
@@ -732,11 +570,11 @@ fun ScreenSearchDataBase(
 
                             getBookItemWeekTrophy(
                                 bookCode = item.bookCode,
-                                type = state.type,
-                                platform = state.platform
+                                type = mainState.type,
+                                platform = mainState.platform
                             ) { itemBestInfoTrophyList ->
 
-                                viewModelDatabase.setItemBestInfoTrophyList(
+                                viewModelMain.setItemBestInfoTrophyList(
                                     itemBookInfo = item,
                                     itemBestInfoTrophyList = itemBestInfoTrophyList
                                 )
@@ -757,18 +595,19 @@ fun ScreenSearchDataBase(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScreenSearchDataBaseDetail(
-    viewModelDatabase: ViewModelDatabase,
-) {
+fun ScreenSearchDataBaseDetail(viewModelMain: ViewModelMain) {
 
-    val state = viewModelDatabase.state.collectAsState().value
-    val coroutineScope = rememberCoroutineScope()
+    val viewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
+    val viewModelDatabase: ViewModelDatabase = viewModel(viewModelStoreOwner = viewModelStoreOwner)
+    val manavaraState = viewModelDatabase.state.collectAsState().value
+    val mainState = viewModelMain.state.collectAsState().value
     val context = LocalContext.current
 
-    LaunchedEffect(state.searchQuery) {
+    LaunchedEffect(mainState.platform, manavaraState.searchQuery) {
         setBestDetailInfo(
-            platform = state.platform,
-            bookCode = state.searchQuery,
+            platform = mainState.platform,
+            bookCode = manavaraState.searchQuery,
             context = context
         ){
             viewModelDatabase.setBestDetailInfo(it)
@@ -785,7 +624,7 @@ fun ScreenSearchDataBaseDetail(
 
         item{
             TextField(
-                value = state.searchQuery,
+                value = manavaraState.searchQuery,
                 onValueChange = {
                     viewModelDatabase.setSearchQuery(it)
                 },
@@ -802,14 +641,10 @@ fun ScreenSearchDataBaseDetail(
         }
 
         item {
-            Spacer(modifier = Modifier.size(8.dp))
-        }
-
-        item {
             Spacer(modifier = Modifier.size(16.dp))
         }
 
-        if(state.searchQuery.isEmpty()){
+        if(manavaraState.searchQuery.isEmpty()){
             item {
                 Box(modifier = Modifier.fillMaxSize()) {
                     ScreenEmpty(str = "데이터가 없습니다")
@@ -818,7 +653,8 @@ fun ScreenSearchDataBaseDetail(
         } else {
             item {
                 ScreenItemSearchBookCodeCard(
-                    viewModelDatabase = viewModelDatabase
+                    viewModelDatabase = viewModelDatabase,
+                    viewModelMain = viewModelMain
                 )
             }
         }
@@ -827,11 +663,13 @@ fun ScreenSearchDataBaseDetail(
 
 @Composable
 fun ScreenItemSearchBookCodeCard(
-    viewModelDatabase: ViewModelDatabase
+    viewModelDatabase: ViewModelDatabase,
+    viewModelMain: ViewModelMain
 ) {
 
     val context = LocalContext.current
-    val state = viewModelDatabase.state.collectAsState().value
+    val dataBaseState = viewModelDatabase.state.collectAsState().value
+    val mainState = viewModelMain.state.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -849,7 +687,7 @@ fun ScreenItemSearchBookCodeCard(
                 elevation = CardDefaults.cardElevation(2.dp)
             ) {
                 AsyncImage(
-                    model = state.itemBestDetailInfo.bookImg,
+                    model = dataBaseState.itemBestDetailInfo.bookImg,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -862,7 +700,7 @@ fun ScreenItemSearchBookCodeCard(
 
             Text(
                 modifier = Modifier.padding(16.dp, 0.dp),
-                text = state.itemBestDetailInfo.title,
+                text = dataBaseState.itemBestDetailInfo.title,
                 color = color20459E,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
@@ -902,8 +740,8 @@ fun ScreenItemSearchBookCodeCard(
             colors = ButtonDefaults.buttonColors(containerColor = Color.White),
             onClick = {
                 gotoUrl(
-                    platform = state.platform,
-                    bookCode = state.itemBestDetailInfo.bookCode,
+                    platform = mainState.platform,
+                    bookCode = dataBaseState.itemBestDetailInfo.bookCode,
                     context = context
                 )
             },
@@ -926,7 +764,7 @@ fun ScreenItemSearchBookCodeCard(
             }
         )
 
-        ScreenBestDetailInfo(item = state.itemBestDetailInfo)
+        ScreenBestDetailInfo(item = dataBaseState.itemBestDetailInfo)
 
         Spacer(modifier = Modifier.size(32.dp))
     }
