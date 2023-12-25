@@ -58,7 +58,11 @@ class ViewModelMain @Inject constructor() : ViewModel() {
             }
 
             is EventMain.SetIsPicked -> {
-                current.copy(isPicked = event.isPicked)
+                current.copy(isPicked = event.isPicked, isPickedBookCode = event.isPickedBookCode)
+            }
+
+            is EventMain.SetIsPickedBookCode -> {
+                current.copy(isPickedBookCode = event.isPickedBookCode)
             }
 
             is EventMain.SetScreen -> {
@@ -92,6 +96,12 @@ class ViewModelMain @Inject constructor() : ViewModel() {
                     type = type, itemPickInfo = itemPickInfo
                 )
             )
+        }
+    }
+
+    fun setIsPickedBookCode(isPickedBookCode: String){
+        viewModelScope.launch {
+            events.send(EventMain.SetIsPickedBookCode(isPickedBookCode = isPickedBookCode))
         }
     }
 
@@ -151,17 +161,17 @@ class ViewModelMain @Inject constructor() : ViewModel() {
 
                                 if (itemBookInfo?.bookCode.equals(bookCode)) {
                                     viewModelScope.launch {
-                                        events.send(EventMain.SetIsPicked(true))
+                                        events.send(EventMain.SetIsPicked(isPicked = true, isPickedBookCode = state.value.isPickedBookCode))
                                     }
                                     return
                                 }
                             }
                             viewModelScope.launch {
-                                events.send(EventMain.SetIsPicked(false))
+                                events.send(EventMain.SetIsPicked(isPicked = false, isPickedBookCode = state.value.isPickedBookCode))
                             }
                         } else {
                             viewModelScope.launch {
-                                events.send(EventMain.SetIsPicked(false))
+                                events.send(EventMain.SetIsPicked(isPicked = false, isPickedBookCode = state.value.isPickedBookCode))
                             }
                         }
                     }
@@ -194,13 +204,15 @@ class ViewModelMain @Inject constructor() : ViewModel() {
                         item.belong = "PICK"
 
                         rootRef.child((dataSnapshot.childrenCount + 1).toString()).setValue(item)
+
+                        viewModelScope.launch {
+                            events.send(EventMain.SetIsPicked(isPicked = true, isPickedBookCode = item.bookCode))
+                            _sideEffects.send("[${item.title}] 이 PICK 되었습니다.")
+                        }
                     }
 
                     override fun onCancelled(databaseError: DatabaseError) {}
                 })
-
-                events.send(EventMain.SetIsPicked(true))
-                _sideEffects.send("[${item.title}] 이 PICK 되었습니다.")
             }
         }
     }
@@ -232,19 +244,16 @@ class ViewModelMain @Inject constructor() : ViewModel() {
                                 rootRef.child(pickedItem.key ?: "").removeValue()
                             }
                         }
+
+                        viewModelScope.launch {
+                            events.send(EventMain.SetIsPicked(isPicked = false, isPickedBookCode = item.bookCode ))
+                            _sideEffects.send("[${item.title}] 이 PICK 해제 되었습니다.")
+                        }
                     }
 
                     override fun onCancelled(databaseError: DatabaseError) {}
                 })
-
-                events.send(EventMain.SetIsPicked(true))
-                _sideEffects.send("[${item.title}] 이 PICK 되었습니다.")
             }
-        }
-
-        viewModelScope.launch {
-            events.send(EventMain.SetIsPicked(false))
-            _sideEffects.send("[${item.title}] 이 PICK 해제 되었습니다.")
         }
     }
 

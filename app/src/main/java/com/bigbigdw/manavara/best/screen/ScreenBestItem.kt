@@ -100,7 +100,7 @@ fun ScreenTodayBest(
     val viewModelBest: ViewModelBest = viewModel(viewModelStoreOwner = viewModelStoreOwner)
     val bestState = viewModelBest.state.collectAsState().value
 
-    LaunchedEffect(mainState.platform){
+    LaunchedEffect(mainState.platform, mainState.isPickedBookCode){
 
         setIsPicked(
             context = context,

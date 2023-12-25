@@ -23,6 +23,7 @@ sealed interface EventMain{
 
     class SetIsPicked(
         val isPicked: Boolean = false,
+        val isPickedBookCode: String = "",
     ) : EventMain
 
     class SetItemBestInfoTrophyList(
@@ -44,6 +45,10 @@ sealed interface EventMain{
         val type: String = "",
         val itemPickInfo : MutableMap<String, ItemBookInfo> = mutableMapOf()
     ) : EventMain
+
+    class SetIsPickedBookCode(
+        val isPickedBookCode: String = "",
+    ) : EventMain
 }
 
 data class StateMain(
@@ -58,6 +63,7 @@ data class StateMain(
     val type: String = "",
     val itemBestInfoTrophyList : ArrayList<ItemBestInfo> = ArrayList(),
     val itemBookInfo : ItemBookInfo = ItemBookInfo(),
-    val itemPickInfo : MutableMap<String, ItemBookInfo> = mutableMapOf()
+    val itemPickInfo : MutableMap<String, ItemBookInfo> = mutableMapOf(),
+    val isPickedBookCode: String = "",
 )
 

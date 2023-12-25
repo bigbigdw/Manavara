@@ -496,7 +496,6 @@ fun BestDialog(
                         type = "NOVEL", platform = item.platform, item = item, context = context
                     )
                 }
-
                 onDismissRequest()
             },
             onClickRight = {
