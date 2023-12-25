@@ -240,14 +240,16 @@ class ViewModelMain @Inject constructor() : ViewModel() {
                         for(pickedItem in dataSnapshot.children){
                             val pickedItemValue = pickedItem.getValue(ItemBookInfo::class.java)
 
-                            if(pickedItemValue == item){
+                            if(pickedItemValue?.bookCode == item.bookCode){
                                 rootRef.child(pickedItem.key ?: "").removeValue()
-                            }
-                        }
 
-                        viewModelScope.launch {
-                            events.send(EventMain.SetIsPicked(isPicked = false, isPickedBookCode = item.bookCode ))
-                            _sideEffects.send("[${item.title}] 이 PICK 해제 되었습니다.")
+                                viewModelScope.launch {
+                                    events.send(EventMain.SetIsPicked(isPicked = false, isPickedBookCode = "" ))
+                                    _sideEffects.send("[${item.title}] 이 PICK 해제 되었습니다.")
+                                }
+
+                                return
+                            }
                         }
                     }
 
