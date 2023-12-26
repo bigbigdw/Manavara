@@ -51,6 +51,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.room.Room
+import androidx.work.WorkManager
 import com.bigbigdw.manavara.best.ActivityBestDetail
 import com.bigbigdw.manavara.best.getBookItemWeekTrophy
 import com.bigbigdw.manavara.best.models.ItemBookInfo
@@ -79,6 +80,7 @@ import com.bigbigdw.manavara.ui.theme.colorEDE6FD
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorFF2366
 import com.bigbigdw.manavara.util.DBDate
+import com.bigbigdw.manavara.util.MiningWorker
 import com.bigbigdw.manavara.util.changePlatformNameKor
 import com.bigbigdw.manavara.util.screen.AlertTwoBtn
 import com.bigbigdw.manavara.util.screen.BtnMobile
@@ -92,6 +94,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import postFCMAlert
+import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -100,52 +103,83 @@ fun ScreenUser() {
     val context = LocalContext.current
     val (getFCM, setFCM) = remember { mutableStateOf(DataFCMBodyNotification()) }
 
-    LazyColumn {
+    Column(modifier = Modifier.padding(16.dp, 0.dp)) {
 
-        item { ItemTabletTitle(str = "문의 사항 전송") }
+        ItemTabletTitle(str = "문의 사항 전송")
 
-        item {
-            TabletContentWrap {
-                TextField(
-                    value = getFCM.title,
-                    onValueChange = {
-                        setFCM(getFCM.copy(title = it))
-                    },
-                    label = { Text("푸시 알림 제목", color = color898989) },
-                    singleLine = true,
-                    colors = TextFieldDefaults.textFieldColors(
-                        containerColor = Color(0),
-                        textColor = color000000
-                    ),
-                    modifier = Modifier.fillMaxWidth()
+        TabletContentWrap {
+            TextField(
+                value = getFCM.title,
+                onValueChange = {
+                    setFCM(getFCM.copy(title = it))
+                },
+                label = { Text("푸시 알림 제목", color = color898989) },
+                singleLine = true,
+                colors = TextFieldDefaults.textFieldColors(
+                    containerColor = Color(0),
+                    textColor = color000000
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.size(16.dp))
+
+            TextField(
+                value = getFCM.body,
+                onValueChange = {
+                    setFCM(getFCM.copy(body = it))
+                },
+                label = { Text("푸시 알림 내용", color = color898989) },
+                singleLine = true,
+                colors = TextFieldDefaults.textFieldColors(
+                    containerColor = Color(0),
+                    textColor = color000000
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Box(modifier = Modifier.padding(16.dp), contentAlignment = Alignment.Center) {
+                BtnMobile(
+                    func = { postFCMAlert(context = context, getFCM = getFCM) },
+                    btnText = "문의사항 등록"
                 )
-
-                Spacer(modifier = Modifier.size(16.dp))
-
-                TextField(
-                    value = getFCM.body,
-                    onValueChange = {
-                        setFCM(getFCM.copy(body = it))
-                    },
-                    label = { Text("푸시 알림 내용", color = color898989) },
-                    singleLine = true,
-                    colors = TextFieldDefaults.textFieldColors(
-                        containerColor = Color(0),
-                        textColor = color000000
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Box(modifier = Modifier.padding(16.dp), contentAlignment = Alignment.Center) {
-                    BtnMobile(
-                        func = { postFCMAlert(context = context, getFCM = getFCM) },
-                        btnText = "문의사항 등록"
-                    )
-                }
             }
         }
 
-        item { Spacer(modifier = Modifier.size(60.dp)) }
+        Box(modifier = Modifier.padding(16.dp), contentAlignment = Alignment.Center) {
+            BtnMobile(
+                func = {
+                    val workManager = WorkManager.getInstance(context)
+
+                    MiningWorker.cancelAllWorker(workManager)
+
+                    MiningWorker.doWorkerPeriodic(
+                        workManager = workManager,
+                        time = 6,
+                        timeUnit = TimeUnit.HOURS,
+                        tag = "MINING",
+                    )
+
+                    Toast.makeText(context, "마이닝 중이던 작품들이 즉시 최신화 되었습니다.", Toast.LENGTH_SHORT).show()
+                },
+                btnText = "마이닝 작품 즉시 최신화"
+            )
+        }
+
+        Box(modifier = Modifier.padding(16.dp), contentAlignment = Alignment.Center) {
+            BtnMobile(
+                func = {
+                    val workManager = WorkManager.getInstance(context)
+
+                    MiningWorker.cancelAllWorker(workManager)
+
+                    Toast.makeText(context, "마이닝 자동화가 취소되었습니다.", Toast.LENGTH_SHORT).show()
+                },
+                btnText = "마이닝 작품 자동 최신화 취소"
+            )
+        }
+
+        Spacer(modifier = Modifier.size(60.dp))
 
     }
 }
