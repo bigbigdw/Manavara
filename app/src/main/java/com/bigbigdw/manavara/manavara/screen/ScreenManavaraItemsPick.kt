@@ -1,7 +1,6 @@
 package com.bigbigdw.manavara.manavara.screen
 
 import android.annotation.SuppressLint
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -61,6 +60,7 @@ import com.bigbigdw.manavara.manavara.getPickShareList
 import com.bigbigdw.manavara.manavara.getUserPickList
 import com.bigbigdw.manavara.manavara.getUserPickShareListALL
 import com.bigbigdw.manavara.manavara.setMiningList
+import com.bigbigdw.manavara.manavara.setMiningListDelete
 import com.bigbigdw.manavara.manavara.setSharePickList
 import com.bigbigdw.manavara.manavara.viewModels.ViewModelManavara
 import com.bigbigdw.manavara.ui.theme.color000000
@@ -75,6 +75,7 @@ import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.util.MiningWorker
 import com.bigbigdw.manavara.util.changePlatformNameKor
 import com.bigbigdw.manavara.util.screen.AlertOneBtn
+import com.bigbigdw.manavara.util.screen.AlertTwoBtn
 import com.bigbigdw.manavara.util.screen.ScreenBookCard
 import com.bigbigdw.manavara.util.screen.ScreenEmpty
 import com.bigbigdw.manavara.util.screen.ScreenItemKeyword
@@ -801,6 +802,61 @@ fun ScreenPickShareAll(
         }
     }
 
+    val dialogOpen = remember { mutableStateOf(false) }
+
+    if(dialogOpen.value){
+        Dialog(
+            onDismissRequest = { dialogOpen.value = false },
+        ) {
+            AlertTwoBtn(
+                onClickLeft = { dialogOpen.value = false },
+                onClickRight = {
+
+                    val pickCategoryAll =  ArrayList<String>()
+
+                    editSharePickList(
+                        type = "NOVEL",
+                        status = "DELETE",
+                        listName = state.platform,
+                        pickItemList = state.pickShareItemList[state.platform],
+                        context = context,
+                    )
+
+                    getUserPickShareListALL(context = context, type = "NOVEL") { pickCategory, pickShareItemList ->
+
+                        pickCategoryAll.add("전체")
+                        pickCategoryAll.addAll(pickCategory)
+
+                        viewModelManavara.setPickShareList(
+                            pickCategory = pickCategoryAll,
+                            pickShareItemList = pickShareItemList,
+                            platform = if(pickCategoryAll.isEmpty()){
+                                ""
+                            } else {
+                                pickCategoryAll[0]
+                            }
+                        )
+                    }
+
+                    Toast.makeText(context, "리스트 삭제가 완료되었습니다.", Toast.LENGTH_SHORT).show()
+
+                    dialogOpen.value = false
+                },
+                btnLeft = "취소",
+                btnRight = "확인",
+                contents = {
+                    Text(
+                        modifier = Modifier.padding(16.dp),
+                        text = "선택하신 PICK 리스트를 삭제하시겠습니까?",
+                        textAlign = TextAlign.Center,
+                        color = Color.Black,
+                        fontSize = 16.sp
+                    )
+                },
+                modifier = Modifier.requiredWidth(260.dp)
+            )
+        }
+    }
 
     Scaffold(modifier = Modifier
         .fillMaxSize()
@@ -811,35 +867,7 @@ fun ScreenPickShareAll(
                 FloatingActionButton(
                     modifier = Modifier.size(60.dp),
                     onClick = {
-
-                        val pickCategoryAll =  ArrayList<String>()
-
-                        editSharePickList(
-                            type = "NOVEL",
-                            status = "DELETE",
-                            listName = state.platform,
-                            pickItemList = state.pickShareItemList[state.platform],
-                            context = context,
-                        )
-
-                        getUserPickShareListALL(context = context, type = "NOVEL") { pickCategory, pickShareItemList ->
-
-                            pickCategoryAll.add("전체")
-                            pickCategoryAll.addAll(pickCategory)
-
-                            viewModelManavara.setPickShareList(
-                                pickCategory = pickCategoryAll,
-                                pickShareItemList = pickShareItemList,
-                                platform = if(pickCategoryAll.isEmpty()){
-                                    ""
-                                } else {
-                                    pickCategoryAll[0]
-                                }
-                            )
-                        }
-
-                        Toast.makeText(context, "리스트 삭제가 완료되었습니다.", Toast.LENGTH_SHORT).show()
-
+                        dialogOpen.value = true
                     },
                     containerColor = color998DF9,
                 ) {
@@ -933,7 +961,7 @@ fun ScreenPickShareAll(
                                     mode = "PLATFORM",
                                     item = item,
                                     index = index,
-                                    boxColor = when (item.belong) {
+                                    backgroundColor = when (item.belong) {
                                         "SHARE" -> {
                                             Color(0xFFECFCFB)
                                         }

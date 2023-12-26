@@ -56,7 +56,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.room.util.query
 import coil.compose.AsyncImage
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.getBookItemWeekTrophy
@@ -68,7 +67,6 @@ import com.bigbigdw.manavara.best.screen.ScreenBestDetailInfo
 import com.bigbigdw.manavara.best.setBestDetailInfo
 import com.bigbigdw.manavara.dataBase.getGenreKeywordJson
 import com.bigbigdw.manavara.dataBase.getJsonFiles
-import com.bigbigdw.manavara.dataBase.setBookNewInfo
 import com.bigbigdw.manavara.dataBase.setBookSearch
 import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDatabase
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
@@ -173,8 +171,8 @@ fun ScreenBookMap(
 
         itemsIndexed(ArrayList(dataBaseState.itemBookInfoMap.values)) { index, item ->
             ScreenBookCard(
-                item = item,
                 type = "MONTH",
+                item = item,
                 index = index,
             ) {
                 coroutineScope.launch {
@@ -363,8 +361,8 @@ fun ScreenBestAnalyze(
                             .padding(16.dp, 0.dp, 16.dp, 0.dp)
                     ) {
                         ScreenBookCard(
-                            item = item,
                             type = root,
+                            item = item,
                             index = index
                         ) {
                             coroutineScope.launch {

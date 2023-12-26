@@ -29,6 +29,7 @@ sealed interface EventBest{
         val weekMonthList : ArrayList<ArrayList<ItemBookInfo>> = ArrayList(),
         var itemBookInfoMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
         var weekMonthTrophyList: ArrayList<ItemBestInfo> = ArrayList(),
+        val filteredList: ArrayList<ItemBookInfo> = ArrayList()
     ) : EventBest
 
     class SetGenreDay(
@@ -69,6 +70,7 @@ data class StateBest(
     val genreDayList : ArrayList<ArrayList<ItemKeyword>> = ArrayList(),
     val itemBookInfo : ItemBookInfo = ItemBookInfo(),
     val itemBestInfoTrophyList : ArrayList<ItemBestInfo> = ArrayList(),
+    val filteredList: ArrayList<ItemBookInfo> = ArrayList(),
 
     val detail : String = "",
     val menu: String = "",

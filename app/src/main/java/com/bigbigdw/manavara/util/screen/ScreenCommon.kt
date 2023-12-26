@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,9 +25,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -39,7 +35,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -67,7 +62,6 @@ import coil.compose.AsyncImage
 import com.bigbigdw.manavara.R
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.screen.ScreenItemBestCount
-import com.bigbigdw.manavara.dataBase.viewModels.ViewModelDatabase
 import com.bigbigdw.manavara.main.models.MenuInfo
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color20459E
@@ -77,10 +71,7 @@ import com.bigbigdw.manavara.ui.theme.colorE9E9E9
 import com.bigbigdw.manavara.ui.theme.colorEDE6FD
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorF7F7F7
-import com.bigbigdw.manavara.util.changePlatformNameKor
 import com.bigbigdw.manavara.util.colorList
-import com.bigbigdw.manavara.util.getPlatformColorEng
-import com.bigbigdw.manavara.util.getPlatformLogo
 import com.bigbigdw.manavara.util.getPlatformLogoEng
 import kotlinx.coroutines.launch
 
@@ -769,20 +760,20 @@ fun ScreenMenuItem(
 
 @Composable
 fun ScreenBookCard(
-    mode : String = "NUMBER",
+    mode: String = "NUMBER",
     type: String = "WEEK",
     item: ItemBookInfo,
     index: Int,
-    needIntro : Boolean = true,
-    boxColor : Color = Color.White,
-    additionalContents : @Composable () -> Unit = {},
+    needIntro: Boolean = true,
+    backgroundColor: Color = Color.White,
+    additionalContents: @Composable () -> Unit = {},
     onClick: () -> Unit,
 ) {
 
     val coroutineScope = rememberCoroutineScope()
 
     Button(
-        colors = ButtonDefaults.buttonColors(containerColor = boxColor),
+        colors = ButtonDefaults.buttonColors(containerColor = backgroundColor),
         contentPadding = PaddingValues(
             start = 0.dp,
             top = 0.dp,

@@ -590,8 +590,8 @@ fun ScreenKeywordBooks(
 
         itemsIndexed(filteredList) { index, item ->
             ScreenBookCard(
-                item = item,
                 type = "MONTH",
+                item = item,
                 index = index,
             ) {
                 coroutineScope.launch {
@@ -662,8 +662,8 @@ fun ScreenGenreBooks(
 
         itemsIndexed(ArrayList(filteredMap.values)) { index, item ->
             ScreenBookCard(
-                item = item,
                 type = "MONTH",
+                item = item,
                 index = index,
             ) {
                 coroutineScope.launch {

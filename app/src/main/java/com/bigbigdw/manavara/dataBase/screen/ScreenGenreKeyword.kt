@@ -773,6 +773,7 @@ fun ScreenBookList(
                 ListBestToday(
                     itemBookInfo = item,
                     index = index,
+                    needStatus = false
                 ) {
 
                     getBookItemWeekTrophy(

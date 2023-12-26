@@ -417,24 +417,17 @@ fun ScreenMainBestItemDetail(
             viewModelMain = viewModelMain
         )
 
-    } else if (state.detail.contains("주간 베스트")) {
-
+    } else if (state.detail.contains("주간 베스트") || state.detail.contains("월간 베스트")) {
         ScreenTodayWeek(
             modalSheetState = modalSheetState,
             dialogOpen = dialogOpen,
-            viewModelMain = viewModelMain
+            viewModelMain = viewModelMain,
+            dayType = if (state.detail.contains("주간 베스트")) {
+                "WEEK"
+            } else {
+                "MONTH"
+            }
         )
-
-    } else if (state.detail.contains("월간 베스트")) {
-
-        Spacer(modifier = Modifier.size(16.dp))
-
-        ScreenTodayMonth(
-            modalSheetState = modalSheetState,
-            dialogOpen = dialogOpen,
-            viewModelMain = viewModelMain
-        )
-
     }
 }
 

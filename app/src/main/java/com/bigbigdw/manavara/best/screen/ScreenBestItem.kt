@@ -70,14 +70,12 @@ import com.bigbigdw.manavara.ui.theme.color8E8E8E
 import com.bigbigdw.manavara.ui.theme.color8F8F8F
 import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorFF2366
-import com.bigbigdw.manavara.util.geMonthDate
 import com.bigbigdw.manavara.util.getWeekDate
 import com.bigbigdw.manavara.util.screen.ScreenBookCard
 import com.bigbigdw.manavara.util.screen.ScreenBookCardItem
 import com.bigbigdw.manavara.util.screen.ScreenEmpty
 import com.bigbigdw.manavara.util.screen.ScreenItemKeyword
 import com.bigbigdw.manavara.util.screen.spannableString
-import com.bigbigdw.manavara.util.weekList
 import com.bigbigdw.manavara.util.weekListAll
 import com.bigbigdw.manavara.util.weekListOneWord
 import kotlinx.coroutines.launch
@@ -176,6 +174,7 @@ fun ListBestToday(
     itemBookInfo: ItemBookInfo,
     index: Int,
     backGroundColor : Color = Color.White,
+    needStatus : Boolean = true,
     onClick: () -> Unit
 ) {
 
@@ -244,59 +243,61 @@ fun ListBestToday(
                     )
                     Spacer(modifier = Modifier.width(16.dp))
 
-                    if (itemBookInfo.totalCount > 1) {
-                        if (itemBookInfo.currentDiff > 0) {
-                            Image(
-                                painter = painterResource(id = R.drawable.ic_arrow_drop_up_24px),
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        } else if (itemBookInfo.currentDiff < 0) {
-                            Image(
-                                painter = painterResource(id = R.drawable.ic_arrow_drop_down_24px),
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                    }
-
-                    Text(
-                        text = if (itemBookInfo.totalCount > 1) {
-                            if (itemBookInfo.currentDiff != 0) {
-                                itemBookInfo.currentDiff.toString()
-                            } else {
-                                "-"
+                    if(needStatus){
+                        if (itemBookInfo.totalCount > 1) {
+                            if (itemBookInfo.currentDiff > 0) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.ic_arrow_drop_up_24px),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            } else if (itemBookInfo.currentDiff < 0) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.ic_arrow_drop_down_24px),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.size(20.dp)
+                                )
                             }
-                        } else {
-                            "NEW"
-                        },
-                        modifier = Modifier
-                            .wrapContentHeight()
-                            .padding(0.dp, 0.dp, 16.dp, 0.dp)
-                            .wrapContentSize(),
-                        fontSize = 14.sp,
-                        textAlign = TextAlign.Left,
-                        color = if (itemBookInfo.totalCount > 1) {
-                            if (itemBookInfo.currentDiff != 0) {
+                        }
 
-                                if (itemBookInfo.currentDiff > 0) {
-                                    color02BC77
-                                } else if (itemBookInfo.currentDiff < 0) {
-                                    colorFF2366
+                        Text(
+                            text = if (itemBookInfo.totalCount > 1) {
+                                if (itemBookInfo.currentDiff != 0) {
+                                    itemBookInfo.currentDiff.toString()
+                                } else {
+                                    "-"
+                                }
+                            } else {
+                                "NEW"
+                            },
+                            modifier = Modifier
+                                .wrapContentHeight()
+                                .padding(0.dp, 0.dp, 16.dp, 0.dp)
+                                .wrapContentSize(),
+                            fontSize = 14.sp,
+                            textAlign = TextAlign.Left,
+                            color = if (itemBookInfo.totalCount > 1) {
+                                if (itemBookInfo.currentDiff != 0) {
+
+                                    if (itemBookInfo.currentDiff > 0) {
+                                        color02BC77
+                                    } else if (itemBookInfo.currentDiff < 0) {
+                                        colorFF2366
+                                    } else {
+                                        color1CE3EE
+                                    }
                                 } else {
                                     color1CE3EE
                                 }
                             } else {
                                 color1CE3EE
-                            }
-                        } else {
-                            color1CE3EE
-                        },
-                        fontWeight = FontWeight.Bold,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                            },
+                            fontWeight = FontWeight.Bold,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
             })
     }
@@ -308,6 +309,7 @@ fun ScreenTodayWeek(
     modalSheetState: ModalBottomSheetState?,
     dialogOpen: MutableState<Boolean>?,
     viewModelMain: ViewModelMain,
+    dayType : String = "WEEK"
 ) {
 
     val mainState = viewModelMain.state.collectAsState().value
@@ -321,43 +323,59 @@ fun ScreenTodayWeek(
     val viewModelBest: ViewModelBest = viewModel(viewModelStoreOwner = viewModelStoreOwner)
     val bestState = viewModelBest.state.collectAsState().value
 
-    getBookMapJson(
-        platform = mainState.platform,
-        type = mainState.type,
-        context = context
-    ) { itemBookInfoMap ->
-
-        getBestListWeekJson(
+    LaunchedEffect(mainState.platform, mainState.isPickedBookCode){
+        setIsPicked(
             context = context,
             platform = mainState.platform,
             type = mainState.type,
-        ) { weekList ->
+        ) { itemPickInfo ->
 
-            getTrophyWeekMonthJson(
+            getBookMapJson(
                 platform = mainState.platform,
                 type = mainState.type,
-                dayType = "WEEK",
                 context = context
-            ) { weekTrophyList ->
+            ) { itemBookInfoMap ->
 
-                viewModelBest.setWeekList(
-                    weekTrophyList = weekTrophyList,
-                    weekList = weekList,
-                    itemBookInfoMap = itemBookInfoMap
-                )
-            }
-        }
-    }
+                getBestListWeekJson(
+                    context = context,
+                    platform = mainState.platform,
+                    type = mainState.type,
+                    itemPickInfo = itemPickInfo
+                ) { weekList ->
 
-    val filteredList: ArrayList<ItemBookInfo> = ArrayList()
+                    getTrophyWeekMonthJson(
+                        platform = mainState.platform,
+                        type = mainState.type,
+                        dayType = dayType,
+                        context = context
+                    ) { weekTrophyList ->
 
-    if(bestState.weekMonthTrophyList.isNotEmpty() && bestState.itemBookInfoMap.isNotEmpty()){
-        for (trophyItem in bestState.weekMonthTrophyList) {
-            val bookCode = trophyItem.bookCode
-            val bookInfo = bestState.itemBookInfoMap[bookCode]
+                        val filteredList: ArrayList<ItemBookInfo> = ArrayList()
 
-            if (bookInfo != null) {
-                filteredList.add(bookInfo)
+                        for (trophyItem in weekTrophyList) {
+                            val bookCode = trophyItem.bookCode
+                            val bookInfo = itemBookInfoMap[bookCode]
+
+                            if (bookInfo != null) {
+
+                                if(itemPickInfo[bookInfo.bookCode] != null){
+                                    bookInfo.belong = "SHARED"
+                                } else {
+                                    bookInfo.belong = ""
+                                }
+
+                                filteredList.add(bookInfo)
+                            }
+                        }
+
+                        viewModelBest.setWeekList(
+                            weekTrophyList = weekTrophyList,
+                            weekList = weekList,
+                            itemBookInfoMap = itemBookInfoMap,
+                            filteredList = filteredList
+                        )
+                    }
+                }
             }
         }
     }
@@ -373,7 +391,6 @@ fun ScreenTodayWeek(
             modifier = Modifier
                 .padding(8.dp, 8.dp, 0.dp, 8.dp)
                 .background(color = colorF6F6F6),
-            state = listState,
         ) {
 
             itemsIndexed(weekListAll()) { index, item ->
@@ -395,16 +412,21 @@ fun ScreenTodayWeek(
 
         Spacer(modifier = Modifier.size(8.dp))
 
-        LazyColumn{
+        LazyColumn(state = listState) {
 
             if (getDate == "전체") {
 
-                itemsIndexed(filteredList) { index, item ->
+                itemsIndexed(bestState.filteredList) { index, item ->
 
                     ScreenBookCard(
+                        type = dayType,
                         item = item,
-                        type = "WEEK",
-                        index = index
+                        index = index,
+                        backgroundColor = if(item.belong == "SHARED"){
+                            Color(0xFFEFE1FC)
+                        } else {
+                            Color.White
+                        }
                     ){
                         coroutineScope.launch {
 
@@ -414,7 +436,7 @@ fun ScreenTodayWeek(
                                 platform = mainState.platform
                             ) { itemBestInfoTrophyList ->
 
-                                viewModelBest.setItemBestInfoTrophyList(
+                                viewModelMain.setItemBestInfoTrophyList(
                                     itemBookInfo = item,
                                     itemBestInfoTrophyList = itemBestInfoTrophyList
                                 )
@@ -436,6 +458,11 @@ fun ScreenTodayWeek(
                         ListBestToday(
                             itemBookInfo = item,
                             index = index,
+                            backGroundColor = if(item.belong == "SHARED"){
+                                Color(0xFFEFE1FC)
+                            } else {
+                                Color.White
+                            }
                         ){
 
                             getBookItemWeekTrophy(
@@ -462,195 +489,6 @@ fun ScreenTodayWeek(
                             ScreenEmpty(str = "데이터가 없습니다")
                         }
                     }
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-fun ScreenTodayMonth(
-    modalSheetState: ModalBottomSheetState?,
-    dialogOpen: MutableState<Boolean>?,
-    viewModelMain: ViewModelMain,
-) {
-
-    val mainState = viewModelMain.state.collectAsState().value
-    val (getDate, setDate) = remember { mutableStateOf("전체") }
-    val arrayList = ArrayList<String>()
-    val context = LocalContext.current
-    val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
-
-    val viewModelStoreOwner =
-        checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null." }
-    val viewModelBest: ViewModelBest = viewModel(viewModelStoreOwner = viewModelStoreOwner)
-    val bestState = viewModelBest.state.collectAsState().value
-
-    arrayList.add("전체")
-
-    var count = 0
-
-    for (item in bestState.weekMonthList) {
-        count += 1
-        arrayList.add("${count}주차")
-    }
-
-    getBookMapJson(
-        platform = mainState.platform,
-        type = mainState.type,
-        context = context
-    ) { itemBookInfoMap ->
-
-        getBestListWeekJson(
-            context = context,
-            platform = mainState.platform,
-            type = mainState.type,
-            bestType = "MONTH"
-        ){ weekList ->
-            getTrophyWeekMonthJson(
-                platform = mainState.platform,
-                type = mainState.type,
-                dayType = "MONTH",
-                context = context
-            ) { weekTrophyList ->
-
-                viewModelBest.setWeekList(
-                    weekTrophyList = weekTrophyList,
-                    weekList = weekList,
-                    itemBookInfoMap = itemBookInfoMap
-                )
-            }
-        }
-    }
-
-    val filteredList: ArrayList<ItemBookInfo> = ArrayList()
-
-    if(bestState.weekMonthTrophyList.isNotEmpty() && bestState.itemBookInfoMap.isNotEmpty()){
-        for (trophyItem in bestState.weekMonthTrophyList) {
-            val bookCode = trophyItem.bookCode
-            val bookInfo = bestState.itemBookInfoMap[bookCode]
-
-            if (bookInfo != null) {
-                filteredList.add(bookInfo)
-            }
-        }
-
-    }
-
-    Column(modifier = Modifier.background(color = colorF6F6F6)) {
-
-        LazyRow(
-            modifier = Modifier.padding(8.dp, 8.dp, 0.dp, 8.dp),
-        ) {
-            itemsIndexed(arrayList) { index, item ->
-
-                Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
-                    ScreenItemKeyword(
-                        getter = getDate,
-                        onClick = {
-                            coroutineScope.launch {
-                                setDate(item)
-                                listState.scrollToItem(index = 0)
-                            }
-                        },
-                        title = item,
-                        getValue = item
-                    )
-                }
-            }
-        }
-
-        if (getDate == "전체") {
-            LazyColumn(
-                modifier = Modifier
-                    .background(colorF6F6F6)
-                    .padding(16.dp, 0.dp, 16.dp, 0.dp)
-            ) {
-
-                itemsIndexed(filteredList) { index, item ->
-                    ScreenBookCard(
-                        item = item,
-                        type = "MONTH",
-                        index = index,
-                    ){
-                        coroutineScope.launch {
-
-                            getBookItemWeekTrophy(
-                                bookCode = item.bookCode,
-                                type = mainState.type,
-                                platform = mainState.platform
-                            ) { itemBestInfoTrophyList ->
-
-                                viewModelMain.setItemBestInfoTrophyList(
-                                    itemBookInfo = item,
-                                    itemBestInfoTrophyList = itemBestInfoTrophyList
-                                )
-
-                            }
-
-                            modalSheetState?.show()
-
-                            dialogOpen?.value = true
-                        }
-                    }
-                }
-            }
-        } else {
-
-            if (bestState.weekMonthList[geMonthDate(getDate)].size > 0) {
-                LazyColumn(
-                    modifier = Modifier
-                        .background(colorF6F6F6)
-                        .padding(16.dp, 0.dp, 16.dp, 0.dp)
-                ) {
-
-                    itemsIndexed(filteredList) { index, item ->
-
-                        val itemBookInfo = bestState.itemBookInfoMap[item.bookCode]
-
-                        if (itemBookInfo != null) {
-                            Text(
-                                modifier = Modifier.padding(16.dp, 8.dp),
-                                text = weekList()[index],
-                                fontSize = 16.sp,
-                                color = color8E8E8E,
-                                fontWeight = FontWeight(weight = 700)
-                            )
-                        }
-
-                        ScreenBookCard(
-                            item = item,
-                            type = "WEEK",
-                            index = index,
-                        ){
-                            coroutineScope.launch {
-                                viewModelBest.getBookItemInfo(itemBookInfo = item)
-
-                                getBookItemWeekTrophy(
-                                    bookCode = item.bookCode,
-                                    type = mainState.type,
-                                    platform = mainState.platform
-                                ) { itemBestInfoTrophyList ->
-
-                                    viewModelBest.setItemBestInfoTrophyList(
-                                        itemBookInfo = item,
-                                        itemBestInfoTrophyList = itemBestInfoTrophyList
-                                    )
-
-                                }
-
-                                modalSheetState?.show()
-
-                                dialogOpen?.value = true
-                            }
-                        }
-                    }
-                }
-            } else {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    ScreenEmpty(str = "데이터가 없습니다")
                 }
             }
         }

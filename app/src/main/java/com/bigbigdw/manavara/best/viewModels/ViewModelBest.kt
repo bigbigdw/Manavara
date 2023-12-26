@@ -51,7 +51,7 @@ class ViewModelBest @Inject constructor() : ViewModel() {
             }
 
             is EventBest.SetWeekMonthList -> {
-                current.copy(weekMonthList = event.weekMonthList, itemBookInfoMap = event.itemBookInfoMap, weekMonthTrophyList = event.weekMonthTrophyList)
+                current.copy(weekMonthList = event.weekMonthList, itemBookInfoMap = event.itemBookInfoMap, weekMonthTrophyList = event.weekMonthTrophyList, filteredList = event.filteredList)
             }
 
             is EventBest.SetGenreDay -> {
@@ -122,14 +122,16 @@ class ViewModelBest @Inject constructor() : ViewModel() {
     fun setWeekList(
         weekList: ArrayList<ArrayList<ItemBookInfo>>,
         itemBookInfoMap: MutableMap<String, ItemBookInfo>,
-        weekTrophyList: ArrayList<ItemBestInfo>
+        weekTrophyList: ArrayList<ItemBestInfo>,
+        filteredList: ArrayList<ItemBookInfo>
     ) {
         viewModelScope.launch {
             events.send(
                 EventBest.SetWeekMonthList(
                     weekMonthList = weekList,
                     itemBookInfoMap = itemBookInfoMap,
-                    weekMonthTrophyList = weekTrophyList
+                    weekMonthTrophyList = weekTrophyList,
+                    filteredList = filteredList
                 )
             )
         }

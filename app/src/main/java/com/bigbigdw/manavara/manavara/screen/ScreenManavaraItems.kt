@@ -1,6 +1,6 @@
 package com.bigbigdw.manavara.manavara.screen
 
-import android.util.Log
+import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -46,14 +47,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.room.Room
+import com.bigbigdw.manavara.best.ActivityBestDetail
 import com.bigbigdw.manavara.best.getBookItemWeekTrophy
 import com.bigbigdw.manavara.best.models.ItemBookInfo
 import com.bigbigdw.manavara.best.models.ItemBookMining
 import com.bigbigdw.manavara.best.screen.ItemBestDetailInfoAnalyze
+import com.bigbigdw.manavara.best.screen.ScreenDialogBest
 import com.bigbigdw.manavara.firebase.DataFCMBodyNotification
+import com.bigbigdw.manavara.login.screen.RegisterInfo
 import com.bigbigdw.manavara.main.viewModels.ViewModelMain
 import com.bigbigdw.manavara.manavara.getFCMList
 import com.bigbigdw.manavara.manavara.models.ItemAlert
@@ -64,8 +69,10 @@ import com.bigbigdw.manavara.room.DBBookInfo
 import com.bigbigdw.manavara.room.DBMining
 import com.bigbigdw.manavara.ui.theme.color000000
 import com.bigbigdw.manavara.ui.theme.color20459E
+import com.bigbigdw.manavara.ui.theme.color4AD7CF
 import com.bigbigdw.manavara.ui.theme.color898989
 import com.bigbigdw.manavara.ui.theme.color8E8E8E
+import com.bigbigdw.manavara.ui.theme.color8F8F8F
 import com.bigbigdw.manavara.ui.theme.color998DF9
 import com.bigbigdw.manavara.ui.theme.colorE9E9E9
 import com.bigbigdw.manavara.ui.theme.colorEDE6FD
@@ -73,6 +80,7 @@ import com.bigbigdw.manavara.ui.theme.colorF6F6F6
 import com.bigbigdw.manavara.ui.theme.colorFF2366
 import com.bigbigdw.manavara.util.DBDate
 import com.bigbigdw.manavara.util.changePlatformNameKor
+import com.bigbigdw.manavara.util.screen.AlertTwoBtn
 import com.bigbigdw.manavara.util.screen.BtnMobile
 import com.bigbigdw.manavara.util.screen.ItemTabletTitle
 import com.bigbigdw.manavara.util.screen.ScreenBookCard
@@ -476,6 +484,45 @@ fun ScreenMiningDelete(
         }
     }
 
+    val dialogOpen = remember { mutableStateOf(false) }
+
+    if(dialogOpen.value){
+        Dialog(
+            onDismissRequest = { dialogOpen.value = false },
+        ) {
+            AlertTwoBtn(
+                onClickLeft = { dialogOpen.value = false },
+                onClickRight = {
+
+                    setMiningListDelete(
+                        context = context,
+                        type = "NOVEL",
+                        pickCategory = pickCategory.toMutableList() as ArrayList<String>,
+                        pickItemList = manavaraState.itemBookInfoList,
+                    ) {
+                        viewModelMain.setScreen(detail = "")
+                    }
+
+                    Toast.makeText(context, "마이닝 작품 리스트가 삭제되었습니다.", Toast.LENGTH_SHORT).show()
+
+                    dialogOpen.value = false
+                },
+                btnLeft = "취소",
+                btnRight = "확인",
+                contents = {
+                    Text(
+                        modifier = Modifier.padding(16.dp),
+                        text = "선택하신 마이닝 작품을 삭제하시겠습니까?",
+                        textAlign = TextAlign.Center,
+                        color = Color.Black,
+                        fontSize = 16.sp
+                    )
+                },
+                modifier = Modifier.Companion.requiredWidth(260.dp)
+            )
+        }
+    }
+
     Scaffold(
         modifier = Modifier
             .wrapContentSize()
@@ -485,16 +532,7 @@ fun ScreenMiningDelete(
                 Button(
                     colors = ButtonDefaults.buttonColors(containerColor = color20459E),
                     onClick = {
-                        setMiningListDelete(
-                            context = context,
-                            type = "NOVEL",
-                            pickCategory = pickCategory.toMutableList() as ArrayList<String>,
-                            pickItemList = manavaraState.itemBookInfoList,
-                        ) {
-                            viewModelMain.setScreen(detail = "")
-                        }
-
-                        Toast.makeText(context, "마이닝 작품 리스트가 삭제되었습니다.", Toast.LENGTH_SHORT).show()
+                        dialogOpen.value = true
                     },
                     modifier = Modifier
                         .fillMaxWidth()

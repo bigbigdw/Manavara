@@ -74,7 +74,7 @@ fun getBestListTodayStorage(
                 }
 
             }catch (E : Exception){
-                getBestList(platform = platform, type = type, itemPickMap = itemPickMap) {
+                getBestListTodayRealtimeDB(platform = platform, type = type, itemPickMap = itemPickMap) {
                     callbacks.invoke(it)
                 }
             }
@@ -83,19 +83,19 @@ fun getBestListTodayStorage(
 
             Log.d("getBestListTodayStorage", "getBestListTodayJson ==$exception")
 
-            getBestList(platform = platform, type = type, itemPickMap = itemPickMap){
+            getBestListTodayRealtimeDB(platform = platform, type = type, itemPickMap = itemPickMap){
                 callbacks.invoke(it)
             }
         }
 
     } catch (e: Exception) {
-        getBestList(platform = platform, type = type, itemPickMap = itemPickMap){
+        getBestListTodayRealtimeDB(platform = platform, type = type, itemPickMap = itemPickMap){
             callbacks.invoke(it)
         }
     }
 }
 
-private fun getBestList(
+private fun getBestListTodayRealtimeDB(
     platform: String,
     type: String,
     itemPickMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
@@ -277,20 +277,17 @@ fun getBestListWeekJson(
     context: Context,
     platform: String,
     type: String,
-    bestType: String = "WEEK",
-    callbacks: (ArrayList<ArrayList<ItemBookInfo>>) -> Unit
+    dayType: String = "WEEK",
+    itemPickInfo: MutableMap<String, ItemBookInfo>,
+    callbacks: (ArrayList<ArrayList<ItemBookInfo>>) -> Unit,
 ) {
 
-    val filePath = if(bestType == "WEEK"){
-        File(context.filesDir, "BEST_WEEK_${type}_${platform}.json").absolutePath
-    } else {
-        File(context.filesDir, "BEST_MONTH_${type}_${platform}.json").absolutePath
-    }
+    val filePath = File(context.filesDir, "BEST_${dayType}_${type}_${platform}.json").absolutePath
 
     try {
         val jsonString = File(filePath).readText(Charset.forName("UTF-8"))
 
-        getBestWeekMonth(jsonString){
+        getBestWeekMonth(jsonString = jsonString, itemPickMap = itemPickInfo){
             callbacks.invoke(it)
         }
 
@@ -298,14 +295,8 @@ fun getBestListWeekJson(
 
         Log.d("getBestListWeekJson", "getBestListWeekJson exception == $exception")
 
-        if(bestType == "WEEK"){
-            getBestWeekListStorage(platform = platform, type = type, context = context) {
-                callbacks.invoke(it)
-            }
-        } else {
-            getBestMonthListStorage(platform = platform, type = type, context = context) {
-                callbacks.invoke(it)
-            }
+        getBestWeekListStorage(platform = platform, type = type, context = context, itemPickMap = itemPickInfo, dayType = dayType) {
+            callbacks.invoke(it)
         }
     }
 }
@@ -314,20 +305,23 @@ fun getBestWeekListStorage(
     platform: String,
     type: String,
     context: Context,
+    dayType: String = "WEEK",
+    itemPickMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
     callbacks: (ArrayList<ArrayList<ItemBookInfo>>) -> Unit
 ) {
 
     val storage = Firebase.storage
     val storageRef = storage.reference
-    val weekRef = storageRef.child("${platform}/${type}/BEST_WEEK/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
-    val weekFile = File(context.filesDir, "BEST_WEEK_${type}_${platform}.json")
+    val weekRef = storageRef.child("${platform}/${type}/BEST_${dayType}/${DBDate.year()}_${DBDate.month()}_${DBDate.getCurrentWeekNumber()}.json")
+    val weekFile = File(context.filesDir, "BEST_${dayType}_${type}_${platform}.json")
 
     weekRef.getFile(weekFile).addOnSuccessListener {
         val jsonString = weekFile.readText(Charset.forName("UTF-8"))
 
-        getBestWeekMonth(jsonString){
+        getBestWeekMonth(jsonString = jsonString, itemPickMap = itemPickMap){
             callbacks.invoke(it)
         }
+
     }.addOnSuccessListener{
 
     }
@@ -412,6 +406,7 @@ fun getBestMonthListStorage(
     platform: String,
     type: String,
     context: Context,
+    itemPickMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
     callbacks: (ArrayList<ArrayList<ItemBookInfo>>) -> Unit
 ) {
 
@@ -423,7 +418,7 @@ fun getBestMonthListStorage(
     monthRef.getFile(monthFile).addOnSuccessListener {
         val jsonString = monthFile.readText(Charset.forName("UTF-8"))
 
-        getBestWeekMonth(jsonString){
+        getBestWeekMonth(jsonString = jsonString, itemPickMap = itemPickMap){
             callbacks.invoke(it)
         }
     }
@@ -475,7 +470,11 @@ fun getTrophyWeek(jsonString: String, callbacks: (ArrayList<ItemBestInfo>) -> Un
     callbacks.invoke(weekJsonList)
 }
 
-fun getBestWeekMonth(jsonString : String, callbacks: (ArrayList<ArrayList<ItemBookInfo>>) -> Unit){
+fun getBestWeekMonth(
+    jsonString: String,
+    itemPickMap: MutableMap<String, ItemBookInfo> = mutableMapOf(),
+    callbacks: (ArrayList<ArrayList<ItemBookInfo>>) -> Unit
+) {
     val jsonArray = JSONArray(jsonString)
 
     val weekJsonList = ArrayList<ArrayList<ItemBookInfo>>()
@@ -490,7 +489,16 @@ fun getBestWeekMonth(jsonString : String, callbacks: (ArrayList<ArrayList<ItemBo
 
                 try {
                     val jsonObject = jsonArrayItem.getJSONObject(j)
-                    itemList.add(convertItemBookJson(jsonObject))
+
+                    val item = convertItemBookJson(jsonObject)
+
+                    if(itemPickMap[item.bookCode] != null){
+                        item.belong = "SHARED"
+                    } else {
+                        item.belong = ""
+                    }
+
+                    itemList.add(item)
                 } catch (e: Exception) {
                     itemList.add(ItemBookInfo())
                 }
