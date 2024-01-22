@@ -191,13 +191,11 @@ fun postFCM(context: Context, fcmBody: DataFCMBody) {
             response: retrofit2.Response<FWorkManagerResult?>
         ) {
             if (response.isSuccessful) {
-                response.body()?.let { it ->
-                    miningAlert(
-                        title = fcmBody.notification?.title ?: "",
-                        message = fcmBody.notification?.body ?: "",
-                        path = "USER"
-                    )
-                }
+                miningAlert(
+                    title = fcmBody.notification?.title ?: "",
+                    message = fcmBody.notification?.body ?: "",
+                    path = "USER"
+                )
             } else {
 
             }
