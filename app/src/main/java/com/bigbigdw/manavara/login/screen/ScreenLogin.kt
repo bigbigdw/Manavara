@@ -132,7 +132,7 @@ fun ScreenLogin(
 
                 if (isExpandedLogin) {
                     Text(
-                        text = "웹툰/웹소설 수집 어플리케이션",
+                        text = "웹소설 수집 어플리케이션",
                         fontSize = 14.sp,
                         textAlign = TextAlign.Center,
                         color = color000000,
@@ -244,7 +244,7 @@ fun ScreenSplash() {
             MainHeader(image = R.drawable.logo_transparents, title = "마나바라")
 
             Text(
-                text = "웹툰/웹소설 수집 어플리케이션",
+                text = "웹소설 수집 어플리케이션",
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
                 color = color000000,
@@ -319,7 +319,7 @@ fun ScreenRegister(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "마나바라는 김대우가 AOS/iOS 스터디를 위해 혼자 만든 웹소설/웹툰 수집 어플리케이션입니다. 유익하게 사용 하실 수 있는 분이라면 유익하게 사용해주시면 감사드리겠습니다." +
+                text = "마나바라는 김대우가 AOS 스터디를 위해 혼자 만든 웹소설 수집 어플리케이션입니다. 유익하게 사용 하실 수 있는 분이라면 유익하게 사용해주시면 감사드리겠습니다." +
                         "\n\n회원 가입 후 승인이 되어야 마나바라 서비스를 이용할 수 있습니다.",
                 color = color8E8E8E,
                 fontSize = 16.sp,

@@ -1006,22 +1006,22 @@ val menuListManavara = arrayListOf(
     MenuInfo(needLine = false, image = R.drawable.icon_analyze_wht, menu = "공유된 웹소설 PICK 보기", body = "다른 사람이 엄선한 웹소설 작품들 보기"),
     MenuInfo(needLine = true, image = R.drawable.icon_analyze_wht, menu = "내가 공유한 웹소설 PICK", body = "내가 공유한 웹소설 PICK 보기"),
 
-    MenuInfo(needLine = false, image = R.drawable.icon_analyze_wht, menu = "웹툰 PICK 작품들 보기", body = "내가 가지고 있는 모든 웹툰 작품 보기"),
-    MenuInfo(needLine = false, image = R.drawable.icon_analyze_wht, menu = "나의 웹툰 PICK 보기", body = "내가 엄선한 웹툰 작품들 보기"),
-    MenuInfo(needLine = false, image = R.drawable.icon_analyze_wht, menu = "공유된 웹툰 PICK 보기", body = "다른 사람이 엄선한 웹툰 작품들 보기"),
-    MenuInfo(needLine = true, image = R.drawable.icon_analyze_wht, menu = "내가 공유한 웹툰 PICK", body = "내가 공유한 웹툰 PICK 보기"),
+//    MenuInfo(needLine = false, image = R.drawable.icon_analyze_wht, menu = "웹툰 PICK 작품들 보기", body = "내가 가지고 있는 모든 웹툰 작품 보기"),
+//    MenuInfo(needLine = false, image = R.drawable.icon_analyze_wht, menu = "나의 웹툰 PICK 보기", body = "내가 엄선한 웹툰 작품들 보기"),
+//    MenuInfo(needLine = false, image = R.drawable.icon_analyze_wht, menu = "공유된 웹툰 PICK 보기", body = "다른 사람이 엄선한 웹툰 작품들 보기"),
+//    MenuInfo(needLine = true, image = R.drawable.icon_analyze_wht, menu = "내가 공유한 웹툰 PICK", body = "내가 공유한 웹툰 PICK 보기"),
 
 //    MenuInfo(needLine = false, image = R.drawable.ic_launcher, menu = "나의 기록", body = "https://m.comic.naver.com/event/yearend/2023"),
     MenuInfo(needLine = false, image = R.drawable.icon_collection_wht, menu = "웹소설 분석 현황", body = "직접 데이터를 수집중인 웹소설 작품들"),
     MenuInfo(needLine = true, image = R.drawable.icon_collection_wht, menu = "웹소설 분석 보고서", body = "직접 수집중인 웹소설 작품 보고서"),
-    MenuInfo(needLine = false, image = R.drawable.icon_collection_wht, menu = "웹툰 분석 현황", body = "직접 데이터를 수집중인 웹툰 작품들"),
-    MenuInfo(needLine = true, image = R.drawable.icon_collection_wht, menu = "웹툰 분석 보고서", body = "직접 데이터를 수집중인 웹툰 작품들"),
+//    MenuInfo(needLine = false, image = R.drawable.icon_collection_wht, menu = "웹툰 분석 현황", body = "직접 데이터를 수집중인 웹툰 작품들"),
+//    MenuInfo(needLine = true, image = R.drawable.icon_collection_wht, menu = "웹툰 분석 보고서", body = "직접 데이터를 수집중인 웹툰 작품들"),
 
     MenuInfo(needLine = false, image = R.drawable.icon_setting_wht, menu = "유저 옵션", body = "마나바라 유저 옵션"),
     MenuInfo(needLine = false, image = R.drawable.icon_fcm_wht, menu = "메세지함", body = "공지사항 및 알림 등 메세지 확인"),
     MenuInfo(needLine = false, image = R.drawable.icon_fcm_wht, menu = "최신화 현황판", body = "공지사항 및 알림 등 메세지 확인"),
     MenuInfo(needLine = false, image = R.drawable.icon_fcm_wht, menu = "웹소설 마이닝 현황판", body = "웹소설 마이닝 작품 현황 확인"),
-    MenuInfo(needLine = false, image = R.drawable.icon_fcm_wht, menu = "웹툰 마이닝 현황판", body = "웹툰 마이닝 작품 현황 확인"),
+//    MenuInfo(needLine = false, image = R.drawable.icon_fcm_wht, menu = "웹툰 마이닝 현황판", body = "웹툰 마이닝 작품 현황 확인"),
 )
 
 val menuListDatabase = arrayListOf(

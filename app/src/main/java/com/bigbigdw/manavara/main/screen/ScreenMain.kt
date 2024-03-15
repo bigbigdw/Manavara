@@ -132,10 +132,8 @@ fun ScreenMainMobile(
 fun BottomNavScreen(navController: NavHostController, currentRoute: String?) {
     val items = listOf(
         ScreemBottomItem.NOVEL,
-        ScreemBottomItem.COMIC,
         ScreemBottomItem.MANAVARA,
         ScreemBottomItem.NOVELDB,
-        ScreemBottomItem.WEBTOONDB,
     )
 
     BottomNavigation(
@@ -202,27 +200,11 @@ fun NavigationGraph(
             )
 
         }
-        composable(ScreemBottomItem.COMIC.screenRoute) {
-
-            ScreenBest(
-                isExpandedScreen = isExpandedScreen,
-                currentRoute = "COMIC"
-            )
-
-        }
         composable(ScreemBottomItem.NOVELDB.screenRoute) {
 
             ScreenDataBase(
                 isExpandedScreen = isExpandedScreen,
                 currentRoute = "NOVEL"
-            )
-
-        }
-        composable(ScreemBottomItem.WEBTOONDB.screenRoute) {
-
-            ScreenDataBase(
-                isExpandedScreen = isExpandedScreen,
-                currentRoute = "COMIC"
             )
 
         }
@@ -244,10 +226,8 @@ fun TableAppNavRail(
 
     val items = listOf(
         ScreemBottomItem.NOVEL,
-        ScreemBottomItem.COMIC,
         ScreemBottomItem.MANAVARA,
         ScreemBottomItem.NOVELDB,
-        ScreemBottomItem.WEBTOONDB,
     )
 
     val context = LocalContext.current

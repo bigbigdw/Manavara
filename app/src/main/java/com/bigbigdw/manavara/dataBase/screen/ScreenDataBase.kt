@@ -114,7 +114,7 @@ fun ScreenDataBase(
     val menuOption = if (currentRoute?.contains("NOVEL") == true) {
         "웹소설"
     } else {
-        "웹툰"
+        ""
     }
 
     val type = if (currentRoute?.contains("NOVEL") == true) {
