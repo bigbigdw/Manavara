@@ -562,7 +562,7 @@ fun ScreenMiningDelete(
             .wrapContentSize()
             .background(color = colorF6F6F6),
         bottomBar = {
-            if (manavaraState.pickCategory.isNotEmpty() && !isExpandedScreen) {
+            if (manavaraState.itemBookInfoList.isNotEmpty() && !isExpandedScreen) {
                 Button(
                     colors = ButtonDefaults.buttonColors(containerColor = color20459E),
                     onClick = {

@@ -98,10 +98,6 @@ class ActivityLogin : ComponentActivity() {
             }
             .addOnFailureListener(this) { e ->
                 Log.d("ActivityLogin", e.localizedMessage)
-
-                val intent = Intent(this@ActivityLogin, ActivityMain::class.java)
-                startActivity(intent)
-                finish()
             }
     }
 }

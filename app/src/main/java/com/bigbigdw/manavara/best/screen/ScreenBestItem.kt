@@ -393,7 +393,21 @@ fun ScreenTodayWeek(
                 .background(color = colorF6F6F6),
         ) {
 
-            itemsIndexed(weekListAll()) { index, item ->
+            itemsIndexed(if(dayType == "WEEK"){
+                weekListAll()
+            } else {
+                val arrayList = ArrayList<String>()
+                var count = 0
+
+                arrayList.add("전체")
+
+                for (item in bestState.weekMonthList) {
+                    count += 1
+                    arrayList.add("${count}주차")
+                }
+
+                arrayList
+            }) { index, item ->
                 Box(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp)) {
                     ScreenItemKeyword(
                         getter = getDate,

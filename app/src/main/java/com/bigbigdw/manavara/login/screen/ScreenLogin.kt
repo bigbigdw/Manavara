@@ -108,7 +108,7 @@ fun ScreenLogin(
                 btnLeft = "뒤로가기",
                 btnRight = "확인",
                 contents = { RegisterInfo(state = state) },
-                modifier = Modifier.Companion.requiredWidth(220.dp)
+                modifier = Modifier.requiredWidth(400.dp)
             )
         }
     }
@@ -491,7 +491,7 @@ fun ScreenAfterSplash(
                 btnLeft = "뒤로가기",
                 btnRight = "확인",
                 contents = { RegisterInfo(state = state) },
-                modifier = Modifier.Companion.requiredWidth(400.dp)
+                modifier = Modifier.requiredWidth(400.dp)
             )
         }
     }

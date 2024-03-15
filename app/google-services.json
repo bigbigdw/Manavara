@@ -23,6 +23,22 @@
           }
         },
         {
+          "client_id": "72037891846-9it78vkn1sake6jua2c66lm4sg4ojmhd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bigbigdw.manavara",
+            "certificate_hash": "5878d88ee454e0741ebc0a05c1a2ce89f93618db"
+          }
+        },
+        {
+          "client_id": "72037891846-ik5tscmbklm7gbpbn7cj4i8vafphnk37.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bigbigdw.manavara",
+            "certificate_hash": "2d5da553397f527a912dd1e3a9f7c8322d2eb2c7"
+          }
+        },
+        {
           "client_id": "72037891846-o1cs8lgheih7evp4b7amgi1trhi74ci6.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -73,6 +89,14 @@
           "android_info": {
             "package_name": "com.bigbigdw.manavarasetting",
             "certificate_hash": "9bc58352ab0973c37d99afba825d7c16438bdcbb"
+          }
+        },
+        {
+          "client_id": "72037891846-vda7shi4nfmtsqjqsmuku5lgs9gfiglr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bigbigdw.manavarasetting",
+            "certificate_hash": "2d5da553397f527a912dd1e3a9f7c8322d2eb2c7"
           }
         },
         {
