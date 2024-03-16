@@ -168,8 +168,7 @@ fun ScreenDataBase(
                 .fillMaxSize(),
             floatingActionButton = {
 
-                if (!mainState.menu.contains("신규 작품") &&
-                    !mainState.menu.contains("투데이 장르 현황") &&
+                if (!mainState.menu.contains("투데이 장르 현황") &&
                     !mainState.menu.contains("투데이 장르 현황")
                 ) {
                     if (getPlatformDialogOpen) {
@@ -258,8 +257,7 @@ fun ScreenDataBase(
                 },
                 floatingActionButton = {
 
-                    if (!mainState.menu.contains("신규 작품") &&
-                        !mainState.menu.contains("투데이 장르 현황") &&
+                    if (!mainState.menu.contains("투데이 장르 현황") &&
                         !mainState.menu.contains("투데이 장르 현황")
                     ) {
                         if (!platformModalSheetState.isVisible) {
@@ -316,8 +314,7 @@ fun ScreenDataBase(
                 ) {}
             }
 
-            if (!mainState.menu.contains("신규 작품") &&
-                !mainState.menu.contains("투데이 장르 현황") &&
+            if (!mainState.menu.contains("투데이 장르 현황") &&
                 !mainState.menu.contains("투데이 장르 현황")
             ) {
                 if (platformModalSheetState.isVisible) {
@@ -466,7 +463,7 @@ fun ScreenDataBaseItem(
 
         GenreDetailJson(
             viewModelMain = viewModelMain,
-            menuType = if (mainState.menu.contains("주간 장르 현황")) {
+            menuType = if (mainState.menu.contains("주간 장르 현황") || mainState.menu.contains("주간 키워드 현황")) {
                 "주간"
             } else {
                 "월간"
@@ -539,19 +536,6 @@ fun ScreenDataBaseItem(
     } else if (mainState.menu.contains("북코드 검색")) {
 
         ScreenSearchDataBaseDetail(viewModelMain = viewModelMain)
-
-    } else if (mainState.menu.contains("신규 작품")) {
-
-        ScreenBookList(
-            modalSheetState = modalSheetState,
-            setDialogOpen = setDialogOpen,
-            list = if (mainState.type == "NOVEL") {
-                novelListEng()
-            } else {
-                comicListEng()
-            },
-            viewModelMain = viewModelMain
-        )
 
     }
 }

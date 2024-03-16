@@ -1026,7 +1026,6 @@ val menuListManavara = arrayListOf(
 
 val menuListDatabase = arrayListOf(
     MenuInfo(needLine = false, image = R.drawable.icon_novel_wht, menu = "마나바라 베스트 DB 웹소설", body = "마나바라에 기록된 베스트 웹소설 리스트"),
-    MenuInfo(needLine = true, image = R.drawable.icon_novel_wht, menu = "신규 작품", body = "최근에 등록된 작품 확인"),
 
     MenuInfo(needLine = false, image = R.drawable.icon_best_wht, menu = "웹소설 주차별 베스트", body = "주차별 웹소설 베스트 리스트"),
     MenuInfo(needLine = true, image = R.drawable.icon_best_wht, menu = "웹소설 월별 베스트", body = "월별 웹소설 베스트 리스트"),

@@ -2,6 +2,7 @@ package com.bigbigdw.manavara.util
 
 import android.annotation.SuppressLint
 import android.icu.text.SimpleDateFormat
+import android.util.Log
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
@@ -75,7 +76,12 @@ object DBDate {
     fun month(): String {
         val currentDate = LocalDate.now()
         val currentMonth = currentDate.monthValue
-        return currentMonth.toString()
+
+        return if (currentMonth < 10) {
+            "0$currentMonth"
+        } else {
+            currentMonth.toString()
+        }
     }
 
 
@@ -102,12 +108,19 @@ object DBDate {
         return weekDates
     }
 
-    fun getCurrentWeekNumber(): Int {
+    fun getCurrentWeekNumber(): String {
         val currentDate = LocalDate.now()
         val weekFields = WeekFields.of(Locale.getDefault())
 
-        // 현재 날짜의 주 번호를 가져옵니다.
-        return currentDate.get(weekFields.weekOfMonth())
+        val number = currentDate.get(weekFields.weekOfMonth())
+
+//        return if(number < 10){
+//            "0$number"
+//        } else {
+//            number.toString()
+//        }
+
+        return number.toString()
     }
 
     fun getDayOfWeekAsNumber(): Int {

@@ -1,6 +1,7 @@
 package com.bigbigdw.manavara.dataBase.screen
 
 import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -511,23 +512,39 @@ fun GenreDetailJson(
                             .padding(16.dp, 0.dp, 16.dp, 0.dp)
                     ) {
 
-                        itemsIndexed(dataBaseState.genreKeywordList) { index, item ->
-                            ListGenreKeywordToday(
-                                title = item.key,
-                                value = if (type == "GENRE") {
-                                    item.value
-                                } else {
-                                    val wordCount = item.value.split("\\s+".toRegex())
-                                        .count { it.isNotEmpty() }
-                                    wordCount.toString()
-                                },
-                                index = index
-                            )
+                        if (dataBaseState.genreKeywordList.isNotEmpty()) {
+                            itemsIndexed(dataBaseState.genreKeywordList) { index, item ->
+                                ListGenreKeywordToday(
+                                    title = item.key,
+                                    value = if (type == "GENRE") {
+                                        item.value
+                                    } else {
+                                        val wordCount = item.value.split("\\s+".toRegex())
+                                            .count { it.isNotEmpty() }
+                                        wordCount.toString()
+                                    },
+                                    index = index
+                                )
+                            }
+                        } else {
+                            item {
+                                Box(modifier = Modifier.fillMaxSize()) {
+                                    ScreenEmpty(str = "데이터가 없습니다")
+                                }
+                            }
                         }
                     }
                 } else {
 
-                    if (dataBaseState.genreKeywordWeekList[getWeekDate(getDate)].size > 0) {
+                    var list =  ArrayList<ItemKeyword>()
+
+                    list = try{
+                        dataBaseState.genreKeywordWeekList[getWeekDate(getDate)]
+                    } catch (e : Exception){
+                        ArrayList()
+                    }
+
+                    if (list.isNotEmpty()) {
                         LazyColumn(
                             modifier = Modifier
                                 .background(colorF6F6F6)
